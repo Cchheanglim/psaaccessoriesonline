@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PsaOnline — Design System & Tokens</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded bg-orange-600 flex items-center justify-center text-white font-black text-xl shadow-sm">
+          P
+        </div>
+        <div>
+          <span class="text-xl font-black tracking-tight text-gray-900">Psa<span class="text-orange-600">Online</span></span>
+          <span class="ml-2 text-xs font-semibold px-2 py-0.5 rounded bg-orange-100 text-orange-800">Design System</span>
+        </div>
+      </div>
+      <a href="home.html" class="text-sm font-semibold text-orange-600 hover:text-orange-700 flex items-center gap-1">
+        <span>Go to Home Page</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
+    <!-- Intro -->
+    <div>
+      <h1 class="text-3xl font-extrabold text-gray-900">Design Tokens & UI Standards</h1>
+      <p class="text-gray-600 mt-2 text-sm max-w-3xl">
+        This reference guide establishes the visual foundations for PsaOnline — colors, typography, buttons, form controls, cards, badges, and outline SVG icons used consistently across every page.
+      </p>
+    </div>
+
+    <!-- 1. Color Palette -->
+    <section class="bg-white p-6 sm:p-8 rounded-xl border border-gray-200 shadow-sm space-y-4">
+      <h2 class="text-xl font-bold text-gray-900 border-b pb-2">1. Color Palette</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
+        <div>
+          <div class="h-16 rounded-lg bg-orange-600 flex items-end p-2 text-white font-mono text-xs font-bold shadow-inner">#ea580c</div>
+          <p class="text-xs font-bold mt-1 text-gray-900">Primary (orange-600)</p>
+          <p class="text-[11px] text-gray-500">Brand, active states, links</p>
+        </div>
+        <div>
+          <div class="h-16 rounded-lg bg-orange-50 border border-orange-200 flex items-end p-2 text-orange-900 font-mono text-xs font-bold">#fff7ed</div>
+          <p class="text-xs font-bold mt-1 text-gray-900">Soft Orange (orange-50)</p>
+          <p class="text-[11px] text-gray-500">Highlight cards, pill active</p>
+        </div>
+        <div>
+          <div class="h-16 rounded-lg bg-red-600 flex items-end p-2 text-white font-mono text-xs font-bold shadow-inner">#dc2626</div>
+          <p class="text-xs font-bold mt-1 text-gray-900">Destructive / Urgent (red-600)</p>
+          <p class="text-[11px] text-gray-500">Buy now, Place order, Delete</p>
+        </div>
+        <div>
+          <div class="h-16 rounded-lg bg-green-600 flex items-end p-2 text-white font-mono text-xs font-bold shadow-inner">#16a34a</div>
+          <p class="text-xs font-bold mt-1 text-gray-900">Success / In-Stock</p>
+          <p class="text-[11px] text-gray-500">Available stock, Paid state</p>
+        </div>
+        <div>
+          <div class="h-16 rounded-lg bg-amber-500 flex items-end p-2 text-white font-mono text-xs font-bold shadow-inner">#f59e0b</div>
+          <p class="text-xs font-bold mt-1 text-gray-900">Warning / Pending</p>
+          <p class="text-[11px] text-gray-500">Pending status, ratings</p>
+        </div>
+        <div>
+          <div class="h-16 rounded-lg bg-gray-900 flex items-end p-2 text-white font-mono text-xs font-bold shadow-inner">#111827</div>
+          <p class="text-xs font-bold mt-1 text-gray-900">Neutral Dark</p>
+          <p class="text-[11px] text-gray-500">Headings, deep text</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Typography & Hierarchy -->
+    <section class="bg-white p-6 sm:p-8 rounded-xl border border-gray-200 shadow-sm space-y-4">
+      <h2 class="text-xl font-bold text-gray-900 border-b pb-2">2. Typography Hierarchy</h2>
+      <div class="space-y-4">
+        <div>
+          <span class="text-xs font-mono text-gray-400">text-3xl font-extrabold</span>
+          <h1 class="text-3xl font-extrabold text-gray-900">Battambang Sweet Fragrant Oranges</h1>
+        </div>
+        <div>
+          <span class="text-xs font-mono text-gray-400">text-2xl font-bold</span>
+          <h2 class="text-2xl font-bold text-gray-900">Protected GI Kampot Black Pepper (100g)</h2>
+        </div>
+        <div>
+          <span class="text-xs font-mono text-gray-400">text-lg font-semibold</span>
+          <h3 class="text-lg font-semibold text-gray-900">Authentic Phnom Penh Street Food Stalls</h3>
+        </div>
+        <div>
+          <span class="text-xs font-mono text-gray-400">text-sm text-gray-600</span>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            Freshly harvested from organic family farms in Battambang province. Delivered with same-day dispatch across Phnom Penh.
+          </p>
+        </div>
+        <div>
+          <span class="text-xs font-mono text-gray-400">text-xs font-bold uppercase tracking-wider text-gray-400</span>
+          <p class="text-xs font-bold uppercase tracking-wider text-gray-400">1. Shipping & Delivery Address</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Button Styles -->
+    <section class="bg-white p-6 sm:p-8 rounded-xl border border-gray-200 shadow-sm space-y-4">
+      <h2 class="text-xl font-bold text-gray-900 border-b pb-2">3. Button Styles</h2>
+      <div class="flex flex-wrap items-center gap-4">
+        <!-- Primary Action -->
+        <button type="button" class="px-5 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold text-sm transition shadow-sm">
+          Primary Button
+        </button>
+
+        <!-- Urgent / Buy Now / Place order -->
+        <button type="button" class="px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-sm transition shadow-sm">
+          Buy now (Urgent Red)
+        </button>
+
+        <!-- Outline Red (Add to cart) -->
+        <button type="button" class="px-5 py-2.5 rounded-lg border-2 border-red-600 text-red-600 hover:bg-red-50 font-bold text-sm transition">
+          Add to cart (Red Outline)
+        </button>
+
+        <!-- Outline Orange (Chat with us) -->
+        <button type="button" class="px-5 py-2.5 rounded-lg border-2 border-orange-600 text-orange-600 hover:bg-orange-50 font-bold text-sm transition">
+          Chat with us (Orange Outline)
+        </button>
+
+        <!-- Neutral secondary -->
+        <button type="button" class="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm font-medium transition">
+          Secondary / Cancel
+        </button>
+
+        <!-- Destructive text/small -->
+        <button type="button" class="text-xs font-semibold text-red-600 hover:text-red-700 hover:underline">
+          Delete / Remove
+        </button>
+      </div>
+    </section>
+
+    <!-- 4. Form Controls -->
+    <section class="bg-white p-6 sm:p-8 rounded-xl border border-gray-200 shadow-sm space-y-4">
+      <h2 class="text-xl font-bold text-gray-900 border-b pb-2">4. Form Controls</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1" for="demo-input">Text Input</label>
+          <input
+            id="demo-input"
+            type="text"
+            placeholder="e.g. Sokha Keo"
+            class="w-full text-sm px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-600 transition"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1" for="demo-select">Dropdown Select</label>
+          <select
+            id="demo-select"
+            class="w-full text-sm px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-600 transition"
+          >
+            <option>Fresh Produce & Fruits</option>
+            <option>Spices & Kampot Pepper</option>
+            <option>Street Food & Meals</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Radio & Checkbox</label>
+          <div class="flex items-center gap-4 pt-2">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input type="radio" name="demo-radio" checked class="text-orange-600 focus:ring-orange-500 w-4 h-4" />
+              <span>Active</span>
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+              <input type="checkbox" checked class="text-orange-600 focus:ring-orange-500 rounded w-4 h-4" />
+              <span>Remember me</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Badges & Status Indicators -->
+    <section class="bg-white p-6 sm:p-8 rounded-xl border border-gray-200 shadow-sm space-y-4">
+      <h2 class="text-xl font-bold text-gray-900 border-b pb-2">5. Badges & Status Indicators</h2>
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
+          In stock (18 available)
+        </span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800">
+          Out of stock
+        </span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+          Pending Payment
+        </span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
+          Checking payment
+        </span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
+          Paid / Completed
+        </span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-800">
+          Brand New
+        </span>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-800">
+          Like New
+        </span>
+      </div>
+    </section>
+
+    <!-- 6. Plain SVG Icons (No Emoji) -->
+    <section class="bg-white p-6 sm:p-8 rounded-xl border border-gray-200 shadow-sm space-y-4">
+      <h2 class="text-xl font-bold text-gray-900 border-b pb-2">6. Standard Outline Icons (SVG Only)</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4 text-center">
+        <div class="p-3 bg-gray-50 rounded-lg flex flex-col items-center">
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <span class="text-[11px] text-gray-500 mt-1 font-mono">Shopping Bag</span>
+        </div>
+        <div class="p-3 bg-gray-50 rounded-lg flex flex-col items-center">
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <span class="text-[11px] text-gray-500 mt-1 font-mono">Search</span>
+        </div>
+        <div class="p-3 bg-gray-50 rounded-lg flex flex-col items-center">
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          <span class="text-[11px] text-gray-500 mt-1 font-mono">Heart</span>
+        </div>
+        <div class="p-3 bg-gray-50 rounded-lg flex flex-col items-center">
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <span class="text-[11px] text-gray-500 mt-1 font-mono">Chat</span>
+        </div>
+        <div class="p-3 bg-gray-50 rounded-lg flex flex-col items-center">
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="text-[11px] text-gray-500 mt-1 font-mono">Map Pin</span>
+        </div>
+        <div class="p-3 bg-gray-50 rounded-lg flex flex-col items-center">
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          <span class="text-[11px] text-gray-500 mt-1 font-mono">QR Code</span>
+        </div>
+        <div class="p-3 bg-gray-50 rounded-lg flex flex-col items-center">
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span class="text-[11px] text-gray-500 mt-1 font-mono">Checkmark</span>
+        </div>
+        <div class="p-3 bg-gray-50 rounded-lg flex flex-col items-center">
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <span class="text-[11px] text-gray-500 mt-1 font-mono">Alert</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

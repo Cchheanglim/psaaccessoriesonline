@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Your Wishlist & Saved Drops — PsaOnline</title>
+  <meta name="description" content="View and manage your saved Gen-Z streetwear accessories, cyber Y2K jewelry, shades, and cloud bags." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sorbet: '#FFA552',
+            cotton: '#F9F3EA',
+            espresso: '#2B1D1D'
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2A2A34] transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <a href="home.html" class="flex items-center gap-2.5 sm:gap-3 group" title="Psa Accessories Online">
+        <img 
+          src="assets/images/psa-accessories-online-logo.svg" 
+          alt="Psa Accessories Online Logo" 
+          class="h-10 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
+        />
+        <div class="flex flex-col">
+          <div class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">
+            Psa<span class="text-[#FFA552]">Online</span>
+          </div>
+          <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">
+            Accessories &bull; Studio
+          </span>
+        </div>
+      </a>
+
+      <!-- Quick Nav Links -->
+      <nav class="hidden md:flex items-center gap-1 text-xs font-extrabold text-[#2B1D1D] dark:text-white">
+        <a href="products.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">Catalog</a>
+        <a href="products.html?category=jewelry" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">Y2K Jewelry</a>
+        <a href="products.html?category=eyewear" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">Shades</a>
+        <a href="products.html?category=bags" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">Cloud Bags</a>
+      </nav>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Theme Switcher -->
+        <button 
+          type="button" 
+          onclick="toggleTheme()" 
+          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
+          title="Toggle Dark Theme"
+          aria-label="Toggle Dark Theme"
+        >
+          <svg class="w-4 h-4 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <span class="hidden sm:inline font-bold">Dark</span>
+        </button>
+
+        <!-- Currency -->
+        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
+          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD</button>
+          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-white">KHR</button>
+        </div>
+
+        <!-- Wishlist Button (Active state on this page) -->
+        <a href="wishlist.html" class="relative p-2.5 rounded-full bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-900 text-rose-500 transition-transform hover:scale-105" title="Wishlist">
+          <svg class="w-5 h-5 text-rose-500" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          <span class="wishlist-count-badge absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-[#1E1E26] shadow-sm hidden">0</span>
+        </a>
+
+        <!-- Shopping Bag -->
+        <a href="cart.html" class="relative p-2.5 rounded-full bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white transition-transform hover:scale-105" title="Bag">
+          <svg class="w-5 h-5 text-[#2B1D1D] dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+          <span class="cart-count-badge absolute -top-1 -right-1 bg-[#FFA552] text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm hidden">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Wishlist Page Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex-1 w-full space-y-8">
+    
+    <!-- Page Header & Action Controls -->
+    <div class="reveal-init flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EFE4D6] dark:border-[#2D2D38] pb-6">
+      <div>
+        <div class="text-xs font-extrabold text-[#FFA552] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <a href="home.html" class="hover:underline">Home</a>
+          <span>/</span>
+          <span>Wishlist</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl sm:text-4xl font-black text-[#2B1D1D] dark:text-white tracking-tight">Your Saved Wishlist</h1>
+          <span id="wishlistCountHeader" class="px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-400 text-xs font-black">
+            0 items
+          </span>
+        </div>
+        <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1 font-medium">
+          Saved drops stored in your browser's local storage. Heart items to keep track of viral fits and restocks.
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2.5 shrink-0" id="wishlistHeaderActions">
+        <button
+          type="button"
+          onclick="moveAllWishlistToBag()"
+          class="btn-press px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FFA552] to-[#E88C35] hover:from-[#E88C35] hover:to-[#FFA552] text-white font-black text-xs shadow-md flex items-center gap-2 cursor-pointer transition-all"
+        >
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <span>Move All to Bag</span>
+        </button>
+
+        <button
+          type="button"
+          onclick="clearWishlist()"
+          class="px-4 py-2.5 rounded-xl bg-white dark:bg-[#1E1E26] hover:bg-rose-50 dark:hover:bg-rose-950/40 text-stone-500 hover:text-rose-500 border border-[#EFE4D6] dark:border-[#32323D] font-bold text-xs shadow-xs transition-all cursor-pointer"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Wishlist Items Grid -->
+    <div id="wishlistPageGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      <!-- Injected via renderWishlistPage() -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="wishlistPageEmpty" class="hidden text-center py-16 sm:py-24 space-y-5 bg-white dark:bg-[#1A1A22] rounded-3xl border-2 border-dashed border-[#EFE4D6] dark:border-[#2E2E3C] p-8">
+      <div class="w-20 h-20 rounded-3xl bg-rose-50 dark:bg-rose-950/40 text-rose-400 flex items-center justify-center text-4xl mx-auto shadow-inner animate-pulse-glow">
+        🤍
+      </div>
+      <div class="space-y-1.5 max-w-md mx-auto">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white">Your Wishlist is Empty</h2>
+        <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 leading-relaxed font-medium">
+          You haven't saved any accessories to your wishlist yet. Tap the heart icon on any product card in our drops catalog to save your favorites!
+        </p>
+      </div>
+      <div class="pt-3">
+        <a href="products.html" class="btn-press inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md transition-all">
+          <span>Explore All Accessories Drops</span>
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Quick View Modal Container -->
+  <div 
+    id="psaQuickViewModal" 
+    class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-md transition-opacity duration-300 opacity-0 pointer-events-none"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="quickViewTitle"
+  ></div>
+
+  <!-- Footer -->
+  <footer class="bg-[#F9F3EA] dark:bg-[#141418] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        
+        <div class="col-span-2 md:col-span-1 space-y-3">
+          <div class="flex items-center gap-2">
+            <img src="assets/images/psa-accessories-online-logo.svg" alt="Psa Accessories Online" class="h-9 w-auto object-contain" />
+            <span class="text-lg font-black text-[#2B1D1D] dark:text-white">Psa<span class="text-[#FFA552]">Online</span></span>
+          </div>
+          <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-medium">
+            Gen-Z streetwear accessories, cyber Y2K jewelry, and everyday aesthetic essentials based in Phnom Penh.
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Explore</div>
+          <ul class="text-xs space-y-1.5 text-stone-600 dark:text-stone-300 font-medium">
+            <li><a href="products.html?category=jewelry" class="hover:text-[#FFA552]">Y2K & Cyber Jewelry</a></li>
+            <li><a href="products.html?category=eyewear" class="hover:text-[#FFA552]">Shades & Eyewear</a></li>
+            <li><a href="products.html?category=bags" class="hover:text-[#FFA552]">Puffy Cloud Bags</a></li>
+            <li><a href="products.html?category=hair" class="hover:text-[#FFA552]">Claw Clips & Pins</a></li>
+          </ul>
+        </div>
+
+        <div class="space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Visit Us (Socials)</div>
+          <ul class="text-xs space-y-2 font-medium">
+            <li>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">IG</span>
+                <span>Instagram (@psaonline_kh)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">TikTok</span>
+                <span>TikTok (@psaonline)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">FB</span>
+                <span>Facebook Page</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">X</span>
+                <span>X / Twitter (@psaonline)</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Delivery & Payment</div>
+          <div class="p-3 bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#30303E] rounded-xl space-y-1.5 text-xs">
+            <div class="font-bold text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-red-600"></span>
+              Bakong Universal KHQR
+            </div>
+            <p class="text-[11px] text-stone-500 dark:text-stone-400">Scan via ABA, ACLEDA, Canadia, Wing mobile banking.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-[#EFE4D6] dark:border-[#272732] flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 dark:text-stone-400 gap-2">
+        <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
+        <div class="flex items-center gap-4 text-[11px]">
+          <span>Made for Gen-Z in Cambodia 🇰🇭</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-lg border-t border-[#EFE4D6] px-4 py-2 flex items-center justify-around text-center select-none shadow-[0_-4px_20px_rgba(43,29,29,0.06)]">
+    <a href="home.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span>Store</span>
+    </a>
+    <a href="products.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      <span>Catalog</span>
+    </a>
+    <a href="wishlist.html" class="flex flex-col items-center gap-1 text-[#2B1D1D] font-bold text-[10px]">
+      <div class="relative">
+        <svg class="w-5 h-5 text-rose-500" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <span class="wishlist-count-badge hidden absolute -top-1.5 -right-2 bg-rose-500 text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">0</span>
+      </div>
+      <span>Wishlist</span>
+    </a>
+    <a href="cart.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <div class="relative">
+        <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span class="mobile-cart-badge hidden absolute -top-1.5 -right-2 bg-[#FFA552] text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">0</span>
+      </div>
+      <span>Bag</span>
+    </a>
+    <a href="dashboard-buyer.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <span>Account</span>
+    </a>
+  </nav>
+
+  <script src="assets/js/store.js"></script>
+  <script>
+    function renderWishlistPage() {
+      const grid = document.getElementById('wishlistPageGrid');
+      const empty = document.getElementById('wishlistPageEmpty');
+      const countHeader = document.getElementById('wishlistCountHeader');
+      const headerActions = document.getElementById('wishlistHeaderActions');
+      if (!grid || !empty) return;
+
+      const list = getWishlist();
+      const products = list.map(id => ACCESSORIES_PRODUCTS.find(p => p.id === id)).filter(Boolean);
+
+      if (countHeader) countHeader.textContent = `${products.length} saved`;
+
+      if (products.length === 0) {
+        grid.innerHTML = '';
+        grid.classList.add('hidden');
+        empty.classList.remove('hidden');
+        if (headerActions) headerActions.classList.add('hidden');
+        return;
+      }
+
+      grid.classList.remove('hidden');
+      empty.classList.add('hidden');
+      if (headerActions) headerActions.classList.remove('hidden');
+
+      grid.innerHTML = products.map((item, index) => `
+        <div class="product-card group flex flex-col justify-between animate-fade-in-up" style="animation-delay: ${index * 50}ms;">
+          <div class="product-image-container aspect-square p-2.5 flex items-center justify-center relative overflow-hidden transition-all duration-300 group-hover:scale-[1.02]">
+            <a href="product-detail.html?id=${item.id}" class="w-full h-full block overflow-hidden rounded-xl">
+              <img
+                src="${item.image}"
+                alt="${item.title}"
+                class="product-image-zoom w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+              />
+            </a>
+            
+            <div class="absolute top-3 left-3 bg-[#FFA552] text-white px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-xs pointer-events-none">
+              ${item.badge}
+            </div>
+
+            <!-- Action Icons: Remove from Wishlist & Quick View -->
+            <div class="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+              <button
+                type="button"
+                data-wishlist-id="${item.id}"
+                onclick="toggleWishlist('${item.id}', event)"
+                class="wishlist-btn active-wishlist text-rose-500 w-8 h-8 rounded-full bg-white/95 hover:bg-rose-50 shadow-md border border-rose-200 dark:border-rose-900/50 dark:bg-[#1E1E26] flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer"
+                title="Remove from Wishlist"
+                aria-label="Remove from Wishlist"
+              >
+                <svg class="w-4 h-4 text-rose-500" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+              </button>
+
+              <button
+                type="button"
+                onclick="openQuickView('${item.id}', event)"
+                class="quick-view-badge-btn w-8 h-8 rounded-full bg-white/95 hover:bg-[#FFA552] text-[#2B1D1D] hover:text-white shadow-md border border-[#EFE4D6] dark:border-[#32323D] dark:bg-[#1E1E26] dark:text-white flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer"
+                title="Quick View ${item.title}"
+                aria-label="Quick View ${item.title}"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+
+            <!-- Quick Action Bar -->
+            <div class="quick-actions-bar absolute bottom-3 inset-x-2.5 flex items-center gap-1.5 z-10">
+              <button
+                type="button"
+                onclick="addToCart('${item.id}', 1)"
+                class="flex-1 py-2 px-3 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                title="Add to Bag"
+              >
+                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                <span>Add to Bag</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-3.5 sm:p-4 flex-1 flex flex-col justify-between space-y-2">
+            <div>
+              <div class="flex items-center justify-between text-[11px] text-[#FFA552] font-bold">
+                <span>${item.categoryLabel}</span>
+                <span class="text-amber-500">★ ${item.rating}</span>
+              </div>
+              <h3 class="text-xs sm:text-sm font-extrabold text-[#2B1D1D] dark:text-white line-clamp-1 mt-1 hover:text-[#FFA552] transition-colors">
+                <a href="product-detail.html?id=${item.id}">${item.title}</a>
+              </h3>
+              <p class="text-[11px] text-stone-500 dark:text-stone-300 khmer-font line-clamp-1 mt-0.5">${item.titleKhmer}</p>
+            </div>
+
+            <div class="pt-2 border-t border-[#F9F3EA] dark:border-[#2D2D38] flex items-baseline justify-between">
+              <div>
+                <span class="text-xs sm:text-sm font-black text-[#2B1D1D] dark:text-white">${formatPrice(item.priceUSD, item.priceKHR)}</span>
+                <span class="text-[10px] text-[#FFA552] block sm:inline sm:ml-1 font-bold">${item.priceKHR.toLocaleString()} ៛</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button 
+                  type="button" 
+                  onclick="openQuickView('${item.id}', event)" 
+                  class="text-[11px] font-bold text-[#2B1D1D] dark:text-stone-300 hover:text-[#FFA552] transition-colors cursor-pointer"
+                >
+                  Quick View
+                </button>
+                <span class="text-stone-300 dark:text-stone-600 text-[10px]">&bull;</span>
+                <button 
+                  type="button" 
+                  onclick="removeWishlistItem('${item.id}', event)" 
+                  class="text-[11px] font-bold text-rose-500 hover:underline cursor-pointer"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderWishlistPage();
+    });
+  </script>
+</body>
+</html>

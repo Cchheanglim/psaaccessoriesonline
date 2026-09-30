@@ -1,0 +1,8 @@
+{
+  "name": "PsaOnline - Family Accessories Marketplace",
+  "description": "Viral aesthetic streetwear accessories for Gen-Z: Y2K silver chrome jewelry, retro shades, cloud bags, pastel claw clips, and phone charms with dual currency (KHR/USD) and Bakong KHQR checkout.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

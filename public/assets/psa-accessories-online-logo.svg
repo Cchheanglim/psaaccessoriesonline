@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 380" width="100%" height="100%">
+  <defs>
+    <filter id="shadowFilter" x="-10%" y="-10%" width="120%" height="125%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#8BBF7A" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Background Warm Pastel Oval -->
+  <ellipse cx="300" cy="180" rx="245" ry="135" fill="#FEF6DC" />
+
+  <!-- Sprout at Top -->
+  <g transform="translate(300, 75)">
+    <!-- Stem -->
+    <path d="M0,25 Q0,0 2,-12" stroke="#7CB96F" stroke-width="5" stroke-linecap="round" fill="none" />
+    <!-- Left Leaf -->
+    <path d="M0,-8 C-18,-18 -32,-8 -32,8 C-15,16 -2,4 0,-8 Z" fill="#7CB96F" />
+    <!-- Right Leaf -->
+    <path d="M2,-12 C18,-24 35,-14 36,4 C22,14 4,2 2,-12 Z" fill="#7CB96F" />
+  </g>
+
+  <!-- Yellow Bow (Top Left) -->
+  <g transform="translate(150, 105)">
+    <!-- Left loop -->
+    <ellipse cx="-16" cy="-1" rx="14" ry="11" transform="rotate(-15 -16 -1)" fill="#F6C948" />
+    <circle cx="-16" cy="-1" r="3.5" fill="#FEF6DC" />
+    <!-- Right loop -->
+    <ellipse cx="14" cy="-4" rx="14" ry="11" transform="rotate(20 14 -4)" fill="#F6C948" />
+    <circle cx="14" cy="-4" r="3.5" fill="#FEF6DC" />
+    <!-- Knot -->
+    <circle cx="-1" cy="-2" r="5" fill="#F4BD36" />
+  </g>
+
+  <!-- Sparkles & Stars -->
+  <!-- Yellow 4-point star (Left) -->
+  <path d="M72,175 Q72,160 62,160 Q72,160 72,145 Q72,160 82,160 Q72,160 72,175 Z" fill="#F4C344" />
+  
+  <!-- Pink Little Heart (Bottom Left) -->
+  <path d="M135,236 C135,230 128,226 123,229 C118,226 111,230 111,236 C111,244 123,251 123,251 C123,251 135,244 135,236 Z" fill="#EE8CB1" />
+
+  <!-- Tiny Yellow Dot -->
+  <circle cx="100" cy="120" r="3.5" fill="#F4C344" />
+  <circle cx="510" cy="208" r="4.5" fill="#F4C344" />
+
+  <!-- Pink 4-point star (Top Right) -->
+  <path d="M465,90 Q465,80 457,80 Q465,80 465,70 Q465,80 473,80 Q465,80 465,90 Z" fill="#E88CAE" />
+
+  <!-- Yellow 4-point star (Far Right) -->
+  <path d="M530,135 Q530,120 520,120 Q530,120 530,105 Q530,120 540,120 Q530,120 530,135 Z" fill="#F4C344" />
+
+  <!-- Daisy Flower on the Right of 'a' -->
+  <g transform="translate(436, 195)">
+    <!-- White Petals -->
+    <circle cx="0" cy="-14" r="7.5" fill="#FFFFFF" />
+    <circle cx="13" cy="-7" r="7.5" fill="#FFFFFF" />
+    <circle cx="13" cy="7" r="7.5" fill="#FFFFFF" />
+    <circle cx="0" cy="14" r="7.5" fill="#FFFFFF" />
+    <circle cx="-13" cy="7" r="7.5" fill="#FFFFFF" />
+    <circle cx="-13" cy="-7" r="7.5" fill="#FFFFFF" />
+    <!-- Yellow Flower Center -->
+    <circle cx="0" cy="0" r="7" fill="#F4C344" />
+  </g>
+
+  <!-- Main 'psa' Bubble Typography -->
+  <g transform="translate(180, 205)">
+    <!-- Layer 1: Green Outline / Shadow Offset -->
+    <g fill="#7FB972" stroke="#7FB972" stroke-width="18" stroke-linejoin="round" stroke-linecap="round">
+      <!-- 'p' -->
+      <path d="M12,-62 L12,48 M12,-38 C18,-62 58,-64 62,-36 C64,-10 46,12 12,12" />
+      <!-- 's' -->
+      <path d="M142,-46 C138,-56 122,-62 106,-60 C88,-58 84,-44 88,-32 C92,-20 114,-16 132,-6 C148,2 148,22 134,34 C120,44 94,40 82,24" />
+      <!-- 'a' -->
+      <path d="M214,-34 C210,-48 198,-60 178,-60 C154,-60 144,-42 144,-20 C144,8 158,26 182,26 C202,26 214,14 214,0 M214,-46 L214,24 C214,25 219,30 226,30" />
+    </g>
+
+    <!-- Layer 2: Thick White Contour Stroke -->
+    <g fill="#FFFFFF" stroke="#FFFFFF" stroke-width="12" stroke-linejoin="round" stroke-linecap="round">
+      <!-- 'p' -->
+      <path d="M12,-62 L12,48 M12,-38 C18,-62 58,-64 62,-36 C64,-10 46,12 12,12" />
+      <!-- 's' -->
+      <path d="M142,-46 C138,-56 122,-62 106,-60 C88,-58 84,-44 88,-32 C92,-20 114,-16 132,-6 C148,2 148,22 134,34 C120,44 94,40 82,24" />
+      <!-- 'a' -->
+      <path d="M214,-34 C210,-48 198,-60 178,-60 C154,-60 144,-42 144,-20 C144,8 158,26 182,26 C202,26 214,14 214,0 M214,-46 L214,24 C214,25 219,30 226,30" />
+    </g>
+
+    <!-- Layer 3: Vibrant Pastel Candy Pink Core -->
+    <g fill="#EE8CB1" stroke="#EE8CB1" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+      <!-- 'p' -->
+      <path d="M10,-60 L10,50 L22,50 L22,10 C32,12 50,6 56,-8 C62,-22 60,-48 42,-58 C32,-63 18,-62 10,-60 Z M22,-44 C28,-48 40,-48 44,-36 C48,-24 46,-4 38,0 C32,3 24,0 22,-4 Z" />
+      <!-- 's' -->
+      <path d="M142,-46 C138,-56 122,-62 106,-60 C88,-58 84,-44 88,-32 C92,-20 114,-16 132,-6 C148,2 148,22 134,34 C120,44 94,40 82,24 L94,14 C100,24 116,28 124,24 C132,20 132,10 126,4 C118,-2 98,-8 84,-18 C74,-26 76,-46 88,-56 C100,-66 126,-66 142,-54 Z" />
+      <!-- 'a' -->
+      <path d="M202,-52 L214,-52 L214,22 C214,28 220,30 224,28 L224,38 C216,42 202,38 202,26 C194,36 178,38 168,36 C148,32 140,16 140,-4 C140,-24 154,-38 174,-38 C188,-38 198,-32 202,-24 Z M202,-10 C198,-20 186,-26 174,-26 C162,-26 154,-18 154,-4 C154,8 162,18 174,18 C186,18 198,12 202,-2 Z" />
+    </g>
+  </g>
+
+  <!-- Green Ribbon Pill: "accessories online" -->
+  <g transform="translate(180, 260)">
+    <!-- Main Capsule -->
+    <rect x="0" y="0" width="240" height="38" rx="19" fill="#76B76A" />
+    
+    <!-- Curled Vine Accent on bottom right -->
+    <path d="M228,24 C236,36 244,48 248,38 C252,28 238,20 232,32 C228,40 236,50 244,46" 
+          fill="none" stroke="#76B76A" stroke-width="4.5" stroke-linecap="round" />
+
+    <!-- Crisp White Text "accessories online" -->
+    <text x="120" y="24" 
+          fill="#FFFFFF" 
+          font-family="'Plus Jakarta Sans', 'Comfortaa', 'Quicksand', -apple-system, sans-serif" 
+          font-size="16" 
+          font-weight="800" 
+          text-anchor="middle" 
+          letter-spacing="0.5px">accessories online</text>
+  </g>
+</svg>

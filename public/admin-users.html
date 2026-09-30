@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff & User Access — PsaOnline Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sorbet: '#FFA552',
+            cotton: '#F9F3EA',
+            espresso: '#2B1D1D'
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="bg-gray-50 dark:bg-[#121215] text-gray-900 dark:text-[#F4F4F6] font-sans min-h-screen flex flex-col">
+
+  <!-- Admin Top Navigation Bar with RBAC Role Switcher -->
+  <header class="bg-white dark:bg-[#121215] border-b border-gray-200 dark:border-[#2D2D38] sticky top-0 z-40 transition-all duration-300">
+    
+    <!-- Staff Read-Only Banner -->
+    <div id="staffUsersBanner" class="hidden bg-blue-50 dark:bg-blue-950/60 border-b border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200 text-xs px-4 sm:px-8 py-2 font-bold flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="px-2 py-0.5 rounded-full bg-blue-200 dark:bg-blue-900 text-blue-900 dark:text-blue-100 text-[10px] font-black uppercase">Staff Read-Only</span>
+        <span>User creation, role reassignments, and account suspensions require Admin (Studio Lead) authority.</span>
+      </div>
+      <button onclick="switchUserRole('Admin')" class="text-blue-600 dark:text-blue-400 underline font-black cursor-pointer">
+        👑 Switch to Admin
+      </button>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4 sm:gap-6">
+        
+        <!-- Logo -->
+        <a href="dashboard-admin.html" class="flex items-center gap-2.5 sm:gap-3 group" title="PsaOnline Studio Operations">
+          <img 
+            src="assets/images/psa-accessories-online-logo.svg" 
+            alt="Psa Accessories Online" 
+            class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+          />
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight leading-none">Psa<span class="text-orange-500">Online</span></span>
+              <span class="text-[9px] uppercase tracking-widest text-orange-600 font-black px-1.5 py-0.5 rounded bg-orange-50 dark:bg-orange-950/60 border border-orange-200 dark:border-orange-800">Admin Ops</span>
+            </div>
+            <div class="text-[10px] text-gray-500 dark:text-gray-400 font-bold mt-0.5">Staff & Access Control Management</div>
+          </div>
+        </a>
+
+        <!-- Desktop Nav Items -->
+        <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-gray-600 dark:text-gray-300">
+          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Reports & KPIs</a>
+          <a href="admin-orders.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Orders & Slips</a>
+          <a href="admin-products.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Drops & Stock</a>
+          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition rbac-admin-only">KHQR Gateways</a>
+          <a href="admin-users.html" class="px-3 py-1.5 rounded-full bg-slate-900 text-white dark:bg-orange-500 dark:text-slate-900 shadow-xs">Staff & RBAC</a>
+        </nav>
+      </div>
+
+      <!-- Action Items: RBAC Switcher, Theme & Storefront -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        
+        <a href="home.html" target="_blank" class="hidden sm:inline-flex items-center gap-1 text-xs text-orange-600 font-black hover:underline transition">
+          <span>Storefront</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        </a>
+
+        <!-- Dark / Light Theme Toggle -->
+        <button 
+          type="button" 
+          onclick="toggleTheme()" 
+          class="theme-toggle-btn p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-white transition-all shadow-xs cursor-pointer" 
+          title="Toggle Theme"
+        >
+          <svg class="w-4 h-4 text-stone-700 dark:text-stone-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+
+        <div class="h-6 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
+
+        <!-- RBAC Interactive Role Switcher Pill -->
+        <div class="relative group">
+          <button 
+            type="button" 
+            class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-orange-500 transition shadow-xs cursor-pointer"
+          >
+            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-orange-500 to-slate-900 text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
+              SO
+            </div>
+            <div class="hidden sm:block text-left text-xs leading-tight">
+              <div class="font-extrabold text-gray-900 dark:text-white rbac-current-name">Sokha Ouk</div>
+              <div class="flex items-center gap-1 mt-0.5">
+                <span class="rbac-role-badge">Admin</span>
+                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </div>
+          </button>
+
+          <!-- Dropdown Menu to test and switch roles with 1 click -->
+          <div class="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-900 rounded-2xl border-2 border-orange-500/50 shadow-2xl p-2 hidden group-hover:block transition-all z-50 animate-fade-in-up">
+            <div class="px-3 py-2 border-b border-gray-100 dark:border-gray-800">
+              <div class="text-[10px] font-black uppercase text-orange-500 tracking-wider flex items-center justify-between">
+                <span>RBAC Role Switcher</span>
+                <span class="text-[9px] text-gray-400 font-mono">Live Session</span>
+              </div>
+              <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Switch role to test access boundaries:</div>
+            </div>
+            <div class="py-1 space-y-1">
+              <button type="button" onclick="switchUserRole('Admin')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs flex items-center justify-between transition cursor-pointer">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">👑</span>
+                  <div>
+                    <div class="font-bold text-gray-900 dark:text-white">Admin (Studio Lead)</div>
+                    <div class="text-[10px] text-gray-400">Full control over roles & users</div>
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold text-purple-600">Select</span>
+              </button>
+              <button type="button" onclick="switchUserRole('Staff')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-blue-50 dark:hover:bg-blue-950/40 text-xs flex items-center justify-between transition cursor-pointer">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">⚡</span>
+                  <div>
+                    <div class="font-bold text-gray-900 dark:text-white">Staff (Dispatch Team)</div>
+                    <div class="text-[10px] text-gray-400">Test read-only restriction</div>
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold text-blue-600">Select</span>
+              </button>
+              <button type="button" onclick="switchUserRole('Buyer')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs flex items-center justify-between transition cursor-pointer">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🛍️</span>
+                  <div>
+                    <div class="font-bold text-gray-900 dark:text-white">Buyer (Customer)</div>
+                    <div class="text-[10px] text-gray-400">Test 403 access restriction</div>
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold text-emerald-600">Select</span>
+              </button>
+            </div>
+            <div class="pt-2 border-t border-gray-100 dark:border-gray-800 px-3 py-1.5 flex items-center justify-between text-[10px]">
+              <a href="admin-users.html" class="text-orange-500 font-bold hover:underline">Manage All Roles &rarr;</a>
+              <button onclick="openRBACMatrixModal()" class="text-gray-400 hover:text-orange-500 underline cursor-pointer">Security Matrix</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Body -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
+
+    <!-- Header & Action -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1.5">
+          <a href="dashboard-admin.html" class="hover:text-orange-600">Admin</a>
+          <span>/</span>
+          <span class="text-gray-900 dark:text-white font-medium">Access Management</span>
+        </div>
+        <h1 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Staff & User Management</h1>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure user roles, reassign permissions dynamically, and oversee customer accounts.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button 
+          type="button" 
+          onclick="openRBACMatrixModal()" 
+          class="px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer"
+        >
+          <span>🛡️ View Permission Matrix</span>
+        </button>
+
+        <a 
+          href="user-form.html" 
+          id="addUserBtn"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-sm transition-all"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+          Add Staff or User
+        </a>
+      </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="bg-white dark:bg-[#1A1A22] p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+      
+      <div class="w-full sm:w-80 relative">
+        <input
+          type="text"
+          id="userSearchInput"
+          placeholder="Search by name, email, or role..."
+          class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
+        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      </div>
+
+      <div class="w-full sm:w-auto flex items-center gap-3">
+        <select id="roleFilterSelect" class="w-full sm:w-auto px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
+          <option value="all">All Roles</option>
+          <option value="Admin">Admin (Studio Lead)</option>
+          <option value="Staff">Staff / Operations</option>
+          <option value="Buyer">Buyer</option>
+        </select>
+
+        <select id="statusFilterSelect" class="w-full sm:w-auto px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
+          <option value="all">All Account Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Suspended">Suspended</option>
+        </select>
+      </div>
+
+    </div>
+
+    <!-- Users Table Card with Dynamic RBAC Role Changing -->
+    <div class="bg-white dark:bg-[#1A1A22] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-gray-600 dark:text-gray-300">
+          <thead class="bg-gray-50 dark:bg-gray-800/60 text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+              <th class="px-5 py-3 font-semibold">User</th>
+              <th class="px-5 py-3 font-semibold">Department & Scope</th>
+              <th class="px-5 py-3 font-semibold">Current Role (Live Reassign)</th>
+              <th class="px-5 py-3 font-semibold">Status</th>
+              <th class="px-5 py-3 font-semibold text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody" class="divide-y divide-gray-100 dark:divide-gray-800">
+            <!-- Dynamically populated via renderUsersTable() -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/rbac.js"></script>
+  <script>
+    const search = document.getElementById('userSearchInput');
+    const roleFilter = document.getElementById('roleFilterSelect');
+    const statusFilter = document.getElementById('statusFilterSelect');
+
+    function renderUsersTable() {
+      const tbody = document.getElementById('usersTableBody');
+      if (!tbody) return;
+
+      const users = getRBACUsers();
+      const q = (search.value || '').toLowerCase().trim();
+      const r = roleFilter.value;
+      const s = statusFilter.value;
+      const currentUser = getCurrentUser();
+      const isAdmin = currentUser.role === 'Admin';
+
+      const filtered = users.filter(u => {
+        const matchQ = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.role.toLowerCase().includes(q);
+        const matchRole = r === 'all' || u.role === r;
+        const matchStatus = s === 'all' || u.status === s;
+        return matchQ && matchRole && matchStatus;
+      });
+
+      tbody.innerHTML = filtered.map(u => {
+        const isCurrent = u.id === currentUser.id;
+        const roleBadgeClass = u.role === 'Admin'
+          ? 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800'
+          : (u.role === 'Staff'
+            ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800'
+            : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800');
+
+        return `
+          <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/40 transition-colors">
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full ${u.role === 'Admin' ? 'bg-slate-900 ring-2 ring-orange-500/30' : (u.role === 'Staff' ? 'bg-blue-600' : 'bg-emerald-600')} text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs">
+                  ${u.avatar}
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
+                    <span>${u.name}</span>
+                    ${isCurrent ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-orange-100 text-orange-800 font-extrabold">You</span>' : ''}
+                  </div>
+                  <div class="text-[11px] text-gray-400 font-mono">${u.email}</div>
+                </div>
+              </div>
+            </td>
+
+            <td class="px-5 py-4 text-xs">
+              <div class="font-bold text-gray-800 dark:text-gray-200">${u.department || 'Studio Ops'}</div>
+              <div class="text-[10px] text-gray-400">${u.description || 'PsaOnline team member'}</div>
+            </td>
+
+            <td class="px-5 py-4">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold border ${roleBadgeClass}">
+                  ${u.role}
+                </span>
+
+                <!-- Quick Role Reassign Dropdown for Admin -->
+                ${isAdmin ? `
+                  <select 
+                    onchange="changeUserRole('${u.id}', this.value)" 
+                    class="text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-white focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer"
+                    title="Change user's system role"
+                  >
+                    <option value="Admin" ${u.role === 'Admin' ? 'selected' : ''}>Admin (Full Ops)</option>
+                    <option value="Staff" ${u.role === 'Staff' ? 'selected' : ''}>Staff (Fulfillment)</option>
+                    <option value="Buyer" ${u.role === 'Buyer' ? 'selected' : ''}>Buyer (Customer)</option>
+                  </select>
+                ` : `
+                  <span class="text-[10px] text-gray-400 italic">Locked</span>
+                `}
+              </div>
+            </td>
+
+            <td class="px-5 py-4">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold ${u.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/60 dark:text-red-300'}">
+                <span class="w-1.5 h-1.5 rounded-full ${u.status === 'Active' ? 'bg-emerald-500' : 'bg-red-500'}"></span>
+                ${u.status}
+              </span>
+            </td>
+
+            <td class="px-5 py-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                ${isAdmin ? `
+                  <button 
+                    type="button" 
+                    onclick="switchUserRole('${u.role}')" 
+                    class="px-2 py-1 rounded bg-stone-100 hover:bg-stone-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[10px] font-bold transition cursor-pointer"
+                    title="Login as this role to test"
+                  >
+                    Simulate
+                  </button>
+                  <a href="user-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 rounded inline-block" title="Edit Full Account">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  </a>
+                ` : `
+                  <span class="text-[11px] text-gray-400">View Only</span>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function changeUserRole(userId, newRole) {
+      if (!hasPermission('canEditRoles')) {
+        showRBACToast('Permission Denied: Only Admin (Studio Lead) can reassign roles.', 'danger');
+        return;
+      }
+
+      let users = getRBACUsers();
+      const user = users.find(u => u.id === userId);
+      if (user) {
+        user.role = newRole;
+        saveRBACUsers(users);
+        showRBACToast(`Role for ${user.name} changed to ${newRole.toUpperCase()}.`, 'success');
+        renderUsersTable();
+      }
+    }
+
+    search.addEventListener('input', renderUsersTable);
+    roleFilter.addEventListener('change', renderUsersTable);
+    statusFilter.addEventListener('change', renderUsersTable);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      enforcePageRBAC('canAccessAdminPortal');
+      
+      const user = getCurrentUser();
+      if (!hasPermission('canManageUsers')) {
+        // Staff mode: show banner and disable add button
+        const banner = document.getElementById('staffUsersBanner');
+        if (banner) banner.classList.remove('hidden');
+        const addBtn = document.getElementById('addUserBtn');
+        if (addBtn) {
+          addBtn.classList.add('opacity-50', 'pointer-events-none');
+          addBtn.setAttribute('title', 'Admin Role Required');
+        }
+      }
+
+      renderUsersTable();
+    });
+  </script>
+</body>
+</html>

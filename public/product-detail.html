@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Silver Chrome Star Pendant Necklace — PsaOnline</title>
+  <meta name="description" content="Layered stainless steel chain with a chrome Cyber Y2K star motif. Tarnish-free and hypoallergenic." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#EFE4D6] transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+      <a href="home.html" class="flex items-center gap-2.5 sm:gap-3 group" title="Psa Accessories Online">
+        <img 
+          src="assets/images/psa-accessories-online-logo.svg" 
+          alt="Psa Accessories Online Logo" 
+          class="h-10 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
+        />
+        <div class="flex flex-col">
+          <div class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">
+            Psa<span class="text-[#FFA552]">Online</span>
+          </div>
+          <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">
+            Accessories &bull; Studio
+          </span>
+        </div>
+      </a>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Dark / Light Theme Toggle Button -->
+        <button 
+          type="button" 
+          onclick="toggleTheme()" 
+          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
+          title="Toggle Dark Theme"
+          aria-label="Toggle Dark Theme"
+        >
+          <svg class="w-4 h-4 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <span class="hidden sm:inline font-bold">Dark</span>
+        </button>
+
+        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
+          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD</button>
+          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-white">KHR</button>
+        </div>
+
+        <a href="cart.html" class="relative p-2.5 rounded-full bg-white hover:bg-[#F9F3EA] border border-[#EFE4D6] text-[#2B1D1D] transition-transform hover:scale-105" title="Bag">
+          <svg class="w-5 h-5 text-[#2B1D1D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+          <span class="cart-count-badge absolute -top-1 -right-1 bg-[#FFA552] text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm hidden">0</span>
+        </a>
+
+        <a href="dashboard-buyer.html" class="p-1 rounded-full hover:ring-2 hover:ring-[#FFA552] transition flex items-center gap-1.5 text-xs font-bold text-[#2B1D1D]">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFA552] to-[#2B1D1D] text-white font-black flex items-center justify-center text-xs shadow-xs">
+            SC
+          </div>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Product Detail Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 flex-1 w-full space-y-10">
+
+    <!-- Breadcrumb -->
+    <div class="reveal-init text-xs font-semibold text-stone-500 flex items-center gap-2">
+      <a href="home.html" class="hover:text-[#FFA552] transition-colors">Home</a>
+      <span>/</span>
+      <a href="products.html" class="hover:text-[#FFA552] transition-colors">Catalog</a>
+      <span>/</span>
+      <span id="breadcrumbCategory" class="text-[#FFA552] font-black">Y2K Jewelry</span>
+    </div>
+
+    <!-- Main Grid: Gallery (Pure White Container) & Product Info -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+      
+      <!-- Left Column: Pure Clean White Image Container with Cotton Border -->
+      <div class="reveal-init lg:col-span-6 space-y-4">
+        <div class="bg-white rounded-3xl border-2 border-[#EFE4D6] p-4 sm:p-6 shadow-sm relative overflow-hidden group">
+          <div class="aspect-square rounded-2xl bg-white border border-[#EFE4D6] overflow-hidden p-3 flex items-center justify-center relative">
+            <img
+              id="mainProductImage"
+              src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80"
+              alt="Product Photo"
+              class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
+            />
+            <div id="productBadgeTag" class="absolute top-4 left-4 bg-[#FFA552] text-white px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-sm">
+              Trending ⚡
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Product Specs & Actions -->
+      <div class="reveal-init delay-100 lg:col-span-6 space-y-6">
+        
+        <div class="space-y-2">
+          <div class="flex items-center gap-2 text-xs font-black text-[#FFA552]">
+            <span id="categoryLabelTag" class="px-2.5 py-0.5 rounded-full bg-[#F9F3EA] uppercase tracking-wider">Y2K Jewelry</span>
+            <span class="text-amber-500 flex items-center gap-1 font-bold">
+              ★ <span id="productRating">4.9</span>
+              <span class="text-stone-400 font-normal">(<span id="productReviews">142</span> reviews)</span>
+            </span>
+          </div>
+
+          <h1 id="productTitle" class="text-2xl sm:text-4xl font-black text-[#2B1D1D] tracking-tight">
+            Silver Chrome Star Pendant Necklace
+          </h1>
+          <p id="productKhmerTitle" class="text-sm font-semibold text-stone-500 khmer-font">
+            ខ្សែកបន្តោងផ្កាយប្រាក់ Y2K Cyber
+          </p>
+        </div>
+
+        <!-- Pricing Card in Cotton Beige -->
+        <div class="bg-white p-5 rounded-2xl border border-[#EFE4D6] flex items-baseline justify-between shadow-xs">
+          <div>
+            <div class="text-3xl font-black text-[#2B1D1D]" id="productPriceUSD">$6.50</div>
+            <div class="text-xs text-[#FFA552] font-black khmer-font mt-0.5" id="productPriceKHR">26,650 ៛ (Fixed 4,100 Rate)</div>
+          </div>
+          <div class="text-right">
+            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+              In Stock &bull; Phnom Penh Dispatch
+            </span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="space-y-3 text-xs sm:text-sm text-stone-600 leading-relaxed">
+          <h3 class="text-xs font-black text-[#2B1D1D] uppercase tracking-wider">About This Piece</h3>
+          <p id="productDescription">
+            Layered stainless steel chain with a chrome Cyber Y2K star motif. Tarnish-free, hypoallergenic, and perfect for streetwear daily fits.
+          </p>
+        </div>
+
+        <!-- Quantity & Add to Cart -->
+        <div class="space-y-4 pt-2 border-t border-[#EFE4D6]">
+          <div class="flex items-center gap-4">
+            <span class="text-xs font-extrabold text-[#2B1D1D]">Quantity:</span>
+            <div class="flex items-center border border-[#EFE4D6] rounded-xl bg-white p-1">
+              <button onclick="adjustDetailQty(-1)" class="w-8 h-8 rounded-lg text-stone-600 hover:bg-[#F9F3EA] font-black text-sm flex items-center justify-center transition-colors">&minus;</button>
+              <span id="detailQty" class="w-10 text-center font-black text-sm text-[#2B1D1D]">1</span>
+              <button onclick="adjustDetailQty(1)" class="w-8 h-8 rounded-lg text-stone-600 hover:bg-[#F9F3EA] font-black text-sm flex items-center justify-center transition-colors">&plus;</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <button
+              onclick="addCurrentToCart()"
+              class="btn-press py-4 rounded-2xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+            >
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+              <span>Add to Shopping Bag</span>
+            </button>
+
+            <button
+              onclick="buyNowDirect()"
+              class="btn-press py-4 rounded-2xl bg-[#2B1D1D] hover:bg-[#3D2929] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+            >
+              <span>Buy with Bakong KHQR &rarr;</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="assets/js/store.js"></script>
+  <script>
+    let currentQty = 1;
+    let selectedProduct = null;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id') || 'genz-01';
+
+    selectedProduct = ACCESSORIES_PRODUCTS.find(p => p.id === productId) || ACCESSORIES_PRODUCTS[0];
+
+    document.getElementById('mainProductImage').src = selectedProduct.image;
+    document.getElementById('productBadgeTag').textContent = selectedProduct.badge;
+    document.getElementById('categoryLabelTag').textContent = selectedProduct.categoryLabel;
+    document.getElementById('breadcrumbCategory').textContent = selectedProduct.categoryLabel;
+    document.getElementById('productRating').textContent = selectedProduct.rating;
+    document.getElementById('productReviews').textContent = selectedProduct.reviewsCount;
+    document.getElementById('productTitle').textContent = selectedProduct.title;
+    document.getElementById('productKhmerTitle').textContent = selectedProduct.titleKhmer;
+    document.getElementById('productDescription').textContent = selectedProduct.description;
+    document.getElementById('productPriceUSD').textContent = `$${selectedProduct.priceUSD.toFixed(2)}`;
+    document.getElementById('productPriceKHR').textContent = `${selectedProduct.priceKHR.toLocaleString()} ៛`;
+
+    function adjustDetailQty(delta) {
+      currentQty = Math.max(1, currentQty + delta);
+      document.getElementById('detailQty').textContent = currentQty;
+    }
+
+    function addCurrentToCart() {
+      addToCart(selectedProduct.id, currentQty);
+    }
+
+    function buyNowDirect() {
+      addToCart(selectedProduct.id, currentQty);
+      window.location.href = 'checkout.html';
+    }
+  </script>
+</body>
+</html>

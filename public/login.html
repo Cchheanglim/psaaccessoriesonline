@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Customer Sign In — PsaOnline</title>
+  <meta name="description" content="Sign in to your PsaOnline account to track your accessories orders and save your favorites." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-[#FFA552] selection:text-white">
+
+  <!-- Header -->
+  <header class="bg-[#FDFBF7] dark:bg-[#121215] border-b border-[#EFE4D6] dark:border-[#2D2D38]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <a href="home.html" class="flex items-center gap-2.5 group" title="Psa Accessories Online">
+        <img 
+          src="assets/images/psa-accessories-online-logo.svg" 
+          alt="Psa Accessories Online Logo" 
+          class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
+        />
+        <span class="text-lg sm:text-xl font-black text-[#2B1D1D] dark:text-white">
+          Psa<span class="text-[#FFA552]">Online</span>
+        </span>
+      </a>
+
+      <a href="home.html" class="text-xs font-bold text-[#FFA552] hover:underline flex items-center gap-1 transition">
+        <span>&larr; Back to Drops</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Centered Login Card -->
+  <main class="flex-1 flex items-center justify-center p-4 py-8 sm:py-12">
+    <div class="reveal-init w-full max-w-md bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] p-6 sm:p-8 shadow-xl space-y-6">
+      
+      <!-- Brand Header -->
+      <div class="text-center space-y-2">
+        <img src="assets/images/psa-accessories-online-logo.svg" alt="Psa Online" class="h-12 w-auto mx-auto object-contain" />
+        <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight">Welcome Back</h1>
+        <p class="text-xs text-stone-500 dark:text-stone-400">Sign in to track courier delivery and access exclusive drops.</p>
+      </div>
+
+      <!-- Quick Demo Account Pills -->
+      <div class="p-4 bg-[#FDFBF7] dark:bg-[#15151B] rounded-2xl border border-[#EFE4D6] dark:border-[#2D2D38] space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-black uppercase text-[#FFA552] tracking-wider flex items-center gap-1.5">
+            <span>🛡️</span> Demo Accounts & RBAC Roles
+          </span>
+          <span class="text-[10px] text-stone-400 font-mono">1-Click Auto Fill</span>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+          <!-- Admin Demo -->
+          <button 
+            type="button" 
+            onclick="fillDemo('admin')"
+            class="p-2.5 rounded-xl bg-white dark:bg-[#20202A] border border-[#EFE4D6] dark:border-[#32323D] hover:border-purple-400 text-left transition-all cursor-pointer shadow-xs group"
+          >
+            <div class="font-black text-[#2B1D1D] dark:text-white flex items-center justify-between">
+              <span class="flex items-center gap-1">👑 Admin</span>
+              <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 font-bold">Full Ops</span>
+            </div>
+            <div class="text-[10px] text-stone-500 truncate mt-0.5">admin@psaonline.kh</div>
+            <div class="text-[10px] text-purple-600 dark:text-purple-400 font-mono font-bold mt-1">pass: admin1234</div>
+          </button>
+
+          <!-- Staff Demo -->
+          <button 
+            type="button" 
+            onclick="fillDemo('staff')"
+            class="p-2.5 rounded-xl bg-white dark:bg-[#20202A] border border-[#EFE4D6] dark:border-[#32323D] hover:border-blue-400 text-left transition-all cursor-pointer shadow-xs group"
+          >
+            <div class="font-black text-[#2B1D1D] dark:text-white flex items-center justify-between">
+              <span class="flex items-center gap-1">⚡ Staff</span>
+              <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-100 text-blue-700 font-bold">Fulfill</span>
+            </div>
+            <div class="text-[10px] text-stone-500 truncate mt-0.5">kosal.dispatch@psaonline.kh</div>
+            <div class="text-[10px] text-blue-600 dark:text-blue-400 font-mono font-bold mt-1">pass: staff1234</div>
+          </button>
+
+          <!-- Buyer Demo -->
+          <button 
+            type="button" 
+            onclick="fillDemo('buyer')"
+            class="p-2.5 rounded-xl bg-white dark:bg-[#20202A] border border-[#EFE4D6] dark:border-[#32323D] hover:border-emerald-400 text-left transition-all cursor-pointer shadow-xs group"
+          >
+            <div class="font-black text-[#2B1D1D] dark:text-white flex items-center justify-between">
+              <span class="flex items-center gap-1">🛍️ Buyer</span>
+              <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 font-bold">Customer</span>
+            </div>
+            <div class="text-[10px] text-stone-500 truncate mt-0.5">sophea.accessories@gmail.com</div>
+            <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold mt-1">pass: demo1234</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Login Form -->
+      <form class="space-y-4" onsubmit="handleLogin(event)">
+        
+        <div class="space-y-1">
+          <label for="email" class="text-xs font-bold text-[#2B1D1D] dark:text-white">Email Address or Phone</label>
+          <input
+            type="text"
+            id="email"
+            name="email"
+            required
+            value="admin@psaonline.kh"
+            placeholder="e.g. admin@psaonline.kh"
+            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#FFA552] focus:ring-1 focus:ring-[#FFA552] transition"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <label for="password" class="text-xs font-bold text-[#2B1D1D] dark:text-white">Password</label>
+            <a href="#" class="text-[11px] font-bold text-[#FFA552] hover:underline">Forgot?</a>
+          </div>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            value="admin1234"
+            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#FFA552] focus:ring-1 focus:ring-[#FFA552] transition font-mono"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="btn-press w-full py-3.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+        >
+          <span>Sign In to PsaOnline</span>
+          <span>&rarr;</span>
+        </button>
+
+      </form>
+
+      <div class="text-center pt-2 border-t border-[#EFE4D6] dark:border-[#2D2D38] text-xs text-stone-500 dark:text-stone-400">
+        New to PsaOnline? <a href="register.html" class="font-black text-[#FFA552] hover:underline">Create an Account</a>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/rbac.js"></script>
+  <script>
+    function fillDemo(type) {
+      const email = document.getElementById('email');
+      const pass = document.getElementById('password');
+      if (type === 'admin') {
+        if (email) email.value = 'admin@psaonline.kh';
+        if (pass) pass.value = 'admin1234';
+      } else if (type === 'staff') {
+        if (email) email.value = 'kosal.dispatch@psaonline.kh';
+        if (pass) pass.value = 'staff1234';
+      } else {
+        if (email) email.value = 'sophea.accessories@gmail.com';
+        if (pass) pass.value = 'demo1234';
+      }
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const emailVal = document.getElementById('email')?.value.trim().toLowerCase();
+      const users = getRBACUsers();
+      
+      let matchedUser = users.find(u => u.email.toLowerCase() === emailVal);
+      if (!matchedUser) {
+        // Fallback matching by role keyword
+        if (emailVal.includes('admin') || emailVal.includes('sokha')) {
+          matchedUser = users.find(u => u.role === 'Admin') || users[0];
+        } else if (emailVal.includes('staff') || emailVal.includes('dispatch') || emailVal.includes('catalog')) {
+          matchedUser = users.find(u => u.role === 'Staff') || users[1];
+        } else {
+          matchedUser = users.find(u => u.role === 'Buyer') || users[3];
+        }
+      }
+
+      setCurrentUser(matchedUser);
+      showRBACToast(`Authenticated as ${matchedUser.name} (${matchedUser.role})`, 'success');
+
+      setTimeout(() => {
+        if (matchedUser.role === 'Admin' || matchedUser.role === 'Staff') {
+          window.location.href = 'dashboard-admin.html';
+        } else {
+          window.location.href = 'dashboard-buyer.html';
+        }
+      }, 300);
+    }
+  </script>
+</body>
+</html>
