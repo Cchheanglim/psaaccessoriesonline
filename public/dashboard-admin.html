@@ -12,9 +12,9 @@
       theme: {
         extend: {
           colors: {
-            sorbet: '#FF5000',
-            cotton: '#FFF3EC',
-            espresso: '#333333'
+            sorbet: '#FFA552',
+            cotton: '#F9F3EA',
+            espresso: '#2B1D1D'
           }
         }
       }
@@ -22,13 +22,13 @@
   </script>
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-<body class="bg-[#F5F5F5] dark:bg-[#121215] text-[#333333] dark:text-[#F4F4F6] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FF5000] selection:text-white pb-mobile-nav">
+<body class="bg-[#FDFBF7] dark:bg-[#121215] text-[#2B1D1D] dark:text-[#F4F4F6] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
   <!-- Admin Top Navigation Bar with RBAC Role Switcher -->
-  <header class="bg-white/95 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EDEDED] dark:border-[#2D2D38] sticky top-0 z-40 transition-all duration-300">
+  <header class="bg-[#FDFBF7]/95 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2D2D38] sticky top-0 z-40 transition-all duration-300">
     
     <!-- Staff Mode Notice Banner (Visible when user has Staff role) -->
-    <div class="rbac-staff-banner hidden bg-gradient-to-r from-blue-500/10 via-amber-500/10 to-blue-500/10 border-b border-blue-200 dark:border-blue-900/60 px-4 sm:px-8 py-2 text-xs flex items-center justify-between text-[#333333] dark:text-white">
+    <div class="rbac-staff-banner hidden bg-gradient-to-r from-blue-500/10 via-amber-500/10 to-blue-500/10 border-b border-blue-200 dark:border-blue-900/60 px-4 sm:px-8 py-2 text-xs flex items-center justify-between text-[#2B1D1D] dark:text-white">
       <div class="flex items-center gap-2">
         <span class="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-black text-[10px] uppercase">Staff Mode</span>
         <span class="font-medium text-stone-600 dark:text-stone-300">Operational fulfillment view. Raw financial exports and user role editing are restricted.</span>
@@ -50,8 +50,8 @@
           />
           <div>
             <div class="flex items-center gap-1.5">
-              <span class="text-base sm:text-lg font-black text-[#333333] dark:text-white tracking-tight leading-none">Psa<span class="text-[#FF5000]">Online</span></span>
-              <span class="text-[9px] uppercase tracking-widest text-[#FF5000] font-black px-1.5 py-0.5 rounded bg-[#FF5000]/10 border border-[#FF5000]/40">Studio Ops</span>
+              <span class="text-base sm:text-lg font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">Psa<span class="text-[#FFA552]">Online</span></span>
+              <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black px-1.5 py-0.5 rounded bg-[#FFA552]/10 border border-[#FFA552]/40">Studio Ops</span>
             </div>
             <div class="text-[10px] text-stone-500 dark:text-stone-400 font-bold mt-0.5">Executive Report Dashboard</div>
           </div>
@@ -59,11 +59,11 @@
 
         <!-- Desktop Nav Items -->
         <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-stone-600 dark:text-stone-300">
-          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-full bg-[#333333] text-white dark:bg-[#FF5000] dark:text-[#333333] shadow-xs">Reports & KPIs</a>
-          <a href="admin-orders.html" class="px-3 py-1.5 rounded-full hover:bg-[#FFF3EC] dark:hover:bg-[#20202A] hover:text-[#333333] transition">Orders & Slips</a>
-          <a href="admin-products.html" class="px-3 py-1.5 rounded-full hover:bg-[#FFF3EC] dark:hover:bg-[#20202A] hover:text-[#333333] transition">Drops & Stock</a>
-          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-full hover:bg-[#FFF3EC] dark:hover:bg-[#20202A] hover:text-[#333333] transition rbac-admin-only">KHQR Gateways</a>
-          <a href="admin-users.html" class="px-3 py-1.5 rounded-full hover:bg-[#FFF3EC] dark:hover:bg-[#20202A] hover:text-[#333333] transition rbac-admin-only">Staff & RBAC</a>
+          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-full bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D] shadow-xs">Reports & KPIs</a>
+          <a href="admin-orders.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition">Orders & Slips</a>
+          <a href="admin-products.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition">Drops & Stock</a>
+          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition rbac-admin-only">KHQR Gateways</a>
+          <a href="admin-users.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition rbac-admin-only">Staff & RBAC</a>
         </nav>
       </div>
 
@@ -71,41 +71,41 @@
       <div class="flex items-center gap-2 sm:gap-3">
         
         <!-- Live Storefront Link -->
-        <a href="home.html" target="_blank" class="hidden sm:inline-flex items-center gap-1 text-xs text-[#FF5000] font-black hover:underline transition">
+        <a href="home.html" target="_blank" class="hidden sm:inline-flex items-center gap-1 text-xs text-[#FFA552] font-black hover:underline transition">
           <span>Storefront</span>
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
         </a>
 
         <!-- Currency Selector Pill -->
-        <div class="flex items-center bg-[#FFF3EC] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EDEDED] dark:border-[#32323D] text-[11px]">
-          <button type="button" onclick="setReportCurrency('USD')" id="repCurUSD" class="px-2.5 py-1 font-black rounded-full transition-all bg-[#333333] text-white shadow-xs">USD ($)</button>
-          <button type="button" onclick="setReportCurrency('KHR')" id="repCurKHR" class="px-2.5 py-1 font-black rounded-full transition-all text-[#333333] dark:text-stone-300">KHR (៛)</button>
+        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
+          <button type="button" onclick="setReportCurrency('USD')" id="repCurUSD" class="px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD ($)</button>
+          <button type="button" onclick="setReportCurrency('KHR')" id="repCurKHR" class="px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-stone-300">KHR (៛)</button>
         </div>
 
         <!-- Dark / Light Theme Toggle -->
         <button 
           type="button" 
           onclick="toggleTheme()" 
-          class="theme-toggle-btn p-2 rounded-full border border-[#EDEDED] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#FFF3EC] dark:hover:bg-[#252530] text-[#333333] dark:text-white transition-all shadow-xs cursor-pointer" 
+          class="theme-toggle-btn p-2 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all shadow-xs cursor-pointer" 
           title="Toggle Theme"
         >
           <svg class="w-4 h-4 text-stone-700 dark:text-stone-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
         </button>
 
-        <div class="h-6 w-px bg-[#EDEDED] dark:bg-[#2D2D38] hidden sm:block"></div>
+        <div class="h-6 w-px bg-[#EFE4D6] dark:bg-[#2D2D38] hidden sm:block"></div>
 
         <!-- RBAC Interactive Role Switcher Pill -->
         <div class="relative group">
           <button 
             type="button" 
-            class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-[#1E1E26] border border-[#EDEDED] dark:border-[#32323D] hover:border-[#FF5000] transition shadow-xs cursor-pointer"
+            class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#32323D] hover:border-[#FFA552] transition shadow-xs cursor-pointer"
             id="rbacRoleSelectorBtn"
           >
-            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-[#FF5000] to-[#333333] text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
+            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-[#FFA552] to-[#2B1D1D] text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
               SO
             </div>
             <div class="hidden sm:block text-left text-xs leading-tight">
-              <div class="font-extrabold text-[#333333] dark:text-white rbac-current-name">Sokha Ouk</div>
+              <div class="font-extrabold text-[#2B1D1D] dark:text-white rbac-current-name">Sokha Ouk</div>
               <div class="flex items-center gap-1 mt-0.5">
                 <span class="rbac-role-badge">Admin</span>
                 <svg class="w-3 h-3 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -114,9 +114,9 @@
           </button>
 
           <!-- Dropdown Menu to test and switch roles with 1 click -->
-          <div class="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#1A1A22] rounded-2xl border-2 border-[#FF5000]/50 shadow-2xl p-2 hidden group-hover:block transition-all z-50 animate-fade-in-up">
-            <div class="px-3 py-2 border-b border-[#FFF3EC] dark:border-[#2D2D38]">
-              <div class="text-[10px] font-black uppercase text-[#FF5000] tracking-wider flex items-center justify-between">
+          <div class="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#1A1A22] rounded-2xl border-2 border-[#FFA552]/50 shadow-2xl p-2 hidden group-hover:block transition-all z-50 animate-fade-in-up">
+            <div class="px-3 py-2 border-b border-[#F9F3EA] dark:border-[#2D2D38]">
+              <div class="text-[10px] font-black uppercase text-[#FFA552] tracking-wider flex items-center justify-between">
                 <span>RBAC Role Switcher</span>
                 <span class="text-[9px] text-stone-400 font-mono">Live Session</span>
               </div>
@@ -131,7 +131,7 @@
                 <div class="flex items-center gap-2">
                   <span class="text-base">👑</span>
                   <div>
-                    <div class="font-bold text-[#333333] dark:text-white">Admin (Studio Lead)</div>
+                    <div class="font-bold text-[#2B1D1D] dark:text-white">Admin (Studio Lead)</div>
                     <div class="text-[10px] text-stone-400">Full reports, CSV exports & roles</div>
                   </div>
                 </div>
@@ -146,7 +146,7 @@
                 <div class="flex items-center gap-2">
                   <span class="text-base">⚡</span>
                   <div>
-                    <div class="font-bold text-[#333333] dark:text-white">Staff (Dispatch Team)</div>
+                    <div class="font-bold text-[#2B1D1D] dark:text-white">Staff (Dispatch Team)</div>
                     <div class="text-[10px] text-stone-400">Orders & slips (exports restricted)</div>
                   </div>
                 </div>
@@ -161,7 +161,7 @@
                 <div class="flex items-center gap-2">
                   <span class="text-base">🛍️</span>
                   <div>
-                    <div class="font-bold text-[#333333] dark:text-white">Buyer (Customer)</div>
+                    <div class="font-bold text-[#2B1D1D] dark:text-white">Buyer (Customer)</div>
                     <div class="text-[10px] text-stone-400">Test 403 access security guard</div>
                   </div>
                 </div>
@@ -169,9 +169,9 @@
               </button>
             </div>
             
-            <div class="pt-2 border-t border-[#FFF3EC] dark:border-[#2D2D38] px-3 py-1.5 flex items-center justify-between text-[10px]">
-              <a href="admin-users.html" class="text-[#FF5000] font-bold hover:underline">Manage All Roles &rarr;</a>
-              <button onclick="openRBACMatrixModal()" class="text-stone-400 hover:text-[#FF5000] underline cursor-pointer">Security Matrix</button>
+            <div class="pt-2 border-t border-[#F9F3EA] dark:border-[#2D2D38] px-3 py-1.5 flex items-center justify-between text-[10px]">
+              <a href="admin-users.html" class="text-[#FFA552] font-bold hover:underline">Manage All Roles &rarr;</a>
+              <button onclick="openRBACMatrixModal()" class="text-stone-400 hover:text-[#FFA552] underline cursor-pointer">Security Matrix</button>
             </div>
           </div>
         </div>
@@ -184,15 +184,15 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 flex-1 w-full space-y-8">
     
     <!-- Dashboard Top Bar: Date Filter & Export Tools -->
-    <div class="reveal-init flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EDEDED] dark:border-[#2D2D38] pb-6">
+    <div class="reveal-init flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EFE4D6] dark:border-[#2D2D38] pb-6">
       <div>
-        <div class="text-xs font-extrabold text-[#FF5000] uppercase tracking-wider mb-1 flex items-center gap-2">
+        <div class="text-xs font-extrabold text-[#FFA552] uppercase tracking-wider mb-1 flex items-center gap-2">
           <span>📊</span>
           <span>Analytics & Operational Intelligence</span>
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
           <span class="text-emerald-600 dark:text-emerald-400 font-bold normal-case">Live Phnom Penh Studio Hub</span>
         </div>
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-[#333333] dark:text-white tracking-tight">
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-[#2B1D1D] dark:text-white tracking-tight">
           Performance & Sales Report
         </h1>
         <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1 font-medium">
@@ -204,11 +204,11 @@
       <div class="flex flex-wrap items-center gap-2.5">
         
         <!-- Date Range Filter Tabs -->
-        <div class="flex items-center bg-[#FFF3EC] dark:bg-[#1E1E26] p-1 rounded-2xl border border-[#EDEDED] dark:border-[#32323D] text-xs font-bold" id="dateFilterBar">
-          <button type="button" onclick="setReportDateRange('today', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all text-stone-600 dark:text-stone-400 hover:text-[#333333]">Today</button>
-          <button type="button" onclick="setReportDateRange('7d', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all bg-[#333333] text-white dark:bg-[#FF5000] dark:text-[#333333] shadow-xs">Last 7 Days</button>
-          <button type="button" onclick="setReportDateRange('30d', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all text-stone-600 dark:text-stone-400 hover:text-[#333333]">Last 30 Days</button>
-          <button type="button" onclick="setReportDateRange('ytd', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all text-stone-600 dark:text-stone-400 hover:text-[#333333]">YTD</button>
+        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-1 rounded-2xl border border-[#EFE4D6] dark:border-[#32323D] text-xs font-bold" id="dateFilterBar">
+          <button type="button" onclick="setReportDateRange('today', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D]">Today</button>
+          <button type="button" onclick="setReportDateRange('7d', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D] shadow-xs">Last 7 Days</button>
+          <button type="button" onclick="setReportDateRange('30d', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D]">Last 30 Days</button>
+          <button type="button" onclick="setReportDateRange('ytd', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D]">YTD</button>
         </div>
 
         <!-- Export Buttons (RBAC Guarded for Admin) -->
@@ -216,18 +216,18 @@
           <button 
             type="button" 
             onclick="exportReportData('csv')" 
-            class="btn-press px-4 py-2.5 rounded-xl bg-white dark:bg-[#1E1E26] hover:bg-[#FFF3EC] dark:hover:bg-[#252530] border border-[#EDEDED] dark:border-[#32323D] text-xs font-extrabold text-[#333333] dark:text-white flex items-center gap-1.5 shadow-xs cursor-pointer"
+            class="btn-press px-4 py-2.5 rounded-xl bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] border border-[#EFE4D6] dark:border-[#32323D] text-xs font-extrabold text-[#2B1D1D] dark:text-white flex items-center gap-1.5 shadow-xs cursor-pointer"
             id="exportCsvBtn"
             title="Export CSV Spreadsheet"
           >
-            <svg class="w-4 h-4 text-[#FF5000]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <svg class="w-4 h-4 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <span>Export CSV</span>
           </button>
 
           <button 
             type="button" 
             onclick="window.print()" 
-            class="btn-press px-3.5 py-2.5 rounded-xl bg-[#FF5000] hover:bg-[#E64500] text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
+            class="btn-press px-3.5 py-2.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
             title="Print or Save PDF"
           >
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -242,68 +242,68 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       
       <!-- KPI 1: Gross Sales Revenue -->
-      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FF5000] transition-colors">
+      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FFA552] transition-colors">
         <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-bold">
           <span>Gross Sales Revenue</span>
           <span class="inline-flex items-center gap-1 text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
             ↑ +24.8%
           </span>
         </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#333333] dark:text-white mt-2" id="kpiGrossRevenue">
+        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2" id="kpiGrossRevenue">
           $1,842.50
         </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#FFF3EC] dark:border-[#272732]">
-          <span class="font-bold text-[#FF5000]" id="kpiGrossKHR">7,554,250 ៛ KHR</span>
+        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#F9F3EA] dark:border-[#272732]">
+          <span class="font-bold text-[#FFA552]" id="kpiGrossKHR">7,554,250 ៛ KHR</span>
           <span>Net Margin: <strong>68.4%</strong></span>
         </div>
       </div>
 
       <!-- KPI 2: Total Completed Orders -->
-      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FF5000] transition-colors">
+      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FFA552] transition-colors">
         <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-bold">
           <span>Orders Completed</span>
           <span class="inline-flex items-center gap-1 text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
             94.6% Rate
           </span>
         </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#333333] dark:text-white mt-2" id="kpiTotalOrders">
+        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2" id="kpiTotalOrders">
           84 Orders
         </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#FFF3EC] dark:border-[#272732]">
+        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#F9F3EA] dark:border-[#272732]">
           <span>Pending KHQR Review: <strong class="text-amber-500">3</strong></span>
           <span>Returned: <strong>0</strong></span>
         </div>
       </div>
 
       <!-- KPI 3: Average Order Value (AOV) -->
-      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FF5000] transition-colors">
+      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FFA552] transition-colors">
         <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-bold">
           <span>Average Order Value</span>
-          <span class="inline-flex items-center gap-1 text-[11px] font-black text-[#FF5000] bg-orange-50 dark:bg-orange-950/60 px-2 py-0.5 rounded-full">
+          <span class="inline-flex items-center gap-1 text-[11px] font-black text-[#FFA552] bg-orange-50 dark:bg-orange-950/60 px-2 py-0.5 rounded-full">
             2.8 Items / Bag
           </span>
         </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#333333] dark:text-white mt-2" id="kpiAOV">
+        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2" id="kpiAOV">
           $21.93
         </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#FFF3EC] dark:border-[#272732]">
-          <span class="font-bold text-[#FF5000]" id="kpiAOVKHR">89,913 ៛</span>
+        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#F9F3EA] dark:border-[#272732]">
+          <span class="font-bold text-[#FFA552]" id="kpiAOVKHR">89,913 ៛</span>
           <span>Cart Conversion: <strong>6.8%</strong></span>
         </div>
       </div>
 
       <!-- KPI 4: Courier Dispatch Velocity -->
-      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FF5000] transition-colors">
+      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FFA552] transition-colors">
         <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-bold">
           <span>Courier Velocity</span>
           <span class="inline-flex items-center gap-1 text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
             🛵 5 Couriers Live
           </span>
         </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#333333] dark:text-white mt-2">
+        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2">
           38 Mins
         </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#FFF3EC] dark:border-[#272732]">
+        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#F9F3EA] dark:border-[#272732]">
           <span>Express Delivery Hub: <strong>Phnom Penh</strong></span>
           <span>Coverage: <strong>100%</strong></span>
         </div>
@@ -315,16 +315,16 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
       <!-- Left 7 Cols: Revenue Velocity SVG Chart -->
-      <div class="lg:col-span-7 bg-white dark:bg-[#1A1A22] p-6 rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] shadow-sm space-y-4">
-        <div class="flex items-center justify-between border-b border-[#FFF3EC] dark:border-[#272732] pb-3">
+      <div class="lg:col-span-7 bg-white dark:bg-[#1A1A22] p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-[#F9F3EA] dark:border-[#272732] pb-3">
           <div>
             <div class="flex items-center gap-2">
-              <h2 class="text-base font-black text-[#333333] dark:text-white">Daily Revenue & Velocity Trend</h2>
-              <span id="chartCurrencyBadge" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#FF5000]/10 text-[#FF5000]">USD ($)</span>
+              <h2 class="text-base font-black text-[#2B1D1D] dark:text-white">Daily Revenue & Velocity Trend</h2>
+              <span id="chartCurrencyBadge" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#FFA552]/10 text-[#FFA552]">USD ($)</span>
             </div>
             <p class="text-xs text-stone-400 mt-0.5">Dual currency tracking with weekend viral drop spikes</p>
           </div>
-          <span class="text-xs font-bold text-[#FF5000] bg-[#FF5000]/10 px-2.5 py-1 rounded-full">
+          <span class="text-xs font-bold text-[#FFA552] bg-[#FFA552]/10 px-2.5 py-1 rounded-full">
             +18.4% WoW
           </span>
         </div>
@@ -334,9 +334,9 @@
           <!-- Dynamically populated via renderBarChart() -->
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-stone-400 pt-2 border-t border-[#FFF3EC] dark:border-[#272732] gap-1">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-stone-400 pt-2 border-t border-[#F9F3EA] dark:border-[#272732] gap-1">
           <div>Lowest: <span id="chartMinVal">$185</span> &bull; Peak: <span id="chartMaxVal">$420</span> (Saturday Drop Surge)</div>
-          <div class="font-bold text-[#FF5000]" id="chartPeriodTotal">Total: $2,075.00 (8,507,500 ៛)</div>
+          <div class="font-bold text-[#FFA552]" id="chartPeriodTotal">Total: $2,075.00 (8,507,500 ៛)</div>
         </div>
       </div>
 
@@ -344,10 +344,10 @@
       <div class="lg:col-span-5 space-y-6">
         
         <!-- Category Revenue Share -->
-        <div class="bg-white dark:bg-[#1A1A22] p-6 rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] shadow-sm space-y-4">
-          <div class="flex items-center justify-between border-b border-[#FFF3EC] dark:border-[#272732] pb-3">
+        <div class="bg-white dark:bg-[#1A1A22] p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-[#F9F3EA] dark:border-[#272732] pb-3">
             <div>
-              <h2 class="text-base font-black text-[#333333] dark:text-white">Category Revenue Share</h2>
+              <h2 class="text-base font-black text-[#2B1D1D] dark:text-white">Category Revenue Share</h2>
               <p class="text-xs text-stone-400">Sales volume by Gen-Z aesthetic lines</p>
             </div>
             <span class="text-xs font-bold text-stone-500">12 Drops Total</span>
@@ -357,25 +357,25 @@
             <!-- Category 1: Y2K Jewelry -->
             <div class="space-y-1.5">
               <div class="flex items-center justify-between text-xs">
-                <span class="font-black text-[#333333] dark:text-white flex items-center gap-1.5">
+                <span class="font-black text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
                   <span>✨</span> Y2K Chrome Jewelry
                 </span>
-                <span class="font-extrabold text-[#FF5000]" id="catJewelryVal">42% &bull; $773.85</span>
+                <span class="font-extrabold text-[#FFA552]" id="catJewelryVal">42% &bull; $773.85</span>
               </div>
-              <div class="w-full bg-[#FFF3EC] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
-                <div class="bg-[#FF5000] h-full rounded-full transition-all duration-500" style="width: 42%;"></div>
+              <div class="w-full bg-[#F9F3EA] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
+                <div class="bg-[#FFA552] h-full rounded-full transition-all duration-500" style="width: 42%;"></div>
               </div>
             </div>
 
             <!-- Category 2: Shades & Eyewear -->
             <div class="space-y-1.5">
               <div class="flex items-center justify-between text-xs">
-                <span class="font-black text-[#333333] dark:text-white flex items-center gap-1.5">
+                <span class="font-black text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
                   <span>🕶️</span> 90s Tinted Shades
                 </span>
-                <span class="font-extrabold text-[#FF5000]" id="catShadesVal">26% &bull; $479.05</span>
+                <span class="font-extrabold text-[#FFA552]" id="catShadesVal">26% &bull; $479.05</span>
               </div>
-              <div class="w-full bg-[#FFF3EC] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
+              <div class="w-full bg-[#F9F3EA] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
                 <div class="bg-amber-400 h-full rounded-full transition-all duration-500" style="width: 26%;"></div>
               </div>
             </div>
@@ -383,12 +383,12 @@
             <!-- Category 3: Puffy Cloud Bags -->
             <div class="space-y-1.5">
               <div class="flex items-center justify-between text-xs">
-                <span class="font-black text-[#333333] dark:text-white flex items-center gap-1.5">
+                <span class="font-black text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
                   <span>☁️</span> Puffy Cloud Bags
                 </span>
-                <span class="font-extrabold text-[#FF5000]" id="catBagsVal">20% &bull; $368.50</span>
+                <span class="font-extrabold text-[#FFA552]" id="catBagsVal">20% &bull; $368.50</span>
               </div>
-              <div class="w-full bg-[#FFF3EC] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
+              <div class="w-full bg-[#F9F3EA] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
                 <div class="bg-indigo-400 h-full rounded-full transition-all duration-500" style="width: 20%;"></div>
               </div>
             </div>
@@ -396,12 +396,12 @@
             <!-- Category 4: Claw Clips & Phone Charms -->
             <div class="space-y-1.5">
               <div class="flex items-center justify-between text-xs">
-                <span class="font-black text-[#333333] dark:text-white flex items-center gap-1.5">
+                <span class="font-black text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
                   <span>🍒</span> Clips & Charms
                 </span>
-                <span class="font-extrabold text-[#FF5000]" id="catClipsVal">12% &bull; $221.10</span>
+                <span class="font-extrabold text-[#FFA552]" id="catClipsVal">12% &bull; $221.10</span>
               </div>
-              <div class="w-full bg-[#FFF3EC] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
+              <div class="w-full bg-[#F9F3EA] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
                 <div class="bg-rose-400 h-full rounded-full transition-all duration-500" style="width: 12%;"></div>
               </div>
             </div>
@@ -409,11 +409,11 @@
         </div>
 
         <!-- Payment Gateway Settlement Share (Cambodian Bakong KHQR Dominance) -->
-        <div class="bg-white dark:bg-[#1A1A22] p-5 rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] shadow-sm space-y-3">
-          <div class="flex items-center justify-between border-b border-[#FFF3EC] dark:border-[#272732] pb-2.5">
+        <div class="bg-white dark:bg-[#1A1A22] p-5 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b border-[#F9F3EA] dark:border-[#272732] pb-2.5">
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="text-sm font-black text-[#333333] dark:text-white">Payment Gateway Share</span>
+                <span class="text-sm font-black text-[#2B1D1D] dark:text-white">Payment Gateway Share</span>
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
               </div>
               <p class="text-[11px] text-stone-400">Bakong KHQR settlement velocity in Phnom Penh</p>
@@ -426,17 +426,17 @@
           <div class="grid grid-cols-3 gap-2 text-center text-xs">
             <div class="p-2.5 rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40">
               <div class="font-black text-rose-600 dark:text-rose-400 text-base">78%</div>
-              <div class="font-bold text-[#333333] dark:text-white text-[11px]">Bakong KHQR</div>
+              <div class="font-bold text-[#2B1D1D] dark:text-white text-[11px]">Bakong KHQR</div>
               <div class="text-[9px] text-stone-400">ABA & Acleda</div>
             </div>
             <div class="p-2.5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40">
               <div class="font-black text-amber-600 dark:text-amber-400 text-base">18%</div>
-              <div class="font-bold text-[#333333] dark:text-white text-[11px]">Courier COD</div>
+              <div class="font-bold text-[#2B1D1D] dark:text-white text-[11px]">Courier COD</div>
               <div class="text-[9px] text-stone-400">Cash on Hand</div>
             </div>
             <div class="p-2.5 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40">
               <div class="font-black text-blue-600 dark:text-blue-400 text-base">4%</div>
-              <div class="font-bold text-[#333333] dark:text-white text-[11px]">Card Gateways</div>
+              <div class="font-bold text-[#2B1D1D] dark:text-white text-[11px]">Card Gateways</div>
               <div class="text-[9px] text-stone-400">Visa / MC</div>
             </div>
           </div>
@@ -447,11 +447,11 @@
     </div>
 
     <!-- District Courier Velocity & Delivery SLA Heatmap -->
-    <div class="bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#FFF3EC] dark:border-[#272732] pb-3">
+    <div class="bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F9F3EA] dark:border-[#272732] pb-3">
         <div>
           <div class="flex items-center gap-2">
-            <span class="text-base sm:text-lg font-black text-[#333333] dark:text-white">Phnom Penh Courier Velocity & District Dispatch SLA</span>
+            <span class="text-base sm:text-lg font-black text-[#2B1D1D] dark:text-white">Phnom Penh Courier Velocity & District Dispatch SLA</span>
             <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
               🛵 Same-Day Express
             </span>
@@ -459,36 +459,36 @@
           <p class="text-xs text-stone-400 mt-0.5">Average courier transit time from studio pickup to customer door</p>
         </div>
         <div class="text-xs font-bold text-stone-500">
-          Central Hub: <strong class="text-[#FF5000]">St 240, Daun Penh</strong>
+          Central Hub: <strong class="text-[#FFA552]">St 240, Daun Penh</strong>
         </div>
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
-        <div class="p-3 rounded-2xl bg-[#F5F5F5] dark:bg-[#15151B] border border-[#EDEDED] dark:border-[#2D2D38]">
+        <div class="p-3 rounded-2xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#2D2D38]">
           <div class="text-[11px] font-black text-stone-400 uppercase">Daun Penh</div>
           <div class="text-lg font-black text-emerald-600 mt-1">25 Mins</div>
           <div class="text-[10px] text-stone-500 mt-0.5">Highest density &bull; 99% SLA</div>
         </div>
 
-        <div class="p-3 rounded-2xl bg-[#F5F5F5] dark:bg-[#15151B] border border-[#EDEDED] dark:border-[#2D2D38]">
+        <div class="p-3 rounded-2xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#2D2D38]">
           <div class="text-[11px] font-black text-stone-400 uppercase">BKK 1 / 2 / 3</div>
           <div class="text-lg font-black text-emerald-600 mt-1">28 Mins</div>
           <div class="text-[10px] text-stone-500 mt-0.5">Cafe & student hub</div>
         </div>
 
-        <div class="p-3 rounded-2xl bg-[#F5F5F5] dark:bg-[#15151B] border border-[#EDEDED] dark:border-[#2D2D38]">
+        <div class="p-3 rounded-2xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#2D2D38]">
           <div class="text-[11px] font-black text-stone-400 uppercase">Toul Kork</div>
           <div class="text-lg font-black text-emerald-600 mt-1">32 Mins</div>
           <div class="text-[10px] text-stone-500 mt-0.5">Express courier lane</div>
         </div>
 
-        <div class="p-3 rounded-2xl bg-[#F5F5F5] dark:bg-[#15151B] border border-[#EDEDED] dark:border-[#2D2D38]">
+        <div class="p-3 rounded-2xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#2D2D38]">
           <div class="text-[11px] font-black text-stone-400 uppercase">Chamkarmon</div>
           <div class="text-lg font-black text-emerald-600 mt-1">30 Mins</div>
           <div class="text-[10px] text-stone-500 mt-0.5">Russian Market corridor</div>
         </div>
 
-        <div class="p-3 rounded-2xl bg-[#F5F5F5] dark:bg-[#15151B] border border-[#EDEDED] dark:border-[#2D2D38]">
+        <div class="p-3 rounded-2xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#2D2D38]">
           <div class="text-[11px] font-black text-stone-400 uppercase">Sen Sok</div>
           <div class="text-lg font-black text-amber-600 mt-1">42 Mins</div>
           <div class="text-[10px] text-stone-500 mt-0.5">Aeon 2 mall perimeter</div>
@@ -497,14 +497,14 @@
     </div>
 
     <!-- Top Selling Accessories Table & Stock Matrix -->
-    <div class="bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#FFF3EC] dark:border-[#272732] pb-4">
+    <div class="bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F9F3EA] dark:border-[#272732] pb-4">
         <div>
-          <h2 class="text-base sm:text-lg font-black text-[#333333] dark:text-white">Top Selling Viral Accessories</h2>
+          <h2 class="text-base sm:text-lg font-black text-[#2B1D1D] dark:text-white">Top Selling Viral Accessories</h2>
           <p class="text-xs text-stone-400">Ranked by revenue contribution and order frequency</p>
         </div>
         <div class="flex items-center gap-2">
-          <a href="admin-products.html" class="px-3.5 py-1.5 rounded-xl bg-[#FFF3EC] dark:bg-[#252530] hover:bg-[#E64500] hover:text-white text-xs font-bold text-[#333333] dark:text-white transition">
+          <a href="admin-products.html" class="px-3.5 py-1.5 rounded-xl bg-[#F9F3EA] dark:bg-[#252530] hover:bg-[#FFA552] hover:text-white text-xs font-bold text-[#2B1D1D] dark:text-white transition">
             Manage Catalog Stock &rarr;
           </a>
         </div>
@@ -513,7 +513,7 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="text-stone-400 border-b border-[#FFF3EC] dark:border-[#272732]">
+            <tr class="text-stone-400 border-b border-[#F9F3EA] dark:border-[#272732]">
               <th class="py-2.5 px-3">Rank & Product</th>
               <th class="py-2.5 px-3">Category</th>
               <th class="py-2.5 px-3">Price</th>
@@ -523,7 +523,7 @@
               <th class="py-2.5 px-3 text-right">Action</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#FFF3EC] dark:divide-[#252530]" id="topSellingTableBody">
+          <tbody class="divide-y divide-[#F9F3EA] dark:divide-[#252530]" id="topSellingTableBody">
             <!-- Injected via JavaScript from catalog data -->
           </tbody>
         </table>
@@ -531,18 +531,18 @@
     </div>
 
     <!-- Real-time Verification & Fulfillment Queue -->
-    <div class="bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
-      <div class="flex items-center justify-between border-b border-[#FFF3EC] dark:border-[#272732] pb-4">
+    <div class="bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
+      <div class="flex items-center justify-between border-b border-[#F9F3EA] dark:border-[#272732] pb-4">
         <div>
           <div class="flex items-center gap-2">
-            <h2 class="text-base sm:text-lg font-black text-[#333333] dark:text-white">Recent Orders Awaiting KHQR Verification</h2>
+            <h2 class="text-base sm:text-lg font-black text-[#2B1D1D] dark:text-white">Recent Orders Awaiting KHQR Verification</h2>
             <span id="pendingSlipsBadge" class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black animate-pulse">
               3 Pending
             </span>
           </div>
           <p class="text-xs text-stone-400">Review Bakong universal transfer screenshots before dispatching couriers</p>
         </div>
-        <a href="admin-orders.html" class="text-xs font-black text-[#FF5000] hover:underline">
+        <a href="admin-orders.html" class="text-xs font-black text-[#FFA552] hover:underline">
           Open All Orders Queue &rarr;
         </a>
       </div>
@@ -550,7 +550,7 @@
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="text-stone-400 border-b border-[#FFF3EC] dark:border-[#272732]">
+            <tr class="text-stone-400 border-b border-[#F9F3EA] dark:border-[#272732]">
               <th class="py-2.5 px-3">Order ID</th>
               <th class="py-2.5 px-3">Customer</th>
               <th class="py-2.5 px-3">Total Amount</th>
@@ -560,16 +560,16 @@
               <th class="py-2.5 px-3 text-right">Quick Action</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#FFF3EC] dark:divide-[#252530]" id="verificationQueueTable">
+          <tbody class="divide-y divide-[#F9F3EA] dark:divide-[#252530]" id="verificationQueueTable">
             <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition" id="queueRow-1">
-              <td class="py-3 px-3 font-mono font-black text-[#333333] dark:text-white">#PSA-902184</td>
+              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902184</td>
               <td class="py-3 px-3">
-                <div class="font-bold text-[#333333] dark:text-white">Sophea Chhum</div>
+                <div class="font-bold text-[#2B1D1D] dark:text-white">Sophea Chhum</div>
                 <div class="text-[10px] text-stone-400">012 345 678 &bull; Daun Penh</div>
               </td>
               <td class="py-3 px-3">
-                <div class="font-black text-[#333333] dark:text-white order-amount-usd" data-usd="18.50">$18.50</div>
-                <div class="text-[10px] text-[#FF5000] font-semibold order-amount-khr">75,850 ៛</div>
+                <div class="font-black text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="18.50">$18.50</div>
+                <div class="text-[10px] text-[#FFA552] font-semibold order-amount-khr">75,850 ៛</div>
               </td>
               <td class="py-3 px-3">
                 <span class="inline-flex items-center gap-1 font-bold text-stone-700 dark:text-stone-300">
@@ -605,14 +605,14 @@
             </tr>
 
             <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition" id="queueRow-2">
-              <td class="py-3 px-3 font-mono font-black text-[#333333] dark:text-white">#PSA-902183</td>
+              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902183</td>
               <td class="py-3 px-3">
-                <div class="font-bold text-[#333333] dark:text-white">Bona Seng</div>
+                <div class="font-bold text-[#2B1D1D] dark:text-white">Bona Seng</div>
                 <div class="text-[10px] text-stone-400">098 765 432 &bull; Toul Kork</div>
               </td>
               <td class="py-3 px-3">
-                <div class="font-black text-[#333333] dark:text-white order-amount-usd" data-usd="24.00">$24.00</div>
-                <div class="text-[10px] text-[#FF5000] font-semibold order-amount-khr">98,400 ៛</div>
+                <div class="font-black text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="24.00">$24.00</div>
+                <div class="text-[10px] text-[#FFA552] font-semibold order-amount-khr">98,400 ៛</div>
               </td>
               <td class="py-3 px-3">
                 <span class="inline-flex items-center gap-1 font-bold text-stone-700 dark:text-stone-300">
@@ -648,14 +648,14 @@
             </tr>
 
             <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition" id="queueRow-3">
-              <td class="py-3 px-3 font-mono font-black text-[#333333] dark:text-white">#PSA-902182</td>
+              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902182</td>
               <td class="py-3 px-3">
-                <div class="font-bold text-[#333333] dark:text-white">Dara Heng</div>
+                <div class="font-bold text-[#2B1D1D] dark:text-white">Dara Heng</div>
                 <div class="text-[10px] text-stone-400">015 889 911 &bull; BKK1</div>
               </td>
               <td class="py-3 px-3">
-                <div class="font-black text-[#333333] dark:text-white order-amount-usd" data-usd="12.50">$12.50</div>
-                <div class="text-[10px] text-[#FF5000] font-semibold order-amount-khr">51,250 ៛</div>
+                <div class="font-black text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="12.50">$12.50</div>
+                <div class="text-[10px] text-[#FFA552] font-semibold order-amount-khr">51,250 ៛</div>
               </td>
               <td class="py-3 px-3">
                 <span class="inline-flex items-center gap-1 font-bold text-stone-700 dark:text-stone-300">
@@ -671,7 +671,7 @@
                 </span>
               </td>
               <td class="py-3 px-3 text-right">
-                <a href="order-detail--staff-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#333333] dark:bg-stone-800 dark:text-stone-200 font-black text-[11px] transition">
+                <a href="order-detail--staff-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#2B1D1D] dark:bg-stone-800 dark:text-stone-200 font-black text-[11px] transition">
                   Track Delivery
                 </a>
               </td>
@@ -685,8 +685,8 @@
 
   <!-- RBAC Role Matrix Modal (Interactive Documentation) -->
   <div id="rbacMatrixModal" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-black/75 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300" role="dialog">
-    <div class="relative w-full max-w-2xl bg-white dark:bg-[#1A1A22] rounded-3xl border-2 border-[#FF5000] p-6 shadow-2xl space-y-4 my-auto text-[#333333] dark:text-white" id="rbacMatrixCard">
-      <div class="flex items-center justify-between border-b border-[#FFF3EC] dark:border-[#2D2D38] pb-3">
+    <div class="relative w-full max-w-2xl bg-white dark:bg-[#1A1A22] rounded-3xl border-2 border-[#FFA552] p-6 shadow-2xl space-y-4 my-auto text-[#2B1D1D] dark:text-white" id="rbacMatrixCard">
+      <div class="flex items-center justify-between border-b border-[#F9F3EA] dark:border-[#2D2D38] pb-3">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-bold">
             🛡️
@@ -696,20 +696,20 @@
             <p class="text-[11px] text-stone-400">Permissions breakdown across Admin, Staff, and Buyer roles</p>
           </div>
         </div>
-        <button onclick="closeRBACMatrixModal()" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-[#E64500] hover:text-white flex items-center justify-center transition cursor-pointer">&times;</button>
+        <button onclick="closeRBACMatrixModal()" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-[#FFA552] hover:text-white flex items-center justify-center transition cursor-pointer">&times;</button>
       </div>
 
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left">
           <thead>
-            <tr class="border-b border-[#FFF3EC] dark:border-[#2D2D38] text-stone-400">
+            <tr class="border-b border-[#F9F3EA] dark:border-[#2D2D38] text-stone-400">
               <th class="py-2">System Capability</th>
               <th class="py-2 text-center text-purple-600 font-black">👑 Admin</th>
               <th class="py-2 text-center text-blue-600 font-black">⚡ Staff</th>
               <th class="py-2 text-center text-emerald-600 font-black">🛍️ Buyer</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#FFF3EC] dark:divide-[#252530]">
+          <tbody class="divide-y divide-[#F9F3EA] dark:divide-[#252530]">
             <tr><td class="py-2 font-medium">Access Studio Operations Portal</td><td class="text-center text-emerald-600 font-bold">✓ Full</td><td class="text-center text-emerald-600 font-bold">✓ Full</td><td class="text-center text-red-500 font-bold">✗ Blocked (403)</td></tr>
             <tr><td class="py-2 font-medium">View Performance & Sales Analytics</td><td class="text-center text-emerald-600 font-bold">✓ Full</td><td class="text-center text-blue-600 font-bold">✓ Operational</td><td class="text-center text-red-500 font-bold">✗ No Access</td></tr>
             <tr><td class="py-2 font-medium">Export Financial CSV & PDF Summary</td><td class="text-center text-emerald-600 font-bold">✓ Allowed</td><td class="text-center text-red-500 font-bold">✗ Restricted</td><td class="text-center text-red-500 font-bold">✗ No Access</td></tr>
@@ -722,7 +722,7 @@
       </div>
 
       <div class="pt-2 flex justify-end">
-        <button onclick="closeRBACMatrixModal()" class="px-4 py-2 rounded-xl bg-[#FF5000] text-white font-bold text-xs">
+        <button onclick="closeRBACMatrixModal()" class="px-4 py-2 rounded-xl bg-[#FFA552] text-white font-bold text-xs">
           Got It
         </button>
       </div>
@@ -744,16 +744,16 @@
       const badge = document.getElementById('chartCurrencyBadge');
 
       if (cur === 'KHR') {
-        bKHR.classList.add('bg-[#333333]', 'text-white');
-        bKHR.classList.remove('text-[#333333]', 'dark:text-stone-300');
-        bUSD.classList.remove('bg-[#333333]', 'text-white');
-        bUSD.classList.add('text-[#333333]');
+        bKHR.classList.add('bg-[#2B1D1D]', 'text-white');
+        bKHR.classList.remove('text-[#2B1D1D]', 'dark:text-stone-300');
+        bUSD.classList.remove('bg-[#2B1D1D]', 'text-white');
+        bUSD.classList.add('text-[#2B1D1D]');
         if (badge) badge.textContent = 'KHR (៛)';
       } else {
-        bUSD.classList.add('bg-[#333333]', 'text-white');
-        bUSD.classList.remove('text-[#333333]');
-        bKHR.classList.remove('bg-[#333333]', 'text-white');
-        bKHR.classList.add('text-[#333333]', 'dark:text-stone-300');
+        bUSD.classList.add('bg-[#2B1D1D]', 'text-white');
+        bUSD.classList.remove('text-[#2B1D1D]');
+        bKHR.classList.remove('bg-[#2B1D1D]', 'text-white');
+        bKHR.classList.add('text-[#2B1D1D]', 'dark:text-stone-300');
         if (badge) badge.textContent = 'USD ($)';
       }
       renderReportDashboard();
@@ -762,11 +762,11 @@
     function setReportDateRange(range, btn) {
       reportDateRange = range;
       document.querySelectorAll('.date-range-btn').forEach(b => {
-        b.classList.remove('bg-[#333333]', 'text-white', 'dark:bg-[#FF5000]', 'dark:text-[#333333]', 'shadow-xs');
+        b.classList.remove('bg-[#2B1D1D]', 'text-white', 'dark:bg-[#FFA552]', 'dark:text-[#2B1D1D]', 'shadow-xs');
         b.classList.add('text-stone-600', 'dark:text-stone-400');
       });
       if (btn) {
-        btn.classList.add('bg-[#333333]', 'text-white', 'dark:bg-[#FF5000]', 'dark:text-[#333333]', 'shadow-xs');
+        btn.classList.add('bg-[#2B1D1D]', 'text-white', 'dark:bg-[#FFA552]', 'dark:text-[#2B1D1D]', 'shadow-xs');
         btn.classList.remove('text-stone-600', 'dark:text-stone-400');
       }
       renderReportDashboard();
@@ -929,16 +929,16 @@
               <div class="text-[9px] text-stone-300 font-mono">${Math.round(d.orders * mult)} orders</div>
             </div>
 
-            <span class="text-[10px] font-bold text-[#FF5000] opacity-0 group-hover:opacity-100 transition truncate max-w-full">
+            <span class="text-[10px] font-bold text-[#FFA552] opacity-0 group-hover:opacity-100 transition truncate max-w-full">
               ${formattedVal}
             </span>
 
             <div 
-              class="w-full ${d.isPeak ? 'bg-[#FF5000] shadow-md' : 'bg-[#FF5000]/40 group-hover:bg-[#E64500]'} rounded-xl transition-all duration-300 hover:scale-x-105" 
+              class="w-full ${d.isPeak ? 'bg-[#FFA552] shadow-md' : 'bg-[#FFA552]/40 group-hover:bg-[#FFA552]'} rounded-xl transition-all duration-300 hover:scale-x-105" 
               style="height: ${pct}%;"
             ></div>
 
-            <span class="text-[10px] font-bold ${d.isPeak ? 'text-[#FF5000] font-black' : 'text-stone-400'}">
+            <span class="text-[10px] font-bold ${d.isPeak ? 'text-[#FFA552] font-black' : 'text-stone-400'}">
               ${d.day}
             </span>
           </div>
@@ -1021,22 +1021,22 @@
               <span class="w-5 h-5 rounded-full ${item.rank === 1 ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-600'} flex items-center justify-center font-black text-[10px] shrink-0">
                 ${item.rank}
               </span>
-              <img src="${item.p.image}" alt="${item.p.title}" class="w-10 h-10 rounded-xl object-cover border border-[#EDEDED] dark:border-[#2D2D38] shrink-0" />
+              <img src="${item.p.image}" alt="${item.p.title}" class="w-10 h-10 rounded-xl object-cover border border-[#EFE4D6] dark:border-[#2D2D38] shrink-0" />
               <div class="min-w-0">
-                <div class="font-extrabold text-[#333333] dark:text-white truncate max-w-xs">${item.p.title}</div>
+                <div class="font-extrabold text-[#2B1D1D] dark:text-white truncate max-w-xs">${item.p.title}</div>
                 <div class="text-[10px] text-stone-400 font-mono">SKU: ${item.p.id.toUpperCase()}</div>
               </div>
             </div>
           </td>
           <td class="py-3 px-3">
-            <span class="px-2 py-0.5 rounded-full bg-[#FF5000]/10 text-[#FF5000] font-black text-[10px]">
+            <span class="px-2 py-0.5 rounded-full bg-[#FFA552]/10 text-[#FFA552] font-black text-[10px]">
               ${item.p.categoryLabel}
             </span>
           </td>
-          <td class="py-3 px-3 font-bold text-[#333333] dark:text-white">
+          <td class="py-3 px-3 font-bold text-[#2B1D1D] dark:text-white">
             ${reportCurrency === 'KHR' ? (item.p.priceUSD * 4100).toLocaleString() + ' ៛' : '$' + item.p.priceUSD.toFixed(2)}
           </td>
-          <td class="py-3 px-3 font-black text-[#333333] dark:text-white">
+          <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">
             ${item.units} pcs
           </td>
           <td class="py-3 px-3 font-black text-emerald-600 dark:text-emerald-400">
@@ -1049,7 +1049,7 @@
             </span>
           </td>
           <td class="py-3 px-3 text-right">
-            <a href="admin-products.html" class="text-xs font-bold text-[#FF5000] hover:underline">
+            <a href="admin-products.html" class="text-xs font-bold text-[#FFA552] hover:underline">
               Restock &rarr;
             </a>
           </td>

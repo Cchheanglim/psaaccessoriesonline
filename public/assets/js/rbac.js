@@ -196,12 +196,12 @@ function showRBACToast(msg, type = 'info') {
   const isDanger = type === 'danger';
 
   toast.innerHTML = `
-    <div class="bg-white dark:bg-[#1A1A22] border-2 ${isDanger ? 'border-red-500 shadow-[0_10px_25px_-5px_rgba(239,68,68,0.3)]' : (isSuccess ? 'border-emerald-500 shadow-[0_10px_25px_-5px_rgba(16,185,129,0.3)]' : 'border-[#FF5000] shadow-[0_10px_25px_-5px_rgba(255, 80, 0,0.3)]')} rounded-2xl p-4 flex items-center gap-3 text-xs pointer-events-auto">
-      <div class="w-9 h-9 rounded-xl ${isDanger ? 'bg-red-50 text-red-600 dark:bg-red-950/60' : (isSuccess ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60' : 'bg-orange-50 text-[#FF5000] dark:bg-orange-950/60')} flex items-center justify-center font-black text-sm shrink-0">
+    <div class="bg-white dark:bg-[#1A1A22] border-2 ${isDanger ? 'border-red-500 shadow-[0_10px_25px_-5px_rgba(239,68,68,0.3)]' : (isSuccess ? 'border-emerald-500 shadow-[0_10px_25px_-5px_rgba(16,185,129,0.3)]' : 'border-[#FFA552] shadow-[0_10px_25px_-5px_rgba(255,165,82,0.3)]')} rounded-2xl p-4 flex items-center gap-3 text-xs pointer-events-auto">
+      <div class="w-9 h-9 rounded-xl ${isDanger ? 'bg-red-50 text-red-600 dark:bg-red-950/60' : (isSuccess ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60' : 'bg-orange-50 text-[#FFA552] dark:bg-orange-950/60')} flex items-center justify-center font-black text-sm shrink-0">
         ${isDanger ? '⚠️' : (isSuccess ? '✓' : '🛡️')}
       </div>
       <div class="min-w-0">
-        <div class="font-black text-[#333333] dark:text-white flex items-center gap-1.5">
+        <div class="font-black text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
           <span>RBAC Guard</span>
           <span class="text-[9px] px-1.5 py-0.2 rounded font-mono font-bold uppercase ${isDanger ? 'bg-red-100 text-red-700' : 'bg-stone-100 text-stone-600'}">Role: ${getCurrentUser().role}</span>
         </div>
@@ -238,7 +238,7 @@ function enforcePageRBAC(requiredPermission = 'canAccessAdminPortal') {
             <span class="px-2.5 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-black uppercase tracking-wider">
               Access Restricted (RBAC 403)
             </span>
-            <h2 class="text-xl font-black text-[#333333] dark:text-white tracking-tight">Insufficient Permissions</h2>
+            <h2 class="text-xl font-black text-[#2B1D1D] dark:text-white tracking-tight">Insufficient Permissions</h2>
             <p class="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
               Your logged in role <strong class="text-red-600 uppercase font-black px-1.5 py-0.5 rounded bg-red-50 border border-red-200">${user.role}</strong> does not have permission for <code>${requiredPermission}</code>.
             </p>
@@ -334,15 +334,15 @@ function openRBACMatrixModal() {
     modal.id = 'rbacMatrixModal';
     modal.className = 'fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-md transition-opacity duration-300';
     modal.innerHTML = `
-      <div class="relative w-full max-w-2xl bg-white dark:bg-[#1A1A22] rounded-3xl border-2 border-[#FF5000]/40 shadow-2xl p-6 sm:p-8 space-y-6 text-[#333333] dark:text-white animate-fade-in-up">
+      <div class="relative w-full max-w-2xl bg-white dark:bg-[#1A1A22] rounded-3xl border-2 border-[#FFA552]/40 shadow-2xl p-6 sm:p-8 space-y-6 text-[#2B1D1D] dark:text-white animate-fade-in-up">
         
-        <div class="flex items-center justify-between border-b border-[#EDEDED] dark:border-[#2D2D38] pb-4">
+        <div class="flex items-center justify-between border-b border-[#EFE4D6] dark:border-[#2D2D38] pb-4">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-[#FF5000]/10 text-[#FF5000] flex items-center justify-center text-xl font-bold">
+            <div class="w-10 h-10 rounded-2xl bg-[#FFA552]/10 text-[#FFA552] flex items-center justify-center text-xl font-bold">
               🛡️
             </div>
             <div>
-              <h2 class="text-lg font-black text-[#333333] dark:text-white">Role-Based Access Control (RBAC) Matrix</h2>
+              <h2 class="text-lg font-black text-[#2B1D1D] dark:text-white">Role-Based Access Control (RBAC) Matrix</h2>
               <p class="text-xs text-stone-500 dark:text-stone-400">Security permissions mapped across PsaOnline operations</p>
             </div>
           </div>
@@ -354,14 +354,14 @@ function openRBACMatrixModal() {
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead>
-              <tr class="border-b border-[#EDEDED] dark:border-[#2D2D38] text-stone-400">
+              <tr class="border-b border-[#EFE4D6] dark:border-[#2D2D38] text-stone-400">
                 <th class="py-2.5 px-3">Capability / Permission</th>
                 <th class="py-2.5 px-3 text-center">👑 Admin</th>
                 <th class="py-2.5 px-3 text-center">⚡ Staff</th>
                 <th class="py-2.5 px-3 text-center">🛍️ Buyer</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-[#FFF3EC] dark:divide-[#252530]">
+            <tbody class="divide-y divide-[#F9F3EA] dark:divide-[#252530]">
               <tr>
                 <td class="py-2.5 px-3 font-bold">Access Admin Operations Hub</td>
                 <td class="py-2.5 px-3 text-center text-emerald-600 font-bold">✓ Granted</td>
@@ -414,9 +414,9 @@ function openRBACMatrixModal() {
           </table>
         </div>
 
-        <div class="flex items-center justify-between pt-2 border-t border-[#EDEDED] dark:border-[#2D2D38] text-xs">
-          <div class="text-stone-500">Active Session: <strong class="text-[#FF5000] rbac-current-name">User</strong> (<span class="rbac-role-badge">Role</span>)</div>
-          <button type="button" onclick="closeRBACMatrixModal()" class="btn-press px-4 py-2 rounded-xl bg-[#FF5000] text-white font-bold cursor-pointer">
+        <div class="flex items-center justify-between pt-2 border-t border-[#EFE4D6] dark:border-[#2D2D38] text-xs">
+          <div class="text-stone-500">Active Session: <strong class="text-[#FFA552] rbac-current-name">User</strong> (<span class="rbac-role-badge">Role</span>)</div>
+          <button type="button" onclick="closeRBACMatrixModal()" class="btn-press px-4 py-2 rounded-xl bg-[#FFA552] text-white font-bold cursor-pointer">
             Done
           </button>
         </div>

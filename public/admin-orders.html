@@ -12,9 +12,9 @@
       theme: {
         extend: {
           colors: {
-            sorbet: '#FF5000',
-            cotton: '#FFF3EC',
-            espresso: '#333333'
+            sorbet: '#FFA552',
+            cotton: '#F9F3EA',
+            espresso: '#2B1D1D'
           }
         }
       }
@@ -22,10 +22,10 @@
   </script>
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-<body class="bg-[#F5F5F5] dark:bg-[#121215] text-[#333333] dark:text-[#F4F4F6] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FF5000] selection:text-white pb-mobile-nav">
+<body class="bg-[#FDFBF7] dark:bg-[#121215] text-[#2B1D1D] dark:text-[#F4F4F6] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
   <!-- Admin Top Navigation Bar with RBAC Role Switcher -->
-  <header class="bg-white/95 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EDEDED] dark:border-[#2D2D38] sticky top-0 z-40 transition-all duration-300">
+  <header class="bg-[#FDFBF7]/95 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2D2D38] sticky top-0 z-40 transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
       <div class="flex items-center gap-4 sm:gap-6">
         
@@ -38,8 +38,8 @@
           />
           <div>
             <div class="flex items-center gap-1.5">
-              <span class="text-base sm:text-lg font-black text-[#333333] dark:text-white tracking-tight leading-none">Psa<span class="text-[#FF5000]">Online</span></span>
-              <span class="text-[9px] uppercase tracking-widest text-[#FF5000] font-black px-1.5 py-0.5 rounded bg-[#FF5000]/10 border border-[#FF5000]/40">Studio Ops</span>
+              <span class="text-base sm:text-lg font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">Psa<span class="text-[#FFA552]">Online</span></span>
+              <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black px-1.5 py-0.5 rounded bg-[#FFA552]/10 border border-[#FFA552]/40">Studio Ops</span>
             </div>
             <div class="text-[10px] text-stone-500 dark:text-stone-400 font-bold mt-0.5">Order Fulfillment & Courier Dispatch</div>
           </div>
@@ -47,18 +47,18 @@
 
         <!-- Desktop Nav Items -->
         <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-stone-600 dark:text-stone-300">
-          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-full hover:bg-[#FFF3EC] dark:hover:bg-[#20202A] hover:text-[#333333] transition">Reports & KPIs</a>
-          <a href="admin-orders.html" class="px-3 py-1.5 rounded-full bg-[#333333] text-white dark:bg-[#FF5000] dark:text-[#333333] shadow-xs">Orders & Slips</a>
-          <a href="admin-products.html" class="px-3 py-1.5 rounded-full hover:bg-[#FFF3EC] dark:hover:bg-[#20202A] hover:text-[#333333] transition">Drops & Stock</a>
-          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-full hover:bg-[#FFF3EC] dark:hover:bg-[#20202A] hover:text-[#333333] transition rbac-admin-only">KHQR Gateways</a>
-          <a href="admin-users.html" class="px-3 py-1.5 rounded-full hover:bg-[#FFF3EC] dark:hover:bg-[#20202A] hover:text-[#333333] transition rbac-admin-only">Staff & RBAC</a>
+          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition">Reports & KPIs</a>
+          <a href="admin-orders.html" class="px-3 py-1.5 rounded-full bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D] shadow-xs">Orders & Slips</a>
+          <a href="admin-products.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition">Drops & Stock</a>
+          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition rbac-admin-only">KHQR Gateways</a>
+          <a href="admin-users.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition rbac-admin-only">Staff & RBAC</a>
         </nav>
       </div>
 
       <!-- Action Items: RBAC Switcher, Theme & Storefront -->
       <div class="flex items-center gap-2 sm:gap-3">
         
-        <a href="home.html" target="_blank" class="hidden sm:inline-flex items-center gap-1 text-xs text-[#FF5000] font-black hover:underline transition">
+        <a href="home.html" target="_blank" class="hidden sm:inline-flex items-center gap-1 text-xs text-[#FFA552] font-black hover:underline transition">
           <span>Storefront</span>
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
         </a>
@@ -67,25 +67,25 @@
         <button 
           type="button" 
           onclick="toggleTheme()" 
-          class="theme-toggle-btn p-2 rounded-full border border-[#EDEDED] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#FFF3EC] dark:hover:bg-[#252530] text-[#333333] dark:text-white transition-all shadow-xs cursor-pointer" 
+          class="theme-toggle-btn p-2 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all shadow-xs cursor-pointer" 
           title="Toggle Theme"
         >
           <svg class="w-4 h-4 text-stone-700 dark:text-stone-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
         </button>
 
-        <div class="h-6 w-px bg-[#EDEDED] dark:bg-[#2D2D38] hidden sm:block"></div>
+        <div class="h-6 w-px bg-[#EFE4D6] dark:bg-[#2D2D38] hidden sm:block"></div>
 
         <!-- RBAC Interactive Role Switcher Pill -->
         <div class="relative group">
           <button 
             type="button" 
-            class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-[#1E1E26] border border-[#EDEDED] dark:border-[#32323D] hover:border-[#FF5000] transition shadow-xs cursor-pointer"
+            class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#32323D] hover:border-[#FFA552] transition shadow-xs cursor-pointer"
           >
-            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-[#FF5000] to-[#333333] text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
+            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-[#FFA552] to-[#2B1D1D] text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
               SO
             </div>
             <div class="hidden sm:block text-left text-xs leading-tight">
-              <div class="font-extrabold text-[#333333] dark:text-white rbac-current-name">Sokha Ouk</div>
+              <div class="font-extrabold text-[#2B1D1D] dark:text-white rbac-current-name">Sokha Ouk</div>
               <div class="flex items-center gap-1 mt-0.5">
                 <span class="rbac-role-badge">Admin</span>
                 <svg class="w-3 h-3 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -94,9 +94,9 @@
           </button>
 
           <!-- Dropdown Menu to test and switch roles with 1 click -->
-          <div class="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#1A1A22] rounded-2xl border-2 border-[#FF5000]/50 shadow-2xl p-2 hidden group-hover:block transition-all z-50 animate-fade-in-up">
-            <div class="px-3 py-2 border-b border-[#FFF3EC] dark:border-[#2D2D38]">
-              <div class="text-[10px] font-black uppercase text-[#FF5000] tracking-wider flex items-center justify-between">
+          <div class="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#1A1A22] rounded-2xl border-2 border-[#FFA552]/50 shadow-2xl p-2 hidden group-hover:block transition-all z-50 animate-fade-in-up">
+            <div class="px-3 py-2 border-b border-[#F9F3EA] dark:border-[#2D2D38]">
+              <div class="text-[10px] font-black uppercase text-[#FFA552] tracking-wider flex items-center justify-between">
                 <span>RBAC Role Switcher</span>
                 <span class="text-[9px] text-stone-400 font-mono">Live Session</span>
               </div>
@@ -107,7 +107,7 @@
                 <div class="flex items-center gap-2">
                   <span class="text-base">👑</span>
                   <div>
-                    <div class="font-bold text-[#333333] dark:text-white">Admin (Studio Lead)</div>
+                    <div class="font-bold text-[#2B1D1D] dark:text-white">Admin (Studio Lead)</div>
                     <div class="text-[10px] text-stone-400">Full reports, CSV exports & roles</div>
                   </div>
                 </div>
@@ -117,7 +117,7 @@
                 <div class="flex items-center gap-2">
                   <span class="text-base">⚡</span>
                   <div>
-                    <div class="font-bold text-[#333333] dark:text-white">Staff (Dispatch Team)</div>
+                    <div class="font-bold text-[#2B1D1D] dark:text-white">Staff (Dispatch Team)</div>
                     <div class="text-[10px] text-stone-400">Verify slips & orders</div>
                   </div>
                 </div>
@@ -127,16 +127,16 @@
                 <div class="flex items-center gap-2">
                   <span class="text-base">🛍️</span>
                   <div>
-                    <div class="font-bold text-[#333333] dark:text-white">Buyer (Customer)</div>
+                    <div class="font-bold text-[#2B1D1D] dark:text-white">Buyer (Customer)</div>
                     <div class="text-[10px] text-stone-400">Test 403 access restriction</div>
                   </div>
                 </div>
                 <span class="text-[10px] font-bold text-emerald-600">Select</span>
               </button>
             </div>
-            <div class="pt-2 border-t border-[#FFF3EC] dark:border-[#2D2D38] px-3 py-1.5 flex items-center justify-between text-[10px]">
-              <a href="admin-users.html" class="text-[#FF5000] font-bold hover:underline">Manage All Roles &rarr;</a>
-              <button onclick="openRBACMatrixModal()" class="text-stone-400 hover:text-[#FF5000] underline cursor-pointer">Security Matrix</button>
+            <div class="pt-2 border-t border-[#F9F3EA] dark:border-[#2D2D38] px-3 py-1.5 flex items-center justify-between text-[10px]">
+              <a href="admin-users.html" class="text-[#FFA552] font-bold hover:underline">Manage All Roles &rarr;</a>
+              <button onclick="openRBACMatrixModal()" class="text-stone-400 hover:text-[#FFA552] underline cursor-pointer">Security Matrix</button>
             </div>
           </div>
         </div>
@@ -149,25 +149,25 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 flex-1 w-full space-y-6">
     <div class="reveal-init flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <div class="text-xs font-bold text-[#FF5000] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+        <div class="text-xs font-bold text-[#FFA552] uppercase tracking-wider mb-1 flex items-center gap-1.5">
           <span>📦</span> Orders & Bank Proof Slips
         </div>
-        <h1 class="text-xl sm:text-2xl font-black text-[#333333] dark:text-white">Customer Orders & Bakong Slips</h1>
+        <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white">Customer Orders & Bakong Slips</h1>
         <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Verify Bakong universal transfer proofs, assign city couriers, and track deliveries.</p>
       </div>
 
       <div class="flex items-center gap-2">
-        <a href="dashboard-admin.html" class="px-3.5 py-2 rounded-xl bg-white dark:bg-[#1E1E26] border border-[#EDEDED] dark:border-[#32323D] hover:bg-[#FFF3EC] dark:hover:bg-[#252530] text-xs font-bold text-[#333333] dark:text-white transition shadow-xs flex items-center gap-1.5">
+        <a href="dashboard-admin.html" class="px-3.5 py-2 rounded-xl bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#32323D] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-xs font-bold text-[#2B1D1D] dark:text-white transition shadow-xs flex items-center gap-1.5">
           <span>📊 View Performance Report &rarr;</span>
         </a>
       </div>
     </div>
 
-    <div class="reveal-init delay-100 bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
+    <div class="reveal-init delay-100 bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr class="text-stone-400 border-b border-[#FFF3EC] dark:border-[#272732]">
+            <tr class="text-stone-400 border-b border-[#F9F3EA] dark:border-[#272732]">
               <th class="py-2.5 px-3">Order Number</th>
               <th class="py-2.5 px-3">Buyer & Contact</th>
               <th class="py-2.5 px-3">District Delivery Address</th>
@@ -177,58 +177,58 @@
               <th class="py-2.5 px-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#FFF3EC] dark:divide-[#252530]">
+          <tbody class="divide-y divide-[#F9F3EA] dark:divide-[#252530]">
             <!-- Order 1 -->
             <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
-              <td class="py-3 px-3 font-mono font-black text-[#333333] dark:text-white">#PSA-902184</td>
+              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902184</td>
               <td class="py-3 px-3">
-                <div class="font-bold text-[#333333] dark:text-white">Sophea Chhum</div>
-                <div class="text-[11px] text-[#FF5000] font-bold">+855 12 345 678</div>
+                <div class="font-bold text-[#2B1D1D] dark:text-white">Sophea Chhum</div>
+                <div class="text-[11px] text-[#FFA552] font-bold">+855 12 345 678</div>
               </td>
               <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate">House 42, St 240, Daun Penh, Phnom Penh</td>
-              <td class="py-3 px-3 font-black text-[#333333] dark:text-white">$18.50 <span class="text-[10px] text-[#FF5000] font-semibold">(75,850 ៛)</span></td>
+              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$18.50 <span class="text-[10px] text-[#FFA552] font-semibold">(75,850 ៛)</span></td>
               <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">Bakong KHQR (ABA)</td>
               <td class="py-3 px-3">
                 <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-black text-[10px] border border-amber-200">Slip Uploaded</span>
               </td>
               <td class="py-3 px-3 text-right">
-                <a href="order-detail--admin-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-[#FF5000] hover:bg-[#E64500] text-white font-black text-[11px] transition shadow-xs">Review Slip</a>
+                <a href="order-detail--admin-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-[11px] transition shadow-xs">Review Slip</a>
               </td>
             </tr>
 
             <!-- Order 2 -->
             <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
-              <td class="py-3 px-3 font-mono font-black text-[#333333] dark:text-white">#PSA-902183</td>
+              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902183</td>
               <td class="py-3 px-3">
-                <div class="font-bold text-[#333333] dark:text-white">Bona Seng</div>
-                <div class="text-[11px] text-[#FF5000] font-bold">+855 98 765 432</div>
+                <div class="font-bold text-[#2B1D1D] dark:text-white">Bona Seng</div>
+                <div class="text-[11px] text-[#FFA552] font-bold">+855 98 765 432</div>
               </td>
               <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate">Toul Kork, St 315, House #14, Phnom Penh</td>
-              <td class="py-3 px-3 font-black text-[#333333] dark:text-white">$24.00 <span class="text-[10px] text-[#FF5000] font-semibold">(98,400 ៛)</span></td>
+              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$24.00 <span class="text-[10px] text-[#FFA552] font-semibold">(98,400 ៛)</span></td>
               <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">Bakong KHQR (ACLEDA)</td>
               <td class="py-3 px-3">
                 <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-black text-[10px] border border-amber-200">Slip Uploaded</span>
               </td>
               <td class="py-3 px-3 text-right">
-                <a href="order-detail--admin-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-[#FF5000] hover:bg-[#E64500] text-white font-black text-[11px] transition shadow-xs">Review Slip</a>
+                <a href="order-detail--admin-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-[11px] transition shadow-xs">Review Slip</a>
               </td>
             </tr>
 
             <!-- Order 3 -->
             <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
-              <td class="py-3 px-3 font-mono font-black text-[#333333] dark:text-white">#PSA-902182</td>
+              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902182</td>
               <td class="py-3 px-3">
-                <div class="font-bold text-[#333333] dark:text-white">Dara Heng</div>
-                <div class="text-[11px] text-[#FF5000] font-bold">+855 15 889 911</div>
+                <div class="font-bold text-[#2B1D1D] dark:text-white">Dara Heng</div>
+                <div class="text-[11px] text-[#FFA552] font-bold">+855 15 889 911</div>
               </td>
               <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate">St 51, BKK1, Phnom Penh</td>
-              <td class="py-3 px-3 font-black text-[#333333] dark:text-white">$12.50 <span class="text-[10px] text-[#FF5000] font-semibold">(51,250 ៛)</span></td>
+              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$12.50 <span class="text-[10px] text-[#FFA552] font-semibold">(51,250 ៛)</span></td>
               <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">Cash On Delivery</td>
               <td class="py-3 px-3">
                 <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-black text-[10px] border border-blue-200">Courier Assigned 🛵</span>
               </td>
               <td class="py-3 px-3 text-right">
-                <a href="order-detail--staff-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-[#333333] dark:text-white font-black text-[11px] transition">Track Delivery</a>
+                <a href="order-detail--staff-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-[#2B1D1D] dark:text-white font-black text-[11px] transition">Track Delivery</a>
               </td>
             </tr>
           </tbody>

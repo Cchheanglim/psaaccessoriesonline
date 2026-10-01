@@ -7,12 +7,11 @@
   <meta name="description" content="View items in your bag, update quantities, and proceed to Bakong KHQR checkout." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="assets/css/taobao.css" />
 </head>
-<body class="bg-[#F5F5F5] text-[#333333] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FF5000] selection:text-white pb-mobile-nav">
+<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
   <!-- Header -->
-  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#EDEDED] transition-all duration-300">
+  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#EFE4D6] transition-all duration-300">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
       <a href="home.html" class="flex items-center gap-2.5 sm:gap-3 group" title="Psa Accessories Online">
         <img 
@@ -20,21 +19,21 @@
           alt="Psa Accessories Online Logo" 
           class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
         />
-        <span class="text-lg sm:text-xl font-black text-[#333333] dark:text-white">Psa<span class="text-[#FF5000]">Online</span></span>
+        <span class="text-lg sm:text-xl font-black text-[#2B1D1D] dark:text-white">Psa<span class="text-[#FFA552]">Online</span></span>
       </a>
       <div class="flex items-center gap-3">
         <!-- Dark / Light Theme Toggle Button -->
         <button 
           type="button" 
           onclick="toggleTheme()" 
-          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EDEDED] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#FFF3EC] dark:hover:bg-[#252530] text-[#333333] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
+          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
           title="Toggle Dark Theme"
           aria-label="Toggle Dark Theme"
         >
           <svg class="w-4 h-4 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
           <span class="hidden sm:inline font-bold">Dark</span>
         </button>
-        <a href="products.html" class="text-xs font-bold text-[#FF5000] hover:underline flex items-center gap-1">
+        <a href="products.html" class="text-xs font-bold text-[#FFA552] hover:underline flex items-center gap-1">
           <span>&larr; Continue Browsing</span>
         </a>
       </div>
@@ -44,9 +43,9 @@
   <!-- Cart Page Body -->
   <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 flex-1 w-full space-y-8">
 
-    <div class="reveal-init flex items-center justify-between border-b border-[#EDEDED] pb-4">
+    <div class="reveal-init flex items-center justify-between border-b border-[#EFE4D6] pb-4">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-black text-[#333333] tracking-tight">Your Shopping Bag</h1>
+        <h1 class="text-2xl sm:text-3xl font-black text-[#2B1D1D] tracking-tight">Your Shopping Bag</h1>
         <p class="text-xs text-stone-500 mt-1">Trendy aesthetic pieces ready for courier dispatch in Phnom Penh.</p>
       </div>
       <button onclick="clearCart()" class="text-xs text-stone-400 hover:text-red-600 font-bold transition-colors">
@@ -64,17 +63,17 @@
 
       <!-- Order Summary Card (1 col in Cotton Beige with Sorbet Accent) -->
       <div class="reveal-init delay-100 space-y-4">
-        <div class="bg-white rounded-3xl border-2 border-[#EDEDED] p-6 shadow-lg space-y-5 sticky top-28">
-          <h3 class="text-sm font-black text-[#333333] border-b border-[#FFF3EC] pb-3">Order Summary</h3>
+        <div class="bg-white rounded-3xl border-2 border-[#EFE4D6] p-6 shadow-lg space-y-5 sticky top-28">
+          <h3 class="text-sm font-black text-[#2B1D1D] border-b border-[#F9F3EA] pb-3">Order Summary</h3>
 
           <div class="space-y-2.5 text-xs text-stone-600">
             <div class="flex justify-between">
               <span>Subtotal (<span id="cartCountSummary">0</span> items)</span>
-              <span class="font-bold text-[#333333]" id="summarySubtotal">$0.00</span>
+              <span class="font-bold text-[#2B1D1D]" id="summarySubtotal">$0.00</span>
             </div>
             <div class="flex justify-between">
               <span>Courier Delivery (Phnom Penh)</span>
-              <span class="font-bold text-[#FF5000]" id="summaryDelivery">$1.50</span>
+              <span class="font-bold text-[#FFA552]" id="summaryDelivery">$1.50</span>
             </div>
             <div class="flex justify-between text-[11px] text-stone-400">
               <span>Exchange Rate</span>
@@ -82,18 +81,18 @@
             </div>
           </div>
 
-          <div class="border-t border-[#FFF3EC] pt-4 flex justify-between items-baseline">
-            <span class="text-sm font-black text-[#333333]">Estimated Total</span>
+          <div class="border-t border-[#F9F3EA] pt-4 flex justify-between items-baseline">
+            <span class="text-sm font-black text-[#2B1D1D]">Estimated Total</span>
             <div class="text-right">
-              <div class="text-2xl font-black text-[#333333] tracking-tight" id="summaryTotalUSD">$0.00</div>
-              <div class="text-xs text-[#FF5000] font-bold khmer-font" id="summaryTotalKHR">0 ៛</div>
+              <div class="text-2xl font-black text-[#2B1D1D] tracking-tight" id="summaryTotalUSD">$0.00</div>
+              <div class="text-xs text-[#FFA552] font-bold khmer-font" id="summaryTotalKHR">0 ៛</div>
             </div>
           </div>
 
           <a
             href="checkout.html"
             id="checkoutLinkBtn"
-            class="btn-press w-full py-3.5 rounded-2xl bg-[#FF5000] hover:bg-[#E64500] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 transition-all block text-center"
+            class="btn-press w-full py-3.5 rounded-2xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 transition-all block text-center"
           >
             <span>Proceed to Checkout</span>
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -111,30 +110,29 @@
   </main>
 
   <!-- Mobile Bottom Navigation Bar -->
-  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-lg border-t border-[#EDEDED] px-4 py-2 flex items-center justify-around text-center select-none shadow-[0_-4px_20px_rgba(0, 0, 0,0.06)]">
-    <a href="home.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#333333] text-[10px]">
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-lg border-t border-[#EFE4D6] px-4 py-2 flex items-center justify-around text-center select-none shadow-[0_-4px_20px_rgba(43,29,29,0.06)]">
+    <a href="home.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
       <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       <span>Store</span>
     </a>
-    <a href="products.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#333333] text-[10px]">
+    <a href="products.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
       <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
       <span>Catalog</span>
     </a>
-    <a href="cart.html" class="flex flex-col items-center gap-1 text-[#333333] font-bold text-[10px]">
+    <a href="cart.html" class="flex flex-col items-center gap-1 text-[#2B1D1D] font-bold text-[10px]">
       <div class="relative">
-        <svg class="w-5 h-5 text-[#FF5000]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-        <span class="mobile-cart-badge hidden absolute -top-1.5 -right-2 bg-[#FF5000] text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">0</span>
+        <svg class="w-5 h-5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span class="mobile-cart-badge hidden absolute -top-1.5 -right-2 bg-[#FFA552] text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">0</span>
       </div>
       <span>Bag</span>
     </a>
-    <a href="dashboard-buyer.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#333333] text-[10px]">
+    <a href="dashboard-buyer.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
       <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
       <span>Account</span>
     </a>
   </nav>
 
   <script src="assets/js/store.js"></script>
-  <script src="assets/js/taobao.js"></script>
   <script>
     function renderCartPage() {
       const container = document.getElementById('cartItemsContainer');
@@ -149,13 +147,13 @@
 
       if (cart.length === 0) {
         container.innerHTML = `
-          <div class="bg-white rounded-3xl border border-[#EDEDED] p-10 text-center space-y-4">
-            <div class="w-16 h-16 rounded-full bg-[#FFF3EC] text-[#FF5000] border border-[#FF5000] flex items-center justify-center mx-auto text-2xl">
+          <div class="bg-white rounded-3xl border border-[#EFE4D6] p-10 text-center space-y-4">
+            <div class="w-16 h-16 rounded-full bg-[#F9F3EA] text-[#FFA552] border border-[#FFA552] flex items-center justify-center mx-auto text-2xl">
               🛍️
             </div>
-            <h3 class="text-base font-extrabold text-[#333333]">Your bag is currently empty</h3>
+            <h3 class="text-base font-extrabold text-[#2B1D1D]">Your bag is currently empty</h3>
             <p class="text-xs text-stone-500 max-w-sm mx-auto">Explore our Gen-Z catalog for chunky rings, chains, sunglasses, and aesthetic claw clips.</p>
-            <a href="products.html" class="btn-press inline-block px-6 py-2.5 rounded-xl bg-[#FF5000] text-white font-extrabold text-xs shadow-xs">
+            <a href="products.html" class="btn-press inline-block px-6 py-2.5 rounded-xl bg-[#FFA552] text-white font-extrabold text-xs shadow-xs">
               Explore Accessories &rarr;
             </a>
           </div>
@@ -179,25 +177,25 @@
         totalCount += item.quantity;
 
         return `
-          <div class="bg-white rounded-2xl border border-[#EDEDED] p-4 sm:p-5 flex items-center gap-4 shadow-xs">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-white border border-[#EDEDED] p-1 overflow-hidden shrink-0 flex items-center justify-center">
+          <div class="bg-white rounded-2xl border border-[#EFE4D6] p-4 sm:p-5 flex items-center gap-4 shadow-xs">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-white border border-[#EFE4D6] p-1 overflow-hidden shrink-0 flex items-center justify-center">
               <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover rounded-lg" />
             </div>
 
             <div class="flex-1 min-w-0">
-              <div class="text-[10px] font-bold text-[#FF5000] uppercase tracking-wider">${item.categoryLabel}</div>
-              <h4 class="text-xs sm:text-sm font-extrabold text-[#333333] truncate">${item.title}</h4>
-              <div class="text-xs font-black text-[#333333] mt-1">${formatPrice(item.priceUSD, item.priceKHR)}</div>
+              <div class="text-[10px] font-bold text-[#FFA552] uppercase tracking-wider">${item.categoryLabel}</div>
+              <h4 class="text-xs sm:text-sm font-extrabold text-[#2B1D1D] truncate">${item.title}</h4>
+              <div class="text-xs font-black text-[#2B1D1D] mt-1">${formatPrice(item.priceUSD, item.priceKHR)}</div>
             </div>
 
-            <div class="flex items-center border border-[#EDEDED] rounded-xl bg-[#FFF3EC] p-0.5">
+            <div class="flex items-center border border-[#EFE4D6] rounded-xl bg-[#F9F3EA] p-0.5">
               <button onclick="updateCartQuantity('${item.id}', -1)" class="w-7 h-7 rounded-lg text-stone-600 hover:bg-white font-black text-xs flex items-center justify-center transition-colors">&minus;</button>
-              <span class="w-8 text-center font-black text-xs text-[#333333]">${item.quantity}</span>
+              <span class="w-8 text-center font-black text-xs text-[#2B1D1D]">${item.quantity}</span>
               <button onclick="updateCartQuantity('${item.id}', 1)" class="w-7 h-7 rounded-lg text-stone-600 hover:bg-white font-black text-xs flex items-center justify-center transition-colors">&plus;</button>
             </div>
 
             <div class="text-right shrink-0">
-              <div class="text-xs sm:text-sm font-black text-[#333333]">$${itemTotal.toFixed(2)}</div>
+              <div class="text-xs sm:text-sm font-black text-[#2B1D1D]">$${itemTotal.toFixed(2)}</div>
               <button onclick="removeFromCart('${item.id}')" class="text-[11px] text-stone-400 hover:text-red-600 font-bold transition-colors mt-1">
                 Remove
               </button>

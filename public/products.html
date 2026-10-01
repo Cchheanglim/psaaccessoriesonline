@@ -12,21 +12,20 @@
       theme: {
         extend: {
           colors: {
-            sorbet: '#FF5000',
-            cotton: '#FFF3EC',
-            espresso: '#333333'
+            sorbet: '#FFA552',
+            cotton: '#F9F3EA',
+            espresso: '#2B1D1D'
           }
         }
       }
     };
   </script>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="assets/css/taobao.css" />
 </head>
-<body class="bg-[#F5F5F5] text-[#333333] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FF5000] selection:text-white pb-mobile-nav">
+<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
   <!-- Header -->
-  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#EDEDED] transition-all duration-300">
+  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#EFE4D6] transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
       <a href="home.html" class="flex items-center gap-2.5 sm:gap-3 group" title="Psa Accessories Online">
         <img 
@@ -35,10 +34,10 @@
           class="h-10 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
         />
         <div class="flex flex-col">
-          <div class="text-xl sm:text-2xl font-black text-[#333333] dark:text-white tracking-tight leading-none">
-            Psa<span class="text-[#FF5000]">Online</span>
+          <div class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">
+            Psa<span class="text-[#FFA552]">Online</span>
           </div>
-          <span class="text-[9px] uppercase tracking-widest text-[#FF5000] font-black mt-0.5">
+          <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">
             Accessories &bull; Studio
           </span>
         </div>
@@ -52,9 +51,9 @@
             id="searchInput"
             oninput="handleSearch(this.value)"
             placeholder="Search rings, chains, sunglasses, claw clips..."
-            class="w-full pl-10 pr-4 py-2 bg-white hover:bg-white focus:bg-white text-xs border border-[#EDEDED] focus:border-[#FF5000] rounded-full focus:outline-none focus:ring-2 focus:ring-[#FF5000]/20 transition-all text-[#333333] placeholder-stone-400"
+            class="w-full pl-10 pr-4 py-2 bg-white hover:bg-white focus:bg-white text-xs border border-[#EFE4D6] focus:border-[#FFA552] rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFA552]/20 transition-all text-[#2B1D1D] placeholder-stone-400"
           />
-          <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#FF5000]">
+          <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#FFA552]">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
           </div>
         </div>
@@ -66,7 +65,7 @@
         <button 
           type="button" 
           onclick="toggleTheme()" 
-          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EDEDED] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#FFF3EC] dark:hover:bg-[#252530] text-[#333333] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
+          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
           title="Toggle Dark Theme"
           aria-label="Toggle Dark Theme"
         >
@@ -74,16 +73,16 @@
           <span class="hidden sm:inline font-bold">Dark</span>
         </button>
 
-        <div class="flex items-center bg-[#FFF3EC] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EDEDED] dark:border-[#32323D] text-[11px]">
-          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#333333] text-white shadow-xs">USD</button>
-          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#333333] dark:text-white">KHR</button>
+        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
+          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD</button>
+          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-white">KHR</button>
         </div>
 
         <!-- Wishlist Button -->
         <button 
           type="button" 
           onclick="openWishlistModal()" 
-          class="relative p-2.5 rounded-full bg-white dark:bg-[#1E1E26] hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-[#EDEDED] dark:border-[#32323D] text-[#333333] dark:text-white transition-transform hover:scale-105 cursor-pointer" 
+          class="relative p-2.5 rounded-full bg-white dark:bg-[#1E1E26] hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white transition-transform hover:scale-105 cursor-pointer" 
           title="Saved Items / Wishlist"
           aria-label="View Wishlist"
         >
@@ -91,13 +90,13 @@
           <span class="wishlist-count-badge absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-[#1E1E26] shadow-sm hidden">0</span>
         </button>
 
-        <a href="cart.html" class="relative p-2.5 rounded-full bg-white hover:bg-[#FFF3EC] border border-[#EDEDED] text-[#333333] transition-transform hover:scale-105" title="Bag">
-          <svg class="w-5 h-5 text-[#333333]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-          <span class="cart-count-badge absolute -top-1 -right-1 bg-[#FF5000] text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm hidden">0</span>
+        <a href="cart.html" class="relative p-2.5 rounded-full bg-white hover:bg-[#F9F3EA] border border-[#EFE4D6] text-[#2B1D1D] transition-transform hover:scale-105" title="Bag">
+          <svg class="w-5 h-5 text-[#2B1D1D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+          <span class="cart-count-badge absolute -top-1 -right-1 bg-[#FFA552] text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm hidden">0</span>
         </a>
 
-        <a href="dashboard-buyer.html" class="p-1 rounded-full hover:ring-2 hover:ring-[#FF5000] transition flex items-center gap-1.5 text-xs font-bold text-[#333333]">
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FF5000] to-[#333333] text-white font-black flex items-center justify-center text-xs shadow-xs">
+        <a href="dashboard-buyer.html" class="p-1 rounded-full hover:ring-2 hover:ring-[#FFA552] transition flex items-center gap-1.5 text-xs font-bold text-[#2B1D1D]">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFA552] to-[#2B1D1D] text-white font-black flex items-center justify-center text-xs shadow-xs">
             SC
           </div>
         </a>
@@ -109,24 +108,24 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 flex-1 w-full space-y-6">
 
     <!-- Top Banner & Filters -->
-    <div class="reveal-init flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EDEDED] pb-6">
+    <div class="reveal-init flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EFE4D6] pb-6">
       <div>
-        <div class="text-xs font-extrabold text-[#FF5000] uppercase tracking-wider mb-1 flex items-center gap-1.5">
+        <div class="text-xs font-extrabold text-[#FFA552] uppercase tracking-wider mb-1 flex items-center gap-1.5">
           <a href="home.html" class="hover:underline">Home</a>
           <span>/</span>
           <span>Accessories Catalog</span>
         </div>
-        <h1 class="text-2xl sm:text-4xl font-black text-[#333333] tracking-tight">The Gen-Z Edit</h1>
+        <h1 class="text-2xl sm:text-4xl font-black text-[#2B1D1D] tracking-tight">The Gen-Z Edit</h1>
         <p class="text-xs sm:text-sm text-stone-500 mt-1">Trendy streetwear essentials, cyber silver chains, 90s shades & aesthetic hair pins.</p>
       </div>
 
       <!-- Quick Sort -->
       <div class="flex items-center gap-3">
-        <label for="sortSelect" class="text-xs font-bold text-[#333333] shrink-0">Sort By:</label>
+        <label for="sortSelect" class="text-xs font-bold text-[#2B1D1D] shrink-0">Sort By:</label>
         <select
           id="sortSelect"
           onchange="handleSort(this.value)"
-          class="px-3 py-2 rounded-xl bg-white border border-[#EDEDED] text-xs font-bold text-[#333333] focus:outline-none focus:border-[#FF5000] shadow-xs"
+          class="px-3 py-2 rounded-xl bg-white border border-[#EFE4D6] text-xs font-bold text-[#2B1D1D] focus:outline-none focus:border-[#FFA552] shadow-xs"
         >
           <option value="featured">✨ Trending Picks</option>
           <option value="price-asc">Price: Low to High ($)</option>
@@ -138,22 +137,22 @@
 
     <!-- Category Filters Scrollable Bar -->
     <div class="reveal-init delay-100 flex items-center gap-2 overflow-x-auto pb-2 text-xs font-bold">
-      <button onclick="setCategoryFilter('all', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-[#333333] text-white shadow-xs shrink-0">
+      <button onclick="setCategoryFilter('all', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-[#2B1D1D] text-white shadow-xs shrink-0">
         All Pieces (<span id="totalCountBadge">12</span>)
       </button>
-      <button onclick="setCategoryFilter('jewelry', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#333333] hover:bg-[#FFF3EC] border border-[#EDEDED] transition-colors shrink-0">
+      <button onclick="setCategoryFilter('jewelry', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
         Y2K & Cyber Jewelry
       </button>
-      <button onclick="setCategoryFilter('eyewear', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#333333] hover:bg-[#FFF3EC] border border-[#EDEDED] transition-colors shrink-0">
+      <button onclick="setCategoryFilter('eyewear', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
         Shades & Eyewear
       </button>
-      <button onclick="setCategoryFilter('bags', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#333333] hover:bg-[#FFF3EC] border border-[#EDEDED] transition-colors shrink-0">
+      <button onclick="setCategoryFilter('bags', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
         Puffy Cloud Bags
       </button>
-      <button onclick="setCategoryFilter('hair', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#333333] hover:bg-[#FFF3EC] border border-[#EDEDED] transition-colors shrink-0">
+      <button onclick="setCategoryFilter('hair', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
         Claw Clips & Pins
       </button>
-      <button onclick="setCategoryFilter('charms', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#333333] hover:bg-[#FFF3EC] border border-[#EDEDED] transition-colors shrink-0">
+      <button onclick="setCategoryFilter('charms', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
         Phone Charms
       </button>
     </div>
@@ -165,12 +164,12 @@
 
     <!-- Empty State -->
     <div id="emptyCatalog" class="hidden text-center py-16 space-y-4">
-      <div class="w-16 h-16 rounded-full bg-[#FFF3EC] text-[#FF5000] border border-[#FF5000] flex items-center justify-center mx-auto text-2xl">
+      <div class="w-16 h-16 rounded-full bg-[#F9F3EA] text-[#FFA552] border border-[#FFA552] flex items-center justify-center mx-auto text-2xl">
         🔍
       </div>
-      <h3 class="text-base font-extrabold text-[#333333]">No matching accessories found</h3>
+      <h3 class="text-base font-extrabold text-[#2B1D1D]">No matching accessories found</h3>
       <p class="text-xs text-stone-500">Try adjusting your search query or reset your filters.</p>
-      <button onclick="resetFilters()" class="btn-press px-5 py-2.5 rounded-xl bg-[#FF5000] text-white font-bold text-xs shadow-xs">
+      <button onclick="resetFilters()" class="btn-press px-5 py-2.5 rounded-xl bg-[#FFA552] text-white font-bold text-xs shadow-xs">
         Reset All Filters
       </button>
     </div>
@@ -178,7 +177,7 @@
   </main>
 
   <!-- Footer with Visit Us on other platforms -->
-  <footer class="bg-white dark:bg-[#141418] border-t border-[#EDEDED] dark:border-[#272732] mt-auto">
+  <footer class="bg-[#F9F3EA] dark:bg-[#141418] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
         
@@ -186,7 +185,7 @@
         <div class="col-span-2 md:col-span-1 space-y-3">
           <div class="flex items-center gap-2">
             <img src="assets/images/psa-accessories-online-logo.svg" alt="Psa Accessories Online" class="h-9 w-auto object-contain" />
-            <span class="text-lg font-black text-[#333333] dark:text-white">Psa<span class="text-[#FF5000]">Online</span></span>
+            <span class="text-lg font-black text-[#2B1D1D] dark:text-white">Psa<span class="text-[#FFA552]">Online</span></span>
           </div>
           <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-medium">
             Gen-Z streetwear accessories, cyber Y2K jewelry, and everyday aesthetic essentials based in Phnom Penh.
@@ -195,40 +194,40 @@
 
         <!-- Col 2: Categories -->
         <div class="space-y-2">
-          <div class="text-xs font-bold uppercase tracking-wider text-[#333333] dark:text-white">Categories</div>
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Categories</div>
           <ul class="text-xs space-y-1.5 text-stone-600 dark:text-stone-300 font-medium">
-            <li><a href="products.html?category=jewelry" class="hover:text-[#FF5000]">Y2K & Cyber Jewelry</a></li>
-            <li><a href="products.html?category=eyewear" class="hover:text-[#FF5000]">Shades & Eyewear</a></li>
-            <li><a href="products.html?category=bags" class="hover:text-[#FF5000]">Puffy Cloud Bags</a></li>
-            <li><a href="products.html?category=hair" class="hover:text-[#FF5000]">Claw Clips & Pins</a></li>
+            <li><a href="products.html?category=jewelry" class="hover:text-[#FFA552]">Y2K & Cyber Jewelry</a></li>
+            <li><a href="products.html?category=eyewear" class="hover:text-[#FFA552]">Shades & Eyewear</a></li>
+            <li><a href="products.html?category=bags" class="hover:text-[#FFA552]">Puffy Cloud Bags</a></li>
+            <li><a href="products.html?category=hair" class="hover:text-[#FFA552]">Claw Clips & Pins</a></li>
           </ul>
         </div>
 
         <!-- Col 3: Visit Us (Socials) -->
         <div class="space-y-2">
-          <div class="text-xs font-bold uppercase tracking-wider text-[#333333] dark:text-white">Visit Us (Socials)</div>
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Visit Us (Socials)</div>
           <ul class="text-xs space-y-2 font-medium">
             <li>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FF5000] transition-colors">
-                <span class="text-[#FF5000] font-black">IG</span>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">IG</span>
                 <span>Instagram (@psaonline_kh)</span>
               </a>
             </li>
             <li>
-              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FF5000] transition-colors">
-                <span class="text-[#FF5000] font-black">TikTok</span>
+              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">TikTok</span>
                 <span>TikTok (@psaonline)</span>
               </a>
             </li>
             <li>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FF5000] transition-colors">
-                <span class="text-[#FF5000] font-black">FB</span>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">FB</span>
                 <span>Facebook Page</span>
               </a>
             </li>
             <li>
-              <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FF5000] transition-colors">
-                <span class="text-[#FF5000] font-black">X</span>
+              <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">X</span>
                 <span>X / Twitter (@psaonline)</span>
               </a>
             </li>
@@ -237,9 +236,9 @@
 
         <!-- Col 4: Payments Accepted -->
         <div class="space-y-2">
-          <div class="text-xs font-bold uppercase tracking-wider text-[#333333] dark:text-white">Accepted Payments</div>
-          <div class="p-3 bg-white dark:bg-[#1E1E26] border border-[#EDEDED] dark:border-[#30303E] rounded-xl space-y-1.5 text-xs">
-            <div class="font-bold text-[#333333] dark:text-white flex items-center gap-1.5">
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Accepted Payments</div>
+          <div class="p-3 bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#30303E] rounded-xl space-y-1.5 text-xs">
+            <div class="font-bold text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-red-600"></span>
               Bakong Universal KHQR
             </div>
@@ -249,7 +248,7 @@
 
       </div>
 
-      <div class="mt-8 pt-6 border-t border-[#EDEDED] dark:border-[#272732] flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 dark:text-stone-400 gap-2">
+      <div class="mt-8 pt-6 border-t border-[#EFE4D6] dark:border-[#272732] flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 dark:text-stone-400 gap-2">
         <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
         <div class="flex items-center gap-4 text-[11px]">
           <span>Made for Gen-Z in Cambodia 🇰🇭</span>
@@ -259,13 +258,13 @@
   </footer>
 
   <!-- Mobile Bottom Navigation Bar -->
-  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-lg border-t border-[#EDEDED] px-4 py-2 flex items-center justify-around text-center select-none shadow-[0_-4px_20px_rgba(0, 0, 0,0.06)]">
-    <a href="home.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#333333] text-[10px]">
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-lg border-t border-[#EFE4D6] px-4 py-2 flex items-center justify-around text-center select-none shadow-[0_-4px_20px_rgba(43,29,29,0.06)]">
+    <a href="home.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
       <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
       <span>Store</span>
     </a>
-    <a href="products.html" class="flex flex-col items-center gap-1 text-[#333333] font-bold text-[10px]">
-      <svg class="w-5 h-5 text-[#FF5000]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+    <a href="products.html" class="flex flex-col items-center gap-1 text-[#2B1D1D] font-bold text-[10px]">
+      <svg class="w-5 h-5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
       <span>Catalog</span>
     </a>
     <button type="button" onclick="openWishlistModal()" class="flex flex-col items-center gap-1 text-stone-500 hover:text-rose-500 text-[10px] cursor-pointer">
@@ -275,21 +274,20 @@
       </div>
       <span>Wishlist</span>
     </button>
-    <a href="cart.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#333333] text-[10px]">
+    <a href="cart.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
       <div class="relative">
         <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-        <span class="mobile-cart-badge hidden absolute -top-1.5 -right-2 bg-[#FF5000] text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">0</span>
+        <span class="mobile-cart-badge hidden absolute -top-1.5 -right-2 bg-[#FFA552] text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">0</span>
       </div>
       <span>Bag</span>
     </a>
-    <a href="dashboard-buyer.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#333333] text-[10px]">
+    <a href="dashboard-buyer.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
       <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
       <span>Account</span>
     </a>
   </nav>
 
   <script src="assets/js/store.js"></script>
-  <script src="assets/js/taobao.js"></script>
   <script>
     let currentCategory = 'all';
     let searchQuery = '';
@@ -351,7 +349,7 @@
               />
             </a>
             
-            <div class="absolute top-3 left-3 bg-[#FF5000] text-white px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-xs pointer-events-none">
+            <div class="absolute top-3 left-3 bg-[#FFA552] text-white px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-xs pointer-events-none">
               ${item.badge}
             </div>
 
@@ -361,7 +359,7 @@
                 type="button"
                 data-wishlist-id="${item.id}"
                 onclick="toggleWishlist('${item.id}', event)"
-                class="wishlist-btn w-8 h-8 rounded-full bg-white/95 hover:bg-rose-50 text-stone-400 hover:text-rose-500 shadow-md border border-[#EDEDED] dark:border-[#32323D] dark:bg-[#1E1E26] dark:hover:bg-rose-950/40 flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer ${isInWishlist(item.id) ? 'active-wishlist text-rose-500' : ''}"
+                class="wishlist-btn w-8 h-8 rounded-full bg-white/95 hover:bg-rose-50 text-stone-400 hover:text-rose-500 shadow-md border border-[#EFE4D6] dark:border-[#32323D] dark:bg-[#1E1E26] dark:hover:bg-rose-950/40 flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer ${isInWishlist(item.id) ? 'active-wishlist text-rose-500' : ''}"
                 title="${isInWishlist(item.id) ? 'Remove from Wishlist' : 'Save to Wishlist'}"
                 aria-label="Wishlist ${item.title}"
               >
@@ -371,7 +369,7 @@
               <button
                 type="button"
                 onclick="openQuickView('${item.id}', event)"
-                class="quick-view-badge-btn w-8 h-8 rounded-full bg-white/95 hover:bg-[#E64500] text-[#333333] hover:text-white shadow-md border border-[#EDEDED] dark:border-[#32323D] dark:bg-[#1E1E26] dark:text-white flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer"
+                class="quick-view-badge-btn w-8 h-8 rounded-full bg-white/95 hover:bg-[#FFA552] text-[#2B1D1D] hover:text-white shadow-md border border-[#EFE4D6] dark:border-[#32323D] dark:bg-[#1E1E26] dark:text-white flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer"
                 title="Quick View ${item.title}"
                 aria-label="Quick View ${item.title}"
               >
@@ -384,15 +382,15 @@
               <button
                 type="button"
                 onclick="openQuickView('${item.id}', event)"
-                class="flex-1 py-2 px-2 rounded-xl bg-white/95 hover:bg-white text-[#333333] hover:text-[#FF5000] dark:bg-[#1E1E26]/95 dark:text-white dark:hover:text-[#FF5000] font-black text-xs shadow-md border border-[#EDEDED] dark:border-[#32323D] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                class="flex-1 py-2 px-2 rounded-xl bg-white/95 hover:bg-white text-[#2B1D1D] hover:text-[#FFA552] dark:bg-[#1E1E26]/95 dark:text-white dark:hover:text-[#FFA552] font-black text-xs shadow-md border border-[#EFE4D6] dark:border-[#32323D] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
-                <svg class="w-3.5 h-3.5 text-[#FF5000]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                 <span>Quick View</span>
               </button>
               <button
                 type="button"
                 onclick="addToCart('${item.id}', 1)"
-                class="py-2 px-3 rounded-xl bg-[#FF5000] hover:bg-[#E64500] text-white font-black text-xs shadow-md flex items-center justify-center gap-1 transition-all cursor-pointer"
+                class="py-2 px-3 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md flex items-center justify-center gap-1 transition-all cursor-pointer"
                 title="Quick Add to Bag"
               >
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
@@ -403,32 +401,31 @@
 
           <div class="p-3.5 sm:p-4 flex-1 flex flex-col justify-between space-y-2">
             <div>
-              <div class="flex items-center justify-between text-[11px] text-[#FF5000] font-bold">
+              <div class="flex items-center justify-between text-[11px] text-[#FFA552] font-bold">
                 <span>${item.categoryLabel}</span>
                 <span class="text-amber-500">★ ${item.rating}</span>
               </div>
-              <h3 class="text-xs sm:text-sm font-extrabold text-[#333333] dark:text-white line-clamp-1 mt-1 hover:text-[#FF5000] transition-colors">
+              <h3 class="text-xs sm:text-sm font-extrabold text-[#2B1D1D] dark:text-white line-clamp-1 mt-1 hover:text-[#FFA552] transition-colors">
                 <a href="product-detail.html?id=${item.id}">${item.title}</a>
               </h3>
               <p class="text-[11px] text-stone-500 dark:text-stone-300 khmer-font line-clamp-1 mt-0.5">${item.titleKhmer}</p>
-              ${tbTagsHtml(item)}
             </div>
 
-            <div class="pt-2 border-t border-[#FFF3EC] dark:border-[#2D2D38] flex items-baseline justify-between">
+            <div class="pt-2 border-t border-[#F9F3EA] dark:border-[#2D2D38] flex items-baseline justify-between">
               <div>
-                <span class="tb-price">${formatPrice(item.priceUSD, item.priceKHR)}</span>
-                <span class="tb-sold block">${tbSoldLabel(item)}</span>
+                <span class="text-xs sm:text-sm font-black text-[#2B1D1D] dark:text-white">${formatPrice(item.priceUSD, item.priceKHR)}</span>
+                <span class="text-[10px] text-[#FFA552] block sm:inline sm:ml-1 font-bold">${item.priceKHR.toLocaleString()} ៛</span>
               </div>
               <div class="flex items-center gap-2">
                 <button 
                   type="button" 
                   onclick="openQuickView('${item.id}', event)" 
-                  class="text-[11px] font-bold text-[#333333] dark:text-stone-300 hover:text-[#FF5000] dark:hover:text-[#FF5000] transition-colors cursor-pointer"
+                  class="text-[11px] font-bold text-[#2B1D1D] dark:text-stone-300 hover:text-[#FFA552] dark:hover:text-[#FFA552] transition-colors cursor-pointer"
                 >
                   Quick View
                 </button>
                 <span class="text-stone-300 dark:text-stone-600 text-[10px]">&bull;</span>
-                <a href="product-detail.html?id=${item.id}" class="text-[11px] font-bold text-[#FF5000] hover:underline">
+                <a href="product-detail.html?id=${item.id}" class="text-[11px] font-bold text-[#FFA552] hover:underline">
                   Details &rarr;
                 </a>
               </div>
@@ -441,12 +438,12 @@
     function setCategoryFilter(cat, btn) {
       currentCategory = cat;
       document.querySelectorAll('.catalog-filter-btn').forEach(b => {
-        b.classList.remove('bg-[#333333]', 'text-white', 'shadow-xs');
-        b.classList.add('bg-white', 'text-[#333333]');
+        b.classList.remove('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
+        b.classList.add('bg-white', 'text-[#2B1D1D]');
       });
       if (btn) {
-        btn.classList.add('bg-[#333333]', 'text-white', 'shadow-xs');
-        btn.classList.remove('bg-white', 'text-[#333333]');
+        btn.classList.add('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
+        btn.classList.remove('bg-white', 'text-[#2B1D1D]');
       }
       renderCatalog();
     }
@@ -475,11 +472,11 @@
       if (currentCategory !== 'all') {
         document.querySelectorAll('.catalog-filter-btn').forEach(b => {
           if (b.getAttribute('onclick')?.includes(`'${currentCategory}'`)) {
-            b.classList.add('bg-[#333333]', 'text-white', 'shadow-xs');
-            b.classList.remove('bg-white', 'text-[#333333]');
+            b.classList.add('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
+            b.classList.remove('bg-white', 'text-[#2B1D1D]');
           } else {
-            b.classList.remove('bg-[#333333]', 'text-white', 'shadow-xs');
-            b.classList.add('bg-white', 'text-[#333333]');
+            b.classList.remove('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
+            b.classList.add('bg-white', 'text-[#2B1D1D]');
           }
         });
       }

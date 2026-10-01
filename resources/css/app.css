@@ -1,32 +1,32 @@
 /* PsaOnline Gen-Z Accessories - Sorbet Orange, Cotton Beige & Deep Espresso Theme
    Exact Color Palette extracted from reference:
-   - #FF5000 (Sorbet Orange — vibrant, warm, viral accent)
-   - #FFF3EC (Cotton Beige — soft creamy canvas & card pill background)
-   - #333333 (Deep Espresso Mocha — rich contrast typography, dark bars & headers)
+   - #FFA552 (Sorbet Orange — vibrant, warm, viral accent)
+   - #F9F3EA (Cotton Beige — soft creamy canvas & card pill background)
+   - #2B1D1D (Deep Espresso Mocha — rich contrast typography, dark bars & headers)
    - #FFFFFF (Pure Clean White — perfect container for white-background product shots)
-   - #E64500 (Deep Sorbet — hover states & active indicators)
-   - #F5F5F5 (Warm Cream Canvas — overall background)
-   - #EDEDED (Soft Linen Border — crisp delimiters)
+   - #E88C35 (Deep Sorbet — hover states & active indicators)
+   - #FDFBF7 (Warm Cream Canvas — overall background)
+   - #EFE4D6 (Soft Linen Border — crisp delimiters)
 */
-@import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&family=Kantumruy+Pro:wght@400;500;600;700&display=swap');
 
 :root {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Kantumruy Pro', Roboto, Arial, sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Roboto, Arial, sans-serif;
-  --font-khmer: 'Kantumruy Pro', -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  --font-khmer: 'Kantumruy Pro', 'Plus Jakarta Sans', sans-serif;
   
   /* Brand Palette */
-  --c-sorbet: #FF5000;
-  --c-sorbet-dark: #E64500;
-  --c-sorbet-light: #FFE8DC;
-  --c-cotton: #FFF3EC;
-  --c-cotton-light: #F5F5F5;
-  --c-espresso: #333333;
-  --c-espresso-deep: #222222;
-  --c-espresso-light: #666666;
+  --c-sorbet: #FFA552;
+  --c-sorbet-dark: #E88C35;
+  --c-sorbet-light: #FFF0E1;
+  --c-cotton: #F9F3EA;
+  --c-cotton-light: #FDFBF7;
+  --c-espresso: #2B1D1D;
+  --c-espresso-deep: #1E1313;
+  --c-espresso-light: #4A3333;
   --c-white: #FFFFFF;
-  --c-border: #EDEDED;
-  --c-border-hover: #FF5000;
+  --c-border: #EFE4D6;
+  --c-border-hover: #FFA552;
 
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
@@ -60,14 +60,14 @@ html, body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FFF3EC;
+  background: #F9F3EA;
 }
 ::-webkit-scrollbar-thumb {
-  background: #FF5000;
+  background: #FFA552;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #E64500;
+  background: #E88C35;
 }
 
 /* Theme Backgrounds & Utility Classes */
@@ -92,19 +92,19 @@ html, body {
 
 /* Theme Gradients */
 .bg-sorbet-gradient {
-  background: linear-gradient(135deg, #FF5000 0%, #FF9030 50%, #E64500 100%);
+  background: linear-gradient(135deg, #FFA552 0%, #FF9030 50%, #E88C35 100%);
 }
 
 .bg-espresso-gradient {
-  background: linear-gradient(135deg, #333333 0%, #4D4D4D 50%, #201515 100%);
+  background: linear-gradient(135deg, #2B1D1D 0%, #3D2929 50%, #201515 100%);
 }
 
 .bg-cotton-gradient {
-  background: linear-gradient(135deg, #FFF3EC 0%, #F5ECE0 100%);
+  background: linear-gradient(135deg, #F9F3EA 0%, #F5ECE0 100%);
 }
 
 .bg-hero-glow {
-  background: radial-gradient(circle at 50% 0%, rgba(255, 80, 0, 0.22) 0%, rgba(249, 243, 234, 0.35) 45%, transparent 75%);
+  background: radial-gradient(circle at 50% 0%, rgba(255, 165, 82, 0.22) 0%, rgba(249, 243, 234, 0.35) 45%, transparent 75%);
 }
 
 /* Scroll Entrance Reveal */
@@ -134,10 +134,10 @@ html, body {
 
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(255, 80, 0, 0.4);
+    box-shadow: 0 0 0 0 rgba(255, 165, 82, 0.4);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(255, 80, 0, 0);
+    box-shadow: 0 0 0 8px rgba(255, 165, 82, 0);
   }
 }
 .animate-pulse-glow {
@@ -170,7 +170,7 @@ html, body {
 /* Product Card - Pure White Frame with Cotton Beige Border */
 .product-card {
   background-color: #FFFFFF;
-  border: 1.5px solid #EDEDED;
+  border: 1.5px solid #EFE4D6;
   border-radius: 1.25rem;
   transition: transform 0.35s var(--ease-smooth), box-shadow 0.35s var(--ease-smooth), border-color 0.25s ease;
   position: relative;
@@ -178,13 +178,13 @@ html, body {
 }
 .product-card:hover {
   transform: translateY(-6px);
-  border-color: #FF5000;
-  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(255, 80, 0, 0.2);
+  border-color: #FFA552;
+  box-shadow: 0 16px 36px -8px rgba(43, 29, 29, 0.12), 0 0 0 1px rgba(255, 165, 82, 0.2);
 }
 
 .product-image-container {
   background-color: #FFFFFF;
-  border-bottom: 1px solid #FFF3EC;
+  border-bottom: 1px solid #F9F3EA;
   position: relative;
   overflow: hidden;
 }
@@ -219,7 +219,7 @@ html, body {
 }
 .btn-press:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(255, 80, 0, 0.35);
+  box-shadow: 0 8px 24px -4px rgba(255, 165, 82, 0.35);
 }
 .btn-press:active {
   transform: scale(0.96);
