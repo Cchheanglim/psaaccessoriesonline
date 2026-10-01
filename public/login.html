@@ -7,11 +7,12 @@
   <meta name="description" content="Sign in to your PsaOnline account to track your accessories orders and save your favorites." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/taobao.css" />
 </head>
-<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-[#FFA552] selection:text-white">
+<body class="bg-[#F5F5F5] text-[#333333] font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-[#FF5000] selection:text-white">
 
   <!-- Header -->
-  <header class="bg-[#FDFBF7] dark:bg-[#121215] border-b border-[#EFE4D6] dark:border-[#2D2D38]">
+  <header class="bg-[#F5F5F5] dark:bg-[#121215] border-b border-[#EDEDED] dark:border-[#2D2D38]">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
       <a href="home.html" class="flex items-center gap-2.5 group" title="Psa Accessories Online">
         <img 
@@ -19,12 +20,12 @@
           alt="Psa Accessories Online Logo" 
           class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
         />
-        <span class="text-lg sm:text-xl font-black text-[#2B1D1D] dark:text-white">
-          Psa<span class="text-[#FFA552]">Online</span>
+        <span class="text-lg sm:text-xl font-black text-[#333333] dark:text-white">
+          Psa<span class="text-[#FF5000]">Online</span>
         </span>
       </a>
 
-      <a href="home.html" class="text-xs font-bold text-[#FFA552] hover:underline flex items-center gap-1 transition">
+      <a href="home.html" class="text-xs font-bold text-[#FF5000] hover:underline flex items-center gap-1 transition">
         <span>&larr; Back to Drops</span>
       </a>
     </div>
@@ -32,19 +33,19 @@
 
   <!-- Centered Login Card -->
   <main class="flex-1 flex items-center justify-center p-4 py-8 sm:py-12">
-    <div class="reveal-init w-full max-w-md bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] p-6 sm:p-8 shadow-xl space-y-6">
+    <div class="reveal-init w-full max-w-md bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EDEDED] dark:border-[#2D2D38] p-6 sm:p-8 shadow-xl space-y-6">
       
       <!-- Brand Header -->
       <div class="text-center space-y-2">
         <img src="assets/images/psa-accessories-online-logo.svg" alt="Psa Online" class="h-12 w-auto mx-auto object-contain" />
-        <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight">Welcome Back</h1>
+        <h1 class="text-xl sm:text-2xl font-black text-[#333333] dark:text-white tracking-tight">Welcome Back</h1>
         <p class="text-xs text-stone-500 dark:text-stone-400">Sign in to track courier delivery and access exclusive drops.</p>
       </div>
 
       <!-- Quick Demo Account Pills -->
-      <div class="p-4 bg-[#FDFBF7] dark:bg-[#15151B] rounded-2xl border border-[#EFE4D6] dark:border-[#2D2D38] space-y-2.5">
+      <div class="p-4 bg-[#F5F5F5] dark:bg-[#15151B] rounded-2xl border border-[#EDEDED] dark:border-[#2D2D38] space-y-2.5">
         <div class="flex items-center justify-between">
-          <span class="text-[11px] font-black uppercase text-[#FFA552] tracking-wider flex items-center gap-1.5">
+          <span class="text-[11px] font-black uppercase text-[#FF5000] tracking-wider flex items-center gap-1.5">
             <span>🛡️</span> Demo Accounts & RBAC Roles
           </span>
           <span class="text-[10px] text-stone-400 font-mono">1-Click Auto Fill</span>
@@ -55,9 +56,9 @@
           <button 
             type="button" 
             onclick="fillDemo('admin')"
-            class="p-2.5 rounded-xl bg-white dark:bg-[#20202A] border border-[#EFE4D6] dark:border-[#32323D] hover:border-purple-400 text-left transition-all cursor-pointer shadow-xs group"
+            class="p-2.5 rounded-xl bg-white dark:bg-[#20202A] border border-[#EDEDED] dark:border-[#32323D] hover:border-purple-400 text-left transition-all cursor-pointer shadow-xs group"
           >
-            <div class="font-black text-[#2B1D1D] dark:text-white flex items-center justify-between">
+            <div class="font-black text-[#333333] dark:text-white flex items-center justify-between">
               <span class="flex items-center gap-1">👑 Admin</span>
               <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-100 text-purple-700 font-bold">Full Ops</span>
             </div>
@@ -69,9 +70,9 @@
           <button 
             type="button" 
             onclick="fillDemo('staff')"
-            class="p-2.5 rounded-xl bg-white dark:bg-[#20202A] border border-[#EFE4D6] dark:border-[#32323D] hover:border-blue-400 text-left transition-all cursor-pointer shadow-xs group"
+            class="p-2.5 rounded-xl bg-white dark:bg-[#20202A] border border-[#EDEDED] dark:border-[#32323D] hover:border-blue-400 text-left transition-all cursor-pointer shadow-xs group"
           >
-            <div class="font-black text-[#2B1D1D] dark:text-white flex items-center justify-between">
+            <div class="font-black text-[#333333] dark:text-white flex items-center justify-between">
               <span class="flex items-center gap-1">⚡ Staff</span>
               <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-100 text-blue-700 font-bold">Fulfill</span>
             </div>
@@ -83,9 +84,9 @@
           <button 
             type="button" 
             onclick="fillDemo('buyer')"
-            class="p-2.5 rounded-xl bg-white dark:bg-[#20202A] border border-[#EFE4D6] dark:border-[#32323D] hover:border-emerald-400 text-left transition-all cursor-pointer shadow-xs group"
+            class="p-2.5 rounded-xl bg-white dark:bg-[#20202A] border border-[#EDEDED] dark:border-[#32323D] hover:border-emerald-400 text-left transition-all cursor-pointer shadow-xs group"
           >
-            <div class="font-black text-[#2B1D1D] dark:text-white flex items-center justify-between">
+            <div class="font-black text-[#333333] dark:text-white flex items-center justify-between">
               <span class="flex items-center gap-1">🛍️ Buyer</span>
               <span class="text-[9px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-700 font-bold">Customer</span>
             </div>
@@ -99,7 +100,7 @@
       <form class="space-y-4" onsubmit="handleLogin(event)">
         
         <div class="space-y-1">
-          <label for="email" class="text-xs font-bold text-[#2B1D1D] dark:text-white">Email Address or Phone</label>
+          <label for="email" class="text-xs font-bold text-[#333333] dark:text-white">Email Address or Phone</label>
           <input
             type="text"
             id="email"
@@ -107,14 +108,14 @@
             required
             value="admin@psaonline.kh"
             placeholder="e.g. admin@psaonline.kh"
-            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#FFA552] focus:ring-1 focus:ring-[#FFA552] transition"
+            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F5F5F5] dark:bg-[#15151B] border border-[#EDEDED] dark:border-[#32323D] text-[#333333] dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#FF5000] focus:ring-1 focus:ring-[#FF5000] transition"
           />
         </div>
 
         <div class="space-y-1">
           <div class="flex justify-between items-center">
-            <label for="password" class="text-xs font-bold text-[#2B1D1D] dark:text-white">Password</label>
-            <a href="#" class="text-[11px] font-bold text-[#FFA552] hover:underline">Forgot?</a>
+            <label for="password" class="text-xs font-bold text-[#333333] dark:text-white">Password</label>
+            <a href="#" class="text-[11px] font-bold text-[#FF5000] hover:underline">Forgot?</a>
           </div>
           <input
             type="password"
@@ -122,13 +123,13 @@
             name="password"
             required
             value="admin1234"
-            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#FFA552] focus:ring-1 focus:ring-[#FFA552] transition font-mono"
+            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F5F5F5] dark:bg-[#15151B] border border-[#EDEDED] dark:border-[#32323D] text-[#333333] dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#FF5000] focus:ring-1 focus:ring-[#FF5000] transition font-mono"
           />
         </div>
 
         <button
           type="submit"
-          class="btn-press w-full py-3.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+          class="btn-press w-full py-3.5 rounded-xl bg-[#FF5000] hover:bg-[#E64500] text-white font-black text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
         >
           <span>Sign In to PsaOnline</span>
           <span>&rarr;</span>
@@ -136,14 +137,15 @@
 
       </form>
 
-      <div class="text-center pt-2 border-t border-[#EFE4D6] dark:border-[#2D2D38] text-xs text-stone-500 dark:text-stone-400">
-        New to PsaOnline? <a href="register.html" class="font-black text-[#FFA552] hover:underline">Create an Account</a>
+      <div class="text-center pt-2 border-t border-[#EDEDED] dark:border-[#2D2D38] text-xs text-stone-500 dark:text-stone-400">
+        New to PsaOnline? <a href="register.html" class="font-black text-[#FF5000] hover:underline">Create an Account</a>
       </div>
 
     </div>
   </main>
 
   <script src="assets/js/store.js"></script>
+  <script src="assets/js/taobao.js"></script>
   <script src="assets/js/rbac.js"></script>
   <script>
     function fillDemo(type) {

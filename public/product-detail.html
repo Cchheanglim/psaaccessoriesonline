@@ -7,11 +7,12 @@
   <meta name="description" content="Layered stainless steel chain with a chrome Cyber Y2K star motif. Tarnish-free and hypoallergenic." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/taobao.css" />
 </head>
-<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+<body class="bg-[#F5F5F5] text-[#333333] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FF5000] selection:text-white pb-mobile-nav">
 
   <!-- Header -->
-  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#EFE4D6] transition-all duration-300">
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#EDEDED] transition-all duration-300">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
       <a href="home.html" class="flex items-center gap-2.5 sm:gap-3 group" title="Psa Accessories Online">
         <img 
@@ -20,10 +21,10 @@
           class="h-10 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
         />
         <div class="flex flex-col">
-          <div class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">
-            Psa<span class="text-[#FFA552]">Online</span>
+          <div class="text-xl sm:text-2xl font-black text-[#333333] dark:text-white tracking-tight leading-none">
+            Psa<span class="text-[#FF5000]">Online</span>
           </div>
-          <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">
+          <span class="text-[9px] uppercase tracking-widest text-[#FF5000] font-black mt-0.5">
             Accessories &bull; Studio
           </span>
         </div>
@@ -35,7 +36,7 @@
         <button 
           type="button" 
           onclick="toggleTheme()" 
-          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
+          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EDEDED] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#FFF3EC] dark:hover:bg-[#252530] text-[#333333] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
           title="Toggle Dark Theme"
           aria-label="Toggle Dark Theme"
         >
@@ -43,18 +44,18 @@
           <span class="hidden sm:inline font-bold">Dark</span>
         </button>
 
-        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
-          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD</button>
-          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-white">KHR</button>
+        <div class="flex items-center bg-[#FFF3EC] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EDEDED] dark:border-[#32323D] text-[11px]">
+          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#333333] text-white shadow-xs">USD</button>
+          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#333333] dark:text-white">KHR</button>
         </div>
 
-        <a href="cart.html" class="relative p-2.5 rounded-full bg-white hover:bg-[#F9F3EA] border border-[#EFE4D6] text-[#2B1D1D] transition-transform hover:scale-105" title="Bag">
-          <svg class="w-5 h-5 text-[#2B1D1D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-          <span class="cart-count-badge absolute -top-1 -right-1 bg-[#FFA552] text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm hidden">0</span>
+        <a href="cart.html" class="relative p-2.5 rounded-full bg-white hover:bg-[#FFF3EC] border border-[#EDEDED] text-[#333333] transition-transform hover:scale-105" title="Bag">
+          <svg class="w-5 h-5 text-[#333333]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+          <span class="cart-count-badge absolute -top-1 -right-1 bg-[#FF5000] text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-white shadow-sm hidden">0</span>
         </a>
 
-        <a href="dashboard-buyer.html" class="p-1 rounded-full hover:ring-2 hover:ring-[#FFA552] transition flex items-center gap-1.5 text-xs font-bold text-[#2B1D1D]">
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFA552] to-[#2B1D1D] text-white font-black flex items-center justify-center text-xs shadow-xs">
+        <a href="dashboard-buyer.html" class="p-1 rounded-full hover:ring-2 hover:ring-[#FF5000] transition flex items-center gap-1.5 text-xs font-bold text-[#333333]">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FF5000] to-[#333333] text-white font-black flex items-center justify-center text-xs shadow-xs">
             SC
           </div>
         </a>
@@ -67,11 +68,11 @@
 
     <!-- Breadcrumb -->
     <div class="reveal-init text-xs font-semibold text-stone-500 flex items-center gap-2">
-      <a href="home.html" class="hover:text-[#FFA552] transition-colors">Home</a>
+      <a href="home.html" class="hover:text-[#FF5000] transition-colors">Home</a>
       <span>/</span>
-      <a href="products.html" class="hover:text-[#FFA552] transition-colors">Catalog</a>
+      <a href="products.html" class="hover:text-[#FF5000] transition-colors">Catalog</a>
       <span>/</span>
-      <span id="breadcrumbCategory" class="text-[#FFA552] font-black">Y2K Jewelry</span>
+      <span id="breadcrumbCategory" class="text-[#FF5000] font-black">Y2K Jewelry</span>
     </div>
 
     <!-- Main Grid: Gallery (Pure White Container) & Product Info -->
@@ -79,15 +80,15 @@
       
       <!-- Left Column: Pure Clean White Image Container with Cotton Border -->
       <div class="reveal-init lg:col-span-6 space-y-4">
-        <div class="bg-white rounded-3xl border-2 border-[#EFE4D6] p-4 sm:p-6 shadow-sm relative overflow-hidden group">
-          <div class="aspect-square rounded-2xl bg-white border border-[#EFE4D6] overflow-hidden p-3 flex items-center justify-center relative">
+        <div class="bg-white rounded-3xl border-2 border-[#EDEDED] p-4 sm:p-6 shadow-sm relative overflow-hidden group">
+          <div class="aspect-square rounded-2xl bg-white border border-[#EDEDED] overflow-hidden p-3 flex items-center justify-center relative">
             <img
               id="mainProductImage"
               src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80"
               alt="Product Photo"
               class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
             />
-            <div id="productBadgeTag" class="absolute top-4 left-4 bg-[#FFA552] text-white px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-sm">
+            <div id="productBadgeTag" class="absolute top-4 left-4 bg-[#FF5000] text-white px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-sm">
               Trending ⚡
             </div>
           </div>
@@ -98,15 +99,15 @@
       <div class="reveal-init delay-100 lg:col-span-6 space-y-6">
         
         <div class="space-y-2">
-          <div class="flex items-center gap-2 text-xs font-black text-[#FFA552]">
-            <span id="categoryLabelTag" class="px-2.5 py-0.5 rounded-full bg-[#F9F3EA] uppercase tracking-wider">Y2K Jewelry</span>
+          <div class="flex items-center gap-2 text-xs font-black text-[#FF5000]">
+            <span id="categoryLabelTag" class="px-2.5 py-0.5 rounded-full bg-[#FFF3EC] uppercase tracking-wider">Y2K Jewelry</span>
             <span class="text-amber-500 flex items-center gap-1 font-bold">
               ★ <span id="productRating">4.9</span>
               <span class="text-stone-400 font-normal">(<span id="productReviews">142</span> reviews)</span>
             </span>
           </div>
 
-          <h1 id="productTitle" class="text-2xl sm:text-4xl font-black text-[#2B1D1D] tracking-tight">
+          <h1 id="productTitle" class="text-2xl sm:text-4xl font-black text-[#333333] tracking-tight">
             Silver Chrome Star Pendant Necklace
           </h1>
           <p id="productKhmerTitle" class="text-sm font-semibold text-stone-500 khmer-font">
@@ -115,10 +116,10 @@
         </div>
 
         <!-- Pricing Card in Cotton Beige -->
-        <div class="bg-white p-5 rounded-2xl border border-[#EFE4D6] flex items-baseline justify-between shadow-xs">
+        <div class="bg-white p-5 rounded-2xl border border-[#EDEDED] flex items-baseline justify-between shadow-xs">
           <div>
-            <div class="text-3xl font-black text-[#2B1D1D]" id="productPriceUSD">$6.50</div>
-            <div class="text-xs text-[#FFA552] font-black khmer-font mt-0.5" id="productPriceKHR">26,650 ៛ (Fixed 4,100 Rate)</div>
+            <div class="text-3xl font-black text-[#333333]" id="productPriceUSD">$6.50</div>
+            <div class="text-xs text-[#FF5000] font-black khmer-font mt-0.5" id="productPriceKHR">26,650 ៛ (Fixed 4,100 Rate)</div>
           </div>
           <div class="text-right">
             <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
@@ -130,27 +131,27 @@
 
         <!-- Description -->
         <div class="space-y-3 text-xs sm:text-sm text-stone-600 leading-relaxed">
-          <h3 class="text-xs font-black text-[#2B1D1D] uppercase tracking-wider">About This Piece</h3>
+          <h3 class="text-xs font-black text-[#333333] uppercase tracking-wider">About This Piece</h3>
           <p id="productDescription">
             Layered stainless steel chain with a chrome Cyber Y2K star motif. Tarnish-free, hypoallergenic, and perfect for streetwear daily fits.
           </p>
         </div>
 
         <!-- Quantity & Add to Cart -->
-        <div class="space-y-4 pt-2 border-t border-[#EFE4D6]">
+        <div class="space-y-4 pt-2 border-t border-[#EDEDED]">
           <div class="flex items-center gap-4">
-            <span class="text-xs font-extrabold text-[#2B1D1D]">Quantity:</span>
-            <div class="flex items-center border border-[#EFE4D6] rounded-xl bg-white p-1">
-              <button onclick="adjustDetailQty(-1)" class="w-8 h-8 rounded-lg text-stone-600 hover:bg-[#F9F3EA] font-black text-sm flex items-center justify-center transition-colors">&minus;</button>
-              <span id="detailQty" class="w-10 text-center font-black text-sm text-[#2B1D1D]">1</span>
-              <button onclick="adjustDetailQty(1)" class="w-8 h-8 rounded-lg text-stone-600 hover:bg-[#F9F3EA] font-black text-sm flex items-center justify-center transition-colors">&plus;</button>
+            <span class="text-xs font-extrabold text-[#333333]">Quantity:</span>
+            <div class="flex items-center border border-[#EDEDED] rounded-xl bg-white p-1">
+              <button onclick="adjustDetailQty(-1)" class="w-8 h-8 rounded-lg text-stone-600 hover:bg-[#FFF3EC] font-black text-sm flex items-center justify-center transition-colors">&minus;</button>
+              <span id="detailQty" class="w-10 text-center font-black text-sm text-[#333333]">1</span>
+              <button onclick="adjustDetailQty(1)" class="w-8 h-8 rounded-lg text-stone-600 hover:bg-[#FFF3EC] font-black text-sm flex items-center justify-center transition-colors">&plus;</button>
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <button
               onclick="addCurrentToCart()"
-              class="btn-press py-4 rounded-2xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+              class="btn-press py-4 rounded-2xl bg-[#FF5000] hover:bg-[#E64500] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
             >
               <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
               <span>Add to Shopping Bag</span>
@@ -158,7 +159,7 @@
 
             <button
               onclick="buyNowDirect()"
-              class="btn-press py-4 rounded-2xl bg-[#2B1D1D] hover:bg-[#3D2929] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+              class="btn-press py-4 rounded-2xl bg-[#333333] hover:bg-[#4D4D4D] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
             >
               <span>Buy with Bakong KHQR &rarr;</span>
             </button>
@@ -172,6 +173,7 @@
   </main>
 
   <script src="assets/js/store.js"></script>
+  <script src="assets/js/taobao.js"></script>
   <script>
     let currentQty = 1;
     let selectedProduct = null;
@@ -180,7 +182,6 @@
     const productId = urlParams.get('id') || 'genz-01';
 
     selectedProduct = ACCESSORIES_PRODUCTS.find(p => p.id === productId) || ACCESSORIES_PRODUCTS[0];
-    trackView(selectedProduct.id);
 
     document.getElementById('mainProductImage').src = selectedProduct.image;
     document.getElementById('productBadgeTag').textContent = selectedProduct.badge;

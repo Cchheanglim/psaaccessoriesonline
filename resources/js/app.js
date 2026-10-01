@@ -1,6 +1,6 @@
 /**
  * PsaOnline - Gen-Z Street & Aesthetic Accessories Marketplace Engine
- * Sorbet Orange (#FFA552), Cotton Beige (#F9F3EA), Deep Espresso (#2B1D1D) & Clean White (#FFFFFF)
+ * Sorbet Orange (#FF5000), Cotton Beige (#FFF3EC), Deep Espresso (#333333) & Clean White (#FFFFFF)
  */
 
 const EXCHANGE_RATE = 4100; // 1 USD = 4,100 KHR
@@ -363,11 +363,11 @@ function setCurrency(currency) {
 
   document.querySelectorAll('.currency-toggle-btn').forEach(btn => {
     if (btn.dataset.currency === currency) {
-      btn.classList.add('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
-      btn.classList.remove('text-[#2B1D1D]');
+      btn.classList.add('bg-[#333333]', 'text-white', 'shadow-xs');
+      btn.classList.remove('text-[#333333]');
     } else {
-      btn.classList.remove('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
-      btn.classList.add('text-[#2B1D1D]');
+      btn.classList.remove('bg-[#333333]', 'text-white', 'shadow-xs');
+      btn.classList.add('text-[#333333]');
     }
   });
 
@@ -398,19 +398,19 @@ function showToastNotification(product, qty) {
   }
 
   toast.innerHTML = `
-    <div class="bg-white border-2 border-[#FFA552] shadow-2xl rounded-2xl p-4 max-w-sm flex items-center gap-3.5 pointer-events-auto">
-      <div class="w-14 h-14 rounded-xl bg-white border border-[#EFE4D6] p-1 overflow-hidden shrink-0 flex items-center justify-center">
+    <div class="bg-white border-2 border-[#FF5000] shadow-2xl rounded-2xl p-4 max-w-sm flex items-center gap-3.5 pointer-events-auto">
+      <div class="w-14 h-14 rounded-xl bg-white border border-[#EDEDED] p-1 overflow-hidden shrink-0 flex items-center justify-center">
         <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover rounded-lg" />
       </div>
       <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#FFA552]">
-          <span class="w-2 h-2 rounded-full bg-[#FFA552] animate-ping"></span>
+        <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#FF5000]">
+          <span class="w-2 h-2 rounded-full bg-[#FF5000] animate-ping"></span>
           Added to Bag!
         </div>
-        <div class="text-xs font-black text-[#2B1D1D] truncate mt-0.5">${product.title}</div>
-        <div class="text-[11px] font-semibold text-[#4A3333] mt-0.5">${formatPrice(product.priceUSD, product.priceKHR)} &bull; Qty: ${qty}</div>
+        <div class="text-xs font-black text-[#333333] truncate mt-0.5">${product.title}</div>
+        <div class="text-[11px] font-semibold text-[#666666] mt-0.5">${formatPrice(product.priceUSD, product.priceKHR)} &bull; Qty: ${qty}</div>
       </div>
-      <a href="cart.html" class="px-3.5 py-2 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-extrabold text-xs shrink-0 transition-colors shadow-sm">
+      <a href="cart.html" class="px-3.5 py-2 rounded-xl bg-[#FF5000] hover:bg-[#E64500] text-white font-extrabold text-xs shrink-0 transition-colors shadow-sm">
         View Bag &rarr;
       </a>
     </div>
