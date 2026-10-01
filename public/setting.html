@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Settings — PsaOnline</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' };</script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    .row { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:.95rem 1rem; width:100%; text-align:left; cursor:pointer; }
+    .row + .row { border-top:1px solid #F3EADC; }
+    .dark .row + .row { border-top-color:#2D2D38; }
+    .field { width:100%; padding:.65rem .8rem; border-radius:.75rem; border:1px solid #EFE4D6; background:#fff; font-size:.8rem; color:inherit; }
+    .dark .field { background:#16161D; border-color:#32323D; }
+    .field:focus { outline:2px solid #FFA552; outline-offset:1px; }
+    .switch { position:relative; width:2.6rem; height:1.5rem; border-radius:999px; background:#D6CCBF; transition:background .15s; flex-shrink:0; }
+    .switch::after { content:''; position:absolute; top:.2rem; left:.2rem; width:1.1rem; height:1.1rem; border-radius:50%; background:#fff; transition:transform .15s; }
+    .switch[aria-checked="true"] { background:#FFA552; }
+    .switch[aria-checked="true"]::after { transform:translateX(1.1rem); }
+    .seg button { padding:.4rem .8rem; font-size:.75rem; font-weight:800; border-radius:999px; cursor:pointer; }
+    .seg button.on { background:#2B1D1D; color:#fff; }
+    .dark .seg button.on { background:#FFA552; }
+  </style>
+</head>
+<body class="bg-[#FDFBF7] dark:bg-[#121215] text-[#2B1D1D] dark:text-white font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+
+  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2D2D38]">
+    <div class="max-w-2xl mx-auto px-4 h-16 flex items-center gap-3">
+      <button type="button" onclick="goBack()" class="text-xl font-black text-[#FFA552] cursor-pointer" aria-label="Back">&lsaquo;</button>
+      <h1 id="pageTitle" class="text-base sm:text-lg font-black">Settings</h1>
+    </div>
+  </header>
+
+  <main id="view" class="max-w-2xl mx-auto px-4 py-5 flex-1 w-full space-y-4"></main>
+
+  <div id="toast" class="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-[#2B1D1D] text-white text-xs font-bold shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 z-50"></div>
+
+  <script src="assets/js/store.js"></script>
+  <script>
+    const card = 'bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm overflow-hidden';
+    const chev = '<span class="text-stone-300 text-lg">&rsaquo;</span>';
+    const TITLES = { profile:'Edit Profile', password:'Change Password', addresses:'Shipping Addresses', address:'Address', general:'General', notifications:'Notifications', privacy:'Privacy', about:'About PsaOnline' };
+    let editingAddr = null;
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.style.opacity = '1';
+      clearTimeout(toast._t); toast._t = setTimeout(() => t.style.opacity = '0', 1800);
+    }
+    const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function nav(v) { location.hash = v; }
+    function goBack() {
+      const v = location.hash.slice(1);
+      if (v === 'address') return nav('addresses');
+      if (v) return nav('');
+      location.href = 'dashboard-buyer.html';
+    }
+    function row(icon, label, hint, target) {
+      return `<button type="button" class="row" onclick="nav('${target}')"><span class="flex items-center gap-3 text-sm font-bold"><span class="text-lg">${icon}</span>${label}</span><span class="flex items-center gap-2 text-xs text-stone-400">${hint || ''}${chev}</span></button>`;
+    }
+    function toggleRow(label, hint, key, on) {
+      return `<div class="row" style="cursor:default"><div><div class="text-sm font-bold">${label}</div><div class="text-[11px] text-stone-400">${hint}</div></div><button type="button" role="switch" aria-checked="${on}" aria-label="${label}" class="switch cursor-pointer" onclick="flip('${key}')"></button></div>`;
+    }
+    function flip(key) { const s = getSettings(); saveSettings({ [key]: !s[key] }); render(); }
+
+    // ---------- Views ----------
+    const views = {
+      main() {
+        const p = getProfile(), a = getAddresses();
+        return `
+        <div class="${card}">
+          ${row('👤', 'Edit profile', esc(p.name) || 'Add your details', 'profile')}
+          ${row('🔒', 'Change password', '', 'password')}
+          ${row('📍', 'Shipping addresses', a.length ? a.length + ' saved' : 'None yet', 'addresses')}
+        </div>
+        <div class="${card}">
+          ${row('🌐', 'General', 'Language, currency, theme', 'general')}
+          ${row('🔔', 'Notifications', '', 'notifications')}
+          ${row('🛡️', 'Privacy', '', 'privacy')}
+        </div>
+        <div class="${card}">
+          ${row('ℹ️', 'About PsaOnline', 'v1.0', 'about')}
+          <a href="chat.html" class="row"><span class="flex items-center gap-3 text-sm font-bold"><span class="text-lg">💬</span>Contact support</span>${chev}</a>
+        </div>
+        <button type="button" onclick="signOut()" class="w-full py-3 rounded-2xl bg-white dark:bg-[#1A1A22] border border-[#EFE4D6] dark:border-[#2D2D38] text-sm font-black text-red-500 cursor-pointer">Sign out</button>`;
+      },
+      profile() {
+        const p = getProfile();
+        const initials = (p.name || 'You').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+        return `
+        <div class="${card} p-5 space-y-4">
+          <div class="flex items-center gap-4">
+            <div id="avatarPrev" class="w-16 h-16 rounded-full bg-gradient-to-br from-[#2B1D1D] to-[#FFA552] text-white font-black text-xl flex items-center justify-center shrink-0" style="${p.avatar ? `background:url(${p.avatar}) center/cover` : ''}">${p.avatar ? '' : initials}</div>
+            <label class="px-3.5 py-2 rounded-xl border border-[#EFE4D6] dark:border-[#32323D] text-xs font-black cursor-pointer">Change photo<input type="file" accept="image/*" class="hidden" onchange="pickAvatar(this)" /></label>
+          </div>
+          <label class="block text-xs font-bold">Full name<input id="fName" class="field mt-1" value="${esc(p.name)}" autocomplete="name" /></label>
+          <label class="block text-xs font-bold">Phone<input id="fPhone" class="field mt-1" value="${esc(p.phone)}" inputmode="tel" autocomplete="tel" /></label>
+          <label class="block text-xs font-bold">Email<input id="fEmail" type="email" class="field mt-1" value="${esc(p.email)}" autocomplete="email" /></label>
+          <button type="button" onclick="saveProfile()" class="w-full py-2.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-sm font-black cursor-pointer">Save changes</button>
+        </div>`;
+      },
+      password() {
+        return `
+        <div class="${card} p-5 space-y-4">
+          <label class="block text-xs font-bold">Current password<input id="pOld" type="password" class="field mt-1" autocomplete="current-password" /></label>
+          <label class="block text-xs font-bold">New password<input id="pNew" type="password" class="field mt-1" autocomplete="new-password" /><span class="text-[11px] text-stone-400 font-normal">At least 8 characters</span></label>
+          <label class="block text-xs font-bold">Confirm new password<input id="pCon" type="password" class="field mt-1" autocomplete="new-password" /></label>
+          <div id="pErr" class="text-xs text-red-500 font-bold hidden"></div>
+          <button type="button" onclick="savePassword()" class="w-full py-2.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-sm font-black cursor-pointer">Update password</button>
+        </div>`;
+      },
+      addresses() {
+        const list = getAddresses();
+        const items = list.length ? list.map(a => `
+          <div class="${card} p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="text-sm font-black">${esc(a.name)} <span class="text-xs font-bold text-stone-400 ml-1">${esc(a.phone)}</span></div>
+                <div class="text-xs text-stone-500 mt-1">${esc(a.line)}</div>
+              </div>
+              ${a.isDefault ? '<span class="px-2 py-0.5 rounded-full bg-[#F9F3EA] dark:bg-[#2A2A34] text-[#FFA552] text-[10px] font-black shrink-0">Default</span>' : ''}
+            </div>
+            <div class="flex items-center gap-4 mt-3 text-xs font-black">
+              ${a.isDefault ? '' : `<button type="button" class="text-[#FFA552] cursor-pointer" onclick="setDefault('${a.id}')">Set as default</button>`}
+              <button type="button" class="cursor-pointer" onclick="openAddress('${a.id}')">Edit</button>
+              <button type="button" class="text-red-500 cursor-pointer" onclick="deleteAddress('${a.id}')">Delete</button>
+            </div>
+          </div>`).join('') : `<div class="${card} p-8 text-center"><div class="text-3xl mb-2">📍</div><div class="text-sm font-black">No saved addresses</div><div class="text-xs text-stone-500 mt-1">Add one and checkout will fill it in for you.</div></div>`;
+        return items + `<button type="button" onclick="openAddress('')" class="w-full py-3 rounded-2xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-sm font-black cursor-pointer">Add new address</button>`;
+      },
+      address() {
+        const a = getAddresses().find(x => x.id === editingAddr) || {};
+        return `
+        <div class="${card} p-5 space-y-4">
+          <label class="block text-xs font-bold">Recipient name<input id="aName" class="field mt-1" value="${esc(a.name)}" /></label>
+          <label class="block text-xs font-bold">Phone<input id="aPhone" class="field mt-1" value="${esc(a.phone)}" inputmode="tel" /></label>
+          <label class="block text-xs font-bold">Address<textarea id="aLine" rows="3" class="field mt-1" placeholder="House, street, district, Phnom Penh">${esc(a.line)}</textarea></label>
+          <label class="flex items-center gap-2 text-xs font-bold cursor-pointer"><input id="aDef" type="checkbox" class="w-4 h-4 accent-[#FFA552]" ${a.isDefault ? 'checked' : ''} /> Set as default address</label>
+          <div id="aErr" class="text-xs text-red-500 font-bold hidden"></div>
+          <button type="button" onclick="saveAddress()" class="w-full py-2.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-sm font-black cursor-pointer">Save address</button>
+        </div>`;
+      },
+      general() {
+        const s = getSettings(), dark = document.documentElement.classList.contains('dark');
+        const seg = (items, cur, fn) => `<div class="seg flex gap-1 bg-[#F9F3EA] dark:bg-[#2A2A34] p-1 rounded-full">${items.map(([v, l]) => `<button type="button" class="${v === cur ? 'on' : ''}" onclick="${fn}('${v}')">${l}</button>`).join('')}</div>`;
+        return `
+        <div class="${card}">
+          <div class="row" style="cursor:default"><span class="text-sm font-bold">Language</span>${seg([['en','English'],['km','ខ្មែរ']], s.lang, 'setLang')}</div>
+          <div class="row" style="cursor:default"><span class="text-sm font-bold">Currency</span>${seg([['USD','USD $'],['KHR','KHR ៛']], CURRENT_CURRENCY, 'setCur')}</div>
+          <div class="row" style="cursor:default"><span class="text-sm font-bold">Theme</span>${seg([['light','Light'],['dark','Dark']], dark ? 'dark' : 'light', 'setTheme')}</div>
+        </div>`;
+      },
+      notifications() {
+        const s = getSettings();
+        return `<div class="${card}">
+          ${toggleRow('Order updates', 'Payment, shipping and delivery status', 'notifOrders', s.notifOrders)}
+          ${toggleRow('Promotions', 'New drops and discounts', 'notifPromo', s.notifPromo)}
+          ${toggleRow('Price drops', 'When a wishlist item gets cheaper', 'notifPrice', s.notifPrice)}
+        </div>`;
+      },
+      privacy() {
+        const n = getViewed().length;
+        return `<div class="${card}">
+          <button type="button" class="row" onclick="clearViewedHistory()"><span class="text-sm font-bold">Clear viewed history<span class="block text-[11px] text-stone-400 font-normal">${n} item${n === 1 ? '' : 's'} saved</span></span>${chev}</button>
+          <button type="button" class="row" onclick="clearSearch()"><span class="text-sm font-bold">Clear search history</span>${chev}</button>
+        </div>`;
+      },
+      about() {
+        return `<div class="${card} p-5 text-sm space-y-3">
+          <div class="font-black text-base">Psa<span class="text-[#FFA552]">Online</span></div>
+          <p class="text-xs text-stone-500">Gen-Z streetwear and aesthetic accessories, delivered in Phnom Penh. Pay with Bakong KHQR, ABA Mobile or cash on delivery.</p>
+          <div class="text-xs text-stone-400">Version 1.0 &bull; 1 USD = 4,100 ៛</div>
+        </div>`;
+      }
+    };
+
+    // ---------- Actions ----------
+    function pickAvatar(input) {
+      const f = input.files[0]; if (!f) return;
+      const img = new Image(), r = new FileReader();
+      r.onload = () => { img.onload = () => {
+        const c = document.createElement('canvas'); c.width = c.height = 160;
+        const m = Math.min(img.width, img.height);
+        c.getContext('2d').drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 160, 160);
+        const url = c.toDataURL('image/jpeg', .8);
+        localStorage.setItem('psa_profile', JSON.stringify(Object.assign(getProfile(), { avatar: url })));
+        render(); toast('Photo updated');
+      }; img.src = r.result; };
+      r.readAsDataURL(f);
+    }
+    function saveProfile() {
+      const name = document.getElementById('fName').value.trim();
+      if (!name) return toast('Enter your name');
+      localStorage.setItem('psa_profile', JSON.stringify(Object.assign(getProfile(), {
+        name, phone: document.getElementById('fPhone').value.trim(), email: document.getElementById('fEmail').value.trim() })));
+      toast('Profile saved'); nav('');
+    }
+    function savePassword() {
+      const o = pOld.value, n = pNew.value, c = pCon.value, e = document.getElementById('pErr');
+      const msg = !o ? 'Enter your current password.' : n.length < 8 ? 'New password must be at least 8 characters.' : n !== c ? 'Passwords do not match.' : '';
+      e.textContent = msg; e.classList.toggle('hidden', !msg);
+      if (!msg) { toast('Password updated'); nav(''); }
+    }
+    function openAddress(id) { editingAddr = id; nav('address'); }
+    function saveAddress() {
+      const name = aName.value.trim(), phone = aPhone.value.trim(), line = aLine.value.trim(), e = document.getElementById('aErr');
+      const msg = !name || !phone || !line ? 'Fill in name, phone and address.' : '';
+      e.textContent = msg; e.classList.toggle('hidden', !msg);
+      if (msg) return;
+      let list = getAddresses();
+      const makeDef = aDef.checked || list.length === 0;
+      if (makeDef) list.forEach(a => a.isDefault = false);
+      const ex = list.find(a => a.id === editingAddr);
+      if (ex) Object.assign(ex, { name, phone, line, isDefault: makeDef || ex.isDefault });
+      else list.push({ id: 'addr-' + Date.now(), name, phone, line, isDefault: makeDef });
+      localStorage.setItem('psa_addresses', JSON.stringify(list));
+      toast('Address saved'); nav('addresses');
+    }
+    function setDefault(id) {
+      const list = getAddresses(); list.forEach(a => a.isDefault = a.id === id);
+      localStorage.setItem('psa_addresses', JSON.stringify(list)); render();
+    }
+    function deleteAddress(id) {
+      if (!confirm('Delete this address?')) return;
+      let list = getAddresses().filter(a => a.id !== id);
+      if (list.length && !list.some(a => a.isDefault)) list[0].isDefault = true;
+      localStorage.setItem('psa_addresses', JSON.stringify(list)); render();
+    }
+    function setLang(v) { saveSettings({ lang: v }); render(); toast(v === 'km' ? 'Khmer saved. Translations are coming soon' : 'Language saved'); }
+    function setCur(v) { setCurrency(v); render(); }
+    function setTheme(v) { applyTheme(v); render(); }
+    function clearViewedHistory() { if (!confirm('Clear your viewed history?')) return; clearViewed(); render(); toast('Viewed history cleared'); }
+    function clearSearch() { localStorage.removeItem('psa_search_history'); toast('Search history cleared'); }
+    function signOut() { localStorage.removeItem('psa_current_user'); location.href = 'login.html'; }
+
+    // ---------- Router ----------
+    function render() {
+      const v = location.hash.slice(1);
+      const key = views[v] ? v : 'main';
+      document.getElementById('pageTitle').textContent = TITLES[key] || 'Settings';
+      document.getElementById('view').innerHTML = views[key]();
+      window.scrollTo(0, 0);
+    }
+    window.addEventListener('hashchange', render);
+    document.addEventListener('DOMContentLoaded', render);
+  </script>
+</body>
+</html>

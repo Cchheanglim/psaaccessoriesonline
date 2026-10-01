@@ -580,6 +580,7 @@ function openQuickView(productId, event) {
   const product = ACCESSORIES_PRODUCTS.find(p => p.id === productId);
   if (!product) return;
 
+  trackView(product.id);
   currentQuickViewProduct = product;
   quickViewQuantity = 1;
 
@@ -1079,6 +1080,71 @@ function getWishlist() {
   } catch (e) {
     return [];
   }
+}
+
+// ---- Account data: profile, addresses, settings ----
+function readJSON(key, fallback) {
+  try {
+    const v = JSON.parse(localStorage.getItem(key));
+    return v === null || v === undefined ? fallback : v;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function getProfile() {
+  return readJSON('psa_profile', {});
+}
+
+function getAddresses() {
+  const list = readJSON('psa_addresses', []);
+  return Array.isArray(list) ? list : [];
+}
+
+function getDefaultAddress() {
+  const list = getAddresses();
+  return list.find(a => a.isDefault) || list[0] || null;
+}
+
+function getSettings() {
+  return Object.assign({ lang: 'en', notifOrders: true, notifPromo: false, notifPrice: true }, readJSON('psa_settings', {}));
+}
+
+function saveSettings(patch) {
+  localStorage.setItem('psa_settings', JSON.stringify(Object.assign(getSettings(), patch)));
+}
+
+// ---- Viewed history (Taobao-style footprints) ----
+const VIEWED_KEY = 'psa_viewed';
+const VIEWED_MAX = 100;
+
+function getViewed() {
+  try {
+    const list = JSON.parse(localStorage.getItem(VIEWED_KEY));
+    return Array.isArray(list) ? list : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveViewed(list) {
+  try { localStorage.setItem(VIEWED_KEY, JSON.stringify(list.slice(0, VIEWED_MAX))); } catch (e) {}
+}
+
+// Record a product view; a repeat view moves the item to the top
+function trackView(productId) {
+  if (!productId) return;
+  const list = getViewed().filter(v => v.id !== productId);
+  list.unshift({ id: productId, ts: Date.now() });
+  saveViewed(list);
+}
+
+function removeViewed(ids) {
+  saveViewed(getViewed().filter(v => !ids.includes(v.id)));
+}
+
+function clearViewed() {
+  localStorage.removeItem(VIEWED_KEY);
 }
 
 function isInWishlist(productId) {

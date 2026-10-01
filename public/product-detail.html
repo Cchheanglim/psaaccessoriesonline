@@ -180,6 +180,7 @@
     const productId = urlParams.get('id') || 'genz-01';
 
     selectedProduct = ACCESSORIES_PRODUCTS.find(p => p.id === productId) || ACCESSORIES_PRODUCTS[0];
+    trackView(selectedProduct.id);
 
     document.getElementById('mainProductImage').src = selectedProduct.image;
     document.getElementById('productBadgeTag').textContent = selectedProduct.badge;

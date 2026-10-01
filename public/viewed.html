@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Viewed History — PsaOnline</title>
+  <meta name="description" content="Products you recently viewed on PsaOnline." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' };</script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="bg-[#FDFBF7] dark:bg-[#121215] text-[#2B1D1D] dark:text-white font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+
+  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2D2D38]">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <a href="dashboard-buyer.html" class="text-xl font-black text-[#FFA552]" aria-label="Back to My Account">&lsaquo;</a>
+        <h1 class="text-base sm:text-lg font-black truncate">Viewed History</h1>
+      </div>
+      <div class="flex items-center gap-3 text-xs font-bold">
+        <a href="cart.html" class="text-[#FFA552] hover:underline">Bag</a>
+        <button type="button" id="editBtn" onclick="toggleEdit()" class="px-3 py-1.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] font-black cursor-pointer">Edit</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-5 flex-1 w-full">
+    <div id="viewedList" class="space-y-6"></div>
+  </main>
+
+  <!-- Edit bar -->
+  <div id="editBar" class="hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-[#1A1A22] border-t border-[#EFE4D6] dark:border-[#2D2D38] px-4 py-3" style="padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));">
+    <div class="max-w-5xl mx-auto flex items-center justify-between gap-3 text-xs font-black">
+      <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)" class="w-4 h-4 accent-[#FFA552]" /> Select all</label>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="clearAllViewed()" class="px-3.5 py-2 rounded-xl border border-[#EFE4D6] dark:border-[#32323D] cursor-pointer">Clear all</button>
+        <button type="button" id="deleteBtn" onclick="deleteSelected()" class="px-4 py-2 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white disabled:opacity-40 cursor-pointer" disabled>Delete (0)</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/store.js"></script>
+  <script>
+    let editMode = false;
+    const selected = new Set();
+
+    function dayKey(ts) {
+      const d = new Date(ts);
+      return d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate();
+    }
+    function dayLabel(ts) {
+      const now = Date.now();
+      if (dayKey(ts) === dayKey(now)) return 'Today';
+      if (dayKey(ts) === dayKey(now - 86400000)) return 'Yesterday';
+      return new Date(ts).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    }
+    function timeLabel(ts) {
+      return new Date(ts).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function render() {
+      const box = document.getElementById('viewedList');
+      const items = getViewed()
+        .map(v => ({ v, p: ACCESSORIES_PRODUCTS.find(x => x.id === v.id) }))
+        .filter(x => x.p);
+
+      if (!items.length) {
+        box.innerHTML = `
+          <div class="bg-white dark:bg-[#1A1A22] rounded-3xl border border-dashed border-[#EFE4D6] dark:border-[#2D2D38] p-10 text-center mt-4">
+            <div class="text-4xl mb-2">👀</div>
+            <div class="text-sm font-black">No viewed products yet</div>
+            <div class="text-xs text-stone-500 mt-1">Products you open will show up here.</div>
+            <a href="products.html" class="inline-block mt-4 px-5 py-2 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-xs font-black">Browse drops</a>
+          </div>`;
+        document.getElementById('editBtn').classList.add('hidden');
+        if (editMode) toggleEdit();
+        return;
+      }
+      document.getElementById('editBtn').classList.remove('hidden');
+
+      const groups = [];
+      items.forEach(it => {
+        const key = dayKey(it.v.ts);
+        let g = groups.find(g => g.key === key);
+        if (!g) { g = { key, label: dayLabel(it.v.ts), items: [] }; groups.push(g); }
+        g.items.push(it);
+      });
+
+      box.innerHTML = groups.map(g => `
+        <section>
+          <h2 class="text-sm font-black mb-3">${g.label}</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            ${g.items.map(({ v, p }) => {
+              const checked = selected.has(p.id);
+              return `
+              <div class="relative bg-white dark:bg-[#1A1A22] rounded-2xl border ${checked ? 'border-[#FFA552]' : 'border-[#EFE4D6] dark:border-[#2D2D38]'} overflow-hidden shadow-sm flex flex-col">
+                <a href="${editMode ? '#' : 'product-detail.html?id=' + p.id}" ${editMode ? `onclick="toggleSelect('${p.id}'); return false;"` : ''} class="block">
+                  <img src="${p.image}" alt="${p.title}" loading="lazy" class="w-full aspect-square object-cover" />
+                </a>
+                ${editMode ? `<input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleSelect('${p.id}')" aria-label="Select ${p.title}" class="absolute top-2 left-2 w-5 h-5 accent-[#FFA552]" />` : ''}
+                <div class="p-2.5 flex-1 flex flex-col">
+                  <div class="text-xs font-bold line-clamp-2 min-h-[2rem]">${p.title}</div>
+                  <div class="text-[10px] text-stone-400 mt-1">Viewed ${timeLabel(v.ts)}</div>
+                  <div class="flex items-baseline justify-between mt-1">
+                    <span class="text-sm font-black text-[#FFA552]">${formatPrice(p.priceUSD, p.priceKHR)}</span>
+                    <span class="text-[10px] text-stone-400">★ ${p.rating}</span>
+                  </div>
+                  ${editMode ? '' : `
+                  <div class="flex items-center gap-2 mt-2.5">
+                    <button type="button" onclick="addToCart('${p.id}', 1)" class="flex-1 py-1.5 rounded-lg bg-[#FFA552] hover:bg-[#E88C35] text-white text-[11px] font-black cursor-pointer">Add to Bag</button>
+                    <button type="button" onclick="toggleWishlist('${p.id}', event); render();" aria-label="${isInWishlist(p.id) ? 'Remove from Wishlist' : 'Save to Wishlist'}" class="w-8 h-8 rounded-lg border border-[#EFE4D6] dark:border-[#32323D] flex items-center justify-center cursor-pointer">${isInWishlist(p.id) ? '💖' : '🤍'}</button>
+                  </div>`}
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </section>`).join('');
+      syncBar();
+    }
+
+    function syncBar() {
+      const total = getViewed().length;
+      const btn = document.getElementById('deleteBtn');
+      btn.textContent = `Delete (${selected.size})`;
+      btn.disabled = selected.size === 0;
+      document.getElementById('selectAll').checked = total > 0 && selected.size === total;
+    }
+    function toggleEdit() {
+      editMode = !editMode;
+      selected.clear();
+      document.getElementById('editBtn').textContent = editMode ? 'Done' : 'Edit';
+      document.getElementById('editBar').classList.toggle('hidden', !editMode);
+      document.body.style.paddingBottom = editMode ? '5rem' : '';
+      render();
+    }
+    function toggleSelect(id) {
+      selected.has(id) ? selected.delete(id) : selected.add(id);
+      render();
+    }
+    function toggleSelectAll(on) {
+      selected.clear();
+      if (on) getViewed().forEach(v => selected.add(v.id));
+      render();
+    }
+    function deleteSelected() {
+      removeViewed([...selected]);
+      selected.clear();
+      render();
+    }
+    function clearAllViewed() {
+      if (!confirm('Clear your entire viewed history?')) return;
+      clearViewed();
+      selected.clear();
+      render();
+    }
+
+    document.addEventListener('DOMContentLoaded', render);
+  </script>
+</body>
+</html>
