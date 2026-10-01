@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — PsaOnline</title>
+</head>
+<body>
+  <p>Opening <a id="settingsLink" href="setting.html">Settings</a>…</p>
+  <script>
+    const destination = `setting.html${window.location.search}${window.location.hash}`;
+    document.getElementById('settingsLink').href = destination;
+    window.location.replace(destination);
+  </script>
+</body>
+</html>

@@ -1,8 +1,10 @@
 /vendor
 /node_modules
 /public/build
+/dist
 /public/hot
 /public/storage
+/database/*.sqlite
 /storage/*.key
 .env
 .env.backup

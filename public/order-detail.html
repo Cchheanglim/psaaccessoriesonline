@@ -40,9 +40,9 @@
         <div>
           <div class="flex items-center gap-2.5 flex-wrap">
             <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] tracking-tight" id="orderHeading">Order #PSA-889104</h1>
-            <span class="px-3 py-1 rounded-full text-xs font-black bg-[#F9F3EA] text-[#2B1D1D] border border-[#FFA552] flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
-              Payment Confirmed &bull; Packed for Delivery
+            <span id="paymentStatusPill" class="px-3 py-1 rounded-full text-xs font-black bg-[#F9F3EA] text-[#2B1D1D] border border-[#FFA552] flex items-center gap-1.5">
+              <span id="paymentStatusDot" class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+              <span id="paymentStatusLabel">Payment Confirmed &bull; Packed for Delivery</span>
             </span>
           </div>
           <p class="text-xs text-stone-500 mt-1">Ordered on September 30, 2026 &bull; Express delivery within 2 hours</p>
@@ -82,7 +82,7 @@
               ✓
             </div>
             <div class="text-[11px] sm:text-xs font-black text-[#2B1D1D]">Payment Verified</div>
-            <div class="text-[10px] text-stone-400">1:20 PM</div>
+            <div id="paymentStepStatus" class="text-[10px] text-stone-400">1:20 PM</div>
           </div>
 
           <!-- Step 3 (Active) -->
@@ -114,7 +114,7 @@
       <div class="reveal-init delay-100 lg:col-span-2 bg-white rounded-3xl border border-[#EFE4D6] p-6 sm:p-8 shadow-sm space-y-5">
         <h3 class="text-sm font-black text-[#2B1D1D] border-b border-[#F9F3EA] pb-3">Accessories in this Order</h3>
 
-        <div class="space-y-4 divide-y divide-[#F9F3EA]">
+        <div id="receiptItemsList" class="space-y-4 divide-y divide-[#F9F3EA]">
           
           <!-- Item 1 -->
           <div class="pt-4 first:pt-0 flex items-center gap-4">
@@ -162,19 +162,19 @@
         <div class="border-t border-[#F9F3EA] pt-4 space-y-2 text-xs text-stone-600">
           <div class="flex justify-between">
             <span>Subtotal:</span>
-            <span class="font-bold text-[#2B1D1D]">$18.50</span>
+            <span id="receiptSubtotalUSD" class="font-bold text-[#2B1D1D]">$18.50</span>
           </div>
           <div class="flex justify-between">
             <span>Express Courier:</span>
-            <span class="font-bold text-[#FFA552]">FREE (Promotion)</span>
+            <span id="receiptDeliveryUSD" class="font-bold text-[#FFA552]">FREE (Promotion)</span>
           </div>
           <div class="border-t border-[#F9F3EA] pt-3 flex justify-between items-baseline text-sm font-black text-[#2B1D1D]">
-            <span>Total Paid (USD):</span>
-            <span class="text-xl font-black text-[#2B1D1D]">$18.50</span>
+            <span id="receiptTotalLabel">Total (USD):</span>
+            <span id="receiptTotalUSD" class="text-xl font-black text-[#2B1D1D]">$18.50</span>
           </div>
           <div class="flex justify-between text-xs text-[#FFA552] font-bold">
             <span>Total in Khmer Riel:</span>
-            <span class="khmer-font">75,850 ៛</span>
+            <span id="receiptTotalKHR" class="khmer-font">75,850 ៛</span>
           </div>
         </div>
       </div>
@@ -205,7 +205,7 @@
             <div class="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Payment Gateway</div>
             <div class="font-black text-[#2B1D1D] mt-0.5 flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-red-600"></span>
-              <span>Bakong Universal KHQR (Verified)</span>
+              <span id="receiptPaymentMethod">Bakong Universal KHQR (Verified)</span>
             </div>
           </div>
         </div>
@@ -222,5 +222,65 @@
   </main>
 
   <script src="assets/js/store.js"></script>
+  <script>
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      const orderId = params.get('order');
+      const isDemoApproval = params.get('status') === 'demo-approved';
+      let order = null;
+      try { order = JSON.parse(localStorage.getItem('psa_orders') || '[]').find(item => item.id === orderId); } catch (error) {}
+      if (order) {
+        document.getElementById('receiptTotalUSD').textContent = `$${Number(order.totalUSD).toFixed(2)}`;
+        document.getElementById('receiptTotalKHR').textContent = `${order.totalKHR} ៛`;
+        document.getElementById('receiptPaymentMethod').textContent = isDemoApproval ? `${order.paymentMethod} (Demo)` : order.paymentMethod;
+        document.getElementById('receiptSubtotalUSD').textContent = `$${Number(order.subtotalUSD ?? order.totalUSD).toFixed(2)}`;
+        const delivery = Number(order.deliveryUSD || 0);
+        document.getElementById('receiptDeliveryUSD').textContent = delivery ? `$${delivery.toFixed(2)}` : 'FREE (Promotion)';
+        const itemsList = document.getElementById('receiptItemsList');
+        const items = document.createDocumentFragment();
+        (order.items || []).forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'pt-4 flex items-center gap-4';
+          const imageFrame = document.createElement('div');
+          imageFrame.className = 'w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-[#EFE4D6] p-1 overflow-hidden shrink-0 flex items-center justify-center';
+          const image = document.createElement('img');
+          image.src = item.image || '';
+          image.alt = item.title || 'Order item';
+          image.className = 'w-full h-full object-cover rounded-xl';
+          imageFrame.append(image);
+          const details = document.createElement('div');
+          details.className = 'flex-1 min-w-0';
+          const category = document.createElement('div');
+          category.className = 'text-[10px] font-bold text-[#FFA552] uppercase';
+          category.textContent = item.categoryLabel || 'PsaOnline';
+          const title = document.createElement('h4');
+          title.className = 'text-xs sm:text-sm font-black text-[#2B1D1D] truncate';
+          title.textContent = item.title || 'Order item';
+          const quantity = document.createElement('div');
+          quantity.className = 'text-[11px] text-stone-500 mt-0.5';
+          quantity.textContent = `Qty: ${item.quantity}`;
+          details.append(category, title, quantity);
+          const amount = document.createElement('div');
+          amount.className = 'text-right shrink-0';
+          const usd = document.createElement('div');
+          usd.className = 'text-xs sm:text-sm font-black text-[#2B1D1D]';
+          usd.textContent = `$${(Number(item.priceUSD) * Number(item.quantity)).toFixed(2)}`;
+          const khr = document.createElement('div');
+          khr.className = 'text-[10px] text-[#FFA552] font-bold';
+          khr.textContent = `${Math.round(Number(item.priceUSD) * Number(item.quantity) * 4100).toLocaleString()} ៛`;
+          amount.append(usd, khr);
+          row.append(imageFrame, details, amount);
+          items.append(row);
+        });
+        if (items.childElementCount) itemsList.replaceChildren(items);
+      }
+      if (isDemoApproval) {
+        document.getElementById('paymentStatusLabel').textContent = '3D Secure Simulated • Not Charged';
+        document.getElementById('paymentStatusDot').className = 'w-1.5 h-1.5 rounded-full bg-amber-500';
+        document.getElementById('paymentStepStatus').textContent = 'Simulation only';
+        document.getElementById('receiptTotalLabel').textContent = 'Total (USD):';
+      }
+    })();
+  </script>
 </body>
 </html>

@@ -21,6 +21,12 @@ function getPublicHtmlInputs() {
 
 export default defineConfig({
   root: resolve(__dirname, 'public'),
+  plugins: [{
+    name: 'copy-static-assets',
+    closeBundle() {
+      fs.cpSync(resolve(__dirname, 'public/assets'), resolve(__dirname, 'dist/assets'), { recursive: true });
+    }
+  }],
   server: {
     port: 3000,
     host: '0.0.0.0',

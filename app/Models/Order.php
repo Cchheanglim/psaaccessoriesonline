@@ -24,7 +24,7 @@ class Order extends Model
         'delivery_fee_khr',
         'total_usd',
         'total_khr',
-        'payment_method', // 'bakong_khqr', 'aba_pay', 'cod'
+        'payment_method', // 'bakong_khqr', 'aba_pay', 'acleda_khqr', 'visa_card', 'cod'
         'payment_status', // 'pending', 'slip_uploaded', 'verified', 'failed'
         'order_status',   // 'pending_payment', 'processing', 'out_for_delivery', 'delivered', 'cancelled'
         'payment_slip_url',

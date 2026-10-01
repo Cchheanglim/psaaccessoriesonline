@@ -4,5 +4,5 @@ namespace App\Http\Controllers;
 
 abstract class Controller
 {
-    // Base Laravel 11 controller
+    // Base Laravel 12 controller
 }

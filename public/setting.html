@@ -8,9 +8,16 @@
   <script>tailwind.config = { darkMode: 'class' };</script>
   <link rel="stylesheet" href="assets/css/style.css" />
   <style>
-    .row { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:.95rem 1rem; width:100%; text-align:left; cursor:pointer; }
+    .row { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:.95rem 1rem; width:100%; text-align:left; cursor:pointer; transition:background-color .15s ease, color .15s ease; }
+    .row:hover { background-color:#f4f4f5; }
+    .dark .row:hover { background-color:rgba(39,39,42,.5); }
+    .row:focus-visible { position:relative; z-index:1; outline:2px solid #FFA552; outline-offset:-2px; }
     .row + .row { border-top:1px solid #F3EADC; }
-    .dark .row + .row { border-top-color:#2D2D38; }
+    .dark .row + .row { border-top-color:#2D3038; }
+    .settings-card { border-radius:1rem; }
+    .dark .settings-card { background:#16181f; border-color:#2b2e37; }
+    .settings-icon { width:2rem; height:2rem; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:.625rem; background:#F9F3EA; color:#65594d; }
+    .dark .settings-icon { background:#272a33; color:#d4d4d8; }
     .field { width:100%; padding:.65rem .8rem; border-radius:.75rem; border:1px solid #EFE4D6; background:#fff; font-size:.8rem; color:inherit; }
     .dark .field { background:#16161D; border-color:#32323D; }
     .field:focus { outline:2px solid #FFA552; outline-offset:1px; }
@@ -27,7 +34,7 @@
 
   <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2D2D38]">
     <div class="max-w-2xl mx-auto px-4 h-16 flex items-center gap-3">
-      <button type="button" onclick="goBack()" class="text-xl font-black text-[#FFA552] cursor-pointer" aria-label="Back">&lsaquo;</button>
+      <button type="button" onclick="goBack()" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#FFA552] hover:bg-zinc-800/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFA552] cursor-pointer" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg></button>
       <h1 id="pageTitle" class="text-base sm:text-lg font-black">Settings</h1>
     </div>
   </header>
@@ -38,10 +45,56 @@
 
   <script src="assets/js/store.js"></script>
   <script>
-    const card = 'bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm overflow-hidden';
-    const chev = '<span class="text-stone-300 text-lg">&rsaquo;</span>';
+    const card = 'settings-card bg-white dark:bg-[#16181f] rounded-2xl border border-[#EFE4D6] dark:border-[#2b2e37] shadow-sm overflow-hidden';
+    const iconPaths = {
+      user: '<path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="5"/>',
+      lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+      mapPin: '<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+      globe: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/>',
+      bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/>',
+      shield: '<path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/>',
+      info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+      messageSquare: '<path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>',
+      logOut: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+      chevronLeft: '<path d="m15 18-6-6 6-6"/>',
+      chevronRight: '<path d="m9 18 6-6-6-6"/>'
+    };
+    function svgIcon(name, size = 18) {
+      return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]}</svg>`;
+    }
+    const chev = svgIcon('chevronRight', 18);
     const TITLES = { profile:'Edit Profile', password:'Change Password', addresses:'Shipping Addresses', address:'Address', general:'General', notifications:'Notifications', privacy:'Privacy', about:'About PsaOnline' };
     let editingAddr = null;
+
+    function readStoredValue(key, fallback) {
+      try {
+        const value = JSON.parse(localStorage.getItem(key));
+        return value === null ? fallback : value;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function getProfile() {
+      return Object.assign({ name: '', phone: '', email: '', avatar: '' }, readStoredValue('psa_profile', {}));
+    }
+
+    function getAddresses() {
+      const addresses = readStoredValue('psa_addresses', []);
+      return Array.isArray(addresses) ? addresses : [];
+    }
+
+    function getSettings() {
+      return Object.assign({ lang: 'en', notifOrders: true, notifPromo: true, notifPrice: true }, readStoredValue('psa_settings', {}));
+    }
+
+    function saveSettings(updates) {
+      localStorage.setItem('psa_settings', JSON.stringify(Object.assign(getSettings(), updates)));
+    }
+
+    function clearViewed() {
+      localStorage.removeItem('psa_viewed');
+    }
 
     function toast(msg) {
       const t = document.getElementById('toast');
@@ -56,8 +109,8 @@
       if (v) return nav('');
       location.href = 'dashboard-buyer.html';
     }
-    function row(icon, label, hint, target) {
-      return `<button type="button" class="row" onclick="nav('${target}')"><span class="flex items-center gap-3 text-sm font-bold"><span class="text-lg">${icon}</span>${label}</span><span class="flex items-center gap-2 text-xs text-stone-400">${hint || ''}${chev}</span></button>`;
+    function row(iconName, label, hint, target) {
+      return `<button type="button" class="row" aria-label="${esc(label)}" onclick="nav('${target}')"><span class="flex items-center gap-3 text-sm font-bold"><span class="settings-icon">${svgIcon(iconName, 18)}</span><span>${label}</span></span><span class="flex items-center gap-2 text-xs text-stone-400">${hint || ''}${chev}</span></button>`;
     }
     function toggleRow(label, hint, key, on) {
       return `<div class="row" style="cursor:default"><div><div class="text-sm font-bold">${label}</div><div class="text-[11px] text-stone-400">${hint}</div></div><button type="button" role="switch" aria-checked="${on}" aria-label="${label}" class="switch cursor-pointer" onclick="flip('${key}')"></button></div>`;
@@ -70,20 +123,20 @@
         const p = getProfile(), a = getAddresses();
         return `
         <div class="${card}">
-          ${row('👤', 'Edit profile', esc(p.name) || 'Add your details', 'profile')}
-          ${row('🔒', 'Change password', '', 'password')}
-          ${row('📍', 'Shipping addresses', a.length ? a.length + ' saved' : 'None yet', 'addresses')}
+          ${row('user', 'Edit profile', esc(p.name) || 'Add your details', 'profile')}
+          ${row('lock', 'Change password', '', 'password')}
+          ${row('mapPin', 'Shipping addresses', a.length ? a.length + ' saved' : 'None yet', 'addresses')}
         </div>
         <div class="${card}">
-          ${row('🌐', 'General', 'Language, currency, theme', 'general')}
-          ${row('🔔', 'Notifications', '', 'notifications')}
-          ${row('🛡️', 'Privacy', '', 'privacy')}
+          ${row('globe', 'General', 'Language, currency, theme', 'general')}
+          ${row('bell', 'Notifications', '', 'notifications')}
+          ${row('shield', 'Privacy', '', 'privacy')}
         </div>
         <div class="${card}">
-          ${row('ℹ️', 'About PsaOnline', 'v1.0', 'about')}
-          <a href="chat.html" class="row"><span class="flex items-center gap-3 text-sm font-bold"><span class="text-lg">💬</span>Contact support</span>${chev}</a>
+          ${row('info', 'About PsaOnline', 'v1.0', 'about')}
+          <a href="chat.html" aria-label="Contact support" class="row"><span class="flex items-center gap-3 text-sm font-bold"><span class="settings-icon">${svgIcon('messageSquare', 18)}</span><span>Contact support</span></span><span class="flex items-center gap-2 text-xs text-stone-400">${chev}</span></a>
         </div>
-        <button type="button" onclick="signOut()" class="w-full py-3 rounded-2xl bg-white dark:bg-[#1A1A22] border border-[#EFE4D6] dark:border-[#2D2D38] text-sm font-black text-red-500 cursor-pointer">Sign out</button>`;
+        <button type="button" aria-label="Sign out" onclick="signOut()" class="w-full py-3 rounded-2xl bg-white dark:bg-[#16181f] border border-[#EFE4D6] dark:border-[#2b2e37] text-sm font-black text-red-500 hover:bg-red-500/5 dark:hover:bg-red-500/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFA552] cursor-pointer"><span class="inline-flex items-center justify-center gap-2">${svgIcon('logOut', 18)}<span>Sign out</span></span></button>`;
       },
       profile() {
         const p = getProfile();
@@ -126,7 +179,7 @@
               <button type="button" class="cursor-pointer" onclick="openAddress('${a.id}')">Edit</button>
               <button type="button" class="text-red-500 cursor-pointer" onclick="deleteAddress('${a.id}')">Delete</button>
             </div>
-          </div>`).join('') : `<div class="${card} p-8 text-center"><div class="text-3xl mb-2">📍</div><div class="text-sm font-black">No saved addresses</div><div class="text-xs text-stone-500 mt-1">Add one and checkout will fill it in for you.</div></div>`;
+          </div>`).join('') : `<div class="${card} p-8 text-center"><div class="settings-icon mx-auto mb-3 h-10 w-10">${svgIcon('mapPin', 20)}</div><div class="text-sm font-black">No saved addresses</div><div class="text-xs text-stone-500 mt-1">Add one and checkout will fill it in for you.</div></div>`;
         return items + `<button type="button" onclick="openAddress('')" class="w-full py-3 rounded-2xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-sm font-black cursor-pointer">Add new address</button>`;
       },
       address() {

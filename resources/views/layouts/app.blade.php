@@ -163,7 +163,7 @@
             </div>
 
             <div class="mt-8 pt-6 border-t border-[#EFE4D6] flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-2">
-                <div>&copy; 2026 PsaOnline &bull; Laravel 11 Web II Project.</div>
+                <div>&copy; 2026 PsaOnline &bull; Laravel 12 Web II Project.</div>
                 <div class="flex items-center gap-4 text-[11px]">
                     <a href="#" class="hover:underline">Privacy Policy</a>
                     <span>&bull;</span>

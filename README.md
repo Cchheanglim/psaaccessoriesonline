@@ -1,7 +1,7 @@
 # PsaOnline — Gen-Z Streetwear & Aesthetic Accessories Marketplace
 
 > **Web Development II Final Project**  
-> Built with **Laravel 11**, Blade Template Engine, Tailwind CSS, and Bakong Universal KHQR Payment Integration.
+> Built with **Laravel 12**, Blade Template Engine, Tailwind CSS, and Bakong Universal KHQR Payment Integration.
 
 ---
 
@@ -13,7 +13,7 @@
 
 ## 📁 Laravel Framework Architecture (`https://github.com/laravel/laravel.git`)
 
-The repository adheres strictly to the official Laravel 11 application skeleton:
+The repository adheres strictly to the official Laravel 12 application skeleton:
 
 ```
 ├── app/
@@ -42,7 +42,7 @@ The repository adheres strictly to the official Laravel 11 application skeleton:
 │   └── Providers/
 │       └── AppServiceProvider.php
 ├── bootstrap/
-│   ├── app.php                                    # Laravel 11 application bootstrap
+│   ├── app.php                                    # Laravel 12 application bootstrap
 │   └── providers.php                              # Service providers list
 ├── config/
 │   ├── app.php                                    # App name, timezone, locale

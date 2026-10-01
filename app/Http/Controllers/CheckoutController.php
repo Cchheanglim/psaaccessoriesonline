@@ -40,7 +40,7 @@ class CheckoutController extends Controller
             'customer_phone' => 'required|string|max:30',
             'delivery_address' => 'required|string|max:300',
             'delivery_notes' => 'nullable|string|max:200',
-            'payment_method' => 'required|in:bakong_khqr,aba_pay,cod',
+            'payment_method' => 'required|in:bakong_khqr,aba_pay,acleda_khqr,visa_card,cod',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
         ]);
@@ -59,7 +59,7 @@ class CheckoutController extends Controller
 
         $order = Order::create([
             'order_number' => $orderNumber,
-            'user_id' => auth()->id() ?? null,
+            'user_id' => $request->user()?->getAuthIdentifier(),
             'customer_name' => $validated['customer_name'],
             'customer_phone' => $validated['customer_phone'],
             'delivery_address' => $validated['delivery_address'],
@@ -94,7 +94,7 @@ class CheckoutController extends Controller
         // Clear bag session
         session()->forget('cart');
 
-        if ($validated['payment_method'] === 'bakong_khqr' || $validated['payment_method'] === 'aba_pay') {
+        if (in_array($validated['payment_method'], ['bakong_khqr', 'aba_pay', 'acleda_khqr'], true)) {
             return redirect()->route('orders.pending', $order->id);
         }
 
