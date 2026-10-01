@@ -20,4 +20,11 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    // Read by UserSeeder. Kept here rather than calling env() in the seeder,
+    // because env() returns null once `php artisan config:cache` has run.
+    'admin_seed' => [
+        'email' => env('ADMIN_SEED_EMAIL', 'admin@example.test'),
+        'password' => env('ADMIN_SEED_PASSWORD'),
+    ],
 ];

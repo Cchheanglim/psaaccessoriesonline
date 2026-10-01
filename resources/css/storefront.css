@@ -1,0 +1,434 @@
+/* PsaOnline Gen-Z Accessories - Sorbet Orange, Cotton Beige & Deep Espresso Theme
+   Exact Color Palette extracted from reference:
+   - #FFA552 (Sorbet Orange — vibrant, warm, viral accent)
+   - #F9F3EA (Cotton Beige — soft creamy canvas & card pill background)
+   - #2B1D1D (Deep Espresso Mocha — rich contrast typography, dark bars & headers)
+   - #FFFFFF (Pure Clean White — perfect container for white-background product shots)
+   - #E88C35 (Deep Sorbet — hover states & active indicators)
+   - #FDFBF7 (Warm Cream Canvas — overall background)
+   - #EFE4D6 (Soft Linen Border — crisp delimiters)
+*/
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  --font-khmer: 'Kantumruy Pro', 'Plus Jakarta Sans', sans-serif;
+  
+  /* Brand Palette */
+  --c-sorbet: #FFA552;
+  --c-sorbet-dark: #E88C35;
+  --c-sorbet-light: #FFF0E1;
+  --c-cotton: #F9F3EA;
+  --c-cotton-light: #FDFBF7;
+  --c-espresso: #2B1D1D;
+  --c-espresso-deep: #1E1313;
+  --c-espresso-light: #4A3333;
+  --c-white: #FFFFFF;
+  --c-border: #EFE4D6;
+  --c-border-hover: #FFA552;
+
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  background-color: var(--c-cotton-light);
+  color: var(--c-espresso);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-khmer {
+  font-family: var(--font-khmer);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F9F3EA;
+}
+::-webkit-scrollbar-thumb {
+  background: #FFA552;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #E88C35;
+}
+
+/* Theme Backgrounds & Utility Classes */
+.bg-sorbet { background-color: var(--c-sorbet); }
+.bg-sorbet-dark { background-color: var(--c-sorbet-dark); }
+.bg-sorbet-light { background-color: var(--c-sorbet-light); }
+.bg-cotton { background-color: var(--c-cotton); }
+.bg-cotton-light { background-color: var(--c-cotton-light); }
+.bg-espresso { background-color: var(--c-espresso); }
+.bg-espresso-deep { background-color: var(--c-espresso-deep); }
+.bg-espresso-light { background-color: var(--c-espresso-light); }
+.bg-canvas { background-color: var(--c-cotton-light); }
+
+.text-sorbet { color: var(--c-sorbet); }
+.text-sorbet-dark { color: var(--c-sorbet-dark); }
+.text-cotton { color: var(--c-cotton); }
+.text-espresso { color: var(--c-espresso); }
+
+.border-sorbet { border-color: var(--c-sorbet); }
+.border-cotton { border-color: var(--c-border); }
+.border-espresso { border-color: var(--c-espresso-light); }
+
+/* Scroll Entrance Reveal */
+/* Scroll-triggered entrance animations were removed. These classes are kept
+   as no-ops so that any markup still carrying them is never left invisible. */
+.reveal-init,
+.reveal-init.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Product Card - Pure White Frame with Cotton Beige Border */
+.product-card {
+  background-color: #FFFFFF;
+  border: 1.5px solid #EFE4D6;
+  border-radius: 1.25rem;
+  transition: transform 0.35s var(--ease-smooth), box-shadow 0.35s var(--ease-smooth), border-color 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  border-color: #FFA552;
+  box-shadow: 0 16px 36px -8px rgba(43, 29, 29, 0.12), 0 0 0 1px rgba(255, 165, 82, 0.2);
+}
+
+/* Lively Hover-Scale Transitions for Image Containers */
+.product-image-container {
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #F9F3EA;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s var(--ease-smooth);
+}
+.product-card:hover .product-image-container {
+  transform: scale(1.015);
+}
+
+.product-image-zoom {
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.product-card:hover .product-image-zoom {
+  transform: scale(1.08);
+}
+
+/* Gallery Thumbnail Active States in Quick View */
+.gallery-thumb-btn {
+  transition: transform 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+.gallery-thumb-btn:hover {
+  transform: translateY(-2px);
+}
+.gallery-thumb-btn.active-thumb {
+  border-color: #FFA552 !important;
+  box-shadow: 0 0 0 2px rgba(255, 165, 82, 0.45);
+}
+
+/* Wishlist Heart Icon Tactile Pulse & Hover */
+.wishlist-btn {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.wishlist-btn:hover {
+  transform: scale(1.12);
+  border-color: #F43F5E !important;
+}
+.wishlist-btn:active svg {
+  transform: scale(1.35);
+}
+.wishlist-btn.active-wishlist {
+  color: #F43F5E !important;
+  border-color: #FECDD3 !important;
+  background-color: #FFF1F2 !important;
+}
+html.dark .wishlist-btn.active-wishlist {
+  background-color: rgba(244, 63, 94, 0.18) !important;
+  border-color: rgba(244, 63, 94, 0.45) !important;
+}
+.wishlist-btn.active-wishlist svg {
+  fill: #F43F5E !important;
+  stroke: #F43F5E !important;
+}
+
+/* Quick Add Button on Card */
+.quick-add-btn {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.25s var(--ease-smooth), transform 0.25s var(--ease-smooth);
+}
+.product-card:hover .quick-add-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (max-width: 768px) {
+  .quick-add-btn {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   DARK THEME SYSTEM (CRYSTAL-CLEAR, RAZOR-SHARP TEXT, ZERO BLUR)
+   ========================================================================== */
+html.dark {
+  color-scheme: dark;
+}
+
+/* Base typography clarity: sharp edges, no blur, high legibility */
+body, h1, h2, h3, h4, h5, h6, p, span, a, button, input {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Dark Mode Color Overrides */
+html.dark,
+html.dark body {
+  background-color: #121215;
+  color: #F4F4F6;
+}
+
+html.dark header {
+  background-color: rgba(18, 18, 22, 0.94) !important;
+  border-bottom-color: #2A2A34 !important;
+}
+
+html.dark .product-card {
+  background-color: #1A1A22 !important;
+  border-color: #2B2B36 !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.45);
+}
+html.dark .product-card:hover {
+  border-color: #FFA552 !important;
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 165, 82, 0.35);
+}
+
+html.dark .product-image-container {
+  background-color: #15151B !important;
+  border-bottom-color: #272732 !important;
+}
+
+html.dark .bg-white {
+  background-color: #1C1C24 !important;
+}
+
+html.dark .bg-\[\#FDFBF7\] {
+  background-color: #121215 !important;
+}
+
+html.dark .bg-\[\#F9F3EA\] {
+  background-color: #1E1E26 !important;
+}
+
+html.dark .text-\[\#2B1D1D\] {
+  color: #FFFFFF !important;
+}
+
+html.dark .text-\[\#4A3333\] {
+  color: #ECECEF !important;
+}
+
+html.dark .text-stone-600 {
+  color: #D4D4D8 !important;
+}
+
+html.dark .text-stone-500 {
+  color: #A1A1AA !important;
+}
+
+html.dark .border-\[\#EFE4D6\] {
+  border-color: #2D2D38 !important;
+}
+
+html.dark .border-\[\#F9F3EA\] {
+  border-color: #252530 !important;
+}
+
+html.dark .hover\:bg-\[\#F9F3EA\]:hover {
+  background-color: #252530 !important;
+}
+
+html.dark footer {
+  background-color: #141418 !important;
+  border-top-color: #272732 !important;
+}
+
+html.dark nav.md\:hidden {
+  background-color: rgba(18, 18, 22, 0.96) !important;
+  border-top-color: #2A2A34 !important;
+}
+
+html.dark #psaQuickViewModal .bg-white {
+  background-color: #1A1A22 !important;
+}
+
+html.dark #psaQuickViewModal .border-\[\#EFE4D6\] {
+  border-color: #2D2D38 !important;
+}
+
+html.dark #psaQuickViewModal .bg-\[\#FDFBF7\] {
+  background-color: #141419 !important;
+}
+
+html.dark #psaQuickViewModal .bg-\[\#F9F3EA\] {
+  background-color: #21212A !important;
+}
+
+html.dark #psaQuickViewModal .text-\[\#2B1D1D\] {
+  color: #FFFFFF !important;
+}
+
+html.dark #psaQuickViewModal .text-\[\#4A3333\] {
+  color: #ECECEF !important;
+}
+
+/* The product detail and sign-in pages use the older green palette, which
+   the overrides above did not cover, leaving dark text on a dark page. */
+html.dark .text-\[\#051F20\] {
+  color: #FFFFFF !important;
+}
+html.dark .text-\[\#235347\] {
+  color: #8EB69B !important;
+}
+html.dark .text-slate-700 {
+  color: #D4D4D8 !important;
+}
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+  color: #A1A1AA !important;
+}
+html.dark .border-\[\#E2ECE5\] {
+  border-color: #2D2D38 !important;
+}
+html.dark .bg-\[\#DAF1DE\] {
+  background-color: #1E2A24 !important;
+}
+html.dark .hover\:bg-\[\#DAF1DE\]:hover {
+  background-color: #252530 !important;
+}
+html.dark .bg-\[\#051F20\] {
+  background-color: #FFA552 !important;
+  color: #1A1A22 !important;
+}
+html.dark .bg-\[\#051F20\]:hover {
+  background-color: #E88C35 !important;
+}
+
+/* Button Press Feedback */
+.btn-press {
+  transition: transform 0.18s var(--ease-smooth), box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.btn-press:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(255, 165, 82, 0.35);
+}
+.btn-press:active {
+  transform: scale(0.96);
+}
+
+/* Cart Badge Bounce */
+@keyframes cartBounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.4); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+.cart-bounce {
+  animation: cartBounce 0.4s var(--ease-spring);
+}
+
+/* Quick Action Bar (Quick View & Quick Add) */
+.quick-actions-bar {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.25s var(--ease-smooth), transform 0.25s var(--ease-smooth);
+}
+.product-card:hover .quick-actions-bar {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (max-width: 768px) {
+  .quick-actions-bar {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Quick View Badge Button */
+.quick-view-badge-btn {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.25s var(--ease-smooth), transform 0.25s var(--ease-smooth), background-color 0.2s;
+}
+.product-card:hover .quick-view-badge-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (max-width: 768px) {
+  .quick-view-badge-btn {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Quick View Modal Animations */
+.modal-enter {
+  opacity: 0;
+  pointer-events: none;
+}
+.modal-enter-active {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.25s ease-out;
+}
+.modal-panel-enter {
+  opacity: 0;
+  transform: scale(0.94) translateY(12px);
+}
+.modal-panel-enter-active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: opacity 0.3s var(--ease-smooth), transform 0.3s var(--ease-smooth);
+}
+
+/* Mobile Bottom Navigation Bar Safe Area */
+.pb-mobile-nav {
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (min-width: 768px) {
+  .pb-mobile-nav {
+    padding-bottom: 0;
+  }
+}
+
+/* Honour the operating system's reduced-motion setting everywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

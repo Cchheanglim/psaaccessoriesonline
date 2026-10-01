@@ -331,29 +331,84 @@ function saveCart(cart) {
   updateCartBadge();
 }
 
-function addToCart(productId, qty = 1) {
-  const product = ACCESSORIES_PRODUCTS.find(p => p.id === productId);
-  if (!product) return;
+// The bag lives in the Laravel session (CartController), which is what the
+// cart page and checkout read. The layout renders the current item count and
+// the endpoint URL into <meta> tags; each add request returns the new count.
+let CART_COUNT = Number(document.querySelector('meta[name="cart-count"]')?.content || 0);
 
-  const cart = getCart();
-  const existingIndex = cart.findIndex(item => item.id === productId);
+async function addToCart(productId, qty = 1) {
+  const url = document.querySelector('meta[name="cart-add-url"]')?.content;
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  if (!url || !token) return false;
 
-  if (existingIndex > -1) {
-    cart[existingIndex].quantity += qty;
-  } else {
-    cart.push({
-      id: product.id,
-      title: product.title,
-      priceUSD: product.priceUSD,
-      priceKHR: product.priceKHR,
-      image: product.image,
-      categoryLabel: product.categoryLabel,
-      quantity: qty
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': token,
+      },
+      body: JSON.stringify({ product_id: Number(productId), quantity: qty }),
     });
-  }
 
-  saveCart(cart);
-  showToastNotification(product, qty);
+    if (!response.ok) {
+      throw new Error(`Add to bag failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    CART_COUNT = Number(data.count) || 0;
+    updateCartBadge();
+
+    showToastNotification({
+      title: data.item.title,
+      image: data.item.image,
+      priceUSD: Number(data.item.price_usd),
+      priceKHR: Number(data.item.price_khr),
+    }, qty);
+    return true;
+  } catch (error) {
+    showCartErrorToast();
+    return false;
+  }
+}
+
+// "Buy now": put the item in the bag, then go straight to checkout.
+async function buyNow(productId, checkoutUrl) {
+  if (await addToCart(productId, 1)) {
+    window.location.href = checkoutUrl;
+  }
+}
+
+// Cart page quantity buttons. A quantity of 0 removes the line. The page is
+// reloaded afterwards so every total is recalculated by the server.
+async function updateQty(productId, quantity) {
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  const base = document.querySelector('meta[name="cart-url"]')?.content || '/cart';
+
+  try {
+    const response = await fetch(`${base}/update/${encodeURIComponent(productId)}`, {
+      method: 'PATCH',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': token,
+      },
+      body: JSON.stringify({ quantity: Math.max(0, Math.min(99, Number(quantity))) }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Quantity update failed with status ${response.status}`);
+    }
+
+    window.location.reload();
+  } catch (error) {
+    showCartErrorToast();
+  }
 }
 
 function removeFromCart(productId) {
@@ -390,8 +445,7 @@ function clearCart() {
 }
 
 function updateCartBadge() {
-  const cart = getCart();
-  const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalCount = CART_COUNT;
 
   // Desktop badges
   document.querySelectorAll('.cart-count-badge').forEach(el => {
@@ -423,10 +477,10 @@ function setCurrency(currency) {
 
   document.querySelectorAll('.currency-toggle-btn').forEach(btn => {
     if (btn.dataset.currency === currency) {
-      btn.classList.add('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
+      btn.classList.add('bg-[#2B1D1D]', 'text-white');
       btn.classList.remove('text-[#2B1D1D]');
     } else {
-      btn.classList.remove('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
+      btn.classList.remove('bg-[#2B1D1D]', 'text-white');
       btn.classList.add('text-[#2B1D1D]');
     }
   });
@@ -459,69 +513,118 @@ function formatPrice(usd, khr) {
 }
 
 // Toast Notification with Sorbet Orange & Cotton Beige Frame
-function showToastNotification(product, qty) {
+function getToastContainer() {
   let toast = document.getElementById('psaGlobalToast');
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'psaGlobalToast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
     toast.className = 'fixed bottom-20 md:bottom-8 right-4 md:right-8 z-50 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none';
     document.body.appendChild(toast);
   }
+  return toast;
+}
 
-  toast.innerHTML = `
-    <div class="bg-white border-2 border-[#FFA552] shadow-2xl rounded-2xl p-4 max-w-sm flex items-center gap-3.5 pointer-events-auto">
-      <div class="w-14 h-14 rounded-xl bg-white border border-[#EFE4D6] p-1 overflow-hidden shrink-0 flex items-center justify-center">
-        <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover rounded-lg" />
-      </div>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#FFA552]">
-          <span class="w-2 h-2 rounded-full bg-[#FFA552] animate-ping"></span>
-          Added to Bag!
-        </div>
-        <div class="text-xs font-black text-[#2B1D1D] truncate mt-0.5">${product.title}</div>
-        <div class="text-[11px] font-semibold text-[#4A3333] mt-0.5">${formatPrice(product.priceUSD, product.priceKHR)} &bull; Qty: ${qty}</div>
-      </div>
-      <a href="cart.html" class="px-3.5 py-2 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-extrabold text-xs shrink-0 transition-colors shadow-sm">
-        View Bag &rarr;
-      </a>
-    </div>
-  `;
-
-  // Animate in
+function revealToast(toast) {
   setTimeout(() => {
     toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
     toast.classList.add('translate-y-0', 'opacity-100');
   }, 10);
 
-  // Auto hide after 3.8s
-  setTimeout(() => {
+  clearTimeout(toast.hideTimer);
+  toast.hideTimer = setTimeout(() => {
     toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
     toast.classList.remove('translate-y-0', 'opacity-100');
   }, 3800);
 }
 
-// Scroll Intersection Observer for Smooth Shopify-Style Entrance
+// Built with DOM APIs rather than innerHTML: product titles and image URLs
+// come from the database, so they must never be parsed as markup.
+function showToastNotification(product, qty) {
+  const toast = getToastContainer();
+
+  const card = document.createElement('div');
+  card.className = 'bg-white border-2 border-[#FFA552] shadow-2xl rounded-2xl p-4 max-w-sm flex items-center gap-3.5 pointer-events-auto';
+
+  const frame = document.createElement('div');
+  frame.className = 'w-14 h-14 rounded-xl bg-white border border-[#EFE4D6] p-1 overflow-hidden shrink-0 flex items-center justify-center';
+  if (product.image) {
+    const img = document.createElement('img');
+    img.src = product.image;
+    img.alt = product.title;
+    img.className = 'w-full h-full object-cover rounded-lg';
+    frame.appendChild(img);
+  }
+
+  const body = document.createElement('div');
+  body.className = 'flex-1 min-w-0';
+
+  const heading = document.createElement('div');
+  heading.className = 'text-[11px] font-bold text-[#FFA552]';
+  heading.textContent = 'Added to bag';
+
+  const title = document.createElement('div');
+  title.className = 'text-xs font-black text-[#2B1D1D] truncate mt-0.5';
+  title.textContent = product.title;
+
+  const meta = document.createElement('div');
+  meta.className = 'text-[11px] font-semibold text-[#4A3333] mt-0.5';
+  meta.textContent = `${formatPrice(product.priceUSD, product.priceKHR)} • Qty: ${qty}`;
+
+  body.append(heading, title, meta);
+
+  const link = document.createElement('a');
+  link.href = document.querySelector('meta[name="cart-url"]')?.content || '/cart';
+  link.className = 'px-3.5 py-2 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-extrabold text-xs shrink-0 transition-colors shadow-sm';
+  link.textContent = 'View bag';
+
+  card.append(frame, body, link);
+  toast.replaceChildren(card);
+  revealToast(toast);
+}
+
+function showCartErrorToast() {
+  const toast = getToastContainer();
+
+  const card = document.createElement('div');
+  card.className = 'bg-white border-2 border-red-300 shadow-2xl rounded-2xl p-4 max-w-sm pointer-events-auto text-xs font-bold text-[#2B1D1D]';
+  card.textContent = 'This item could not be added to your bag. Please refresh the page and try again.';
+
+  toast.replaceChildren(card);
+  revealToast(toast);
+}
+
+// Home page category chips: show or hide the server-rendered product cards
+// in place. Each card carries data-category from the database.
+function filterHomeProducts(category, activeChip) {
+  document.querySelectorAll('#homeProductGrid [data-category]').forEach(card => {
+    card.classList.toggle('hidden', category !== 'all' && card.dataset.category !== category);
+  });
+
+  document.querySelectorAll('.category-chip').forEach(chip => {
+    const isActive = chip === activeChip;
+    chip.classList.toggle('bg-[#2B1D1D]', isActive);
+    chip.classList.toggle('text-white', isActive);
+    chip.classList.toggle('bg-white', !isActive);
+    chip.classList.toggle('text-[#2B1D1D]', !isActive);
+    chip.classList.toggle('border', !isActive);
+    chip.classList.toggle('border-[#EFE4D6]', !isActive);
+    chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+  });
+
+  const empty = document.getElementById('homeProductGridEmpty');
+  if (empty) {
+    const anyVisible = document.querySelector('#homeProductGrid [data-category]:not(.hidden)');
+    empty.classList.toggle('hidden', Boolean(anyVisible));
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   updateCartBadge();
   updateWishlistUI();
   initEarlyAccessState();
   updateThemeToggleButtons();
-
-  const reveals = document.querySelectorAll('.reveal-init');
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver((entries, obs) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed');
-          obs.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.08 });
-
-    reveals.forEach(el => observer.observe(el));
-  } else {
-    reveals.forEach(el => el.classList.add('revealed'));
-  }
 });
 
 /* ==========================================================================

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class AdminUserController extends Controller
 {
@@ -19,14 +20,20 @@ class AdminUserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users',
-            'phone' => 'nullable|string|max:30',
+            'email' => 'required|email|max:255|unique:users',
+            'phone' => ['nullable', 'string', 'max:30', 'regex:/^[0-9+\-\s()]+$/'],
             'role' => 'required|in:buyer,staff,admin',
-            'password' => 'required|string|min:6',
+            'password' => ['required', 'string', 'max:255', Password::defaults()],
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
-        User::create($validated);
+        $user = new User([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
+            'password' => Hash::make($validated['password']),
+        ]);
+        $user->role = $validated['role'];
+        $user->save();
 
         return back()->with('success', 'User created successfully.');
     }

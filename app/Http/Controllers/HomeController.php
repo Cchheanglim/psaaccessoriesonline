@@ -3,18 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
     /**
-     * Display the viral Gen-Z accessories storefront.
+     * Display the storefront home page.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $featured = Product::active()->take(8)->get();
-        $bestsellers = Product::active()->where('badge', 'Bestseller')->take(4)->get();
-        
-        return view('home', compact('featured', 'bestsellers'));
+        $featured = Product::active()->latest()->latest('id')->take(8)->get();
+        $hero = $featured->first();
+
+        return view('home', compact('featured', 'hero'));
     }
 }

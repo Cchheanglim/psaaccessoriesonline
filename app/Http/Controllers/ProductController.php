@@ -37,8 +37,9 @@ class ProductController extends Controller
             $query->where('price_usd', '<=', (float) $request->max_price);
         }
 
-        // Sorting
-        $sort = $request->get('sort', 'trending');
+        // Sorting. There is no reviews feature yet, so the default is newest
+        // first rather than an ordering based on ratings.
+        $sort = $request->get('sort', 'newest');
         switch ($sort) {
             case 'price_asc':
                 $query->orderBy('price_usd', 'asc');
@@ -46,11 +47,8 @@ class ProductController extends Controller
             case 'price_desc':
                 $query->orderBy('price_usd', 'desc');
                 break;
-            case 'newest':
-                $query->orderBy('created_at', 'desc');
-                break;
             default:
-                $query->orderBy('rating', 'desc');
+                $query->orderBy('created_at', 'desc')->orderBy('id', 'desc');
         }
 
         $products = $query->paginate(12);
@@ -63,7 +61,8 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::findOrFail($id);
+        // Draft and archived products are not public.
+        $product = Product::active()->findOrFail($id);
         $related = Product::active()
             ->where('category', $product->category)
             ->where('id', '!=', $product->id)

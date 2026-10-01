@@ -31,17 +31,19 @@ class CartController extends Controller
     public function add(Request $request)
     {
         $request->validate([
-            'product_id' => 'required',
-            'quantity' => 'nullable|integer|min:1',
+            'product_id' => 'required|integer',
+            'quantity' => 'nullable|integer|min:1|max:99',
         ]);
 
-        $product = Product::findOrFail($request->product_id);
-        $qty = $request->input('quantity', 1);
+        $product = Product::active()->findOrFail($request->integer('product_id'));
+        abort_if($product->stock < 1, 422, 'This product is out of stock.');
+        // An empty quantity field arrives as null, which integer() turns into 0.
+        $qty = max(1, $request->integer('quantity', 1));
 
         $cart = session()->get('cart', []);
 
         if (isset($cart[$product->id])) {
-            $cart[$product->id]['quantity'] += $qty;
+            $cart[$product->id]['quantity'] = min(99, $cart[$product->id]['quantity'] + $qty);
         } else {
             $cart[$product->id] = [
                 'id' => $product->id,
@@ -58,13 +60,14 @@ class CartController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Added to bag!',
-                'count' => count($cart),
+                'message' => 'Added to bag.',
+                'count' => array_sum(array_column($cart, 'quantity')),
+                'item' => $cart[$product->id],
                 'cart' => $cart,
             ]);
         }
 
-        return redirect()->back()->with('success', 'Added to bag!');
+        return redirect()->back()->with('success', 'Added to bag.');
     }
 
     /**
@@ -72,10 +75,14 @@ class CartController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'quantity' => 'nullable|integer|min:0|max:99',
+        ]);
+
         $cart = session()->get('cart', []);
 
         if (isset($cart[$id])) {
-            $qty = (int) $request->input('quantity', 1);
+            $qty = $request->integer('quantity', 1);
             if ($qty > 0) {
                 $cart[$id]['quantity'] = $qty;
             } else {

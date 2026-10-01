@@ -4,46 +4,77 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
     /**
      * Display order receipt and delivery tracking timeline.
      */
-    public function show($id)
+    public function show(Order $order)
     {
-        $order = Order::with('items')->findOrFail($id);
+        Gate::authorize('view', $order);
+
+        $order->load('items');
+
         return view('orders.show', compact('order'));
     }
 
     /**
      * Display Bakong KHQR scan and payment screenshot upload screen.
      */
-    public function pending($id)
+    public function pending(Order $order)
     {
-        $order = Order::with('items')->findOrFail($id);
+        Gate::authorize('view', $order);
+
+        $order->load('items');
+
         return view('orders.pending', compact('order'));
     }
 
     /**
      * Handle payment slip upload.
+     *
+     * Slips are bank transfer screenshots containing account numbers, so they
+     * are written to the private "local" disk and only served back through
+     * showSlip() after an authorisation check.
      */
-    public function uploadSlip(Request $request, $id)
+    public function uploadSlip(Request $request, Order $order)
     {
-        $order = Order::findOrFail($id);
+        Gate::authorize('uploadSlip', $order);
 
         $request->validate([
-            'payment_slip' => 'required|image|max:5120',
+            'payment_slip' => 'required|file|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
-        if ($request->hasFile('payment_slip')) {
-            $path = $request->file('payment_slip')->store('slips', 'public');
-            $order->update([
-                'payment_slip_url' => '/storage/' . $path,
-                'payment_status' => 'slip_uploaded',
-            ]);
+        $path = $request->file('payment_slip')->store('slips', 'local');
+
+        if ($order->payment_slip_url) {
+            Storage::disk('local')->delete($order->payment_slip_url);
         }
 
-        return redirect()->route('orders.show', $order->id)->with('success', 'Payment slip submitted! Admin is verifying.');
+        $order->update([
+            'payment_slip_url' => $path,
+            'payment_status' => 'slip_uploaded',
+        ]);
+
+        return redirect()->route('orders.show', $order)->with('success', 'Payment slip submitted. We will verify it shortly.');
+    }
+
+    /**
+     * Stream a stored payment slip to someone allowed to see the order.
+     */
+    public function showSlip(Order $order)
+    {
+        Gate::authorize('view', $order);
+
+        $path = $order->payment_slip_url;
+
+        abort_unless($path && Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->response($path, null, [
+            'Cache-Control' => 'private, no-store',
+        ]);
     }
 }

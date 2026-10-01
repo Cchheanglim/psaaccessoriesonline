@@ -13,6 +13,10 @@ class User extends Authenticatable
     /**
      * The attributes that are mass assignable.
      *
+     * "role" ('buyer', 'staff', 'admin') is deliberately absent: it must only
+     * ever be set by explicit assignment, so that passing request input into
+     * create() or update() can never promote someone to admin.
+     *
      * @var list<string>
      */
     protected $fillable = [
@@ -20,7 +24,6 @@ class User extends Authenticatable
         'email',
         'phone',
         'password',
-        'role', // 'buyer', 'staff', 'admin'
         'avatar',
         'address',
     ];
@@ -53,13 +56,28 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    /**
+     * Up to two initials from the user's name, for avatar placeholders.
+     */
+    public function initials(): string
+    {
+        return collect(preg_split('/\s+/u', trim((string) $this->name)))
+            ->filter()
+            ->take(2)
+            ->map(fn (string $part) => mb_strtoupper(mb_substr($part, 0, 1)))
+            ->join('');
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
+    /**
+     * True for staff and admins: anyone allowed into the operations portal.
+     */
     public function isStaff(): bool
     {
-        return in_array($this->role, ['staff', 'admin']);
+        return in_array($this->role, ['staff', 'admin'], true);
     }
 }

@@ -1,175 +1,121 @@
-# PsaOnline — Gen-Z Streetwear & Aesthetic Accessories Marketplace
+# PsaOnlineAccessories
 
-> **Web Development II Final Project**  
-> Built with **Laravel 12**, Blade Template Engine, Tailwind CSS, and Bakong Universal KHQR Payment Integration.
+An online shop for jewelry, sunglasses, bags, hair clips and phone charms, delivered across Phnom Penh. Prices are shown in US dollars and riel, and customers pay by Bakong KHQR, ABA Pay, ACLEDA or cash on delivery.
 
----
+Built with Laravel 12, Blade, Tailwind CSS 4 and PostgreSQL. Web II final project.
 
-## 🌟 Overview
+## Project structure
 
-**PsaOnline** is an indie e-commerce web platform curated for Gen-Z viral fashion trends, including Y2K chrome jewelry, 90s tinted shades, puffy cloud nylon bags, and aesthetic charms. The project supports Cambodia's dual-currency ecosystem (USD and KHR at fixed 1 USD = 4,100 KHR) and instant Bakong Universal KHQR mobile banking checkout.
+The app follows the standard [laravel/laravel](https://github.com/laravel/laravel) skeleton.
 
----
+| Path | What it holds |
+| --- | --- |
+| `app/Http/Controllers` | Storefront, cart, checkout, orders, auth, and `Admin/` controllers |
+| `app/Http/Middleware` | `EnsureUserHasRole` (admin/staff access) and `SecurityHeaders` |
+| `app/Policies/OrderPolicy.php` | Who may view an order, upload a slip, verify, cancel |
+| `app/Models` | `User`, `Product`, `Order`, `OrderItem`, `PaymentMethod` |
+| `database/` | Migrations, factories and seeders |
+| `resources/views` | Blade templates (storefront, admin, legal pages) |
+| `resources/css` | Tailwind entry (`app.css`) and the storefront theme (`storefront.css`) |
+| `public/assets/js/store.js` | Storefront behaviour: add to bag, quantities, filters, currency |
+| `resources/prototype/` | The original static HTML design prototype, kept for reference only. It is not served by the website. |
+| `tests/` | Feature tests, including `SecurityTest.php` |
+| `Dockerfile`, `render.yaml` | Production container and Render deployment |
 
-## 📁 Laravel Framework Architecture (`https://github.com/laravel/laravel.git`)
+## Roles
 
-The repository adheres strictly to the official Laravel 12 application skeleton:
+| Role | Can do |
+| --- | --- |
+| Buyer | Shop, check out, see their own orders |
+| Staff | Everything a buyer can, plus review payment slips, update delivery status, add and edit products |
+| Admin | Everything, plus cancel orders, delete products, manage users and payment methods |
 
-```
-├── app/
-│   ├── Http/
-│   │   └── Controllers/
-│   │       ├── Controller.php                     # Base Laravel Controller
-│   │       ├── HomeController.php                 # Landing page & featured drops
-│   │       ├── ProductController.php              # Product catalog, filter & detail
-│   │       ├── CartController.php                 # Shopping bag session management
-│   │       ├── CheckoutController.php             # Checkout, addresses & order creation
-│   │       ├── OrderController.php                # Order receipts & slip upload
-│   │       ├── AuthController.php                 # Buyer/Admin login & registration
-│   │       ├── BuyerDashboardController.php       # Buyer order tracking profile
-│   │       └── Admin/
-│   │           ├── AdminDashboardController.php   # Revenue, KPI stats & recent orders
-│   │           ├── AdminOrderController.php       # Order verification & slip approval
-│   │           ├── AdminProductController.php     # Product inventory drops CRUD
-│   │           ├── AdminUserController.php        # Staff & buyer permissions
-│   │           └── AdminPaymentMethodController.php # Bakong KHQR & ABA settings
-│   ├── Models/
-│   │   ├── User.php                               # User model (buyer / staff / admin)
-│   │   ├── Product.php                            # Accessory drops catalog model
-│   │   ├── Order.php                              # Order entity with dual currency
-│   │   ├── OrderItem.php                          # Line items relation
-│   │   └── PaymentMethod.php                      # Payment gateway configuration
-│   └── Providers/
-│       └── AppServiceProvider.php
-├── bootstrap/
-│   ├── app.php                                    # Laravel 12 application bootstrap
-│   └── providers.php                              # Service providers list
-├── config/
-│   ├── app.php                                    # App name, timezone, locale
-│   ├── auth.php                                   # Authentication guards & providers
-│   ├── database.php                               # SQLite & MySQL connections
-│   └── session.php                                # Session driver & cookie config
-├── database/
-│   ├── factories/
-│   ├── migrations/
-│   │   ├── 0001_01_01_000000_create_users_table.php
-│   │   ├── 0001_01_01_000001_create_products_table.php
-│   │   ├── 0001_01_01_000002_create_orders_table.php
-│   │   ├── 0001_01_01_000003_create_order_items_table.php
-│   │   └── 0001_01_01_000004_create_payment_methods_table.php
-│   └── seeders/
-│       ├── DatabaseSeeder.php                     # Master database seeder
-│       ├── UserSeeder.php                         # Admin & demo buyer accounts
-│       └── ProductSeeder.php                      # Initial catalog with viral Gen-Z items
-├── public/                                        # Public Document Root
-│   ├── index.php                                  # Laravel Front Controller
-│   ├── index.html                                 # Web preview entry point
-│   ├── home.html                                  # Storefront
-│   ├── products.html                              # Catalog & filter
-│   ├── product-detail.html                        # Product detail showcase
-│   ├── cart.html                                  # Shopping bag
-│   ├── checkout.html                              # Checkout & Phnom Penh delivery
-│   ├── order-detail--buyer-pending.html           # KHQR scan & slip upload
-│   ├── order-detail.html                          # Order tracking stepper & receipt
-│   ├── dashboard-buyer.html                       # Customer dashboard
-│   ├── dashboard-admin.html                       # Admin dashboard
-│   ├── admin-orders.html                          # Order fulfillment & slip review
-│   ├── admin-products.html                        # Inventory management
-│   ├── assets/
-│   │   ├── css/style.css                          # Forest Jade & Mint palette + animations
-│   │   └── js/store.js                            # Interactive cart & catalog engine
-│   ├── .htaccess
-│   └── robots.txt
-├── resources/
-│   ├── css/
-│   │   └── app.css                                # Tailwind & Forest tokens
-│   ├── js/
-│   │   └── app.js                                 # Frontend interactivity
-│   └── views/
-│       ├── layouts/
-│       │   ├── app.blade.php                      # Storefront Blade master layout
-│       │   └── admin.blade.php                    # Admin Blade master layout
-│       ├── home.blade.php                         # Hero, ticker & product drops
-│       ├── products/
-│       │   ├── index.blade.php                    # Catalog listing
-│       │   └── show.blade.php                     # Product details
-│       ├── cart/
-│       │   └── index.blade.php                    # Bag & subtotal
-│       ├── checkout/
-│       │   └── index.blade.php                    # Delivery & payment selection
-│       ├── orders/
-│       │   ├── pending.blade.php                  # KHQR scan & slip upload
-│       │   └── show.blade.php                     # Receipt & courier timeline
-│       ├── buyer/
-│       │   └── dashboard.blade.php                # Buyer profile & orders
-│       ├── auth/
-│       │   ├── login.blade.php                    # Sign in
-│       │   └── register.blade.php                 # Registration
-│       └── admin/
-│           ├── dashboard.blade.php                # Admin dashboard
-│           ├── orders.blade.php                   # Order list
-│           ├── slip-review.blade.php              # Payment slip verification
-│           ├── products.blade.php                 # Products inventory
-│           ├── users.blade.php                    # Team & buyers
-│           └── payment-methods.blade.php          # KHQR configuration
-├── routes/
-│   ├── web.php                                    # Web routes with controllers
-│   ├── api.php                                    # REST API for mobile/AJAX
-│   └── console.php                                # Artisan console commands
-├── storage/                                       # Storage for cache, sessions & slips
-├── artisan                                        # Laravel Artisan CLI
-├── composer.json                                  # PHP dependencies & PSR-4 autoload
-├── package.json                                   # Frontend dependencies
-├── phpunit.xml                                    # Test suite configuration
-└── vite.config.ts                                 # Vite asset & dev server bundler
-```
+## Running locally
 
----
+Requirements: PHP 8.2+ with `pdo_pgsql`, Composer, Node 20.19+ and PostgreSQL.
 
-## 🛠️ Setup & Running
-
-### Option A: Local Laravel Environment (PHP 8.2+)
 ```bash
-# 1. Clone repository
-git clone https://github.com/your-username/psaonline.git
-cd psaonline
-
-# 2. Install dependencies
 composer install
 npm install
-
-# 3. Environment configuration
 cp .env.example .env
 php artisan key:generate
-
-# 4. Run migrations & database seeders
-php artisan migrate --seed
-
-# 5. Start servers
-php artisan serve
-npm run dev
 ```
 
-### Option B: AI Studio Development Server
+Edit `.env` for local development:
+
+- `APP_ENV=local`, `APP_URL=http://127.0.0.1:8000`
+- your local database details, with `DB_SSLMODE=prefer`
+- `SESSION_SECURE_COOKIE=false`, because local development is plain HTTP
+- `LOG_CHANNEL=stack` if you want logs in `storage/logs`
+
+Then:
+
 ```bash
-# The app is automatically served via Vite on port 3000:
-npm run dev
+php artisan migrate --seed
+npm run build          # or `npm run dev` while editing
+php artisan serve
 ```
 
----
+Outside production, the seeder creates `admin@example.test` with the password `admin-local-only-1`, and `buyer@example.test` with `password123`. To choose your own, set `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWORD` before seeding.
 
-## 🎨 Color Palette & Design Tokens
-- **Deep Forest Night**: `#051F20` (Headers, brand contrast, primary action buttons)
-- **Deep Pine**: `#0B2B26` (Secondary accents & hero gradients)
-- **Lush Jade**: `#163832` (Interactive badges & pills)
-- **Forest Sage Accent**: `#235347` (Icon highlights & focus rings)
-- **Soft Muted Sage**: `#8EB69B` (Card borders, dividers & subtles)
-- **Pale Mint Cream**: `#DAF1DE` (Pill backgrounds & trust badges)
-- **Clean White**: `#FFFFFF` (Product card containers — clean backgrounds for product photography)
+Run the tests with:
 
----
+```bash
+php artisan test
+```
 
-## 💳 Payment Gateways Supported
-- **Bakong Universal KHQR**: National Bank of Cambodia standard QR for all local banks (ABA, ACLEDA, Canadia, Wing, etc.)
-- **ABA PAY**: Direct in-app deeplink
-- **Cash On Delivery (COD)**: Available for Phnom Penh deliveries
+## Deploying (Render + Supabase)
+
+### 1. Database on Supabase
+
+1. Create a Supabase project and note the database password.
+2. Click **Connect** and copy the **Session pooler** details: host, port `5432`, database `postgres`, user `postgres.<project-ref>`.
+   Do not use the direct connection (it is IPv6 only, which Render cannot reach) or the transaction pooler on port 6543 (it breaks Laravel's prepared statements).
+
+### 2. Create the tables and the first admin
+
+From your own computer, point a temporary `.env` at Supabase and run:
+
+```bash
+APP_ENV=production ADMIN_SEED_EMAIL=you@example.com ADMIN_SEED_PASSWORD='a-long-unique-password' \
+  php artisan migrate --seed --force
+```
+
+In production the seeder refuses to run without `ADMIN_SEED_PASSWORD` and never creates the demo buyer. Sign in and change the password afterwards.
+
+`--seed` also loads the placeholder product catalogue. Replace those products (titles, photos, descriptions) with your real ones from the admin area before launch. Running the seeder again is safe; it updates rather than duplicates.
+
+### 3. Web service on Render
+
+1. Push the repository to GitHub.
+2. In Render choose **New > Blueprint** and select the repository. Render reads `render.yaml` and builds the `Dockerfile`.
+3. Fill in the secret values it asks for:
+   - `APP_KEY`: run `php artisan key:generate --show --no-ansi` and paste the output, including `base64:`
+   - `APP_URL`: your final `https://` address
+   - `DB_HOST`, `DB_USERNAME`, `DB_PASSWORD`: from the Supabase Session pooler
+   - `MAIL_FROM_ADDRESS`, `BAKONG_KHQR_MERCHANT_ID`, `BAKONG_KHQR_MERCHANT_NAME`
+4. Each deploy runs any new migrations automatically on start-up. Set `RUN_MIGRATIONS=false` to turn that off.
+
+To try the production image locally:
+
+```bash
+docker build -t psaonlineaccessories .
+docker run -p 8080:10000 --env-file .env psaonlineaccessories
+```
+
+## Launch checklist
+
+- [ ] Custom domain added in Render (**Settings > Custom Domains**) and DNS records set at your registrar
+- [ ] `APP_URL` updated to the custom domain
+- [ ] Favicon (`public/favicon.ico`, `favicon.svg`, `apple-touch-icon.png`)
+- [ ] Privacy Policy at `/privacy` and Terms and Conditions at `/terms`, reviewed by you
+- [ ] No "Made with AI" tags or AI tool metadata
+- [ ] Real product photos and descriptions in place of the placeholder catalogue
+- [ ] Revoked the Google Maps key and changed the database password that were once committed to git (see below)
+
+## Security notes
+
+- `.env` is never committed. `.env.example` holds placeholders only.
+- A Google Maps API key, an `APP_KEY` and a database password were committed in earlier versions of `.env.example`. They have been removed from the file but **remain in git history**. Treat them as public: revoke the Maps key in Google Cloud and never reuse that password or key.
+- Payment slips are stored privately (`storage/app/private/slips`) and are only served to the order's owner and staff.
+- Run `php artisan test` before each deploy. `tests/Feature/SecurityTest.php` checks access control, order privacy, upload rules, rate limits, headers and production-safe configuration.
