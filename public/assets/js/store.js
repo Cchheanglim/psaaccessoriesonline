@@ -1,6 +1,6 @@
 /**
  * PsaOnline - Gen-Z Street & Aesthetic Accessories Marketplace Engine
- * Sorbet Orange (#FFA552), Cotton Beige (#F9F3EA), Deep Espresso (#2B1D1D) & Clean White (#FFFFFF)
+ * Sorbet Orange (#FF5000), Cotton Beige (#FFF3EC), Deep Espresso (#333333) & Clean White (#FFFFFF)
  */
 
 const EXCHANGE_RATE = 4100; // 1 USD = 4,100 KHR
@@ -423,15 +423,16 @@ function setCurrency(currency) {
 
   document.querySelectorAll('.currency-toggle-btn').forEach(btn => {
     if (btn.dataset.currency === currency) {
-      btn.classList.add('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
-      btn.classList.remove('text-[#2B1D1D]');
+      btn.classList.add('bg-[#333333]', 'text-white', 'shadow-xs');
+      btn.classList.remove('text-[#333333]');
     } else {
-      btn.classList.remove('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
-      btn.classList.add('text-[#2B1D1D]');
+      btn.classList.remove('bg-[#333333]', 'text-white', 'shadow-xs');
+      btn.classList.add('text-[#333333]');
     }
   });
 
   // Re-render any dynamic prices
+  if (typeof initTbHot === 'function') initTbHot();
   if (typeof renderCatalog === 'function') renderCatalog();
   if (typeof renderCartPage === 'function') renderCartPage();
   if (typeof updateCheckoutSummary === 'function') updateCheckoutSummary();
@@ -469,19 +470,19 @@ function showToastNotification(product, qty) {
   }
 
   toast.innerHTML = `
-    <div class="bg-white border-2 border-[#FFA552] shadow-2xl rounded-2xl p-4 max-w-sm flex items-center gap-3.5 pointer-events-auto">
-      <div class="w-14 h-14 rounded-xl bg-white border border-[#EFE4D6] p-1 overflow-hidden shrink-0 flex items-center justify-center">
+    <div class="bg-white border-2 border-[#FF5000] shadow-2xl rounded-2xl p-4 max-w-sm flex items-center gap-3.5 pointer-events-auto">
+      <div class="w-14 h-14 rounded-xl bg-white border border-[#EDEDED] p-1 overflow-hidden shrink-0 flex items-center justify-center">
         <img src="${product.image}" alt="${product.title}" class="w-full h-full object-cover rounded-lg" />
       </div>
       <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#FFA552]">
-          <span class="w-2 h-2 rounded-full bg-[#FFA552] animate-ping"></span>
+        <div class="flex items-center gap-1.5 text-[11px] font-bold text-[#FF5000]">
+          <span class="w-2 h-2 rounded-full bg-[#FF5000] animate-ping"></span>
           Added to Bag!
         </div>
-        <div class="text-xs font-black text-[#2B1D1D] truncate mt-0.5">${product.title}</div>
-        <div class="text-[11px] font-semibold text-[#4A3333] mt-0.5">${formatPrice(product.priceUSD, product.priceKHR)} &bull; Qty: ${qty}</div>
+        <div class="text-xs font-black text-[#333333] truncate mt-0.5">${product.title}</div>
+        <div class="text-[11px] font-semibold text-[#666666] mt-0.5">${formatPrice(product.priceUSD, product.priceKHR)} &bull; Qty: ${qty}</div>
       </div>
-      <a href="cart.html" class="px-3.5 py-2 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-extrabold text-xs shrink-0 transition-colors shadow-sm">
+      <a href="cart.html" class="px-3.5 py-2 rounded-xl bg-[#FF5000] hover:bg-[#E64500] text-white font-extrabold text-xs shrink-0 transition-colors shadow-sm">
         View Bag &rarr;
       </a>
     </div>
@@ -580,7 +581,6 @@ function openQuickView(productId, event) {
   const product = ACCESSORIES_PRODUCTS.find(p => p.id === productId);
   if (!product) return;
 
-  trackView(product.id);
   currentQuickViewProduct = product;
   quickViewQuantity = 1;
 
@@ -611,12 +611,12 @@ function openQuickView(productId, event) {
   const specsHtml = specsEntries.length > 0 
     ? `
       <div class="space-y-1.5 pt-2">
-        <div class="text-[11px] font-black uppercase tracking-wider text-[#2B1D1D] dark:text-white">Product Details & Specs</div>
+        <div class="text-[11px] font-black uppercase tracking-wider text-[#333333] dark:text-white">Product Details & Specs</div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
           ${specsEntries.map(([k, v]) => `
-            <div class="bg-[#F9F3EA] dark:bg-[#23232C] border border-[#EFE4D6] dark:border-[#32323D] rounded-xl p-2.5 flex flex-col justify-center">
-              <span class="text-[10px] uppercase font-bold text-[#FFA552]">${k}</span>
-              <span class="font-extrabold text-[#2B1D1D] dark:text-white truncate mt-0.5">${v}</span>
+            <div class="bg-[#FFF3EC] dark:bg-[#23232C] border border-[#EDEDED] dark:border-[#32323D] rounded-xl p-2.5 flex flex-col justify-center">
+              <span class="text-[10px] uppercase font-bold text-[#FF5000]">${k}</span>
+              <span class="font-extrabold text-[#333333] dark:text-white truncate mt-0.5">${v}</span>
             </div>
           `).join('')}
         </div>
@@ -631,13 +631,13 @@ function openQuickView(productId, event) {
   const galleryList = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image];
 
   modal.innerHTML = `
-    <div class="relative w-full max-w-3xl bg-white dark:bg-[#1A1A22] rounded-3xl border-2 border-[#FFA552] shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0 my-auto text-[#2B1D1D] dark:text-white" id="quickViewCard">
+    <div class="relative w-full max-w-3xl bg-white dark:bg-[#1A1A22] rounded-3xl border-2 border-[#FF5000] shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0 my-auto text-[#333333] dark:text-white" id="quickViewCard">
       
       <!-- Close Button (Top-Right) -->
       <button 
         type="button" 
         onclick="closeQuickView()" 
-        class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-[#F9F3EA] dark:bg-[#2A2A34] hover:bg-[#FFA552] hover:text-white text-[#2B1D1D] dark:text-white flex items-center justify-center border border-[#EFE4D6] dark:border-[#3A3A46] transition-all duration-200 hover:scale-105 shadow-sm cursor-pointer"
+        class="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-[#FFF3EC] dark:bg-[#2A2A34] hover:bg-[#E64500] hover:text-white text-[#333333] dark:text-white flex items-center justify-center border border-[#EDEDED] dark:border-[#3A3A46] transition-all duration-200 hover:scale-105 shadow-sm cursor-pointer"
         aria-label="Close Quick View"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -651,7 +651,7 @@ function openQuickView(productId, event) {
         <div class="md:col-span-6 flex flex-col space-y-3">
           
           <!-- Large High-Res Viewer -->
-          <div class="aspect-square w-full rounded-2xl bg-[#FDFBF7] dark:bg-[#141419] border border-[#EFE4D6] dark:border-[#2D2D38] p-3 flex items-center justify-center relative overflow-hidden group shadow-inner">
+          <div class="aspect-square w-full rounded-2xl bg-[#F5F5F5] dark:bg-[#141419] border border-[#EDEDED] dark:border-[#2D2D38] p-3 flex items-center justify-center relative overflow-hidden group shadow-inner">
             <img 
               id="quickViewMainImage" 
               src="${galleryList[0]}" 
@@ -661,17 +661,17 @@ function openQuickView(productId, event) {
             
             <!-- Badges -->
             <div class="absolute top-3 left-3 flex flex-col gap-1.5 z-10 pointer-events-none">
-              <span class="bg-[#FFA552] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">
+              <span class="bg-[#FF5000] text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm">
                 ${product.badge}
               </span>
-              <span class="bg-[#2B1D1D] dark:bg-[#3D2929] text-[#F9F3EA] px-2.5 py-0.5 rounded-full text-[9px] font-extrabold tracking-wide shadow-sm">
+              <span class="bg-[#333333] dark:bg-[#4D4D4D] text-[#FFF3EC] px-2.5 py-0.5 rounded-full text-[9px] font-extrabold tracking-wide shadow-sm">
                 ${product.categoryLabel}
               </span>
             </div>
 
             <!-- Zoom Indicator -->
-            <div class="absolute bottom-3 right-3 bg-white/95 dark:bg-[#1E1E26]/90 backdrop-blur-sm text-[#2B1D1D] dark:text-white px-2.5 py-1 rounded-full text-[10px] font-bold border border-[#EFE4D6] dark:border-[#2D2D38] shadow-xs flex items-center gap-1 pointer-events-none">
-              <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+            <div class="absolute bottom-3 right-3 bg-white/95 dark:bg-[#1E1E26]/90 backdrop-blur-sm text-[#333333] dark:text-white px-2.5 py-1 rounded-full text-[10px] font-bold border border-[#EDEDED] dark:border-[#2D2D38] shadow-xs flex items-center gap-1 pointer-events-none">
+              <svg class="w-3.5 h-3.5 text-[#FF5000]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
               <span>Hover for Zoom</span>
             </div>
           </div>
@@ -682,7 +682,7 @@ function openQuickView(productId, event) {
               <button 
                 type="button" 
                 onclick="switchQuickViewImage('${img}', this)"
-                class="gallery-thumb-btn w-14 h-14 rounded-xl border-2 overflow-hidden shrink-0 cursor-pointer ${idx === 0 ? 'active-thumb border-[#FFA552]' : 'border-[#EFE4D6] dark:border-[#2D2D38] opacity-75 hover:opacity-100'}"
+                class="gallery-thumb-btn w-14 h-14 rounded-xl border-2 overflow-hidden shrink-0 cursor-pointer ${idx === 0 ? 'active-thumb border-[#FF5000]' : 'border-[#EDEDED] dark:border-[#2D2D38] opacity-75 hover:opacity-100'}"
                 title="View Gallery Angle ${idx + 1}"
               >
                 <img src="${img}" alt="${product.title} angle ${idx + 1}" class="w-full h-full object-cover" />
@@ -691,13 +691,13 @@ function openQuickView(productId, event) {
           </div>
 
           <!-- Studio Trust Perks -->
-          <div class="bg-[#F9F3EA] dark:bg-[#20202A] rounded-xl p-3 border border-[#EFE4D6] dark:border-[#30303E] space-y-1.5 text-[11px] text-[#4A3333] dark:text-[#E4E4E7] font-semibold">
+          <div class="bg-[#FFF3EC] dark:bg-[#20202A] rounded-xl p-3 border border-[#EDEDED] dark:border-[#30303E] space-y-1.5 text-[11px] text-[#666666] dark:text-[#E4E4E7] font-semibold">
             <div class="flex items-center gap-2">
-              <span class="w-4 h-4 rounded-full bg-[#FFA552] text-white flex items-center justify-center text-[10px] font-black shrink-0">✓</span>
+              <span class="w-4 h-4 rounded-full bg-[#FF5000] text-white flex items-center justify-center text-[10px] font-black shrink-0">✓</span>
               <span>Phnom Penh 1-2hr Express Courier Available</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="w-4 h-4 rounded-full bg-[#FFA552] text-white flex items-center justify-center text-[10px] font-black shrink-0">✓</span>
+              <span class="w-4 h-4 rounded-full bg-[#FF5000] text-white flex items-center justify-center text-[10px] font-black shrink-0">✓</span>
               <span>Universal KHQR Scan & Pay (ABA, ACLEDA, Wing)</span>
             </div>
           </div>
@@ -709,7 +709,7 @@ function openQuickView(productId, event) {
           <div class="space-y-3">
             <!-- Category and Stock Indicator -->
             <div class="flex items-center justify-between gap-2 pr-8">
-              <span class="text-xs font-black text-[#FFA552] uppercase tracking-wider">${product.categoryLabel}</span>
+              <span class="text-xs font-black text-[#FF5000] uppercase tracking-wider">${product.categoryLabel}</span>
               <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[10px] font-extrabold">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 In Stock & Ready to Dispatch
@@ -718,7 +718,7 @@ function openQuickView(productId, event) {
 
             <!-- Title & Subtitle -->
             <div>
-              <h2 id="quickViewTitle" class="text-lg sm:text-xl font-black text-[#2B1D1D] dark:text-white tracking-tight leading-snug">
+              <h2 id="quickViewTitle" class="text-lg sm:text-xl font-black text-[#333333] dark:text-white tracking-tight leading-snug">
                 ${product.title}
               </h2>
               <p class="text-xs text-stone-500 dark:text-stone-300 font-khmer font-semibold mt-1">
@@ -730,29 +730,29 @@ function openQuickView(productId, event) {
             <div class="flex items-center gap-2 text-xs">
               <div class="flex items-center text-amber-500 font-black">
                 <span>★ ★ ★ ★ ★</span>
-                <span class="ml-1 text-[#2B1D1D] dark:text-white font-bold">${product.rating}</span>
+                <span class="ml-1 text-[#333333] dark:text-white font-bold">${product.rating}</span>
               </div>
               <span class="text-stone-300 dark:text-stone-600">&bull;</span>
               <span class="text-stone-500 dark:text-stone-300 font-semibold">${product.reviewsCount} verified reviews</span>
             </div>
 
             <!-- Pricing Box -->
-            <div class="p-3 bg-[#FDFBF7] dark:bg-[#16161D] rounded-2xl border border-[#EFE4D6] dark:border-[#2D2D38] flex items-baseline justify-between">
+            <div class="p-3 bg-[#F5F5F5] dark:bg-[#16161D] rounded-2xl border border-[#EDEDED] dark:border-[#2D2D38] flex items-baseline justify-between">
               <div>
-                <span class="text-2xl font-black text-[#2B1D1D] dark:text-white" id="quickViewPricePrimary">
+                <span class="text-2xl font-black text-[#333333] dark:text-white" id="quickViewPricePrimary">
                   ${formatPrice(product.priceUSD, product.priceKHR)}
                 </span>
-                <span class="text-xs font-bold text-[#FFA552] ml-2" id="quickViewPriceSecondary">
+                <span class="text-xs font-bold text-[#FF5000] ml-2" id="quickViewPriceSecondary">
                   (${altCurrency})
                 </span>
               </div>
-              <span class="text-[10px] font-black uppercase text-[#2B1D1D] dark:text-white px-2 py-0.5 rounded-md bg-[#FFA552]/20 border border-[#FFA552]/40">
+              <span class="text-[10px] font-black uppercase text-[#333333] dark:text-white px-2 py-0.5 rounded-md bg-[#FF5000]/20 border border-[#FF5000]/40">
                 1 USD = 4,100 ៛
               </span>
             </div>
 
             <!-- Description -->
-            <p class="text-xs text-[#4A3333] dark:text-[#E4E4E7] leading-relaxed font-medium">
+            <p class="text-xs text-[#666666] dark:text-[#E4E4E7] leading-relaxed font-medium">
               ${product.description}
             </p>
 
@@ -761,22 +761,22 @@ function openQuickView(productId, event) {
           </div>
 
           <!-- Bottom Actions & Quantity Selector -->
-          <div class="pt-3 border-t border-[#EFE4D6] dark:border-[#2D2D38] space-y-3">
+          <div class="pt-3 border-t border-[#EDEDED] dark:border-[#2D2D38] space-y-3">
             
             <div class="flex items-center gap-3">
               <!-- Quantity Stepper -->
-              <div class="flex items-center border border-[#EFE4D6] dark:border-[#32323D] bg-[#FDFBF7] dark:bg-[#16161D] rounded-xl overflow-hidden shrink-0 shadow-xs">
+              <div class="flex items-center border border-[#EDEDED] dark:border-[#32323D] bg-[#F5F5F5] dark:bg-[#16161D] rounded-xl overflow-hidden shrink-0 shadow-xs">
                 <button 
                   type="button" 
                   onclick="changeQuickViewQty(-1)" 
-                  class="w-9 h-10 flex items-center justify-center font-black text-sm text-[#2B1D1D] dark:text-white hover:bg-[#FFA552] hover:text-white transition-colors cursor-pointer"
+                  class="w-9 h-10 flex items-center justify-center font-black text-sm text-[#333333] dark:text-white hover:bg-[#E64500] hover:text-white transition-colors cursor-pointer"
                   aria-label="Decrease quantity"
                 >-</button>
-                <span id="quickViewQtyVal" class="w-10 text-center text-xs font-black text-[#2B1D1D] dark:text-white">1</span>
+                <span id="quickViewQtyVal" class="w-10 text-center text-xs font-black text-[#333333] dark:text-white">1</span>
                 <button 
                   type="button" 
                   onclick="changeQuickViewQty(1)" 
-                  class="w-9 h-10 flex items-center justify-center font-black text-sm text-[#2B1D1D] dark:text-white hover:bg-[#FFA552] hover:text-white transition-colors cursor-pointer"
+                  class="w-9 h-10 flex items-center justify-center font-black text-sm text-[#333333] dark:text-white hover:bg-[#E64500] hover:text-white transition-colors cursor-pointer"
                   aria-label="Increase quantity"
                 >+</button>
               </div>
@@ -786,7 +786,7 @@ function openQuickView(productId, event) {
                 type="button" 
                 id="quickViewAddBtn"
                 onclick="addQuickViewToBag()" 
-                class="btn-press flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#FFA552] to-[#E88C35] hover:from-[#E88C35] hover:to-[#FFA552] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+                class="btn-press flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-[#FF5000] to-[#E64500] hover:from-[#E64500] hover:to-[#FF5000] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
               >
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
@@ -799,7 +799,7 @@ function openQuickView(productId, event) {
                 type="button"
                 data-wishlist-id="${product.id}"
                 onclick="toggleWishlist('${product.id}', event)"
-                class="wishlist-btn p-3 rounded-xl border border-[#EFE4D6] dark:border-[#32323D] bg-[#FDFBF7] dark:bg-[#16161D] hover:bg-rose-50 dark:hover:bg-rose-950/40 text-stone-400 hover:text-rose-500 transition-all flex items-center justify-center shadow-xs cursor-pointer ${isInWishlist(product.id) ? 'active-wishlist text-rose-500' : ''}"
+                class="wishlist-btn p-3 rounded-xl border border-[#EDEDED] dark:border-[#32323D] bg-[#F5F5F5] dark:bg-[#16161D] hover:bg-rose-50 dark:hover:bg-rose-950/40 text-stone-400 hover:text-rose-500 transition-all flex items-center justify-center shadow-xs cursor-pointer ${isInWishlist(product.id) ? 'active-wishlist text-rose-500' : ''}"
                 title="${isInWishlist(product.id) ? 'Remove from Wishlist' : 'Save to Wishlist'}"
                 aria-label="Save to Wishlist"
               >
@@ -811,7 +811,7 @@ function openQuickView(productId, event) {
             <div class="flex items-center justify-between text-xs pt-1">
               <a 
                 href="product-detail.html?id=${product.id}" 
-                class="text-xs font-extrabold text-[#FFA552] hover:text-[#2B1D1D] dark:hover:text-white flex items-center gap-1 transition-colors underline"
+                class="text-xs font-extrabold text-[#FF5000] hover:text-[#333333] dark:hover:text-white flex items-center gap-1 transition-colors underline"
               >
                 <span>View Full Product Details Page</span>
                 <span>&rarr;</span>
@@ -850,12 +850,12 @@ function switchQuickViewImage(newUrl, btn) {
     }, 120);
   }
   document.querySelectorAll('.gallery-thumb-btn').forEach(b => {
-    b.classList.remove('active-thumb', 'border-[#FFA552]');
-    b.classList.add('border-[#EFE4D6]', 'dark:border-[#2D2D38]', 'opacity-75');
+    b.classList.remove('active-thumb', 'border-[#FF5000]');
+    b.classList.add('border-[#EDEDED]', 'dark:border-[#2D2D38]', 'opacity-75');
   });
   if (btn) {
-    btn.classList.add('active-thumb', 'border-[#FFA552]');
-    btn.classList.remove('border-[#EFE4D6]', 'dark:border-[#2D2D38]', 'opacity-75');
+    btn.classList.add('active-thumb', 'border-[#FF5000]');
+    btn.classList.remove('border-[#EDEDED]', 'dark:border-[#2D2D38]', 'opacity-75');
   }
 }
 
@@ -966,7 +966,7 @@ async function handleEarlyAccessSubmit(e) {
 
   if (feedback) {
     feedback.textContent = '';
-    feedback.className = 'text-xs font-semibold text-[#FFA552] min-h-[1.25rem] text-left sm:text-center transition-all';
+    feedback.className = 'text-xs font-semibold text-[#FF5000] min-h-[1.25rem] text-left sm:text-center transition-all';
   }
 
   if (btn) {
@@ -996,7 +996,7 @@ async function handleEarlyAccessSubmit(e) {
         particleCount: 50,
         spread: 60,
         origin: { y: 0.8 },
-        colors: ['#FFA552', '#F9F3EA', '#2B1D1D', '#E88C35']
+        colors: ['#FF5000', '#FFF3EC', '#333333', '#E64500']
       });
     }
 
@@ -1080,71 +1080,6 @@ function getWishlist() {
   } catch (e) {
     return [];
   }
-}
-
-// ---- Account data: profile, addresses, settings ----
-function readJSON(key, fallback) {
-  try {
-    const v = JSON.parse(localStorage.getItem(key));
-    return v === null || v === undefined ? fallback : v;
-  } catch (e) {
-    return fallback;
-  }
-}
-
-function getProfile() {
-  return readJSON('psa_profile', {});
-}
-
-function getAddresses() {
-  const list = readJSON('psa_addresses', []);
-  return Array.isArray(list) ? list : [];
-}
-
-function getDefaultAddress() {
-  const list = getAddresses();
-  return list.find(a => a.isDefault) || list[0] || null;
-}
-
-function getSettings() {
-  return Object.assign({ lang: 'en', notifOrders: true, notifPromo: false, notifPrice: true }, readJSON('psa_settings', {}));
-}
-
-function saveSettings(patch) {
-  localStorage.setItem('psa_settings', JSON.stringify(Object.assign(getSettings(), patch)));
-}
-
-// ---- Viewed history (Taobao-style footprints) ----
-const VIEWED_KEY = 'psa_viewed';
-const VIEWED_MAX = 100;
-
-function getViewed() {
-  try {
-    const list = JSON.parse(localStorage.getItem(VIEWED_KEY));
-    return Array.isArray(list) ? list : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-function saveViewed(list) {
-  try { localStorage.setItem(VIEWED_KEY, JSON.stringify(list.slice(0, VIEWED_MAX))); } catch (e) {}
-}
-
-// Record a product view; a repeat view moves the item to the top
-function trackView(productId) {
-  if (!productId) return;
-  const list = getViewed().filter(v => v.id !== productId);
-  list.unshift({ id: productId, ts: Date.now() });
-  saveViewed(list);
-}
-
-function removeViewed(ids) {
-  saveViewed(getViewed().filter(v => !ids.includes(v.id)));
-}
-
-function clearViewed() {
-  localStorage.removeItem(VIEWED_KEY);
 }
 
 function isInWishlist(productId) {
@@ -1272,17 +1207,17 @@ function showWishlistToast(productTitle, isAdded) {
   }
 
   toast.innerHTML = `
-    <div class="bg-white dark:bg-[#1E1E26] border-2 ${isAdded ? 'border-rose-400 shadow-[0_10px_25px_-5px_rgba(244,63,94,0.35)]' : 'border-[#EFE4D6] dark:border-[#32323D]'} rounded-2xl p-3.5 max-w-sm flex items-center gap-3 pointer-events-auto">
+    <div class="bg-white dark:bg-[#1E1E26] border-2 ${isAdded ? 'border-rose-400 shadow-[0_10px_25px_-5px_rgba(244,63,94,0.35)]' : 'border-[#EDEDED] dark:border-[#32323D]'} rounded-2xl p-3.5 max-w-sm flex items-center gap-3 pointer-events-auto">
       <div class="w-10 h-10 rounded-xl ${isAdded ? 'bg-rose-50 text-rose-500 dark:bg-rose-950/60 dark:text-rose-400' : 'bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400'} flex items-center justify-center shrink-0">
         <svg class="w-5 h-5 ${isAdded ? 'animate-bounce' : ''}" fill="${isAdded ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
       </div>
       <div class="flex-1 min-w-0 text-xs">
-        <div class="font-black text-[#2B1D1D] dark:text-white truncate">${productTitle}</div>
+        <div class="font-black text-[#333333] dark:text-white truncate">${productTitle}</div>
         <div class="text-[11px] font-semibold ${isAdded ? 'text-rose-600 dark:text-rose-400' : 'text-stone-500'}">
           ${isAdded ? 'Saved to your Wishlist! 💖' : 'Removed from Wishlist'}
         </div>
       </div>
-      <button onclick="openWishlistModal()" class="px-2.5 py-1.5 rounded-lg bg-[#FFA552] hover:bg-[#E88C35] text-white text-[11px] font-bold shrink-0 transition-colors shadow-xs cursor-pointer">
+      <button onclick="openWishlistModal()" class="px-2.5 py-1.5 rounded-lg bg-[#FF5000] hover:bg-[#E64500] text-white text-[11px] font-bold shrink-0 transition-colors shadow-xs cursor-pointer">
         View
       </button>
     </div>
@@ -1359,17 +1294,17 @@ function renderWishlistDrawer() {
   const products = list.map(id => ACCESSORIES_PRODUCTS.find(p => p.id === id)).filter(Boolean);
 
   modal.innerHTML = `
-    <div class="relative w-full max-w-2xl bg-white dark:bg-[#1A1A22] rounded-3xl border-2 border-rose-300 dark:border-rose-900/60 shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0 my-auto text-[#2B1D1D] dark:text-white flex flex-col max-h-[90vh]" id="wishlistModalCard">
+    <div class="relative w-full max-w-2xl bg-white dark:bg-[#1A1A22] rounded-3xl border-2 border-rose-300 dark:border-rose-900/60 shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0 my-auto text-[#333333] dark:text-white flex flex-col max-h-[90vh]" id="wishlistModalCard">
       
       <!-- Header -->
-      <div class="px-6 py-5 border-b border-[#EFE4D6] dark:border-[#2D2D38] flex items-center justify-between bg-[#FDFBF7] dark:bg-[#15151B]">
+      <div class="px-6 py-5 border-b border-[#EDEDED] dark:border-[#2D2D38] flex items-center justify-between bg-[#F5F5F5] dark:bg-[#15151B]">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-950/60 text-rose-500 flex items-center justify-center text-lg shadow-xs">
             💖
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h2 id="wishlistModalTitle" class="text-lg sm:text-xl font-black text-[#2B1D1D] dark:text-white tracking-tight">Your Wishlist</h2>
+              <h2 id="wishlistModalTitle" class="text-lg sm:text-xl font-black text-[#333333] dark:text-white tracking-tight">Your Wishlist</h2>
               <span class="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-400 text-xs font-black">
                 ${products.length} saved
               </span>
@@ -1381,7 +1316,7 @@ function renderWishlistDrawer() {
         <button 
           type="button" 
           onclick="closeWishlistModal()" 
-          class="w-9 h-9 rounded-full bg-[#F9F3EA] dark:bg-[#252530] hover:bg-[#FFA552] hover:text-white text-[#2B1D1D] dark:text-white flex items-center justify-center border border-[#EFE4D6] dark:border-[#32323D] transition-all hover:scale-105 cursor-pointer shadow-xs"
+          class="w-9 h-9 rounded-full bg-[#FFF3EC] dark:bg-[#252530] hover:bg-[#E64500] hover:text-white text-[#333333] dark:text-white flex items-center justify-center border border-[#EDEDED] dark:border-[#32323D] transition-all hover:scale-105 cursor-pointer shadow-xs"
           aria-label="Close Wishlist"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -1396,13 +1331,13 @@ function renderWishlistDrawer() {
               🤍
             </div>
             <div class="space-y-1">
-              <h3 class="text-base sm:text-lg font-black text-[#2B1D1D] dark:text-white">Your Wishlist is Empty</h3>
+              <h3 class="text-base sm:text-lg font-black text-[#333333] dark:text-white">Your Wishlist is Empty</h3>
               <p class="text-xs text-stone-500 dark:text-stone-400 max-w-sm mx-auto leading-relaxed">
                 Click the heart icon on any drop in the catalog to bookmark your favorite Y2K jewelry, shades, and cloud bags!
               </p>
             </div>
             <div class="pt-2">
-              <a href="products.html" onclick="closeWishlistModal()" class="btn-press inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md transition-all">
+              <a href="products.html" onclick="closeWishlistModal()" class="btn-press inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#FF5000] hover:bg-[#E64500] text-white font-black text-xs shadow-md transition-all">
                 <span>Explore Drops &bull; All Catalog</span>
                 <span>&rarr;</span>
               </a>
@@ -1411,20 +1346,20 @@ function renderWishlistDrawer() {
         ` : `
           <div class="space-y-3">
             ${products.map(item => `
-              <div class="p-3 sm:p-4 rounded-2xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#2D2D38] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all hover:border-[#FFA552]">
+              <div class="p-3 sm:p-4 rounded-2xl bg-[#F5F5F5] dark:bg-[#15151B] border border-[#EDEDED] dark:border-[#2D2D38] flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 transition-all hover:border-[#FF5000]">
                 <div class="flex items-center gap-3 min-w-0">
-                  <a href="product-detail.html?id=${item.id}" onclick="closeWishlistModal()" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-white dark:bg-[#1C1C24] border border-[#EFE4D6] dark:border-[#2D2D38] p-1 overflow-hidden shrink-0 block">
+                  <a href="product-detail.html?id=${item.id}" onclick="closeWishlistModal()" class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-white dark:bg-[#1C1C24] border border-[#EDEDED] dark:border-[#2D2D38] p-1 overflow-hidden shrink-0 block">
                     <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover rounded-lg hover:scale-110 transition-transform" />
                   </a>
                   <div class="min-w-0 flex-1">
-                    <div class="text-[10px] font-black uppercase text-[#FFA552] tracking-wider">${item.categoryLabel}</div>
-                    <a href="product-detail.html?id=${item.id}" onclick="closeWishlistModal()" class="text-xs sm:text-sm font-extrabold text-[#2B1D1D] dark:text-white hover:text-[#FFA552] transition-colors truncate block">
+                    <div class="text-[10px] font-black uppercase text-[#FF5000] tracking-wider">${item.categoryLabel}</div>
+                    <a href="product-detail.html?id=${item.id}" onclick="closeWishlistModal()" class="text-xs sm:text-sm font-extrabold text-[#333333] dark:text-white hover:text-[#FF5000] transition-colors truncate block">
                       ${item.title}
                     </a>
                     <div class="text-[11px] text-stone-400 font-khmer truncate mt-0.5">${item.titleKhmer}</div>
-                    <div class="text-xs font-black text-[#2B1D1D] dark:text-white mt-1">
+                    <div class="text-xs font-black text-[#333333] dark:text-white mt-1">
                       ${formatPrice(item.priceUSD, item.priceKHR)}
-                      <span class="text-[10px] font-bold text-[#FFA552] ml-1">(${CURRENT_CURRENCY === 'USD' ? item.priceKHR.toLocaleString() + ' ៛' : '$' + item.priceUSD.toFixed(2)})</span>
+                      <span class="text-[10px] font-bold text-[#FF5000] ml-1">(${CURRENT_CURRENCY === 'USD' ? item.priceKHR.toLocaleString() + ' ៛' : '$' + item.priceUSD.toFixed(2)})</span>
                     </div>
                   </div>
                 </div>
@@ -1433,7 +1368,7 @@ function renderWishlistDrawer() {
                   <button
                     type="button"
                     onclick="moveWishlistItemToCart('${item.id}', event)"
-                    class="btn-press px-3.5 py-2 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-xs font-black shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                    class="btn-press px-3.5 py-2 rounded-xl bg-[#FF5000] hover:bg-[#E64500] text-white text-xs font-black shadow-xs flex items-center gap-1.5 transition-all cursor-pointer"
                     title="Add to Bag"
                   >
                     <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
@@ -1443,7 +1378,7 @@ function renderWishlistDrawer() {
                   <button
                     type="button"
                     onclick="openQuickView('${item.id}', event); closeWishlistModal();"
-                    class="p-2 rounded-xl bg-white dark:bg-[#20202A] hover:bg-[#F9F3EA] dark:hover:bg-[#2D2D38] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white transition-all cursor-pointer"
+                    class="p-2 rounded-xl bg-white dark:bg-[#20202A] hover:bg-[#FFF3EC] dark:hover:bg-[#2D2D38] border border-[#EDEDED] dark:border-[#32323D] text-[#333333] dark:text-white transition-all cursor-pointer"
                     title="Quick View"
                   >
                     <svg class="w-4 h-4 text-stone-600 dark:text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -1452,7 +1387,7 @@ function renderWishlistDrawer() {
                   <button
                     type="button"
                     onclick="removeWishlistItem('${item.id}', event)"
-                    class="p-2 rounded-xl bg-white dark:bg-[#20202A] hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-[#EFE4D6] dark:border-[#32323D] text-stone-400 hover:text-rose-500 transition-all cursor-pointer"
+                    class="p-2 rounded-xl bg-white dark:bg-[#20202A] hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-[#EDEDED] dark:border-[#32323D] text-stone-400 hover:text-rose-500 transition-all cursor-pointer"
                     title="Remove from Wishlist"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -1466,7 +1401,7 @@ function renderWishlistDrawer() {
 
       <!-- Footer Bar -->
       ${products.length > 0 ? `
-        <div class="px-6 py-4 bg-[#FDFBF7] dark:bg-[#15151B] border-t border-[#EFE4D6] dark:border-[#2D2D38] flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="px-6 py-4 bg-[#F5F5F5] dark:bg-[#15151B] border-t border-[#EDEDED] dark:border-[#2D2D38] flex flex-col sm:flex-row items-center justify-between gap-3">
           <div class="flex items-center gap-3 text-xs">
             <button 
               type="button" 
@@ -1476,7 +1411,7 @@ function renderWishlistDrawer() {
               Clear All (${products.length})
             </button>
             <span class="text-stone-300 dark:text-stone-600">&bull;</span>
-            <a href="wishlist.html" onclick="closeWishlistModal()" class="text-xs text-[#FFA552] hover:underline font-bold">
+            <a href="wishlist.html" onclick="closeWishlistModal()" class="text-xs text-[#FF5000] hover:underline font-bold">
               Open Full Wishlist Page &rarr;
             </a>
           </div>
@@ -1484,7 +1419,7 @@ function renderWishlistDrawer() {
           <button 
             type="button" 
             onclick="moveAllWishlistToBag()" 
-            class="btn-press w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FFA552] to-[#E88C35] hover:from-[#E88C35] hover:to-[#FFA552] text-white text-xs font-black shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+            class="btn-press w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#FF5000] to-[#E64500] hover:from-[#E64500] hover:to-[#FF5000] text-white text-xs font-black shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
           >
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             <span>Move All to Bag</span>

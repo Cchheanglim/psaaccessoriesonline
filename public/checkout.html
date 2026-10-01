@@ -7,13 +7,14 @@
   <meta name="description" content="Complete your accessories order with Bakong KHQR, ABA Mobile, or Cash on Delivery." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/taobao.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
-<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+<body class="bg-[#F5F5F5] text-[#333333] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FF5000] selection:text-white pb-mobile-nav">
 
   <!-- Header -->
-  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#EFE4D6] transition-all duration-300">
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#EDEDED] transition-all duration-300">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
       <a href="home.html" class="flex items-center gap-2.5 sm:gap-3 group" title="Psa Accessories Online">
         <img 
@@ -21,14 +22,14 @@
           alt="Psa Accessories Online Logo" 
           class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
         />
-        <span class="text-lg sm:text-xl font-black text-[#2B1D1D] dark:text-white">Psa<span class="text-[#FFA552]">Online</span></span>
+        <span class="text-lg sm:text-xl font-black text-[#333333] dark:text-white">Psa<span class="text-[#FF5000]">Online</span></span>
       </a>
       <div class="flex items-center gap-3">
         <!-- Dark / Light Theme Toggle Button -->
         <button 
           type="button" 
           onclick="toggleTheme()" 
-          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
+          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EDEDED] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#FFF3EC] dark:hover:bg-[#252530] text-[#333333] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
           title="Toggle Dark Theme"
           aria-label="Toggle Dark Theme"
         >
@@ -46,8 +47,8 @@
   <!-- Checkout Main Container -->
   <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 flex-1 w-full space-y-8">
 
-    <div class="reveal-init border-b border-[#EFE4D6] pb-4">
-      <h1 class="text-2xl sm:text-3xl font-black text-[#2B1D1D] tracking-tight">Express Checkout</h1>
+    <div class="reveal-init border-b border-[#EDEDED] pb-4">
+      <h1 class="text-2xl sm:text-3xl font-black text-[#333333] tracking-tight">Express Checkout</h1>
       <p class="text-xs text-stone-500 mt-1">Confirm your delivery location in Phnom Penh and choose your preferred payment gateway.</p>
     </div>
 
@@ -57,39 +58,39 @@
       <div class="reveal-init lg:col-span-2 space-y-6">
         
         <!-- Recipient Information -->
-        <div class="bg-white rounded-3xl border border-[#EFE4D6] p-5 sm:p-8 shadow-sm space-y-5">
-          <h2 class="text-sm font-black text-[#2B1D1D] border-b border-[#F9F3EA] pb-3 flex items-center gap-2.5">
-            <span class="w-6 h-6 rounded-full bg-[#FFA552] text-[#2B1D1D] flex items-center justify-center text-xs font-black">1</span>
+        <div class="bg-white rounded-3xl border border-[#EDEDED] p-5 sm:p-8 shadow-sm space-y-5">
+          <h2 class="text-sm font-black text-[#333333] border-b border-[#FFF3EC] pb-3 flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-[#FF5000] text-white flex items-center justify-center text-xs font-black">1</span>
             Recipient & Contact Details
           </h2>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="space-y-1.5">
-              <label for="shipping_name" class="text-xs font-bold text-[#2B1D1D]">Full Name <span class="text-red-500">*</span></label>
+              <label for="shipping_name" class="text-xs font-bold text-[#333333]">Full Name <span class="text-red-500">*</span></label>
               <input
                 type="text"
                 id="shipping_name"
                 name="shipping_name"
                 required
                 value="Sophea Chhum"
-                class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#EFE4D6] bg-[#FDFBF7] focus:bg-white text-[#2B1D1D] focus:outline-none focus:ring-2 focus:ring-[#FFA552]/40 focus:border-[#FFA552]"
+                class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#EDEDED] bg-[#F5F5F5] focus:bg-white text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#FF5000]/40 focus:border-[#FF5000]"
               />
             </div>
 
             <div class="space-y-1.5">
-              <label for="shipping_phone" class="text-xs font-bold text-[#2B1D1D]">Telegram / Phone <span class="text-red-500">*</span></label>
+              <label for="shipping_phone" class="text-xs font-bold text-[#333333]">Telegram / Phone <span class="text-red-500">*</span></label>
               <input
                 type="tel"
                 id="shipping_phone"
                 name="shipping_phone"
                 required
                 value="+855 96 554 1234"
-                class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#EFE4D6] bg-[#FDFBF7] focus:bg-white text-[#2B1D1D] focus:outline-none focus:ring-2 focus:ring-[#FFA552]/40 focus:border-[#FFA552] font-mono"
+                class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#EDEDED] bg-[#F5F5F5] focus:bg-white text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#FF5000]/40 focus:border-[#FF5000] font-mono"
               />
             </div>
 
             <div class="space-y-1.5 sm:col-span-2">
-              <label for="shipping_address" class="text-xs font-bold text-[#2B1D1D]">Street Address / House Number <span class="text-red-500">*</span></label>
+              <label for="shipping_address" class="text-xs font-bold text-[#333333]">Street Address / House Number <span class="text-red-500">*</span></label>
               <input
                 type="text"
                 id="shipping_address"
@@ -97,87 +98,87 @@
                 required
                 value="Toul Kork, St 315, House #14, Phnom Penh"
                 placeholder="e.g. Condo 4B, St 310, BKK1"
-                class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#EFE4D6] bg-[#FDFBF7] focus:bg-white text-[#2B1D1D] focus:outline-none focus:ring-2 focus:ring-[#FFA552]/40 focus:border-[#FFA552]"
+                class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#EDEDED] bg-[#F5F5F5] focus:bg-white text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#FF5000]/40 focus:border-[#FF5000]"
               />
             </div>
 
             <div class="space-y-1.5 sm:col-span-2">
-              <label for="shipping_notes" class="text-xs font-bold text-[#2B1D1D]">Courier Delivery Notes (Optional)</label>
+              <label for="shipping_notes" class="text-xs font-bold text-[#333333]">Courier Delivery Notes (Optional)</label>
               <input
                 type="text"
                 id="shipping_notes"
                 name="shipping_notes"
                 placeholder="e.g. Call before arrival, leave at condo lobby"
-                class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#EFE4D6] bg-[#FDFBF7] focus:bg-white text-[#2B1D1D] focus:outline-none focus:ring-2 focus:ring-[#FFA552]/40 focus:border-[#FFA552]"
+                class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-[#EDEDED] bg-[#F5F5F5] focus:bg-white text-[#333333] focus:outline-none focus:ring-2 focus:ring-[#FF5000]/40 focus:border-[#FF5000]"
               />
             </div>
           </div>
         </div>
 
         <!-- Interactive Doorstep Map -->
-        <div class="bg-white rounded-3xl border border-[#EFE4D6] p-5 sm:p-8 shadow-sm space-y-4">
-          <div class="flex items-center justify-between border-b border-[#F9F3EA] pb-3">
-            <h2 class="text-sm font-black text-[#2B1D1D] flex items-center gap-2.5">
-              <span class="w-6 h-6 rounded-full bg-[#FFA552] text-[#2B1D1D] flex items-center justify-center text-xs font-black">2</span>
+        <div class="bg-white rounded-3xl border border-[#EDEDED] p-5 sm:p-8 shadow-sm space-y-4">
+          <div class="flex items-center justify-between border-b border-[#FFF3EC] pb-3">
+            <h2 class="text-sm font-black text-[#333333] flex items-center gap-2.5">
+              <span class="w-6 h-6 rounded-full bg-[#FF5000] text-white flex items-center justify-center text-xs font-black">2</span>
               Pinpoint Courier Destination (Phnom Penh)
             </h2>
-            <span class="text-[11px] font-bold text-[#FFA552] hidden sm:inline">Drag marker to exact gate</span>
+            <span class="text-[11px] font-bold text-[#FF5000] hidden sm:inline">Drag marker to exact gate</span>
           </div>
 
           <p class="text-xs text-stone-500">Helps our delivery rider arrive quickly without calling repeatedly for directions.</p>
 
-          <div id="leafletMap" class="w-full h-64 sm:h-72 rounded-2xl border border-[#EFE4D6] overflow-hidden z-10"></div>
+          <div id="leafletMap" class="w-full h-64 sm:h-72 rounded-2xl border border-[#EDEDED] overflow-hidden z-10"></div>
           
           <div class="text-[11px] text-stone-500 flex items-center gap-1.5">
             <span class="text-emerald-600 font-bold">&check;</span>
-            <span>Coordinates pinned: <span id="mapCoords" class="font-mono text-[#2B1D1D] font-bold">11.5564, 104.9282 (Daun Penh)</span></span>
+            <span>Coordinates pinned: <span id="mapCoords" class="font-mono text-[#333333] font-bold">11.5564, 104.9282 (Daun Penh)</span></span>
           </div>
         </div>
 
         <!-- Payment Method Selection -->
-        <div class="bg-white rounded-3xl border border-[#EFE4D6] p-5 sm:p-8 shadow-sm space-y-4">
-          <h2 class="text-sm font-black text-[#2B1D1D] border-b border-[#F9F3EA] pb-3 flex items-center gap-2.5">
-            <span class="w-6 h-6 rounded-full bg-[#FFA552] text-[#2B1D1D] flex items-center justify-center text-xs font-black">3</span>
+        <div class="bg-white rounded-3xl border border-[#EDEDED] p-5 sm:p-8 shadow-sm space-y-4">
+          <h2 class="text-sm font-black text-[#333333] border-b border-[#FFF3EC] pb-3 flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-[#FF5000] text-white flex items-center justify-center text-xs font-black">3</span>
             Select Payment Method
           </h2>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             
             <!-- Option 1: Bakong Universal KHQR (Default) -->
-            <label class="payment-method-card relative border-2 border-[#FFA552] bg-[#F9F3EA] rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3 transition-all">
+            <label class="payment-method-card relative border-2 border-[#FF5000] bg-[#FFF3EC] rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3 transition-all">
               <input type="radio" name="payment_method" value="khqr" checked class="hidden" onchange="updatePaymentSelect(this)" />
               <div class="flex items-center justify-between">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#FFA552]"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#FF5000]"></span>
                 <span class="text-[10px] font-black uppercase text-red-600 bg-white px-2 py-0.5 rounded-full border border-red-200">Recommended</span>
               </div>
               <div>
-                <div class="text-xs font-black text-[#2B1D1D]">Bakong KHQR</div>
+                <div class="text-xs font-black text-[#333333]">Bakong KHQR</div>
                 <div class="text-[10px] text-stone-600 mt-0.5">Scan via any Cambodian banking app</div>
               </div>
             </label>
 
             <!-- Option 2: ABA Mobile Pay -->
-            <label class="payment-method-card relative border border-[#EFE4D6] bg-white rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3 transition-all hover:border-[#FFA552]">
+            <label class="payment-method-card relative border border-[#EDEDED] bg-white rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3 transition-all hover:border-[#FF5000]">
               <input type="radio" name="payment_method" value="aba" class="hidden" onchange="updatePaymentSelect(this)" />
               <div class="flex items-center justify-between">
                 <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
                 <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">Instant</span>
               </div>
               <div>
-                <div class="text-xs font-black text-[#2B1D1D]">ABA Mobile Pay</div>
+                <div class="text-xs font-black text-[#333333]">ABA Mobile Pay</div>
                 <div class="text-[10px] text-stone-600 mt-0.5">ABA App direct transfer or KHQR</div>
               </div>
             </label>
 
             <!-- Option 3: Cash on Delivery -->
-            <label class="payment-method-card relative border border-[#EFE4D6] bg-white rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3 transition-all hover:border-[#FFA552]">
+            <label class="payment-method-card relative border border-[#EDEDED] bg-white rounded-2xl p-4 cursor-pointer flex flex-col justify-between space-y-3 transition-all hover:border-[#FF5000]">
               <input type="radio" name="payment_method" value="cod" class="hidden" onchange="updatePaymentSelect(this)" />
               <div class="flex items-center justify-between">
                 <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
                 <span class="text-[10px] font-bold text-stone-600 bg-stone-100 px-2 py-0.5 rounded-full">Phnom Penh</span>
               </div>
               <div>
-                <div class="text-xs font-black text-[#2B1D1D]">Cash on Delivery</div>
+                <div class="text-xs font-black text-[#333333]">Cash on Delivery</div>
                 <div class="text-[10px] text-stone-600 mt-0.5">Pay courier upon parcel handover</div>
               </div>
             </label>
@@ -189,21 +190,21 @@
 
       <!-- Right 1 Col: Summary & Place Order -->
       <div class="reveal-init delay-100 space-y-4">
-        <div class="bg-white rounded-3xl border-2 border-[#EFE4D6] p-6 shadow-lg space-y-5 sticky top-28">
-          <h3 class="text-sm font-black text-[#2B1D1D] border-b border-[#F9F3EA] pb-3">Final Order Review</h3>
+        <div class="bg-white rounded-3xl border-2 border-[#EDEDED] p-6 shadow-lg space-y-5 sticky top-28">
+          <h3 class="text-sm font-black text-[#333333] border-b border-[#FFF3EC] pb-3">Final Order Review</h3>
 
-          <div class="space-y-3 max-h-56 overflow-y-auto pr-1 text-xs divide-y divide-[#F9F3EA]" id="checkoutItemsList">
+          <div class="space-y-3 max-h-56 overflow-y-auto pr-1 text-xs divide-y divide-[#FFF3EC]" id="checkoutItemsList">
             <!-- Items injected via JS -->
           </div>
 
-          <div class="space-y-2 text-xs border-t border-[#F9F3EA] pt-4 text-stone-600">
+          <div class="space-y-2 text-xs border-t border-[#FFF3EC] pt-4 text-stone-600">
             <div class="flex justify-between">
               <span>Items Total</span>
-              <span class="font-bold text-[#2B1D1D]" id="coSubtotal">$0.00</span>
+              <span class="font-bold text-[#333333]" id="coSubtotal">$0.00</span>
             </div>
             <div class="flex justify-between">
               <span>Express Delivery</span>
-              <span class="font-bold text-[#FFA552]" id="coDelivery">$1.50</span>
+              <span class="font-bold text-[#FF5000]" id="coDelivery">$1.50</span>
             </div>
             <div class="flex justify-between text-[11px] text-stone-400">
               <span>Exchange Rate</span>
@@ -211,18 +212,18 @@
             </div>
           </div>
 
-          <div class="border-t border-[#F9F3EA] pt-4 flex justify-between items-baseline">
-            <span class="text-sm font-black text-[#2B1D1D]">Total Due</span>
+          <div class="border-t border-[#FFF3EC] pt-4 flex justify-between items-baseline">
+            <span class="text-sm font-black text-[#333333]">Total Due</span>
             <div class="text-right">
-              <div class="text-2xl font-black text-[#2B1D1D] tracking-tight" id="coTotalUSD">$0.00</div>
-              <div class="text-xs text-[#FFA552] font-bold khmer-font" id="coTotalKHR">0 ៛</div>
+              <div class="text-2xl font-black text-[#333333] tracking-tight" id="coTotalUSD">$0.00</div>
+              <div class="text-xs text-[#FF5000] font-bold khmer-font" id="coTotalKHR">0 ៛</div>
             </div>
           </div>
 
           <button
             type="submit"
             id="placeOrderBtn"
-            class="btn-press w-full py-3.5 rounded-2xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+            class="btn-press w-full py-3.5 rounded-2xl bg-[#FF5000] hover:bg-[#E64500] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
           >
             <span>Confirm Order & Pay</span>
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
@@ -239,6 +240,7 @@
   </main>
 
   <script src="assets/js/store.js"></script>
+  <script src="assets/js/taobao.js"></script>
   <script>
     let mapInstance = null;
     let markerInstance = null;
@@ -269,17 +271,17 @@
 
     function updatePaymentSelect(radio) {
       document.querySelectorAll('.payment-method-card').forEach(card => {
-        card.classList.remove('border-2', 'border-[#FFA552]', 'bg-[#F9F3EA]');
-        card.classList.add('border', 'border-[#EFE4D6]', 'bg-white');
+        card.classList.remove('border-2', 'border-[#FF5000]', 'bg-[#FFF3EC]');
+        card.classList.add('border', 'border-[#EDEDED]', 'bg-white');
         const dot = card.querySelector('span');
         if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-300';
       });
 
       const parent = radio.closest('.payment-method-card');
-      parent.classList.add('border-2', 'border-[#FFA552]', 'bg-[#F9F3EA]');
-      parent.classList.remove('border-[#EFE4D6]', 'bg-white');
+      parent.classList.add('border-2', 'border-[#FF5000]', 'bg-[#FFF3EC]');
+      parent.classList.remove('border-[#EDEDED]', 'bg-white');
       const activeDot = parent.querySelector('span');
-      if (activeDot) activeDot.className = 'w-2.5 h-2.5 rounded-full bg-[#FFA552]';
+      if (activeDot) activeDot.className = 'w-2.5 h-2.5 rounded-full bg-[#FF5000]';
     }
 
     function updateCheckoutSummary() {
@@ -306,13 +308,13 @@
         return `
           <div class="py-2.5 flex items-center justify-between gap-3">
             <div class="flex items-center gap-2.5 min-w-0">
-              <img src="${i.image}" alt="${i.title}" class="w-10 h-10 rounded-lg object-cover border border-[#EFE4D6] bg-white shrink-0" />
+              <img src="${i.image}" alt="${i.title}" class="w-10 h-10 rounded-lg object-cover border border-[#EDEDED] bg-white shrink-0" />
               <div class="truncate">
-                <div class="font-bold text-[#2B1D1D] truncate text-xs">${i.title}</div>
+                <div class="font-bold text-[#333333] truncate text-xs">${i.title}</div>
                 <div class="text-[11px] text-stone-500">Qty: ${i.quantity} &bull; $${i.priceUSD.toFixed(2)}</div>
               </div>
             </div>
-            <div class="font-black text-[#2B1D1D] shrink-0 text-xs">$${itemTotal.toFixed(2)}</div>
+            <div class="font-black text-[#333333] shrink-0 text-xs">$${itemTotal.toFixed(2)}</div>
           </div>
         `;
       }).join('');
