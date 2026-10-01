@@ -7,24 +7,25 @@
   <meta name="description" content="Complete your Gen-Z accessories order via Bakong Universal KHQR or ABA Mobile." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/taobao.css" />
 </head>
-<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+<body class="bg-[#F5F5F5] text-[#333333] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FF5000] selection:text-white pb-mobile-nav">
 
   <!-- Header -->
-  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#EFE4D6] transition-all duration-300">
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-[#EDEDED] transition-all duration-300">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
       <a href="home.html" class="flex items-center gap-2.5 sm:gap-3 group">
-        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-[#2B1D1D] via-[#3D2929] to-[#FFA552] flex items-center justify-center text-white font-black text-base shadow-xs group-hover:scale-105 transition-transform duration-300 border border-[#FFA552]/40">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-[#333333] via-[#4D4D4D] to-[#FF5000] flex items-center justify-center text-white font-black text-base shadow-xs group-hover:scale-105 transition-transform duration-300 border border-[#FF5000]/40">
           P
         </div>
         <div class="flex flex-col">
-          <span class="text-base sm:text-lg font-black text-[#2B1D1D] leading-none">Psa<span class="text-[#FFA552]">Online</span></span>
-          <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">Gen-Z Studio</span>
+          <span class="text-base sm:text-lg font-black text-[#333333] leading-none">Psa<span class="text-[#FF5000]">Online</span></span>
+          <span class="text-[9px] uppercase tracking-widest text-[#FF5000] font-black mt-0.5">Gen-Z Studio</span>
         </div>
       </a>
 
       <div class="flex items-center gap-3 text-xs">
-        <a href="dashboard-buyer.html" class="px-3.5 py-1.5 rounded-full border border-[#EFE4D6] bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] font-bold transition">
+        <a href="dashboard-buyer.html" class="px-3.5 py-1.5 rounded-full border border-[#EDEDED] bg-white text-[#333333] hover:bg-[#FFF3EC] font-bold transition">
           My Orders &rarr;
         </a>
       </div>
@@ -35,70 +36,70 @@
   <main class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-1 w-full space-y-6">
 
     <!-- Status Alert Header -->
-    <div class="reveal-init bg-white border-2 border-[#FFA552] rounded-3xl p-6 text-center space-y-3 shadow-sm">
-      <div class="w-12 h-12 rounded-2xl bg-[#F9F3EA] text-[#FFA552] border border-[#FFA552] flex items-center justify-center mx-auto text-2xl font-black">
+    <div class="reveal-init bg-white border-2 border-[#FF5000] rounded-3xl p-6 text-center space-y-3 shadow-sm">
+      <div class="w-12 h-12 rounded-2xl bg-[#FFF3EC] text-[#FF5000] border border-[#FF5000] flex items-center justify-center mx-auto text-2xl font-black">
         ៛
       </div>
       <div>
-        <span class="text-[11px] font-black uppercase tracking-wider text-[#FFA552]">Awaiting Payment</span>
-        <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] tracking-tight mt-0.5">Scan KHQR to Complete Order</h1>
+        <span class="text-[11px] font-black uppercase tracking-wider text-[#FF5000]">Awaiting Payment</span>
+        <h1 class="text-xl sm:text-2xl font-black text-[#333333] tracking-tight mt-0.5">Scan KHQR to Complete Order</h1>
       </div>
       <p class="text-xs sm:text-sm text-stone-600 max-w-lg mx-auto leading-relaxed">
         Scan the Universal KHQR code below with ABA, ACLEDA, Canadia, or Wing. Then upload your transfer slip to expedite instant courier dispatch.
       </p>
 
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#F9F3EA] rounded-full border border-[#EFE4D6] font-mono text-xs font-black text-[#2B1D1D] mt-1">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#FFF3EC] rounded-full border border-[#EDEDED] font-mono text-xs font-black text-[#333333] mt-1">
         <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
         <span id="orderIdTag">Order #PSA-902184</span>
       </div>
     </div>
 
     <!-- KHQR Code Card (Clean Pure White Container) -->
-    <div class="reveal-init delay-100 bg-white rounded-3xl border border-[#EFE4D6] p-6 sm:p-8 shadow-md text-center space-y-6">
+    <div class="reveal-init delay-100 bg-white rounded-3xl border border-[#EDEDED] p-6 sm:p-8 shadow-md text-center space-y-6">
       
       <div class="space-y-1">
         <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-red-600 text-[11px] font-black uppercase tracking-wider">
           <span class="w-2 h-2 rounded-full bg-red-600"></span>
           <span>Bakong Universal KHQR</span>
         </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] pt-2" id="dueAmountUSD">$18.50</div>
-        <div class="text-xs text-[#FFA552] font-black" id="dueAmountKHR">75,850 ៛</div>
+        <div class="text-2xl sm:text-3xl font-black text-[#333333] pt-2" id="dueAmountUSD">$18.50</div>
+        <div class="text-xs text-[#FF5000] font-black" id="dueAmountKHR">75,850 ៛</div>
       </div>
 
       <!-- Clean White QR Code Container Frame -->
-      <div class="p-4 sm:p-6 bg-white border-2 border-[#FFA552] rounded-3xl inline-block shadow-lg mx-auto max-w-xs">
-        <div class="aspect-square w-52 h-52 sm:w-60 sm:h-60 bg-white border border-[#EFE4D6] rounded-2xl p-2.5 flex items-center justify-center relative overflow-hidden">
+      <div class="p-4 sm:p-6 bg-white border-2 border-[#FF5000] rounded-3xl inline-block shadow-lg mx-auto max-w-xs">
+        <div class="aspect-square w-52 h-52 sm:w-60 sm:h-60 bg-white border border-[#EDEDED] rounded-2xl p-2.5 flex items-center justify-center relative overflow-hidden">
           <img
             src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=bakong_khqr_psaonline_psa902184"
             alt="Bakong Universal KHQR"
             class="w-full h-full object-contain"
           />
         </div>
-        <div class="mt-3 text-xs font-extrabold text-[#2B1D1D]">
+        <div class="mt-3 text-xs font-extrabold text-[#333333]">
           PSA ONLINE ACCESSORIES
         </div>
-        <div class="text-[11px] text-[#FFA552] font-bold">
+        <div class="text-[11px] text-[#FF5000] font-bold">
           Merchant: psaonline@aclb
         </div>
       </div>
 
       <!-- Action: Upload Slip Screenshot -->
-      <div class="max-w-md mx-auto pt-4 border-t border-[#EFE4D6] space-y-4 text-left">
+      <div class="max-w-md mx-auto pt-4 border-t border-[#EDEDED] space-y-4 text-left">
         <div>
-          <label class="block text-xs font-extrabold text-[#2B1D1D] mb-1">
+          <label class="block text-xs font-extrabold text-[#333333] mb-1">
             Upload Transfer Slip Screenshot
           </label>
           <input
             type="file"
             id="slipInput"
             accept="image/*"
-            class="w-full text-xs text-stone-600 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-[#FFA552] file:text-white hover:file:bg-[#E88C35] file:cursor-pointer"
+            class="w-full text-xs text-stone-600 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-[#FF5000] file:text-white hover:file:bg-[#E64500] file:cursor-pointer"
           />
         </div>
 
         <button
           onclick="submitSlip()"
-          class="btn-press w-full py-3.5 rounded-2xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+          class="btn-press w-full py-3.5 rounded-2xl bg-[#FF5000] hover:bg-[#E64500] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
         >
           <span>I've Paid — Confirm & View Receipt</span>
           <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
@@ -114,6 +115,7 @@
   </main>
 
   <script src="assets/js/store.js"></script>
+  <script src="assets/js/taobao.js"></script>
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('order') || 'PSA-902184';

@@ -7,22 +7,23 @@
   <meta name="description" content="Sign up for PsaOnline to get instant notifications on new Gen-Z streetwear jewelry and bag drops." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/taobao.css" />
 </head>
-<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-[#FFA552] selection:text-white">
+<body class="bg-[#F5F5F5] text-[#333333] font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-[#FF5000] selection:text-white">
 
   <!-- Header -->
-  <header class="bg-[#FDFBF7] border-b border-[#EFE4D6]">
+  <header class="bg-[#F5F5F5] border-b border-[#EDEDED]">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
       <a href="home.html" class="flex items-center gap-2.5 group">
-        <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#2B1D1D] via-[#3D2929] to-[#FFA552] flex items-center justify-center text-white font-black text-base shadow-xs group-hover:scale-105 transition-transform duration-300 border border-[#FFA552]/40">
+        <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#333333] via-[#4D4D4D] to-[#FF5000] flex items-center justify-center text-white font-black text-base shadow-xs group-hover:scale-105 transition-transform duration-300 border border-[#FF5000]/40">
           P
         </div>
-        <span class="text-lg sm:text-xl font-black text-[#2B1D1D]">
-          Psa<span class="text-[#FFA552]">Online</span>
+        <span class="text-lg sm:text-xl font-black text-[#333333]">
+          Psa<span class="text-[#FF5000]">Online</span>
         </span>
       </a>
 
-      <a href="login.html" class="text-xs font-bold text-[#FFA552] hover:underline flex items-center gap-1 transition">
+      <a href="login.html" class="text-xs font-bold text-[#FF5000] hover:underline flex items-center gap-1 transition">
         <span>Already have an account? Sign In &rarr;</span>
       </a>
     </div>
@@ -30,14 +31,14 @@
 
   <!-- Centered Register Card -->
   <main class="flex-1 flex items-center justify-center p-4 py-8 sm:py-12">
-    <div class="reveal-init w-full max-w-md bg-white rounded-3xl border border-[#EFE4D6] p-6 sm:p-8 shadow-xl space-y-6">
+    <div class="reveal-init w-full max-w-md bg-white rounded-3xl border border-[#EDEDED] p-6 sm:p-8 shadow-xl space-y-6">
       
       <!-- Brand Header -->
       <div class="text-center space-y-2">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#2B1D1D] to-[#FFA552] text-white font-black text-xl flex items-center justify-center mx-auto shadow-md">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#333333] to-[#FF5000] text-white font-black text-xl flex items-center justify-center mx-auto shadow-md">
           P
         </div>
-        <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] tracking-tight">Join PsaOnline</h1>
+        <h1 class="text-xl sm:text-2xl font-black text-[#333333] tracking-tight">Join PsaOnline</h1>
         <p class="text-xs text-stone-500">Access exclusive viral drops, express delivery & order tracking.</p>
       </div>
 
@@ -45,55 +46,56 @@
       <form class="space-y-4" onsubmit="handleRegister(event)">
         
         <div class="space-y-1">
-          <label for="reg_name" class="text-xs font-bold text-[#2B1D1D]">Full Name</label>
+          <label for="reg_name" class="text-xs font-bold text-[#333333]">Full Name</label>
           <input
             type="text"
             id="reg_name"
             required
             placeholder="e.g. Sophea Chhum"
-            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FDFBF7] border border-[#EFE4D6] text-[#2B1D1D] placeholder-stone-400 focus:outline-none focus:border-[#FFA552] focus:ring-1 focus:ring-[#FFA552] transition"
+            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F5F5F5] border border-[#EDEDED] text-[#333333] placeholder-stone-400 focus:outline-none focus:border-[#FF5000] focus:ring-1 focus:ring-[#FF5000] transition"
           />
         </div>
 
         <div class="space-y-1">
-          <label for="reg_phone" class="text-xs font-bold text-[#2B1D1D]">Telegram / Phone Number</label>
+          <label for="reg_phone" class="text-xs font-bold text-[#333333]">Telegram / Phone Number</label>
           <input
             type="tel"
             id="reg_phone"
             required
             placeholder="e.g. +855 96 554 1234"
-            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FDFBF7] border border-[#EFE4D6] text-[#2B1D1D] placeholder-stone-400 focus:outline-none focus:border-[#FFA552] focus:ring-1 focus:ring-[#FFA552] transition font-mono"
+            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F5F5F5] border border-[#EDEDED] text-[#333333] placeholder-stone-400 focus:outline-none focus:border-[#FF5000] focus:ring-1 focus:ring-[#FF5000] transition font-mono"
           />
         </div>
 
         <div class="space-y-1">
-          <label for="reg_password" class="text-xs font-bold text-[#2B1D1D]">Password</label>
+          <label for="reg_password" class="text-xs font-bold text-[#333333]">Password</label>
           <input
             type="password"
             id="reg_password"
             required
             placeholder="At least 6 characters"
-            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FDFBF7] border border-[#EFE4D6] text-[#2B1D1D] placeholder-stone-400 focus:outline-none focus:border-[#FFA552] focus:ring-1 focus:ring-[#FFA552] transition font-mono"
+            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#F5F5F5] border border-[#EDEDED] text-[#333333] placeholder-stone-400 focus:outline-none focus:border-[#FF5000] focus:ring-1 focus:ring-[#FF5000] transition font-mono"
           />
         </div>
 
         <button
           type="submit"
-          class="btn-press w-full py-3.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md transition-all cursor-pointer"
+          class="btn-press w-full py-3.5 rounded-xl bg-[#FF5000] hover:bg-[#E64500] text-white font-black text-xs shadow-md transition-all cursor-pointer"
         >
           Create Account
         </button>
 
       </form>
 
-      <div class="text-center pt-2 border-t border-[#EFE4D6] text-xs text-stone-500">
-        Already registered? <a href="login.html" class="font-black text-[#FFA552] hover:underline">Sign In</a>
+      <div class="text-center pt-2 border-t border-[#EDEDED] text-xs text-stone-500">
+        Already registered? <a href="login.html" class="font-black text-[#FF5000] hover:underline">Sign In</a>
       </div>
 
     </div>
   </main>
 
   <script src="assets/js/store.js"></script>
+  <script src="assets/js/taobao.js"></script>
   <script>
     function handleRegister(e) {
       e.preventDefault();
