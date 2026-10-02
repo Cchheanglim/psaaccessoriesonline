@@ -155,13 +155,15 @@ html, body {
 
 /* Infinite Marquee */
 @keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0% { transform: translate3d(0%, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
 }
 .animate-marquee {
   display: flex;
-  width: 200%;
-  animation: marquee 20s linear infinite;
+  width: max-content;
+  white-space: nowrap;
+  will-change: transform;
+  animation: marquee 28s linear infinite;
 }
 .animate-marquee:hover {
   animation-play-state: paused;
