@@ -1,0 +1,123 @@
+/*
+ * PsaOnline - shared back button + phone-only layout fixes.
+ * Everything except .psa-back-btn sits inside @media (max-width: 639px),
+ * so tablet and desktop layouts are not affected.
+ */
+
+/* Back arrow added to page headers by store.js (psaAddHeaderBackButton) */
+.psa-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-right: 0.25rem;
+  border-radius: 9999px;
+  border: 1px solid #EFE4D6;
+  background: #fff;
+  color: #2B1D1D;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.psa-back-btn:hover { background: #F9F3EA; color: #FFA552; }
+.psa-back-btn:focus-visible { outline: 2px solid #FFA552; outline-offset: 2px; }
+.dark .psa-back-btn,
+.checkout-dark .psa-back-btn { background: #1E1E26; border-color: #32323D; color: #fff; }
+/* Header rows use justify-between; keep the arrow and logo together on the left */
+.psa-back-btn + a { margin-right: auto; }
+
+@media (max-width: 639px) {
+  /* Inputs under 16px make iPhones zoom in when tapped */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* ---------- Header ---------- */
+  header .max-w-7xl,
+  header .max-w-6xl,
+  header .max-w-5xl {
+    gap: 0.5rem !important;
+  }
+  /* Brand: drop the small "Accessories • Studio" line and shrink the logo */
+  header a[href="home.html"] span.uppercase,
+  header a[href="dashboard-admin.html"] span.uppercase {
+    display: none;
+  }
+  header a[href="home.html"] img,
+  header a[href="dashboard-admin.html"] img {
+    height: 2.25rem !important;
+  }
+  header a[href="home.html"] .text-xl {
+    font-size: 1.125rem !important;
+  }
+  /* With a back arrow there is no room for the wordmark: keep just the logo image */
+  .psa-back-btn + a > .flex-col,
+  .psa-back-btn + a > span:not(.sr-only) {
+    display: none !important;
+  }
+  /* Pages with the bottom tab bar already have Wishlist / Bag / Account there */
+  body:has(nav.fixed.bottom-0) header a[href="wishlist.html"],
+  body:has(nav.fixed.bottom-0) header a[href="cart.html"],
+  body:has(nav.fixed.bottom-0) header a[href="dashboard-buyer.html"],
+  body:has(nav.fixed.bottom-0) header a[href="login.html"]:has(> div.rounded-full) {
+    display: none !important;
+  }
+  /* Comfortable tap size for the theme and currency toggles */
+  header .theme-toggle-btn,
+  header .currency-toggle-btn {
+    min-height: 2.25rem;
+  }
+
+  /* ---------- Product cards ---------- */
+  /* One clear "Quick View" per card: hide the small eye icon and the footer links */
+  .product-card .quick-view-badge-btn,
+  .product-card .card-footer-actions {
+    display: none !important;
+  }
+  .product-card .quick-actions-bar button {
+    white-space: nowrap;
+    min-height: 2.5rem;
+  }
+  /* Narrow cards: Quick View becomes an eye icon so "Add" always fits */
+  .product-card .quick-actions-bar button:first-child {
+    flex: 0 0 2.5rem;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .product-card .quick-actions-bar button:first-child span {
+    display: none;
+  }
+  .product-card .quick-actions-bar button:last-child {
+    flex: 1 1 auto;
+  }
+  .product-card .wishlist-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  /* ---------- Bottom tab bar ---------- */
+  nav.fixed.bottom-0 {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  nav.fixed.bottom-0 a {
+    min-width: 3.5rem;
+    min-height: 2.75rem;
+  }
+
+  /* ---------- Admin tables ---------- */
+  /* Wide tables scroll inside their card instead of squeezing the columns */
+  .overflow-x-auto > table {
+    min-width: 640px;
+  }
+
+  /* Fixed toasts sit above the tab bar and stay inside the screen */
+  #psaRBACToast {
+    left: 1rem;
+    right: 1rem;
+    bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    max-width: none;
+  }
+}

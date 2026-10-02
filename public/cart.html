@@ -7,6 +7,7 @@
   <meta name="description" content="View items in your bag, update quantities, and proceed to Bakong KHQR checkout." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
@@ -138,7 +139,8 @@
       const container = document.getElementById('cartItemsContainer');
       const cart = getCart();
 
-      if (cart.length === 0 && !localStorage.getItem('psa_cart_initialized')) {
+      // Demo mode only: start with two sample items
+      if (!PSA.online && cart.length === 0 && !localStorage.getItem('psa_cart_initialized')) {
         localStorage.setItem('psa_cart_initialized', 'true');
         addToCart('genz-01', 1);
         addToCart('genz-07', 1);

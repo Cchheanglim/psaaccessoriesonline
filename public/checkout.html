@@ -33,6 +33,7 @@
     .checkout-dark .checkout-panel input:focus { outline: 2px solid rgba(245, 158, 11, .35) !important; border-color: #f59e0b !important; }
     @media (max-width: 640px) { .payment-dialog-card { padding: 18px; } }
   </style>
+  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="checkout-dark bg-[#0f1117] text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-white pb-mobile-nav">
 
@@ -71,7 +72,7 @@
   <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 flex-1 w-full space-y-8">
 
     <div class="reveal-init border-b border-[#EFE4D6] pb-4">
-      <h1 class="text-2xl sm:text-3xl font-black text-[#2B1D1D] tracking-tight">Express Checkout</h1>
+      <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Express Checkout</h1>
       <p class="text-xs text-stone-500 mt-1">Confirm your delivery location in Phnom Penh and choose your preferred payment gateway.</p>
     </div>
 
@@ -386,6 +387,11 @@
       const cart = getCart();
       const listEl = document.getElementById('checkoutItemsList');
 
+      // Live mode: nothing to check out, go back to the (empty) bag
+      if (cart.length === 0 && PSA.online) {
+        window.location.replace('cart.html');
+        return;
+      }
       if (cart.length === 0) {
         cart.push({
           id: 'genz-01',
@@ -517,7 +523,7 @@
         btn.disabled = false;
         return;
       }
-      window.location.href = `order-detail--buyer-pending.html?order=${encodeURIComponent(order.id)}&usd=${order.totalUSD}&khr=${encodeURIComponent(order.totalKHR)}&method=${method}`;
+      window.location.replace(`order-detail--buyer-pending.html?order=${encodeURIComponent(order.id)}&usd=${order.totalUSD}&khr=${encodeURIComponent(order.totalKHR)}&method=${method}`);
     }
 
     function validateDemoCard() {
