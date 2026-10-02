@@ -1745,7 +1745,7 @@
     });
 
     function verifyOrderSlip(orderId, rowIndex) {
-      if (!hasPermission('canVerifyKHQR')) {
+      if (!hasPermission('canVerifyOrders')) {
         showRBACToast('Your role does not have permission to verify bank slips.', 'danger');
         return;
       }
@@ -1770,7 +1770,7 @@
     }
 
     function exportReportData(format) {
-      if (!hasPermission('canExportCSV')) {
+      if (!hasPermission('canExportReports')) {
         showRBACToast('Restricted: Staff role cannot export raw financial statements. Switch to Admin.', 'danger');
         return;
       }
@@ -1808,7 +1808,7 @@
       enforcePageRBAC('canAccessAdminPortal');
       renderReportAll();
 
-      if (!hasPermission('canExportCSV')) {
+      if (!hasPermission('canExportReports')) {
         const exportBtn = document.getElementById('exportCsvBtn');
         if (exportBtn) {
           exportBtn.classList.add('opacity-60');
@@ -1816,6 +1816,272 @@
         }
       }
     });
+  </script>
+
+  <!-- Live mode: the report figures, top sellers and the verification queue come from real orders in the
+       database. The demo numbers above are only used when the server is offline. -->
+  <script>
+    if (PSA.online) {
+      const DAY = 86400000;
+      const liveOrders = () => PSA.orders.filter(o => o.orderStatus !== 'cancelled' && o.createdAt);
+      const fmtDay = d => d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+      // Map product categories onto the four category rows of the report
+      const CATEGORY_ROW = { jewelry: 'Jewelry', eyewear: 'Shades', bags: 'Bags', hair: 'Clips', charms: 'Clips' };
+
+      function rangeStart(key) {
+        const now = new Date();
+        if (key === 'today') return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        if (key === 'ytd') return new Date(now.getFullYear(), 0, 1);
+        return new Date(now.getTime() - (key === '30d' ? 30 : 7) * DAY);
+      }
+
+      // Chart buckets: 4 blocks of 6 hours (today), days (7d), weeks (30d) or months (YTD)
+      function buckets(key, from) {
+        const now = new Date();
+        const list = [];
+        if (key === 'today') {
+          for (let h = 0; h < 24; h += 6) {
+            const s = new Date(from.getTime() + h * 3600000);
+            list.push({ label: `${String(h).padStart(2, '0')}:00`, from: s, to: new Date(s.getTime() + 6 * 3600000) });
+          }
+        } else if (key === '7d') {
+          for (let i = 6; i >= 0; i--) {
+            const s = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+            list.push({ label: s.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit' }), from: s, to: new Date(s.getTime() + DAY) });
+          }
+        } else if (key === '30d') {
+          for (let s = from; s < now; s = new Date(s.getTime() + 7 * DAY)) {
+            list.push({ label: `Wk of ${fmtDay(s)}`, from: s, to: new Date(s.getTime() + 7 * DAY) });
+          }
+        } else {
+          for (let m = 0; m <= now.getMonth(); m++) {
+            const s = new Date(now.getFullYear(), m, 1);
+            list.push({ label: s.toLocaleDateString('en-US', { month: 'short' }), from: s, to: new Date(now.getFullYear(), m + 1, 1) });
+          }
+        }
+        return list;
+      }
+
+      function liveDataset(key) {
+        const from = rangeStart(key);
+        const now = new Date();
+        const orders = liveOrders().filter(o => new Date(o.createdAt) >= from);
+        const sum = (list, field) => list.reduce((t, o) => t + Number(o[field] || 0), 0);
+        const gross = sum(orders, 'subtotalUSD');
+        const units = orders.reduce((t, o) => t + (o.items || []).reduce((u, i) => u + Number(i.quantity), 0), 0);
+        const delivered = orders.filter(o => o.orderStatus === 'delivered').length;
+        const cancelled = PSA.orders.filter(o => o.orderStatus === 'cancelled' && o.createdAt && new Date(o.createdAt) >= from).length;
+        const bars = buckets(key, from).map(b => {
+          const inBucket = orders.filter(o => { const t = new Date(o.createdAt); return t >= b.from && t < b.to; });
+          return { label: b.label, usd: sum(inBucket, 'subtotalUSD'), orders: inBucket.length };
+        });
+        const peak = Math.max(...bars.map(b => b.usd));
+        bars.forEach(b => { b.peak = peak > 0 && b.usd === peak; });
+        // Keep the chart from dividing by zero when there are no sales yet
+        if (peak === 0 && bars.length) bars[0].usd = 0.0001;
+        return {
+          subtitle: `Reporting Period: ${fmtDay(from)} – ${fmtDay(now)}, ${now.getFullYear()} (live data)`,
+          grossUSD: gross,
+          delta: 'Live',
+          margin: '—',
+          orders: orders.length,
+          fulfilledRate: orders.length ? `${Math.round((delivered / orders.length) * 100)}% Delivered` : 'No orders yet',
+          pending: awaitingVerification().length,
+          refunded: cancelled,
+          aovUSD: orders.length ? gross / orders.length : 0,
+          unitsPerOrder: `${orders.length ? (units / orders.length).toFixed(1) : '0'} Units / Order`,
+          conversion: '—',
+          dispatchTime: '—',
+          slaBadge: `${orders.filter(o => o.orderStatus === 'out_for_delivery').length} Out for delivery`,
+          shippingUSD: sum(orders, 'deliveryUSD'),
+          discountsUSD: 0,
+          unitMultiplier: 1,
+          bars,
+          liveOrders: orders
+        };
+      }
+
+      function refreshLiveDatasets() {
+        ['today', '7d', '30d', 'ytd'].forEach(key => { REPORT_DATASETS[key] = liveDataset(key); });
+      }
+
+      // Units and revenue per product for the selected period, best sellers first
+      function topSellers() {
+        const totals = new Map();
+        (REPORT_DATASETS[currentRangeKey] || liveDataset('7d')).liveOrders.forEach(o => (o.items || []).forEach(i => {
+          const t = totals.get(i.id) || { id: i.id, title: i.title, image: i.image, units: 0, sales: 0 };
+          t.units += Number(i.quantity);
+          t.sales += Number(i.priceUSD) * Number(i.quantity);
+          totals.set(i.id, t);
+        }));
+        return [...totals.values()].sort((a, b) => b.units - a.units).slice(0, 6)
+          .map(t => ({ ...t, p: PSA.products.find(x => x.id === t.id) || {} }));
+      }
+
+      const demoRenderReportAll = renderReportAll;
+      renderReportAll = function () {
+        refreshLiveDatasets();
+        demoRenderReportAll();
+        const ds = REPORT_DATASETS[currentRangeKey];
+        const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+
+        // Category split from what was actually sold
+        const cats = { Jewelry: { usd: 0, units: 0 }, Shades: { usd: 0, units: 0 }, Bags: { usd: 0, units: 0 }, Clips: { usd: 0, units: 0 } };
+        ds.liveOrders.forEach(o => (o.items || []).forEach(i => {
+          const p = PSA.products.find(x => x.id === i.id);
+          const row = cats[CATEGORY_ROW[p && p.category] || 'Clips'];
+          row.usd += Number(i.priceUSD) * Number(i.quantity);
+          row.units += Number(i.quantity);
+        }));
+        let totalUnits = 0;
+        Object.entries(cats).forEach(([key, c]) => {
+          totalUnits += c.units;
+          const pct = ds.grossUSD ? Math.round((c.usd / ds.grossUSD) * 100) : 0;
+          set(`cat${key}Val`, `${pct}% • ${fmtMoney(c.usd)}`);
+          set(`cat${key}Units`, `${c.units.toLocaleString()} units sold`);
+          set(`cat${key}KHR`, reportCurrency === 'USD' ? fmtKHR(c.usd) : '$' + c.usd.toFixed(2));
+        });
+        set('catTotalUnitsBadge', `${totalUnits.toLocaleString()} Units Sold`);
+
+        // Payment gateways from each order's real payment method
+        const gw = { khqr: { n: 0, usd: 0 }, cod: { n: 0, usd: 0 }, card: { n: 0, usd: 0 } };
+        ds.liveOrders.forEach(o => {
+          const g = o.paymentCode === 'cod' ? gw.cod : o.paymentCode === 'visa_card' ? gw.card : gw.khqr;
+          g.n += 1;
+          g.usd += Number(o.subtotalUSD);
+        });
+        set('gwKhqrTxns', gw.khqr.n); set('gwKhqrAmt', fmtMoney(gw.khqr.usd));
+        set('gwCodTxns', gw.cod.n); set('gwCodAmt', fmtMoney(gw.cod.usd));
+        set('gwCardTxns', gw.card.n); set('gwCardAmt', fmtMoney(gw.card.usd));
+        set('printGwKhqrTxns', gw.khqr.n); set('printGwKhqrUSD', '$' + gw.khqr.usd.toFixed(2)); set('printGwKhqrKHR', fmtKHR(gw.khqr.usd));
+        set('printGwCodTxns', gw.cod.n); set('printGwCodUSD', '$' + gw.cod.usd.toFixed(2)); set('printGwCodKHR', fmtKHR(gw.cod.usd));
+        set('printGwCardTxns', gw.card.n); set('printGwCardUSD', '$' + gw.card.usd.toFixed(2)); set('printGwCardKHR', fmtKHR(gw.card.usd));
+
+        // Printable report: top SKUs from real sales
+        const skuBody = document.getElementById('printTopSkusTableBody');
+        if (skuBody) {
+          const rows = topSellers();
+          skuBody.innerHTML = rows.length ? rows.map((t, idx) => `
+            <tr>
+              <td class="text-center font-bold">#${idx + 1}</td>
+              <td class="font-mono text-[10px]">SKU-${psaEsc(String(t.id).toUpperCase())}</td>
+              <td class="font-bold text-stone-900">${psaEsc(t.p.title || t.title)}</td>
+              <td>${psaEsc(t.p.categoryLabel || '—')}</td>
+              <td class="text-right">${t.p.priceUSD != null ? '$' + Number(t.p.priceUSD).toFixed(2) : '—'}</td>
+              <td class="text-right font-bold">${t.units.toLocaleString()}</td>
+              <td class="text-right">${t.p.stock != null ? t.p.stock : 0} units</td>
+              <td class="text-right font-bold text-stone-900">$${t.sales.toFixed(2)} <span class="font-mono font-normal text-stone-600">(${fmtKHR(t.sales)})</span></td>
+            </tr>`).join('') : '<tr><td colspan="8" class="text-center text-stone-500">No sales in this period yet.</td></tr>';
+        }
+
+        renderVerificationQueue();
+      };
+
+      renderTopSellingTable = function () {
+        const tbody = document.getElementById('topSellingTableBody');
+        if (!tbody) return;
+        const rows = topSellers();
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="7" class="py-6 px-3 text-center text-xs text-stone-400">No sales in this period yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = rows.map((t, index) => {
+          const stock = t.p.stock != null ? t.p.stock : 0;
+          const ok = stock > 10;
+          return `
+          <tr class="hover:bg-stone-50/80 dark:hover:bg-[#20202A]/50 transition">
+            <td class="py-3 px-3">
+              <div class="flex items-center gap-3">
+                <span class="w-6 h-6 rounded-md ${index < 3 ? 'bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D]' : 'bg-stone-100 dark:bg-[#252530] text-stone-500'} font-bold text-[11px] flex items-center justify-center shrink-0">#${index + 1}</span>
+                <img src="${psaEsc(t.p.image || t.image)}" alt="" class="w-9 h-9 rounded-md object-cover border border-stone-200 dark:border-[#32323D] shrink-0" />
+                <div>
+                  <div class="font-bold text-[#2B1D1D] dark:text-white line-clamp-1">${psaEsc(t.p.title || t.title)}</div>
+                  <div class="text-[10px] text-stone-400 font-mono">SKU-${psaEsc(String(t.id).toUpperCase())}${t.p.titleKhmer ? ' &bull; ' + psaEsc(t.p.titleKhmer) : ''}</div>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-3"><span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] dark:text-stone-300 font-semibold text-[10px] uppercase">${psaEsc(t.p.categoryLabel || '—')}</span></td>
+            <td class="py-3 px-3 text-right font-semibold text-[#2B1D1D] dark:text-stone-200">${t.p.priceUSD != null ? fmtMoney(Number(t.p.priceUSD)) : '—'}</td>
+            <td class="py-3 px-3 text-right font-bold text-[#2B1D1D] dark:text-white">${t.units.toLocaleString()}</td>
+            <td class="py-3 px-3 text-right">
+              <div class="font-bold text-[#2B1D1D] dark:text-white">${fmtMoney(t.sales)}</div>
+              <div class="text-[10px] text-stone-400">${reportCurrency === 'USD' ? fmtKHR(t.sales) : '$' + t.sales.toFixed(2)}</div>
+            </td>
+            <td class="py-3 px-3">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold ${ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50'}">
+                <span class="w-1.5 h-1.5 rounded-full ${ok ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
+                ${stock} in stock
+              </span>
+            </td>
+            <td class="py-3 px-3 text-right no-print">
+              <a href="product-form.html?id=${encodeURIComponent(t.id)}" class="px-2.5 py-1 rounded-md border border-stone-200 dark:border-[#32323D] hover:border-[#FFA552] text-[#2B1D1D] dark:text-stone-300 font-semibold text-[10px] transition">Edit SKU</a>
+            </td>
+          </tr>`;
+        }).join('');
+      };
+
+      function awaitingVerification() {
+        return PSA.orders.filter(o => o.orderStatus === 'pending_payment' && o.paymentCode !== 'cod' && o.paymentStatus !== 'failed');
+      }
+
+      function renderVerificationQueue() {
+        const tbody = document.getElementById('verificationQueueTable');
+        const queue = awaitingVerification();
+        const badge = document.getElementById('pendingSlipsBadge');
+        if (badge) badge.textContent = `${queue.length} Pending`;
+        if (!tbody) return;
+        if (!queue.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="py-6 px-3 text-center text-xs text-stone-400">Nothing to verify right now.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = queue.slice(0, 8).map(o => {
+          const id = psaEsc(o.id);
+          return `
+          <tr class="hover:bg-stone-50/70 dark:hover:bg-[#20202A]/50 transition">
+            <td class="py-3 px-2.5 font-mono font-bold text-[#2B1D1D] dark:text-white">#${id}</td>
+            <td class="py-3 px-2.5">
+              <div class="font-bold text-[#2B1D1D] dark:text-white">${psaEsc(o.customerName)}</div>
+              <div class="text-[10px] text-stone-400">${psaEsc(o.phone)}</div>
+            </td>
+            <td class="py-3 px-2.5 text-right">
+              <div class="font-bold text-[#2B1D1D] dark:text-white">$${psaEsc(o.totalUSD)}</div>
+              <div class="text-[10px] text-stone-400">${psaEsc(o.totalKHR)} ៛</div>
+            </td>
+            <td class="py-3 px-2.5">
+              <div class="font-semibold text-stone-700 dark:text-stone-300">${psaEsc(o.paymentMethod)}</div>
+              <div class="text-[10px] text-stone-400">${o.slipUploaded ? 'Slip attached' : 'No slip yet'}</div>
+            </td>
+            <td class="py-3 px-2.5">
+              <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 font-bold text-[10px] border border-amber-200 dark:border-amber-800/60">${psaEsc(o.status)}</span>
+            </td>
+            <td class="py-3 px-2.5 text-right no-print">
+              <div class="flex items-center justify-end gap-1.5">
+                <button type="button" onclick="verifyOrderSlip('${id}')" class="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition cursor-pointer">Verify</button>
+                <a href="order-detail.html?order=${encodeURIComponent(o.id)}" class="px-2 py-1 rounded-md bg-stone-100 hover:bg-stone-200 dark:bg-[#252530] dark:hover:bg-[#30303E] text-stone-700 dark:text-stone-300 font-semibold text-[10px] transition">Inspect</a>
+              </div>
+            </td>
+          </tr>`;
+        }).join('');
+      }
+
+      verifyOrderSlip = async function (orderId) {
+        if (!hasPermission('canVerifyOrders')) {
+          showRBACToast('Your role does not have permission to verify bank slips.', 'danger');
+          return;
+        }
+        try {
+          await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(orderId)}`, { action: 'verify' });
+          const { order } = await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(orderId)}`, { action: 'dispatch' });
+          PSA.orders = PSA.orders.map(o => (o.id === order.id ? order : o));
+          localStorage.setItem('psa_orders', JSON.stringify(PSA.orders));
+        } catch (err) {
+          showRBACToast(psaEsc(err.message), 'danger');
+          return;
+        }
+        renderReportAll();
+        showRBACToast(`Order #${psaEsc(orderId)} verified and sent out for delivery.`, 'success');
+      };
+    }
   </script>
 </body>
 </html>

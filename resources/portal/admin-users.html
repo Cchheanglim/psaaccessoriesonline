@@ -295,21 +295,21 @@
             <td class="px-5 py-4">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full ${u.role === 'Admin' ? 'bg-slate-900 ring-2 ring-orange-500/30' : (u.role === 'Staff' ? 'bg-blue-600' : 'bg-emerald-600')} text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs">
-                  ${u.avatar}
+                  ${psaEsc(u.avatar)}
                 </div>
                 <div>
                   <div class="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                    <span>${u.name}</span>
+                    <span>${psaEsc(u.name)}</span>
                     ${isCurrent ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-orange-100 text-orange-800 font-extrabold">You</span>' : ''}
                   </div>
-                  <div class="text-[11px] text-gray-400 font-mono">${u.email}</div>
+                  <div class="text-[11px] text-gray-400 font-mono">${psaEsc(u.email)}</div>
                 </div>
               </div>
             </td>
 
             <td class="px-5 py-4 text-xs">
-              <div class="font-bold text-gray-800 dark:text-gray-200">${u.department || 'Studio Ops'}</div>
-              <div class="text-[10px] text-gray-400">${u.description || 'PsaOnline team member'}</div>
+              <div class="font-bold text-gray-800 dark:text-gray-200">${psaEsc(u.department || 'Studio Ops')}</div>
+              <div class="text-[10px] text-gray-400">${psaEsc(u.description || 'PsaOnline team member')}</div>
             </td>
 
             <td class="px-5 py-4">
@@ -345,15 +345,15 @@
             <td class="px-5 py-4 text-right">
               <div class="flex items-center justify-end gap-1.5">
                 ${isAdmin ? `
-                  <button 
+                  ${PSA.online ? '' : `<button 
                     type="button" 
                     onclick="switchUserRole('${u.role}')" 
                     class="px-2 py-1 rounded bg-stone-100 hover:bg-stone-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[10px] font-bold transition cursor-pointer"
                     title="Login as this role to test"
                   >
                     Simulate
-                  </button>
-                  <a href="user-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 rounded inline-block" title="Edit Full Account">
+                  </button>`}
+                  <a href="user-form.html?id=${encodeURIComponent(u.id)}" class="p-1.5 text-gray-500 hover:text-orange-600 rounded inline-block" title="Edit Full Account">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                   </a>
                 ` : `
@@ -369,6 +369,20 @@
     function changeUserRole(userId, newRole) {
       if (!hasPermission('canEditRoles')) {
         showRBACToast('Permission Denied: Only Admin (Studio Lead) can reassign roles.', 'danger');
+        return;
+      }
+
+      if (PSA.online) {
+        psaApi('PATCH', `/api/admin/users/${encodeURIComponent(userId)}`, { role: newRole })
+          .then(({ user }) => {
+            PSA.users = PSA.users.map(u => (u.id === user.id ? user : u));
+            showRBACToast(`Role for ${psaEsc(user.name)} changed to ${newRole.toUpperCase()}.`, 'success');
+            renderUsersTable();
+          })
+          .catch(err => {
+            showRBACToast(psaEsc(err.message), 'danger');
+            renderUsersTable();
+          });
         return;
       }
 

@@ -29,7 +29,7 @@
       <div class="flex items-center gap-2 sm:gap-3">
         <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs text-gray-700 font-bold transition">&larr; Back to Gateways</a>
         <a href="dashboard-admin.html" class="hidden sm:inline-flex px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-xs text-orange-600 font-bold transition">Exit to Report</a>
-        <a href="login.html" onclick="localStorage.removeItem('psa_current_user');" class="px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-xs text-red-600 font-bold transition">Log Out</a>
+        <a href="login.html?logout=1" class="px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-xs text-red-600 font-bold transition">Log Out</a>
       </div>
     </div>
   </header>
@@ -47,7 +47,7 @@
       <p class="text-xs text-gray-500 mt-1">Update receiver account details, upload new QR graphics, and write instructions shown to buyers.</p>
     </div>
 
-    <form class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-6" onsubmit="event.preventDefault(); alert('Payment method updated successfully!'); window.location.href='admin-payment-methods.html';">
+    <form class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-6" onsubmit="saveMethod(event)">
       
       <!-- Method Name -->
       <div class="space-y-1.5">
@@ -57,7 +57,6 @@
           id="methodName"
           name="name"
           required
-          value="Bakong KHQR (National Standard)"
           placeholder="e.g. Bakong KHQR, ABA Pay"
           class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
         />
@@ -82,7 +81,6 @@
             type="text"
             id="accountNumber"
             name="account"
-            value="psaonline@acleda"
             placeholder="e.g. 001 928 374 or account handle"
             class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono"
           />
@@ -94,7 +92,7 @@
         <label class="text-xs font-bold text-gray-700 block">QR Code Graphic</label>
         <div class="flex items-center gap-4">
           <div class="w-24 h-24 rounded-lg border border-gray-200 bg-gray-50 p-1 flex-shrink-0 overflow-hidden shadow-xs">
-            <img id="qrPreviewImg" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=00020101021229370016bakong@nbc.gov.kh520459995802KH5917PSAONLINE+MARKET6010PHNOM+PENH6304ABCD" alt="QR Preview" class="w-full h-full object-contain" />
+            <img id="qrPreviewImg" src="" alt="QR Preview" class="w-full h-full object-contain" />
           </div>
           <div class="space-y-2 flex-1">
             <input type="file" id="qrFileInput" accept="image/*" class="text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer" onchange="previewQr(event)" />
@@ -110,14 +108,15 @@
           id="instructions"
           name="instructions"
           rows="3"
+          maxlength="255"
           class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-        >Open your Bakong app or any Cambodian mobile banking app, scan the KHQR code, and input the exact order number in the payment remark field. Upload your transfer screenshot to confirm delivery.</textarea>
+        ></textarea>
       </div>
 
       <!-- Status Toggle Checkbox -->
       <div class="pt-2">
         <label class="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" name="enabled" checked class="w-4 h-4 rounded text-orange-600 focus:ring-orange-500 border-gray-300" />
+          <input type="checkbox" id="methodEnabled" name="enabled" checked class="w-4 h-4 rounded text-orange-600 focus:ring-orange-500 border-gray-300" />
           <div>
             <span class="text-xs font-bold text-gray-900 block">Enable this payment method at checkout</span>
             <span class="text-[11px] text-gray-500">Uncheck to temporarily hide from customer checkout screens</span>
@@ -130,7 +129,8 @@
         <a href="admin-payment-methods.html" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:text-gray-900">
           Cancel
         </a>
-        <button type="submit" class="px-5 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-sm transition-all">
+        <span id="methodFormError" class="hidden text-xs font-bold text-red-600" role="alert"></span>
+        <button type="submit" id="methodSaveBtn" class="px-5 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-sm transition-all">
           Save Payment Method
         </button>
       </div>
@@ -139,17 +139,74 @@
 
   </main>
 
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/rbac.js"></script>
   <script>
-    function previewQr(event) {
+    const editingMethodId = new URLSearchParams(location.search).get('id');
+    let qrData = null;
+
+    function qrImageUrl(data) {
+      if (!data) return '';
+      if (/^(data:image\/|https?:\/\/)/.test(data)) return data;
+      return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data)}`;
+    }
+
+    async function previewQr(event) {
       const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          document.getElementById('qrPreviewImg').src = e.target.result;
-        }
-        reader.readAsDataURL(file);
+      if (!file) return;
+      try {
+        qrData = await psaImageToDataUrl(file, 600, 0.9);
+        document.getElementById('qrPreviewImg').src = qrData;
+      } catch (err) {
+        alert(err.message);
       }
     }
+
+    async function saveMethod(e) {
+      e.preventDefault();
+      const errorEl = document.getElementById('methodFormError');
+      const btn = document.getElementById('methodSaveBtn');
+      errorEl.classList.add('hidden');
+      const payload = {
+        name: document.getElementById('methodName').value.trim(),
+        type: document.getElementById('methodType').value,
+        accountNumber: document.getElementById('accountNumber').value.trim() || null,
+        description: document.getElementById('instructions').value.trim() || null,
+        qrData,
+        isActive: document.getElementById('methodEnabled').checked
+      };
+      btn.disabled = true;
+      try {
+        if (editingMethodId) {
+          await psaApi('PATCH', `/api/admin/payment-methods/${encodeURIComponent(editingMethodId)}`, payload);
+        } else {
+          await psaApi('POST', '/api/admin/payment-methods', payload);
+        }
+        window.location.replace('admin-payment-methods.html');
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove('hidden');
+        btn.disabled = false;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!enforcePageRBAC('canManagePaymentGateways')) return;
+      if (!editingMethodId) return;
+      const m = PSA.paymentMethods.find(x => String(x.id) === editingMethodId);
+      if (!m) {
+        alert('That payment method was not found.');
+        window.location.href = 'admin-payment-methods.html';
+        return;
+      }
+      document.getElementById('methodName').value = m.name;
+      document.getElementById('methodType').value = m.type || 'other';
+      document.getElementById('accountNumber').value = m.accountNumber || '';
+      document.getElementById('instructions').value = m.description || '';
+      document.getElementById('methodEnabled').checked = m.isActive;
+      qrData = m.qrData;
+      document.getElementById('qrPreviewImg').src = qrImageUrl(m.qrData);
+    });
   </script>
 
 </body>

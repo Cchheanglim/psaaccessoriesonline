@@ -120,15 +120,36 @@
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('order') || 'PSA-902184';
+
+    const liveOrder = PSA.online ? PSA.orders.find(o => o.id === orderId) : null;
+    if (liveOrder) {
+      urlParams.set('usd', liveOrder.totalUSD);
+      urlParams.set('khr', liveOrder.totalKHR);
+    }
     const totalUSD = urlParams.get('usd') || '18.50';
     const totalKHR = urlParams.get('khr') || '75,850';
-
     document.getElementById('orderIdTag').textContent = `Order #${orderId}`;
     document.getElementById('dueAmountUSD').textContent = `$${parseFloat(totalUSD).toFixed(2)}`;
     document.getElementById('dueAmountKHR').textContent = `${totalKHR} ៛`;
 
-    function submitSlip() {
-      // Mark as slip submitted in storage
+    async function submitSlip() {
+      if (PSA.online) {
+        const btn = document.querySelector('button[onclick="submitSlip()"]');
+        const file = document.getElementById('slipInput').files[0];
+        btn.disabled = true;
+        try {
+          const slip = file ? await psaImageToDataUrl(file, 1200) : null;
+          await psaApi('POST', `/api/orders/${encodeURIComponent(orderId)}/slip`, { slip });
+        } catch (err) {
+          alert(err.message);
+          btn.disabled = false;
+          return;
+        }
+        window.location.replace(`order-detail.html?order=${encodeURIComponent(orderId)}&status=submitted`);
+        return;
+      }
+
+      // Demo mode (no server): mark as slip submitted in this browser
       try {
         const orders = JSON.parse(localStorage.getItem('psa_orders') || '[]');
         const ord = orders.find(o => o.id === orderId);
