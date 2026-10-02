@@ -9,6 +9,10 @@ sed -i "s/<VirtualHost \*:[0-9]*>/<VirtualHost *:${PORT}>/" /etc/apache2/sites-a
 # Cache config and routes using the environment variables set in Render
 php artisan config:cache
 php artisan route:cache
+
+# Apply any new database changes (only migrations that haven't run yet). If one fails, the
+# deploy stops here and Render keeps the previous version online.
+php artisan migrate --force
 chown -R www-data:www-data storage bootstrap/cache
 
 exec apache2-foreground
