@@ -302,7 +302,7 @@ function updateRBACUI() {
   document.querySelectorAll('.rbac-current-name').forEach(el => el.textContent = user.name);
   document.querySelectorAll('.rbac-current-role').forEach(el => el.textContent = user.role);
   document.querySelectorAll('.rbac-current-email').forEach(el => el.textContent = user.email);
-  document.querySelectorAll('.rbac-current-avatar').forEach(el => el.textContent = user.avatar);
+  document.querySelectorAll('.rbac-current-avatar').forEach(el => psaFillAvatar(el, user));
 
   // Badge styling
   document.querySelectorAll('.rbac-role-badge').forEach(badge => {

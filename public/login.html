@@ -182,7 +182,12 @@
       const btn = document.getElementById('loginSubmitBtn');
       errorEl.classList.add('hidden');
 
-      // Demo mode (no server running): keep the old role-based preview login
+      if (!PSA.online && !psaIsLocalPreview()) {
+        errorEl.textContent = PSA_OFFLINE_MESSAGE;
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      // Demo mode (previewing without the server): keep the old role-based preview login
       if (!PSA.online) {
         const emailVal = loginVal.toLowerCase();
         const users = getRBACUsers();

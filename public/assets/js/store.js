@@ -54,6 +54,13 @@ async function psaApi(method, url, body) {
   return data;
 }
 
+// Demo mode (no server) is only for previewing pages on your own computer. On the real site a
+// failed connection must show an error, never a pretend login.
+function psaIsLocalPreview() {
+  return location.protocol === 'file:' || ['localhost', '127.0.0.1', '0.0.0.0'].includes(location.hostname);
+}
+const PSA_OFFLINE_MESSAGE = 'Could not reach the server. Check your connection and refresh the page, then try again.';
+
 async function psaLogout(redirectTo = 'login.html') {
   try { await psaApi('POST', '/api/auth/logout'); } catch (e) { /* already logged out */ }
   localStorage.removeItem('psa_current_user');
@@ -127,13 +134,28 @@ function psaAddHeaderBackButton() {
   logo.parentNode.insertBefore(btn, logo);
 }
 
-// The header avatar was hard-coded ("SC"): show the signed-in user's initials, or a sign-in icon for guests.
+// Put a user's profile photo into an avatar circle, or their initials when they have no photo.
+function psaFillAvatar(el, user) {
+  el.replaceChildren();
+  if (typeof user.avatarUrl === 'string' && user.avatarUrl.startsWith('data:image/')) {
+    const img = new Image();
+    img.src = user.avatarUrl;
+    img.alt = '';
+    img.className = 'w-full h-full object-cover rounded-full';
+    el.classList.add('overflow-hidden');
+    el.appendChild(img);
+  } else {
+    el.textContent = user.avatar || '?';
+  }
+}
+
+// The header avatar was hard-coded ("SC"): show the signed-in user's photo or initials, or a sign-in icon for guests.
 function psaUpdateHeaderAccount() {
   if (!PSA.online) return;
   document.querySelectorAll('header a[href="dashboard-buyer.html"] > div.rounded-full').forEach(avatar => {
     const link = avatar.parentElement;
     if (PSA.user) {
-      avatar.textContent = PSA.user.avatar || '?';
+      psaFillAvatar(avatar, PSA.user);
       if (PSA.user.role !== 'Buyer') link.href = 'dashboard-admin.html';
       link.setAttribute('aria-label', `My account (${PSA.user.name})`);
     } else {
