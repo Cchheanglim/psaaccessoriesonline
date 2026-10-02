@@ -108,25 +108,115 @@
 </section>
 
 <!-- Continuous Marquee Ticker -->
-<div class="bg-[#2B1D1D] text-[#F9F3EA] py-3.5 border-y border-[#3D2929] overflow-hidden select-none">
-    <div class="animate-marquee flex items-center gap-8 text-xs font-black uppercase tracking-widest">
-        <span class="flex items-center gap-2"><span class="text-[#FFA552]">✨</span> Y2K CYBER JEWELRY</span>
-        <span class="text-[#FFA552]">&bull;</span>
-        <span class="flex items-center gap-2"><span class="text-[#FFA552]">🕶️</span> 90s RETRO SHADES</span>
-        <span class="text-[#FFA552]">&bull;</span>
-        <span class="flex items-center gap-2"><span class="text-[#FFA552]">☁️</span> PUFFY CLOUD BAGS</span>
-        <span class="text-[#FFA552]">&bull;</span>
-        <span class="flex items-center gap-2"><span class="text-[#FFA552]">💖</span> HAND-STRUNG PHONE CHARMS</span>
-        <span class="text-[#FFA552]">&bull;</span>
-        <span class="flex items-center gap-2"><span class="text-[#FFA552]">⚡</span> BAKONG UNIVERSAL KHQR</span>
-        <span class="text-[#FFA552]">&bull;</span>
-        <span class="flex items-center gap-2"><span class="text-[#FFA552]">🍒</span> MATTE CLAW CLIPS</span>
+<div class="bg-[#2B1D1D] text-[#F9F3EA] py-3.5 border-y border-[#3D2929] overflow-hidden select-none w-full">
+    <div class="animate-marquee flex items-center text-[11px] sm:text-xs font-black uppercase tracking-widest">
+        <!-- Marquee Track 1 -->
+        <div class="flex items-center shrink-0 gap-6 sm:gap-8 pr-6 sm:pr-8">
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"/></svg>
+                </span>
+                <span>LIQUID CHROME 316L ARMOR <span class="text-[#FFA552] font-extrabold">— SWEAT &amp; WATERPROOF</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2 12h2m16 0h2M4 12a4 4 0 014-4h1a3 3 0 013 3v1a2 2 0 01-2 2H6a2 2 0 01-2-2v0zm10 0a3 3 0 013-3h1a4 4 0 014 4v0a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1zm-2-1h2"/></svg>
+                </span>
+                <span>UV400 VINTAGE TINTED OPTICS <span class="text-[#FFA552] font-extrabold">— BUILT FOR GOLDEN HOUR</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                </span>
+                <span>ULTRA-PLUSH CLOUD TOTES <span class="text-[#FFA552] font-extrabold">— WEIGHTLESS DAILY CARRY</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                </span>
+                <span>1-OF-1 ARTISAN TECH CHARMS <span class="text-[#FFA552] font-extrabold">— HAND-STRUNG IN PHNOM PENH</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </span>
+                <span>INSTANT BAKONG KHQR &amp; ABA PAY <span class="text-[#FFA552] font-extrabold">— 1-TAP SCAN CHECKOUT</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                </span>
+                <span>SMALL-BATCH STUDIO DROPS <span class="text-[#FFA552] font-extrabold">— VIRAL FITS UNDER $18</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+        </div>
+
+        <!-- Marquee Track 2 -->
+        <div class="flex items-center shrink-0 gap-6 sm:gap-8 pr-6 sm:pr-8" aria-hidden="true">
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l1.912 5.813a2 2 0 001.275 1.275L21 12l-5.813 1.912a2 2 0 00-1.275 1.275L12 21l-1.912-5.813a2 2 0 00-1.275-1.275L3 12l5.813-1.912a2 2 0 001.275-1.275L12 3z"/></svg>
+                </span>
+                <span>LIQUID CHROME 316L ARMOR <span class="text-[#FFA552] font-extrabold">— SWEAT &amp; WATERPROOF</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2 12h2m16 0h2M4 12a4 4 0 014-4h1a3 3 0 013 3v1a2 2 0 01-2 2H6a2 2 0 01-2-2v0zm10 0a3 3 0 013-3h1a4 4 0 014 4v0a2 2 0 01-2 2h-4a2 2 0 01-2-2v-1zm-2-1h2"/></svg>
+                </span>
+                <span>UV400 VINTAGE TINTED OPTICS <span class="text-[#FFA552] font-extrabold">— BUILT FOR GOLDEN HOUR</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                </span>
+                <span>ULTRA-PLUSH CLOUD TOTES <span class="text-[#FFA552] font-extrabold">— WEIGHTLESS DAILY CARRY</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                </span>
+                <span>1-OF-1 ARTISAN TECH CHARMS <span class="text-[#FFA552] font-extrabold">— HAND-STRUNG IN PHNOM PENH</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </span>
+                <span>INSTANT BAKONG KHQR &amp; ABA PAY <span class="text-[#FFA552] font-extrabold">— 1-TAP SCAN CHECKOUT</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+
+            <span class="inline-flex items-center gap-2.5 whitespace-nowrap">
+                <span class="w-6 h-6 rounded-full bg-[#FFA552]/15 border border-[#FFA552]/40 flex items-center justify-center text-[#FFA552] shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                </span>
+                <span>SMALL-BATCH STUDIO DROPS <span class="text-[#FFA552] font-extrabold">— VIRAL FITS UNDER $18</span></span>
+            </span>
+            <svg class="w-3 h-3 text-[#FFA552]/60 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+        </div>
     </div>
 </div>
 
 <!-- Category Drops Grid -->
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-    <div class="flex items-center justify-between gap-4 border-b border-[#EFE4D6] pb-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-[#EFE4D6] pb-4">
         <div>
             <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] tracking-tight">Explore the Drops</h2>
             <p class="text-xs text-stone-500 mt-0.5">Filter trendy pieces for your aesthetic.</p>
