@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Global web and API middleware configuration
         // Hosts like Render serve HTTPS through a proxy; trust it so links and cookies use https.
         $middleware->trustProxies(at: '*');
+
+        // The storefront's login page is public/login.html, not the old Blade /login route.
+        $middleware->redirectGuestsTo(fn () => '/login.html');
+        $middleware->alias(['staff' => \App\Http\Middleware\EnsureStaff::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         // Exception handler configuration

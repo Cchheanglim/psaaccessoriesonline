@@ -335,6 +335,9 @@
 
   <script src="assets/js/store.js"></script>
   <script>
+    // Ordering needs an account: guests go to the login page and come back here.
+    psaRequireLogin();
+
     let mapInstance = null;
     let markerInstance = null;
 

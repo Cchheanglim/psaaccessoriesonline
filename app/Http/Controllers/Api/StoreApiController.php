@@ -166,9 +166,12 @@ class StoreApiController extends Controller
 
     /**
      * Place an order. Prices and stock come from the database, never from the browser.
+     * Only signed-in accounts may order.
      */
     public function placeOrder(Request $request): JsonResponse
     {
+        $user = $this->requireUser($request);
+
         $data = $request->validate([
             'customerName' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:30'],
@@ -188,7 +191,7 @@ class StoreApiController extends Controller
             throw ValidationException::withMessages(['paymentMethod' => 'This payment method is currently turned off.']);
         }
 
-        $order = DB::transaction(function () use ($data, $code, $request) {
+        $order = DB::transaction(function () use ($data, $code, $user) {
             $subtotal = 0;
             $lines = [];
 
@@ -225,7 +228,7 @@ class StoreApiController extends Controller
 
             $order = Order::create([
                 'order_number' => $this->newOrderNumber(),
-                'user_id' => $request->user()?->id,
+                'user_id' => $user->id,
                 'customer_name' => $data['customerName'],
                 'customer_phone' => $data['phone'],
                 'delivery_address' => $data['address'],
@@ -248,10 +251,6 @@ class StoreApiController extends Controller
         });
 
         Storefront::forgetCatalog(); // stock changed
-
-        if (! $request->user()) {
-            $request->session()->push('guest_orders', $order->order_number);
-        }
 
         return response()->json(['order' => Storefront::order($order->load('items'))], 201);
     }

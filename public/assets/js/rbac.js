@@ -145,7 +145,11 @@ function getCurrentUser() {
   } catch (e) {
     // fallback
   }
-  // Default to Admin for testing admin portal
+  // With the real server running, nobody signed in means a guest, never a pretend Admin.
+  if (typeof PSA !== 'undefined' && PSA.online) {
+    return { id: 'guest', name: 'Guest', email: '', role: 'Guest', avatar: 'G', status: 'Active' };
+  }
+  // Offline demo mode only (no server): default to Admin for testing the admin portal
   const defaultAdmin = DEFAULT_USERS[0];
   localStorage.setItem('psa_current_user', JSON.stringify(defaultAdmin));
   return defaultAdmin;

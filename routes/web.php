@@ -32,6 +32,16 @@ use App\Http\Controllers\Api\AdminApiController;
 Route::get('/', fn () => response()->file(public_path('home.html')))->name('home');
 Route::redirect('/home', '/home.html');
 
+// Staff portal pages live in resources/portal/ (not public/), so the web server can't hand
+// them out directly; they are only sent to signed-in Staff and Admin accounts.
+Route::get('/{page}.html', fn (string $page) => response()->file(resource_path("portal/{$page}.html"), [
+    'Cache-Control' => 'no-store, private',
+]))->whereIn('page', [
+    'dashboard-admin', 'admin-orders', 'admin-products', 'admin-users', 'admin-payment-methods',
+    'order-detail--admin-payment-submitted', 'order-detail--staff-payment-submitted',
+    'payment-method-form', 'product-detail--staff', 'product-form', 'user-form',
+])->middleware('staff');
+
 // Legal pages
 Route::view('/privacy', 'legal.privacy')->name('privacy');
 Route::view('/terms', 'legal.terms')->name('terms');
@@ -77,20 +87,20 @@ Route::prefix('cart')->name('cart.')->group(function () {
 });
 
 // Checkout & Bakong KHQR
-Route::prefix('checkout')->name('checkout.')->group(function () {
+Route::prefix('checkout')->name('checkout.')->middleware('auth')->group(function () {
     Route::get('/', [CheckoutController::class, 'index'])->name('index');
     Route::post('/', [CheckoutController::class, 'store'])->name('store');
 });
 
 // Orders & Verification
-Route::prefix('orders')->name('orders.')->group(function () {
+Route::prefix('orders')->name('orders.')->middleware('auth')->group(function () {
     Route::get('/{id}', [OrderController::class, 'show'])->name('show');
     Route::get('/{id}/pending', [OrderController::class, 'pending'])->name('pending');
     Route::post('/{id}/slip', [OrderController::class, 'uploadSlip'])->name('upload-slip');
 });
 
 // Buyer Account & Profile
-Route::get('/dashboard', [BuyerDashboardController::class, 'index'])->name('buyer.dashboard');
+Route::get('/dashboard', [BuyerDashboardController::class, 'index'])->middleware('auth')->name('buyer.dashboard');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -103,7 +113,7 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Admin Operations Portal Routes
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard', [AdminDashboardController::class, 'index']);
 
