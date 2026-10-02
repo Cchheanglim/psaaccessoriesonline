@@ -11,12 +11,14 @@ class AdminUserController extends Controller
 {
     public function index()
     {
+        abort_unless(auth()->user()->isAdmin(), 403, 'Only an Admin can view users.');
         $users = User::latest()->paginate(15);
         return view('admin.users', compact('users'));
     }
 
     public function store(Request $request)
     {
+        abort_unless($request->user()->isAdmin(), 403, 'Only an Admin can create users.');
         $validated = $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users',

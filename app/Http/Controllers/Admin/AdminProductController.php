@@ -72,6 +72,7 @@ class AdminProductController extends Controller
 
     public function destroy($id)
     {
+        abort_unless(auth()->user()->isAdmin(), 403, 'Only an Admin can delete products.');
         $product = Product::findOrFail($id);
         $product->delete();
 

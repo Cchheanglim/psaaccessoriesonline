@@ -42,8 +42,8 @@
         <p class="text-xs text-stone-500 dark:text-stone-400">Sign in to track courier delivery and access exclusive drops.</p>
       </div>
 
-      <!-- Quick Demo Account Pills -->
-      <div class="p-4 bg-[#FDFBF7] dark:bg-[#15151B] rounded-2xl border border-[#EFE4D6] dark:border-[#2D2D38] space-y-2.5">
+      <!-- Quick Demo Account Pills (offline demo mode only; hidden when the real server is running) -->
+      <div id="demoAccountsPanel" class="p-4 bg-[#FDFBF7] dark:bg-[#15151B] rounded-2xl border border-[#EFE4D6] dark:border-[#2D2D38] space-y-2.5">
         <div class="flex items-center justify-between">
           <span class="text-[11px] font-black uppercase text-[#FFA552] tracking-wider flex items-center gap-1.5">
             <span>🛡️</span> Demo Accounts & RBAC Roles
@@ -106,8 +106,7 @@
             id="email"
             name="email"
             required
-            value="admin@psaonline.kh"
-            placeholder="e.g. admin@psaonline.kh"
+            placeholder="e.g. sophea@gmail.com or 012 345 678"
             class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#FFA552] focus:ring-1 focus:ring-[#FFA552] transition"
           />
         </div>
@@ -122,13 +121,15 @@
             id="password"
             name="password"
             required
-            value="admin1234"
             class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white placeholder-stone-400 focus:outline-none focus:border-[#FFA552] focus:ring-1 focus:ring-[#FFA552] transition font-mono"
           />
         </div>
 
+        <p id="loginError" class="hidden text-[11px] font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2" role="alert"></p>
+
         <button
           type="submit"
+          id="loginSubmitBtn"
           class="btn-press w-full py-3.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
         >
           <span>Sign In to PsaOnline</span>
@@ -162,34 +163,72 @@
       }
     }
 
-    function handleLogin(e) {
+    function goAfterLogin(user) {
+      const next = new URLSearchParams(location.search).get('next');
+      // only follow same-site relative links
+      if (next && /^[a-z0-9._-]+\.html(\?.*)?$/i.test(next)) {
+        window.location.replace(next);
+      } else if (user.role === 'Admin' || user.role === 'Staff') {
+        window.location.replace('dashboard-admin.html');
+      } else {
+        window.location.replace('dashboard-buyer.html');
+      }
+    }
+
+    async function handleLogin(e) {
       e.preventDefault();
-      const emailVal = document.getElementById('email')?.value.trim().toLowerCase();
-      const users = getRBACUsers();
-      
-      let matchedUser = users.find(u => u.email.toLowerCase() === emailVal);
-      if (!matchedUser) {
-        // Fallback matching by role keyword
-        if (emailVal.includes('admin') || emailVal.includes('sokha')) {
-          matchedUser = users.find(u => u.role === 'Admin') || users[0];
-        } else if (emailVal.includes('staff') || emailVal.includes('dispatch') || emailVal.includes('catalog')) {
-          matchedUser = users.find(u => u.role === 'Staff') || users[1];
-        } else {
-          matchedUser = users.find(u => u.role === 'Buyer') || users[3];
+      const loginVal = document.getElementById('email')?.value.trim();
+      const errorEl = document.getElementById('loginError');
+      const btn = document.getElementById('loginSubmitBtn');
+      errorEl.classList.add('hidden');
+
+      // Demo mode (no server running): keep the old role-based preview login
+      if (!PSA.online) {
+        const emailVal = loginVal.toLowerCase();
+        const users = getRBACUsers();
+        let matchedUser = users.find(u => u.email.toLowerCase() === emailVal);
+        if (!matchedUser) {
+          if (emailVal.includes('admin') || emailVal.includes('sokha')) {
+            matchedUser = users.find(u => u.role === 'Admin') || users[0];
+          } else if (emailVal.includes('staff') || emailVal.includes('dispatch') || emailVal.includes('catalog')) {
+            matchedUser = users.find(u => u.role === 'Staff') || users[1];
+          } else {
+            matchedUser = users.find(u => u.role === 'Buyer') || users[3];
+          }
         }
+        setCurrentUser(matchedUser);
+        showRBACToast(`Demo mode: signed in as ${matchedUser.name} (${matchedUser.role})`, 'success');
+        setTimeout(() => goAfterLogin(matchedUser), 300);
+        return;
       }
 
-      setCurrentUser(matchedUser);
-      showRBACToast(`Authenticated as ${matchedUser.name} (${matchedUser.role})`, 'success');
-
-      setTimeout(() => {
-        if (matchedUser.role === 'Admin' || matchedUser.role === 'Staff') {
-          window.location.href = 'dashboard-admin.html';
-        } else {
-          window.location.href = 'dashboard-buyer.html';
-        }
-      }, 300);
+      btn.disabled = true;
+      try {
+        const { user } = await psaApi('POST', '/api/auth/login', {
+          login: loginVal,
+          password: document.getElementById('password').value
+        });
+        showRBACToast(`Welcome back, ${user.name}!`, 'success');
+        setTimeout(() => goAfterLogin(user), 300);
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove('hidden');
+        btn.disabled = false;
+      }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Pages without the store script link to login.html?logout=1 to sign out.
+      if (new URLSearchParams(location.search).has('logout')) {
+        psaLogout('login.html');
+        return;
+      }
+      if (PSA.online) {
+        document.getElementById('demoAccountsPanel')?.remove();
+        // Already signed in? Skip the form.
+        if (PSA.user) goAfterLogin(PSA.user);
+      }
+    });
   </script>
 </body>
 </html>

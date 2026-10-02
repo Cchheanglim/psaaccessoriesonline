@@ -458,6 +458,19 @@
       }
       try {
         const dataUrl = await toAvatarDataUrl(file);
+        if (PSA.online) {
+          // Live mode: save the photo to the account in the database
+          try {
+            const { user } = await psaApi('PATCH', '/api/me', { photo: dataUrl });
+            PSA.user = user;
+            localStorage.setItem('psa_current_user', JSON.stringify(user));
+            renderProfile();
+            notify('Profile photo updated.');
+          } catch (err) {
+            notify(err.message);
+          }
+          return;
+        }
         if (saveAvatar(dataUrl)) {
           renderProfile();
           notify('Profile photo updated.');

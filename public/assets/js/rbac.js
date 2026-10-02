@@ -117,7 +117,11 @@ const DEFAULT_USERS = [
   }
 ];
 
+const RBAC_GUEST = { id: null, name: 'Guest', email: '', role: 'Buyer', avatar: 'G', status: 'Active', guest: true };
+
 function getRBACUsers() {
+  // Live mode: the server only sends the user list to admins.
+  if (PSA.online) return PSA.users;
   try {
     const saved = localStorage.getItem('psa_rbac_users');
     if (saved) {
@@ -136,6 +140,8 @@ function saveRBACUsers(users) {
 }
 
 function getCurrentUser() {
+  // Live mode: who you are comes from your login session, not from the browser.
+  if (PSA.online) return PSA.user || RBAC_GUEST;
   try {
     const saved = localStorage.getItem('psa_current_user');
     if (saved) {
@@ -145,7 +151,7 @@ function getCurrentUser() {
   } catch (e) {
     // fallback
   }
-  // Default to Admin for testing admin portal
+  // Demo mode (no server): default to Admin so the admin portal can be previewed
   const defaultAdmin = DEFAULT_USERS[0];
   localStorage.setItem('psa_current_user', JSON.stringify(defaultAdmin));
   return defaultAdmin;
@@ -157,6 +163,12 @@ function setCurrentUser(user) {
 }
 
 function switchUserRole(newRole) {
+  // Live mode: roles are real, so "switching" means signing in with another account.
+  if (PSA.online) {
+    showRBACToast(`Sign in with a ${newRole} account to continue.`, 'info');
+    setTimeout(() => psaLogout(`login.html?next=${encodeURIComponent(psaCurrentPage())}`), 600);
+    return;
+  }
   const users = getRBACUsers();
   let targetUser = users.find(u => u.role === newRole);
   if (!targetUser) {
@@ -221,6 +233,9 @@ function showRBACToast(msg, type = 'info') {
 
 function enforcePageRBAC(requiredPermission = 'canAccessAdminPortal') {
   const user = getCurrentUser();
+  if (PSA.online && user.guest) {
+    return psaRequireLogin();
+  }
   const allowed = hasPermission(requiredPermission);
 
   if (!allowed) {
@@ -470,7 +485,12 @@ function closeAllRbacDropdowns() {
 }
 
 function logoutSession() {
-  localStorage.removeItem(RBAC_USER_KEY);
+  // Live mode: end the server session too, not just the browser copy.
+  if (PSA.online) {
+    psaLogout('login.html');
+    return;
+  }
+  localStorage.removeItem('psa_current_user');
   showRBACToast('Signed out of session. Redirecting to login...', 'info');
   setTimeout(() => {
     window.location.href = 'login.html';

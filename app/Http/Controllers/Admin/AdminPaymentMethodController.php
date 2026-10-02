@@ -16,6 +16,7 @@ class AdminPaymentMethodController extends Controller
 
     public function toggle($id)
     {
+        abort_unless(auth()->user()->isAdmin(), 403, 'Only an Admin can change payment methods.');
         $method = PaymentMethod::findOrFail($id);
         $method->update(['is_active' => !$method->is_active]);
 

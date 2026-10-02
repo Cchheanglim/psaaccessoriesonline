@@ -12,7 +12,7 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        $order = Order::with('items')->findOrFail($id);
+        $order = $this->ownOrder($id);
         return view('orders.show', compact('order'));
     }
 
@@ -21,7 +21,7 @@ class OrderController extends Controller
      */
     public function pending($id)
     {
-        $order = Order::with('items')->findOrFail($id);
+        $order = $this->ownOrder($id);
         return view('orders.pending', compact('order'));
     }
 
@@ -30,7 +30,7 @@ class OrderController extends Controller
      */
     public function uploadSlip(Request $request, $id)
     {
-        $order = Order::findOrFail($id);
+        $order = $this->ownOrder($id);
 
         $request->validate([
             'payment_slip' => 'required|image|max:5120',
@@ -45,5 +45,17 @@ class OrderController extends Controller
         }
 
         return redirect()->route('orders.show', $order->id)->with('success', 'Payment slip submitted! Admin is verifying.');
+    }
+
+    /**
+     * Buyers may only open their own orders; staff may open any.
+     */
+    private function ownOrder($id): Order
+    {
+        $order = Order::with('items')->findOrFail($id);
+        $user = auth()->user();
+        abort_unless($user->isStaff() || $order->user_id === $user->id, 403, 'This is not your order.');
+
+        return $order;
     }
 }

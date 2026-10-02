@@ -33,6 +33,8 @@ export default defineConfig({
     // Send API calls to Laravel (`php artisan serve`) so this dev server shows the same live data.
     proxy: {
       '/api': 'http://127.0.0.1:8000',
+      // Staff portal pages live in resources/portal/ and are only served by Laravel (after a login check).
+      '^/(dashboard-admin|admin-[a-z-]+|order-detail--(admin|staff)-[a-z-]+|payment-method-form|product-detail--staff|product-form|user-form)\\.html': 'http://127.0.0.1:8000',
     },
   },
   build: {
