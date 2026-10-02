@@ -7,7 +7,45 @@
   <meta name="description" content="View your order receipt, live courier dispatch tracker, and delivery status on PsaOnline." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="assets/css/mobile.css" />
+  <style>
+    .print-invoice-table th,
+    .print-invoice-table td {
+      border: 1px solid #d6d3d1;
+      padding: 6px 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .print-invoice-table thead th {
+      background-color: #f5f5f4 !important;
+      color: #1c1917 !important;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+    }
+    @media print {
+      header,
+      #webOrderReceiptMain,
+      #receiptPrintToolbar,
+      .no-print {
+        display: none !important;
+      }
+      #receiptPrintModal {
+        display: block !important;
+        position: static !important;
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      #printableCustomerInvoice {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+    }
+  </style>
 </head>
 <body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
@@ -19,19 +57,19 @@
         <span class="text-lg sm:text-xl font-black text-[#2B1D1D]">Psa<span class="text-[#FFA552]">Online</span></span>
       </a>
 
-      <div class="flex items-center gap-3 text-xs">
+      <div class="flex items-center gap-2 sm:gap-3 text-xs">
         <a href="dashboard-buyer.html" class="px-3.5 py-1.5 rounded-full border border-[#EFE4D6] bg-white hover:bg-[#F9F3EA] font-bold text-[#2B1D1D] transition">
-          My Orders &rarr;
+          &larr; Back to My Orders
         </a>
-        <a href="products.html" class="btn-press hidden sm:inline-flex px-4 py-1.5 rounded-full bg-[#FFA552] text-white font-black transition">
-          Shop More
+        <a href="home.html" class="btn-press px-4 py-1.5 rounded-full bg-[#FFA552] text-white font-black transition">
+          Exit to Store
         </a>
       </div>
     </div>
   </header>
 
   <!-- Main Order Detail Receipt Container -->
-  <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
+  <main id="webOrderReceiptMain" class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
     
     <!-- Top Order Info & Status Card -->
     <div class="reveal-init bg-white p-6 sm:p-8 rounded-3xl border border-[#EFE4D6] shadow-sm space-y-6">
@@ -50,7 +88,7 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <button onclick="window.print()" class="px-3.5 py-2 rounded-xl bg-[#FDFBF7] hover:bg-[#F9F3EA] border border-[#EFE4D6] text-xs font-bold text-[#2B1D1D] transition flex items-center gap-1.5">
+          <button type="button" onclick="openReceiptPrintPreview()" class="px-3.5 py-2 rounded-xl bg-[#FDFBF7] hover:bg-[#F9F3EA] border border-[#EFE4D6] text-xs font-bold text-[#2B1D1D] transition flex items-center gap-1.5 cursor-pointer">
             <svg class="w-4 h-4 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
             <span>Print Receipt</span>
           </button>
@@ -222,6 +260,122 @@
 
   </main>
 
+  <!-- Official Printable Customer Tax Invoice & Delivery Receipt -->
+  <div id="receiptPrintModal" class="hidden fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-xs overflow-y-auto py-6 px-3 sm:px-6">
+    <div id="receiptPrintToolbar" class="no-print max-w-[190mm] mx-auto mb-4 bg-[#2B1D1D] text-white rounded-xl px-4 py-3 shadow-xl border border-stone-700 flex items-center justify-between gap-3 sticky top-2 z-50">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="closeReceiptPrintPreview()" class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-white text-xs font-bold flex items-center gap-1.5 border border-stone-600 transition cursor-pointer">
+          <span>&larr; Back to Order</span>
+        </button>
+        <span class="text-xs font-bold text-stone-200 hidden sm:inline">Official Customer Tax Invoice &amp; Delivery Receipt</span>
+      </div>
+      <button type="button" onclick="window.print()" class="px-4 py-1.5 rounded-lg bg-[#FFA552] hover:bg-[#E88C35] text-[#2B1D1D] text-xs font-black flex items-center gap-1.5 transition cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+        <span>Print / Save PDF</span>
+      </button>
+    </div>
+
+    <div id="printableCustomerInvoice" class="max-w-[190mm] mx-auto bg-white text-stone-900 rounded-none sm:rounded-lg shadow-2xl border border-stone-300 p-6 sm:p-8 space-y-5 text-xs leading-snug">
+      <div class="border-b-2 border-stone-900 pb-4 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-[#2B1D1D] text-white font-black text-lg flex items-center justify-center shrink-0">P</div>
+          <div>
+            <div class="text-base font-black uppercase text-stone-900">PsaOnline Accessories Studio Co., Ltd.</div>
+            <div class="text-[11px] text-stone-600">No. 24, Street 240, Sangkat Chaktomuk, Khan Daun Penh, Phnom Penh</div>
+            <div class="text-[10px] text-stone-500 font-mono mt-0.5">VAT TIN: K004-90218402 &bull; Support: +855 12 889 104</div>
+          </div>
+        </div>
+        <div class="sm:text-right">
+          <div class="inline-block px-2.5 py-0.5 bg-stone-900 text-white font-black text-[10px] uppercase tracking-widest">Official Customer Receipt</div>
+          <div class="text-sm font-black text-stone-900 mt-1" id="printInvOrderId">Order #PSA-889104</div>
+          <div class="text-[10.5px] text-stone-600 font-mono">Date: September 30, 2026 &bull; Rate: 1 USD = 4,100 ៛</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 border border-stone-300 rounded p-3.5 bg-stone-50/70 text-[11px]">
+        <div class="space-y-1">
+          <div class="text-[9.5px] font-black uppercase text-stone-500 tracking-wider">Billed &amp; Dispatched To</div>
+          <div class="font-bold text-stone-900 text-xs">Sophea Chhum</div>
+          <div class="text-stone-700">Tel / Telegram: +855 96 554 1234</div>
+          <div class="text-stone-700">Address: Toul Kork, St 315, House #14, Phnom Penh</div>
+        </div>
+        <div class="space-y-1 border-l border-stone-300 pl-4">
+          <div class="text-[9.5px] font-black uppercase text-stone-500 tracking-wider">Payment &amp; Settlement Details</div>
+          <div class="font-bold text-stone-900" id="printInvGateway">Bakong Universal KHQR (Verified)</div>
+          <div class="text-emerald-700 font-bold" id="printInvStatus">Payment Confirmed &bull; Packed for Delivery</div>
+          <div class="text-stone-600 font-mono text-[10px]">Courier: GrabExpress / Studio Direct (2-Hr SLA)</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Itemized Accessories Schedule</div>
+        <table class="w-full text-left border-collapse print-invoice-table text-[11px]">
+          <thead>
+            <tr>
+              <th class="w-10 text-center">#</th>
+              <th>Item Description</th>
+              <th>Category</th>
+              <th class="text-center">Qty</th>
+              <th class="text-right">Unit Price</th>
+              <th class="text-right">Line Total (USD)</th>
+              <th class="text-right">Line Total (KHR)</th>
+            </tr>
+          </thead>
+          <tbody id="printInvItemsBody">
+            <tr>
+              <td class="text-center font-bold">1</td>
+              <td class="font-bold text-stone-900">Silver Chrome Star Pendant Necklace</td>
+              <td>Y2K Jewelry</td>
+              <td class="text-center font-bold">1</td>
+              <td class="text-right">$6.50</td>
+              <td class="text-right font-bold">$6.50</td>
+              <td class="text-right font-mono">26,650 ៛</td>
+            </tr>
+            <tr>
+              <td class="text-center font-bold">2</td>
+              <td class="font-bold text-stone-900">Puffy Cloud Quilted Nylon Shoulder Bag</td>
+              <td>Cloud Bags</td>
+              <td class="text-center font-bold">1</td>
+              <td class="text-right">$12.00</td>
+              <td class="text-right font-bold">$12.00</td>
+              <td class="text-right font-mono">49,200 ៛</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5" class="text-right font-semibold text-stone-600">Merchandise Subtotal</td>
+              <td class="text-right font-bold text-stone-900" id="printInvSubUSD">$18.50</td>
+              <td class="text-right font-mono text-stone-700" id="printInvSubKHR">75,850 ៛</td>
+            </tr>
+            <tr>
+              <td colspan="5" class="text-right font-semibold text-stone-600">Phnom Penh Express Courier</td>
+              <td colspan="2" class="text-right font-bold text-emerald-700" id="printInvDeliv">FREE (Promotion)</td>
+            </tr>
+            <tr class="bg-stone-100">
+              <td colspan="5" class="text-right font-black text-stone-900 uppercase">Total Settled Amount</td>
+              <td class="text-right font-black text-stone-900 text-sm underline decoration-double" id="printInvTotUSD">$18.50</td>
+              <td class="text-right font-mono font-black text-stone-900 underline decoration-double" id="printInvTotKHR">75,850 ៛</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="pt-4 border-t border-stone-300 grid grid-cols-2 gap-6 text-[10.5px]">
+        <div>
+          <div class="font-bold text-stone-800">Return &amp; Authenticity Guarantee</div>
+          <p class="text-stone-500 mt-0.5">All PsaOnline studio items include a 7-day exchange guarantee for manufacturing defects upon presentation of this receipt.</p>
+        </div>
+        <div class="border border-stone-300 rounded p-2.5 flex flex-col justify-between">
+          <div class="font-bold text-stone-700 text-[10px] uppercase">Customer / Courier Handover Confirmation</div>
+          <div class="border-t border-dashed border-stone-400 mt-5 pt-1 flex justify-between text-[9.5px] text-stone-500 font-mono">
+            <span>Received in Good Condition</span>
+            <span>Time: ____:____</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="assets/js/store.js"></script>
   <script>
     (() => {
@@ -281,7 +435,51 @@
         document.getElementById('paymentStepStatus').textContent = 'Simulation only';
         document.getElementById('receiptTotalLabel').textContent = 'Total (USD):';
       }
+
+      // Sync Printable Customer Invoice
+      if (order) {
+        document.getElementById('printInvOrderId').textContent = `Order #${order.id}`;
+        document.getElementById('printInvGateway').textContent = isDemoApproval ? `${order.paymentMethod} (Demo)` : order.paymentMethod;
+        document.getElementById('printInvSubUSD').textContent = `$${Number(order.subtotalUSD ?? order.totalUSD).toFixed(2)}`;
+        document.getElementById('printInvSubKHR').textContent = `${Math.round(Number(order.subtotalUSD ?? order.totalUSD) * 4100).toLocaleString()} ៛`;
+        document.getElementById('printInvTotUSD').textContent = `$${Number(order.totalUSD).toFixed(2)}`;
+        document.getElementById('printInvTotKHR').textContent = `${order.totalKHR} ៛`;
+        const printBody = document.getElementById('printInvItemsBody');
+        if (printBody && Array.isArray(order.items) && order.items.length) {
+          printBody.innerHTML = order.items.map((it, idx) => {
+            const lineUSD = Number(it.priceUSD) * Number(it.quantity);
+            const lineKHR = Math.round(lineUSD * 4100);
+            return `
+              <tr>
+                <td class="text-center font-bold">${idx + 1}</td>
+                <td class="font-bold text-stone-900">${it.title || 'Accessory'}</td>
+                <td>${it.categoryLabel || 'Studio Drop'}</td>
+                <td class="text-center font-bold">${it.quantity}</td>
+                <td class="text-right">$${Number(it.priceUSD).toFixed(2)}</td>
+                <td class="text-right font-bold">$${lineUSD.toFixed(2)}</td>
+                <td class="text-right font-mono">${lineKHR.toLocaleString()} ៛</td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
     })();
+
+    function openReceiptPrintPreview() {
+      const modal = document.getElementById('receiptPrintModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeReceiptPrintPreview() {
+      const modal = document.getElementById('receiptPrintModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    }
   </script>
 </body>
 </html>

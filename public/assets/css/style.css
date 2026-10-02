@@ -514,3 +514,63 @@ html.dark #psaQuickViewModal .text-\[\#4A3333\] {
     padding-bottom: 0;
   }
 }
+
+/* ==========================================================================
+   GLOBAL PRINT RESET (CRISP WHITE PAPER, ZERO DARK MODE BLEED, FULL OPACITY)
+   ========================================================================== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm;
+  }
+
+  html,
+  body,
+  html.dark,
+  html.dark body {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #111827 !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html.dark .bg-white,
+  html.dark .bg-\[\#FDFBF7\],
+  html.dark .bg-\[\#F9F3EA\] {
+    background-color: #ffffff !important;
+    color: #111827 !important;
+  }
+
+  html.dark .text-\[\#2B1D1D\],
+  html.dark .text-\[\#4A3333\],
+  html.dark .text-stone-600,
+  html.dark .text-stone-500 {
+    color: #111827 !important;
+  }
+
+  html.dark .border-\[\#EFE4D6\],
+  html.dark .border-\[\#F9F3EA\] {
+    border-color: #d1d5db !important;
+  }
+
+  .reveal-init {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  header,
+  footer,
+  nav,
+  #mobileAdminNav,
+  .no-print {
+    display: none !important;
+  }
+}
+

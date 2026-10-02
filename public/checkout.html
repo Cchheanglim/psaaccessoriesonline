@@ -33,7 +33,6 @@
     .checkout-dark .checkout-panel input:focus { outline: 2px solid rgba(245, 158, 11, .35) !important; border-color: #f59e0b !important; }
     @media (max-width: 640px) { .payment-dialog-card { padding: 18px; } }
   </style>
-  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="checkout-dark bg-[#0f1117] text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-white pb-mobile-nav">
 
@@ -48,7 +47,14 @@
         />
         <span class="text-lg sm:text-xl font-black text-[#2B1D1D] dark:text-white">Psa<span class="text-[#FFA552]">Online</span></span>
       </a>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a href="cart.html" class="px-3 py-1.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white text-xs font-bold flex items-center gap-1.5 transition">
+          <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span>Back to Bag</span>
+        </a>
+        <a href="home.html" class="hidden sm:inline-flex px-3 py-1.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white text-xs font-bold items-center gap-1 transition">
+          <span>Exit to Store</span>
+        </a>
         <!-- Dark / Light Theme Toggle Button -->
         <button 
           type="button" 
@@ -60,9 +66,9 @@
           <svg class="w-4 h-4 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
           <span class="hidden sm:inline font-bold">Dark</span>
         </button>
-        <div class="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1.5 font-semibold">
+        <div class="text-xs text-stone-500 dark:text-stone-400 hidden md:flex items-center gap-1.5 font-semibold">
           <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-          <span class="hidden sm:inline">Secure 256-Bit SSL Checkout</span>
+          <span>Secure 256-Bit SSL Checkout</span>
         </div>
       </div>
     </div>
@@ -72,7 +78,7 @@
   <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 flex-1 w-full space-y-8">
 
     <div class="reveal-init border-b border-[#EFE4D6] pb-4">
-      <h1 class="text-2xl sm:text-3xl font-black text-white tracking-tight">Express Checkout</h1>
+      <h1 class="text-2xl sm:text-3xl font-black text-[#2B1D1D] tracking-tight">Express Checkout</h1>
       <p class="text-xs text-stone-500 mt-1">Confirm your delivery location in Phnom Penh and choose your preferred payment gateway.</p>
     </div>
 
@@ -387,11 +393,6 @@
       const cart = getCart();
       const listEl = document.getElementById('checkoutItemsList');
 
-      // Live mode: nothing to check out, go back to the (empty) bag
-      if (cart.length === 0 && PSA.online) {
-        window.location.replace('cart.html');
-        return;
-      }
       if (cart.length === 0) {
         cart.push({
           id: 'genz-01',
@@ -441,32 +442,8 @@
       return { cart, subtotalUsd: subtotal.toFixed(2), deliveryUsd: delivery.toFixed(2), totalUsd, totalKhr: Math.round(Number(totalUsd) * EXCHANGE_RATE).toLocaleString() };
     }
 
-    // Live mode: the order is created in the database (prices and stock are checked by the server).
-    // Demo mode (no server): it is kept in this browser only, as before.
-    async function saveCheckoutOrder(paymentMethod, status = 'Payment Pending') {
+    function saveCheckoutOrder(paymentMethod, status = 'Payment Pending') {
       const { cart, subtotalUsd, deliveryUsd, totalUsd, totalKhr } = getCheckoutAmounts();
-
-      if (PSA.online) {
-        const pos = markerInstance ? markerInstance.getLatLng() : null;
-        const { order } = await psaApi('POST', '/api/orders', {
-          customerName: document.getElementById('shipping_name').value.trim(),
-          phone: document.getElementById('shipping_phone').value.trim(),
-          address: document.getElementById('shipping_address').value.trim(),
-          notes: document.getElementById('shipping_notes').value.trim(),
-          latitude: pos ? pos.lat : null,
-          longitude: pos ? pos.lng : null,
-          paymentMethod,
-          items: cart.map(i => ({ id: i.id, quantity: i.quantity }))
-        });
-        try {
-          const orders = JSON.parse(localStorage.getItem('psa_orders') || '[]');
-          orders.unshift(order);
-          localStorage.setItem('psa_orders', JSON.stringify(orders));
-        } catch (err) {}
-        localStorage.removeItem('psa_cart');
-        return { ...order, cart };
-      }
-
       const orderId = 'PSA-' + Math.floor(100000 + Math.random() * 900000);
       const paymentLabels = { khqr: 'Bakong Universal KHQR', aba: 'ABA Mobile Pay', acleda: 'ACLEDA Mobile KHQR', visa: 'Visa / Mastercard', cod: 'Cash on Delivery' };
       const order = {
@@ -492,7 +469,7 @@
       return { ...order, cart };
     }
 
-    async function handlePlaceOrder(e) {
+    function handlePlaceOrder(e) {
       e.preventDefault();
       const method = document.querySelector('input[name="payment_method"]:checked').value;
       if (method === 'visa') {
@@ -508,22 +485,12 @@
         return;
       }
 
-      const btn = document.getElementById('placeOrderBtn');
-      btn.disabled = true;
-      let order;
-      try {
-        order = await saveCheckoutOrder(method);
-      } catch (err) {
-        alert(err.message);
-        btn.disabled = false;
-        return;
-      }
+      const order = saveCheckoutOrder(method);
       if (method === 'acleda') {
         openAcledaPayment(order);
-        btn.disabled = false;
         return;
       }
-      window.location.replace(`order-detail--buyer-pending.html?order=${encodeURIComponent(order.id)}&usd=${order.totalUSD}&khr=${encodeURIComponent(order.totalKHR)}&method=${method}`);
+      window.location.href = `order-detail--buyer-pending.html?order=${order.id}&usd=${order.totalUSD}&khr=${encodeURIComponent(order.totalKHR)}&method=${method}`;
     }
 
     function validateDemoCard() {
@@ -624,9 +591,6 @@
       document.getElementById('acledaVerifyStatus').className = 'text-emerald-300';
       document.getElementById('simulateAcledaPaid').hidden = true;
       updateSavedOrderStatus(activeAcledaOrderId, 'Paid (demo)');
-      if (PSA.online) {
-        psaApi('POST', `/api/orders/${encodeURIComponent(activeAcledaOrderId)}/demo-paid`).catch(err => alert(err.message));
-      }
     }
 
     function updateSavedOrderStatus(orderId, status) {
@@ -640,21 +604,12 @@
       } catch (err) {}
     }
 
-    async function approveVisaDemo() {
+    function approveVisaDemo() {
       if (document.getElementById('visaOtpInput').value !== '123456') {
         document.getElementById('visaOtpError').textContent = 'That code did not match. Use the demo OTP shown above.';
         return;
       }
-      let order;
-      try {
-        order = await saveCheckoutOrder('visa', 'Paid (demo)');
-        if (PSA.online) {
-          order = { ...order, ...(await psaApi('POST', `/api/orders/${encodeURIComponent(order.id)}/demo-paid`)).order };
-        }
-      } catch (err) {
-        document.getElementById('visaOtpError').textContent = err.message;
-        return;
-      }
+      const order = saveCheckoutOrder('visa', 'Paid (demo)');
       updateSavedOrderStatus(order.id, 'Paid (demo)');
       const dialogCard = document.querySelector('#visaOtpDialog .payment-dialog-card');
       dialogCard.innerHTML = `<div class="space-y-4 text-center"><div class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-950 text-emerald-300 text-xl">✓</div><p class="text-[10px] font-bold uppercase text-emerald-300">Demo transaction approved</p><h2 class="text-lg font-black">Order ${order.id}</h2><p class="text-sm text-slate-300">Visa / Mastercard • $${Number(order.totalUSD).toFixed(2)} (${order.totalKHR} KHR)</p><p class="text-[11px] text-slate-400">No charge was made. This is a simulated 3D Secure result.</p><button type="button" onclick="window.location.href='order-detail.html?order=${order.id}&status=demo-approved&method=visa'" class="w-full rounded-xl bg-amber-500 px-4 py-3 text-xs font-black text-slate-950">View order</button></div>`;
@@ -665,36 +620,10 @@
       if (id === 'acledaPaymentDialog') clearInterval(acledaTimer);
     }
 
-    // Hide payment options an admin has turned off, and pre-fill the signed-in buyer's details.
-    function applyLiveCheckoutSettings() {
-      if (!PSA.online) return;
-      const codes = { khqr: 'bakong_khqr', aba: 'aba_pay', acleda: 'acleda_khqr', visa: 'visa_card', cod: 'cod' };
-      document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-        const method = PSA.paymentMethods.find(m => m.code === codes[radio.value]);
-        if (method && !method.isActive) {
-          radio.closest('label').remove();
-        }
-      });
-      const first = document.querySelector('input[name="payment_method"]:checked') || document.querySelector('input[name="payment_method"]');
-      if (first) {
-        first.checked = true;
-        updatePaymentSelect(first);
-      }
-      if (PSA.user) {
-        const name = document.getElementById('shipping_name');
-        const phone = document.getElementById('shipping_phone');
-        const address = document.getElementById('shipping_address');
-        if (PSA.user.name) name.value = PSA.user.name;
-        if (PSA.user.phone) phone.value = PSA.user.phone;
-        if (PSA.user.address) address.value = PSA.user.address;
-      }
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
       initLeafletMap();
       updateCheckoutSummary();
       wireCardInputs();
-      applyLiveCheckoutSettings();
     });
   </script>
 </body>

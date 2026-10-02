@@ -7,7 +7,6 @@
   <meta name="description" content="Admin order payment slip verification for PsaOnline." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
@@ -24,10 +23,16 @@
         </div>
       </a>
 
-      <div class="flex items-center gap-3 text-xs">
+      <div class="flex items-center gap-2 sm:gap-3 text-xs">
         <a href="admin-orders.html" class="px-3.5 py-1.5 rounded-full bg-white hover:bg-[#F9F3EA] border border-[#EFE4D6] text-[#2B1D1D] font-bold transition flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-          <span>All Orders</span>
+          <span>Back to Orders</span>
+        </a>
+        <a href="dashboard-admin.html" class="hidden sm:inline-flex px-3.5 py-1.5 rounded-full bg-white hover:bg-[#F9F3EA] border border-[#EFE4D6] text-[#FFA552] font-bold transition">
+          Exit to Report
+        </a>
+        <a href="login.html" onclick="localStorage.removeItem('psa_current_user');" class="px-3 py-1.5 rounded-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold transition">
+          Log Out
         </a>
       </div>
     </div>

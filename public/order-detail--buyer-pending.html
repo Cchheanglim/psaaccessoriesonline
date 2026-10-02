@@ -7,7 +7,6 @@
   <meta name="description" content="Complete your Gen-Z accessories order via Bakong Universal KHQR or ABA Mobile." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
@@ -24,9 +23,12 @@
         </div>
       </a>
 
-      <div class="flex items-center gap-3 text-xs">
-        <a href="dashboard-buyer.html" class="px-3.5 py-1.5 rounded-full border border-[#EFE4D6] bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] font-bold transition">
-          My Orders &rarr;
+      <div class="flex items-center gap-2 sm:gap-3 text-xs">
+        <a href="dashboard-buyer.html" class="px-3.5 py-1.5 rounded-full border border-[#EFE4D6] bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] font-bold transition flex items-center gap-1.5">
+          <span>&larr; Back to My Orders</span>
+        </a>
+        <a href="home.html" class="px-3.5 py-1.5 rounded-full bg-[#FFA552] hover:bg-[#E88C35] text-white font-bold transition">
+          Exit to Store
         </a>
       </div>
     </div>
@@ -118,36 +120,15 @@
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('order') || 'PSA-902184';
-
-    const liveOrder = PSA.online ? PSA.orders.find(o => o.id === orderId) : null;
-    if (liveOrder) {
-      urlParams.set('usd', liveOrder.totalUSD);
-      urlParams.set('khr', liveOrder.totalKHR);
-    }
     const totalUSD = urlParams.get('usd') || '18.50';
     const totalKHR = urlParams.get('khr') || '75,850';
+
     document.getElementById('orderIdTag').textContent = `Order #${orderId}`;
     document.getElementById('dueAmountUSD').textContent = `$${parseFloat(totalUSD).toFixed(2)}`;
     document.getElementById('dueAmountKHR').textContent = `${totalKHR} ៛`;
 
-    async function submitSlip() {
-      if (PSA.online) {
-        const btn = document.querySelector('button[onclick="submitSlip()"]');
-        const file = document.getElementById('slipInput').files[0];
-        btn.disabled = true;
-        try {
-          const slip = file ? await psaImageToDataUrl(file, 1200) : null;
-          await psaApi('POST', `/api/orders/${encodeURIComponent(orderId)}/slip`, { slip });
-        } catch (err) {
-          alert(err.message);
-          btn.disabled = false;
-          return;
-        }
-        window.location.replace(`order-detail.html?order=${encodeURIComponent(orderId)}&status=submitted`);
-        return;
-      }
-
-      // Demo mode (no server): mark as slip submitted in this browser
+    function submitSlip() {
+      // Mark as slip submitted in storage
       try {
         const orders = JSON.parse(localStorage.getItem('psa_orders') || '[]');
         const ord = orders.find(o => o.id === orderId);
