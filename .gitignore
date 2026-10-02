@@ -1,4 +1,4 @@
-/vendor
+
 /node_modules
 /public/build
 /dist
@@ -19,3 +19,7 @@ yarn-error.log
 /.idea
 /.vscode
 /psaonline.sql
+.env.example
+skills-lock.json
+/.agents
+/.claude

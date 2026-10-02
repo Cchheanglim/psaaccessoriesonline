@@ -8,6 +8,7 @@
     <meta name="description" content="Shop viral Gen-Z aesthetic accessories: Y2K silver chrome jewelry, 90s sunglasses, puffy cloud bags, aesthetic claw clips, and phone charms in Phnom Penh." />
     <meta property="og:title" content="@yield('title', 'PsaOnline — Gen-Z Aesthetic Accessories')" />
     <meta property="og:description" content="Affordable viral streetwear and aesthetic accessories with Bakong Universal KHQR." />
+    <link rel="icon" type="image/svg+xml" href="{{ asset('assets/images/psa-accessories-online-logo.svg') }}" />
     
     <!-- Scripts & Styles via Vite / Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -163,11 +164,11 @@
             </div>
 
             <div class="mt-8 pt-6 border-t border-[#EFE4D6] flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-2">
-                <div>&copy; 2026 PsaOnline &bull; Laravel 12 Web II Project.</div>
+                <div>&copy; 2026 PsaOnline &bull; Laravel 11 Web II Project.</div>
                 <div class="flex items-center gap-4 text-[11px]">
-                    <a href="#" class="hover:underline">Privacy Policy</a>
+                    <a href="{{ route('privacy') }}" class="hover:underline">Privacy Policy</a>
                     <span>&bull;</span>
-                    <a href="#" class="hover:underline">Terms of Service</a>
+                    <a href="{{ route('terms') }}" class="hover:underline">Terms of Service</a>
                     <span>&bull;</span>
                     <span>Made for Gen-Z in Cambodia 🇰🇭</span>
                 </div>
