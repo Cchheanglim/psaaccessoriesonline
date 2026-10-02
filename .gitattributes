@@ -4,3 +4,4 @@
 *.html diff=html
 *.md diff=markdown
 *.php diff=php
+*.sh text eol=lf
