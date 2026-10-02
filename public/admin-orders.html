@@ -177,60 +177,8 @@
               <th class="py-2.5 px-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#F9F3EA] dark:divide-[#252530]">
-            <!-- Order 1 -->
-            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
-              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902184</td>
-              <td class="py-3 px-3">
-                <div class="font-bold text-[#2B1D1D] dark:text-white">Sophea Chhum</div>
-                <div class="text-[11px] text-[#FFA552] font-bold">+855 12 345 678</div>
-              </td>
-              <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate">House 42, St 240, Daun Penh, Phnom Penh</td>
-              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$18.50 <span class="text-[10px] text-[#FFA552] font-semibold">(75,850 ៛)</span></td>
-              <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">Bakong KHQR (ABA)</td>
-              <td class="py-3 px-3">
-                <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-black text-[10px] border border-amber-200">Slip Uploaded</span>
-              </td>
-              <td class="py-3 px-3 text-right">
-                <a href="order-detail--admin-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-[11px] transition shadow-xs">Review Slip</a>
-              </td>
-            </tr>
-
-            <!-- Order 2 -->
-            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
-              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902183</td>
-              <td class="py-3 px-3">
-                <div class="font-bold text-[#2B1D1D] dark:text-white">Bona Seng</div>
-                <div class="text-[11px] text-[#FFA552] font-bold">+855 98 765 432</div>
-              </td>
-              <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate">Toul Kork, St 315, House #14, Phnom Penh</td>
-              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$24.00 <span class="text-[10px] text-[#FFA552] font-semibold">(98,400 ៛)</span></td>
-              <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">Bakong KHQR (ACLEDA)</td>
-              <td class="py-3 px-3">
-                <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-black text-[10px] border border-amber-200">Slip Uploaded</span>
-              </td>
-              <td class="py-3 px-3 text-right">
-                <a href="order-detail--admin-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-[11px] transition shadow-xs">Review Slip</a>
-              </td>
-            </tr>
-
-            <!-- Order 3 -->
-            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
-              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902182</td>
-              <td class="py-3 px-3">
-                <div class="font-bold text-[#2B1D1D] dark:text-white">Dara Heng</div>
-                <div class="text-[11px] text-[#FFA552] font-bold">+855 15 889 911</div>
-              </td>
-              <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate">St 51, BKK1, Phnom Penh</td>
-              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$12.50 <span class="text-[10px] text-[#FFA552] font-semibold">(51,250 ៛)</span></td>
-              <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">Cash On Delivery</td>
-              <td class="py-3 px-3">
-                <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-black text-[10px] border border-blue-200">Courier Assigned 🛵</span>
-              </td>
-              <td class="py-3 px-3 text-right">
-                <a href="order-detail--staff-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-[#2B1D1D] dark:text-white font-black text-[11px] transition">Track Delivery</a>
-              </td>
-            </tr>
+          <tbody id="ordersTableBody" class="divide-y divide-[#F9F3EA] dark:divide-[#252530]">
+            <tr><td colspan="7" class="py-8 px-3 text-center text-stone-400">Loading orders&hellip;</td></tr>
           </tbody>
         </table>
       </div>
@@ -240,8 +188,116 @@
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
   <script>
+    const ORDER_TONES = {
+      'Payment Pending': 'bg-stone-100 text-stone-700 border-stone-200 dark:bg-stone-800 dark:text-stone-300',
+      'Slip Uploaded': 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300',
+      'Paid (demo)': 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300',
+      'Payment Failed': 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300',
+      'Processing': 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300',
+      'Out for delivery': 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300',
+      'Delivered': 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300',
+      'Cancelled': 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300'
+    };
+
+    function adminOrders() {
+      return PSA.online ? PSA.orders : JSON.parse(localStorage.getItem('psa_orders') || '[]');
+    }
+
+    // Which buttons make sense for an order right now
+    function orderActions(o) {
+      const actions = [];
+      const isCod = o.paymentCode === 'cod';
+      if (o.orderStatus === 'pending_payment' || !o.orderStatus) {
+        if (isCod) actions.push(['dispatch', 'Dispatch 🛵', 'primary']);
+        else {
+          actions.push(['verify', o.slipUploaded || o.paymentStatus === 'paid_demo' ? 'Verify Payment' : 'Mark Paid', 'primary']);
+          if (o.paymentStatus !== 'failed') actions.push(['reject', 'Reject Slip', 'plain']);
+        }
+      } else if (o.orderStatus === 'processing') {
+        actions.push(['dispatch', 'Dispatch 🛵', 'primary']);
+      } else if (o.orderStatus === 'out_for_delivery') {
+        actions.push(['deliver', 'Mark Delivered', 'primary']);
+      }
+      if (hasPermission('canCancelOrders') && !['delivered', 'cancelled'].includes(o.orderStatus)) {
+        actions.push(['cancel', 'Cancel', 'danger']);
+      }
+      return actions;
+    }
+
+    const BUTTON_TONES = {
+      primary: 'bg-[#FFA552] hover:bg-[#E88C35] text-white shadow-xs',
+      plain: 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-[#2B1D1D] dark:text-white',
+      danger: 'bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300'
+    };
+
+    function renderOrdersTable() {
+      const tbody = document.getElementById('ordersTableBody');
+      const orders = adminOrders();
+      if (!orders.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="py-8 px-3 text-center text-stone-400">No orders yet. They will appear here as soon as a customer checks out.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = orders.map(o => {
+        const id = psaEsc(o.id);
+        const tone = ORDER_TONES[o.status] || ORDER_TONES['Payment Pending'];
+        const slipButton = o.slipImage && o.slipImage.startsWith('data:image/')
+          ? `<button type="button" onclick="showSlip('${id}')" class="block mt-1 text-[10px] font-bold text-[#FFA552] hover:underline cursor-pointer">View slip</button>` : '';
+        const buttons = PSA.online ? orderActions(o).map(([action, label, kind]) =>
+          `<button type="button" onclick="updateOrder('${id}', '${action}')" class="px-3 py-1.5 rounded-xl font-black text-[11px] transition cursor-pointer ${BUTTON_TONES[kind]}">${label}</button>`).join('') : '';
+        return `
+            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
+              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#${id}<div class="font-sans font-normal text-[10px] text-stone-400">${psaEsc(o.date || '')}</div></td>
+              <td class="py-3 px-3">
+                <div class="font-bold text-[#2B1D1D] dark:text-white">${psaEsc(o.customerName)}</div>
+                <div class="text-[11px] text-[#FFA552] font-bold">${psaEsc(o.phone)}</div>
+              </td>
+              <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate" title="${psaEsc(o.address)}">${psaEsc(o.address)}</td>
+              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$${psaEsc(o.totalUSD)} <span class="text-[10px] text-[#FFA552] font-semibold">(${psaEsc(o.totalKHR)} ៛)</span></td>
+              <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">${psaEsc(o.paymentMethod)}</td>
+              <td class="py-3 px-3">
+                <span class="px-2 py-0.5 rounded-full font-black text-[10px] border ${tone}">${psaEsc(o.status)}</span>
+                ${slipButton}
+              </td>
+              <td class="py-3 px-3 text-right">
+                <div class="flex items-center justify-end gap-1.5 flex-wrap">
+                  ${buttons}
+                  <a href="order-detail.html?order=${encodeURIComponent(o.id)}" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-[#2B1D1D] dark:text-white font-black text-[11px] transition">View</a>
+                </div>
+              </td>
+            </tr>`;
+      }).join('');
+    }
+
+    async function updateOrder(orderId, action) {
+      if (action === 'cancel' && !confirm(`Cancel order ${orderId}? Its items go back into stock.`)) return;
+      try {
+        const { order } = await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(orderId)}`, { action });
+        PSA.orders = PSA.orders.map(o => (o.id === order.id ? order : o));
+        localStorage.setItem('psa_orders', JSON.stringify(PSA.orders));
+        renderOrdersTable();
+        showRBACToast(`Order ${psaEsc(order.id)} is now "${psaEsc(order.status)}".`, 'success');
+      } catch (err) {
+        showRBACToast(psaEsc(err.message), 'danger');
+      }
+    }
+
+    function showSlip(orderId) {
+      const order = adminOrders().find(o => o.id === orderId);
+      if (!order) return;
+      const overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer';
+      overlay.onclick = () => overlay.remove();
+      const img = document.createElement('img');
+      img.src = order.slipImage;
+      img.alt = `Payment slip for ${orderId}`;
+      img.className = 'max-h-[85vh] max-w-full rounded-2xl shadow-2xl bg-white';
+      overlay.appendChild(img);
+      document.body.appendChild(overlay);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      enforcePageRBAC('canAccessAdminPortal');
+      if (!enforcePageRBAC('canAccessAdminPortal')) return;
+      renderOrdersTable();
     });
   </script>
 </body>

@@ -435,8 +435,32 @@
       return { cart, subtotalUsd: subtotal.toFixed(2), deliveryUsd: delivery.toFixed(2), totalUsd, totalKhr: Math.round(Number(totalUsd) * EXCHANGE_RATE).toLocaleString() };
     }
 
-    function saveCheckoutOrder(paymentMethod, status = 'Payment Pending') {
+    // Live mode: the order is created in the database (prices and stock are checked by the server).
+    // Demo mode (no server): it is kept in this browser only, as before.
+    async function saveCheckoutOrder(paymentMethod, status = 'Payment Pending') {
       const { cart, subtotalUsd, deliveryUsd, totalUsd, totalKhr } = getCheckoutAmounts();
+
+      if (PSA.online) {
+        const pos = markerInstance ? markerInstance.getLatLng() : null;
+        const { order } = await psaApi('POST', '/api/orders', {
+          customerName: document.getElementById('shipping_name').value.trim(),
+          phone: document.getElementById('shipping_phone').value.trim(),
+          address: document.getElementById('shipping_address').value.trim(),
+          notes: document.getElementById('shipping_notes').value.trim(),
+          latitude: pos ? pos.lat : null,
+          longitude: pos ? pos.lng : null,
+          paymentMethod,
+          items: cart.map(i => ({ id: i.id, quantity: i.quantity }))
+        });
+        try {
+          const orders = JSON.parse(localStorage.getItem('psa_orders') || '[]');
+          orders.unshift(order);
+          localStorage.setItem('psa_orders', JSON.stringify(orders));
+        } catch (err) {}
+        localStorage.removeItem('psa_cart');
+        return { ...order, cart };
+      }
+
       const orderId = 'PSA-' + Math.floor(100000 + Math.random() * 900000);
       const paymentLabels = { khqr: 'Bakong Universal KHQR', aba: 'ABA Mobile Pay', acleda: 'ACLEDA Mobile KHQR', visa: 'Visa / Mastercard', cod: 'Cash on Delivery' };
       const order = {
@@ -462,7 +486,7 @@
       return { ...order, cart };
     }
 
-    function handlePlaceOrder(e) {
+    async function handlePlaceOrder(e) {
       e.preventDefault();
       const method = document.querySelector('input[name="payment_method"]:checked').value;
       if (method === 'visa') {
@@ -478,12 +502,22 @@
         return;
       }
 
-      const order = saveCheckoutOrder(method);
-      if (method === 'acleda') {
-        openAcledaPayment(order);
+      const btn = document.getElementById('placeOrderBtn');
+      btn.disabled = true;
+      let order;
+      try {
+        order = await saveCheckoutOrder(method);
+      } catch (err) {
+        alert(err.message);
+        btn.disabled = false;
         return;
       }
-      window.location.href = `order-detail--buyer-pending.html?order=${order.id}&usd=${order.totalUSD}&khr=${encodeURIComponent(order.totalKHR)}&method=${method}`;
+      if (method === 'acleda') {
+        openAcledaPayment(order);
+        btn.disabled = false;
+        return;
+      }
+      window.location.href = `order-detail--buyer-pending.html?order=${encodeURIComponent(order.id)}&usd=${order.totalUSD}&khr=${encodeURIComponent(order.totalKHR)}&method=${method}`;
     }
 
     function validateDemoCard() {
@@ -584,6 +618,9 @@
       document.getElementById('acledaVerifyStatus').className = 'text-emerald-300';
       document.getElementById('simulateAcledaPaid').hidden = true;
       updateSavedOrderStatus(activeAcledaOrderId, 'Paid (demo)');
+      if (PSA.online) {
+        psaApi('POST', `/api/orders/${encodeURIComponent(activeAcledaOrderId)}/demo-paid`).catch(err => alert(err.message));
+      }
     }
 
     function updateSavedOrderStatus(orderId, status) {
@@ -597,12 +634,21 @@
       } catch (err) {}
     }
 
-    function approveVisaDemo() {
+    async function approveVisaDemo() {
       if (document.getElementById('visaOtpInput').value !== '123456') {
         document.getElementById('visaOtpError').textContent = 'That code did not match. Use the demo OTP shown above.';
         return;
       }
-      const order = saveCheckoutOrder('visa', 'Paid (demo)');
+      let order;
+      try {
+        order = await saveCheckoutOrder('visa', 'Paid (demo)');
+        if (PSA.online) {
+          order = { ...order, ...(await psaApi('POST', `/api/orders/${encodeURIComponent(order.id)}/demo-paid`)).order };
+        }
+      } catch (err) {
+        document.getElementById('visaOtpError').textContent = err.message;
+        return;
+      }
       updateSavedOrderStatus(order.id, 'Paid (demo)');
       const dialogCard = document.querySelector('#visaOtpDialog .payment-dialog-card');
       dialogCard.innerHTML = `<div class="space-y-4 text-center"><div class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-950 text-emerald-300 text-xl">✓</div><p class="text-[10px] font-bold uppercase text-emerald-300">Demo transaction approved</p><h2 class="text-lg font-black">Order ${order.id}</h2><p class="text-sm text-slate-300">Visa / Mastercard • $${Number(order.totalUSD).toFixed(2)} (${order.totalKHR} KHR)</p><p class="text-[11px] text-slate-400">No charge was made. This is a simulated 3D Secure result.</p><button type="button" onclick="window.location.href='order-detail.html?order=${order.id}&status=demo-approved&method=visa'" class="w-full rounded-xl bg-amber-500 px-4 py-3 text-xs font-black text-slate-950">View order</button></div>`;
@@ -613,10 +659,36 @@
       if (id === 'acledaPaymentDialog') clearInterval(acledaTimer);
     }
 
+    // Hide payment options an admin has turned off, and pre-fill the signed-in buyer's details.
+    function applyLiveCheckoutSettings() {
+      if (!PSA.online) return;
+      const codes = { khqr: 'bakong_khqr', aba: 'aba_pay', acleda: 'acleda_khqr', visa: 'visa_card', cod: 'cod' };
+      document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+        const method = PSA.paymentMethods.find(m => m.code === codes[radio.value]);
+        if (method && !method.isActive) {
+          radio.closest('label').remove();
+        }
+      });
+      const first = document.querySelector('input[name="payment_method"]:checked') || document.querySelector('input[name="payment_method"]');
+      if (first) {
+        first.checked = true;
+        updatePaymentSelect(first);
+      }
+      if (PSA.user) {
+        const name = document.getElementById('shipping_name');
+        const phone = document.getElementById('shipping_phone');
+        const address = document.getElementById('shipping_address');
+        if (PSA.user.name) name.value = PSA.user.name;
+        if (PSA.user.phone) phone.value = PSA.user.phone;
+        if (PSA.user.address) address.value = PSA.user.address;
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       initLeafletMap();
       updateCheckoutSummary();
       wireCardInputs();
+      applyLiveCheckoutSettings();
     });
   </script>
 </body>

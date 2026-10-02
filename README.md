@@ -11,6 +11,60 @@
 
 ---
 
+## 🚀 Running the shop & sharing it with the team
+
+### How it fits together
+
+- The storefront and admin portal are the pages in `public/*.html`, with `public/assets/js/store.js` and `rbac.js`.
+- Those pages load their data from Laravel's JSON API (`/api/...`, see `routes/web.php` and `app/Http/Controllers/Api/`).
+- Laravel stores everything in the shared **Supabase PostgreSQL** database: products, accounts, orders and payment methods. Everyone on the team sees the same data.
+- Cart, wishlist, viewed history, theme, currency and saved addresses stay in each browser.
+- If the API can't be reached (for example `npm run dev` without `php artisan serve`), the pages fall back to the built-in demo data. The login page shows the demo accounts only in that mode.
+
+### Run it on your computer (teammates)
+
+1. `git clone <repo-url>` and `cd` into the folder.
+2. `composer install`
+3. Copy `.env.example` to `.env`. Fill in `DB_USERNAME` and `DB_PASSWORD` with the Supabase details you were sent privately. Never commit `.env`.
+4. `php artisan config:clear`
+5. `php artisan serve`, then open **http://127.0.0.1:8000**
+
+`npm install` and `npm run dev` (http://localhost:3000) are optional. The Vite server forwards `/api` to `php artisan serve`, so it shows the same live data while both are running.
+
+Don't run `migrate:fresh` or `db:seed` against the shared database: that would wipe or duplicate everyone's data. New migrations are fine to run with `php artisan migrate`.
+
+### Accounts & roles
+
+- Anyone can create a **Buyer** account on `register.html`.
+- An **Admin** can make someone Staff or Admin on `admin-users.html`.
+- Staff can verify and dispatch orders and edit products. Only Admins can delete products, cancel orders, and manage users and payment methods. The server enforces these rules (`AdminApiController`), not just the page.
+
+### Putting it online
+
+Any PHP 8.2+ host that can run Laravel will work (Laravel Cloud, Render or Railway with Docker, a VPS…). Point it at this repo and set these environment variables:
+
+```
+APP_ENV=production
+APP_DEBUG=false
+APP_KEY=            # generate a new one: php artisan key:generate --show
+APP_URL=https://your-domain
+DB_CONNECTION=pgsql
+DB_HOST=aws-0-ap-southeast-1.pooler.supabase.com
+DB_PORT=5432
+DB_DATABASE=postgres
+DB_USERNAME=postgres.<project-ref>
+DB_PASSWORD=<supabase password>
+DB_SSLMODE=require
+DB_PERSISTENT=true
+SESSION_DRIVER=cookie       # works when the host runs several copies of the app
+SESSION_SECURE_COOKIE=true
+CACHE_STORE=file
+```
+
+The build only needs `composer install --no-dev --optimize-autoloader`. The database already has its tables.
+
+---
+
 ## 📁 Laravel Framework Architecture (`https://github.com/laravel/laravel.git`)
 
 The repository adheres strictly to the official Laravel 12 application skeleton:

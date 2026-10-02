@@ -76,7 +76,26 @@
     }
 
     function getProfile() {
+      // Live mode: the profile is the signed-in account in the database
+      if (PSA.online) {
+        const u = PSA.user || {};
+        return { name: u.name || '', phone: u.phone || '', email: u.email || '', avatar: u.avatarUrl || '' };
+      }
       return Object.assign({ name: '', phone: '', email: '', avatar: '' }, readStoredValue('psa_profile', {}));
+    }
+
+    async function saveLiveProfile(fields, okMessage) {
+      if (!PSA.user) { toast('Sign in first'); location.href = 'login.html?next=setting.html'; return false; }
+      try {
+        const { user } = await psaApi('PATCH', '/api/me', fields);
+        PSA.user = user;
+        localStorage.setItem('psa_current_user', JSON.stringify(user));
+        toast(okMessage);
+        return true;
+      } catch (err) {
+        toast(err.message);
+        return false;
+      }
     }
 
     function getAddresses() {
@@ -237,6 +256,7 @@
         const m = Math.min(img.width, img.height);
         c.getContext('2d').drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 160, 160);
         const url = c.toDataURL('image/jpeg', .8);
+        if (PSA.online) { saveLiveProfile({ photo: url }, 'Photo updated').then(render); return; }
         localStorage.setItem('psa_profile', JSON.stringify(Object.assign(getProfile(), { avatar: url })));
         render(); toast('Photo updated');
       }; img.src = r.result; };
@@ -245,6 +265,11 @@
     function saveProfile() {
       const name = document.getElementById('fName').value.trim();
       if (!name) return toast('Enter your name');
+      if (PSA.online) {
+        saveLiveProfile({ name, phone: document.getElementById('fPhone').value.trim(), email: document.getElementById('fEmail').value.trim() }, 'Profile saved')
+          .then(ok => { if (ok) nav(''); });
+        return;
+      }
       localStorage.setItem('psa_profile', JSON.stringify(Object.assign(getProfile(), {
         name, phone: document.getElementById('fPhone').value.trim(), email: document.getElementById('fEmail').value.trim() })));
       toast('Profile saved'); nav('');
@@ -253,7 +278,14 @@
       const o = pOld.value, n = pNew.value, c = pCon.value, e = document.getElementById('pErr');
       const msg = !o ? 'Enter your current password.' : n.length < 8 ? 'New password must be at least 8 characters.' : n !== c ? 'Passwords do not match.' : '';
       e.textContent = msg; e.classList.toggle('hidden', !msg);
-      if (!msg) { toast('Password updated'); nav(''); }
+      if (msg) return;
+      if (PSA.online) {
+        psaApi('PUT', '/api/me/password', { current: o, password: n })
+          .then(() => { toast('Password updated'); nav(''); })
+          .catch(err => { e.textContent = err.message; e.classList.remove('hidden'); });
+        return;
+      }
+      toast('Password updated'); nav('');
     }
     function openAddress(id) { editingAddr = id; nav('address'); }
     function saveAddress() {
@@ -285,7 +317,7 @@
     function setTheme(v) { applyTheme(v); render(); }
     function clearViewedHistory() { if (!confirm('Clear your viewed history?')) return; clearViewed(); render(); toast('Viewed history cleared'); }
     function clearSearch() { localStorage.removeItem('psa_search_history'); toast('Search history cleared'); }
-    function signOut() { localStorage.removeItem('psa_current_user'); location.href = 'login.html'; }
+    function signOut() { psaLogout('login.html'); }
 
     // ---------- Router ----------
     function render() {

@@ -23,6 +23,7 @@ class User extends Authenticatable
         'role', // 'buyer', 'staff', 'admin'
         'avatar',
         'address',
+        'status', // 'Active', 'Suspended'
     ];
 
     /**

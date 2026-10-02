@@ -10,6 +10,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        'sku',
         'title',
         'title_khmer',
         'slug',
@@ -26,6 +27,8 @@ class Product extends Model
         'color',
         'description',
         'status', // 'active', 'draft', 'archived'
+        'gallery',
+        'specifications',
     ];
 
     protected $casts = [
@@ -34,6 +37,8 @@ class Product extends Model
         'rating' => 'decimal:1',
         'review_count' => 'integer',
         'stock' => 'integer',
+        'gallery' => 'array',
+        'specifications' => 'array',
     ];
 
     public function orderItems()
