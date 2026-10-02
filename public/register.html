@@ -7,7 +7,6 @@
   <meta name="description" content="Sign up for PsaOnline to get instant notifications on new Gen-Z streetwear jewelry and bag drops." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-[#FFA552] selection:text-white">
 
@@ -23,9 +22,15 @@
         </span>
       </a>
 
-      <a href="login.html" class="text-xs font-bold text-[#FFA552] hover:underline flex items-center gap-1 transition">
-        <span>Already have an account? Sign In &rarr;</span>
-      </a>
+      <div class="flex items-center gap-3">
+        <a href="home.html" class="px-3.5 py-1.5 rounded-xl border border-[#EFE4D6] bg-white hover:border-[#FFA552] text-xs font-bold text-[#2B1D1D] flex items-center gap-1.5 transition shadow-xs">
+          <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span>Back to Storefront</span>
+        </a>
+        <a href="login.html" class="text-xs font-bold text-[#FFA552] hover:underline flex items-center gap-1 transition">
+          <span>Sign In &rarr;</span>
+        </a>
+      </div>
     </div>
   </header>
 
@@ -57,18 +62,6 @@
         </div>
 
         <div class="space-y-1">
-          <label for="reg_email" class="text-xs font-bold text-[#2B1D1D]">Email Address</label>
-          <input
-            type="email"
-            id="reg_email"
-            required
-            autocomplete="email"
-            placeholder="e.g. sophea@gmail.com"
-            class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FDFBF7] border border-[#EFE4D6] text-[#2B1D1D] placeholder-stone-400 focus:outline-none focus:border-[#FFA552] focus:ring-1 focus:ring-[#FFA552] transition"
-          />
-        </div>
-
-        <div class="space-y-1">
           <label for="reg_phone" class="text-xs font-bold text-[#2B1D1D]">Telegram / Phone Number</label>
           <input
             type="tel"
@@ -85,18 +78,13 @@
             type="password"
             id="reg_password"
             required
-            minlength="6"
-            autocomplete="new-password"
             placeholder="At least 6 characters"
             class="w-full px-3.5 py-2.5 text-xs rounded-xl bg-[#FDFBF7] border border-[#EFE4D6] text-[#2B1D1D] placeholder-stone-400 focus:outline-none focus:border-[#FFA552] focus:ring-1 focus:ring-[#FFA552] transition font-mono"
           />
         </div>
 
-        <p id="registerError" class="hidden text-[11px] font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2" role="alert"></p>
-
         <button
           type="submit"
-          id="registerSubmitBtn"
           class="btn-press w-full py-3.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md transition-all cursor-pointer"
         >
           Create Account
@@ -113,30 +101,9 @@
 
   <script src="assets/js/store.js"></script>
   <script>
-    async function handleRegister(e) {
+    function handleRegister(e) {
       e.preventDefault();
-      if (!PSA.online) {
-        // Demo mode (no server running)
-        window.location.href = 'dashboard-buyer.html';
-        return;
-      }
-      const errorEl = document.getElementById('registerError');
-      const btn = document.getElementById('registerSubmitBtn');
-      errorEl.classList.add('hidden');
-      btn.disabled = true;
-      try {
-        await psaApi('POST', '/api/auth/register', {
-          name: document.getElementById('reg_name').value.trim(),
-          email: document.getElementById('reg_email').value.trim(),
-          phone: document.getElementById('reg_phone').value.trim(),
-          password: document.getElementById('reg_password').value
-        });
-        window.location.replace('dashboard-buyer.html');
-      } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.classList.remove('hidden');
-        btn.disabled = false;
-      }
+      window.location.href = 'dashboard-buyer.html';
     }
   </script>
 </body>

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Product Inventory — PsaOnline Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
 
@@ -61,9 +60,11 @@
         <div class="h-6 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
 
         <!-- RBAC Interactive Role Switcher Pill -->
-        <div class="relative group">
+        <div class="relative group rbac-dropdown-container">
           <button 
             type="button" 
+            id="rbacRoleSelectorBtn"
+            onclick="toggleRbacDropdown(event)"
             class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-orange-500 transition shadow-xs cursor-pointer"
           >
             <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-orange-500 to-slate-900 text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
@@ -79,7 +80,7 @@
           </button>
 
           <!-- Dropdown Menu to test and switch roles with 1 click -->
-          <div class="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-900 rounded-2xl border-2 border-orange-500/50 shadow-2xl p-2 hidden group-hover:block transition-all z-50 animate-fade-in-up">
+          <div class="rbac-dropdown-menu absolute right-0 top-full w-72 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl p-2 hidden group-hover:block transition-all z-50">
             <div class="px-3 py-2 border-b border-gray-100 dark:border-gray-800">
               <div class="text-[10px] font-black uppercase text-orange-500 tracking-wider flex items-center justify-between">
                 <span>RBAC Role Switcher</span>
@@ -90,17 +91,17 @@
             <div class="py-1 space-y-1">
               <button type="button" onclick="switchUserRole('Admin')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs flex items-center justify-between transition cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <span class="text-base">👑</span>
+                  <span class="w-6 h-6 rounded-md bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[11px]">A</span>
                   <div>
                     <div class="font-bold text-gray-900 dark:text-white">Admin (Studio Lead)</div>
-                    <div class="text-[10px] text-gray-400">Full reports, CSV exports & delete items</div>
+                    <div class="text-[10px] text-gray-400">Full reports, CSV exports &amp; delete items</div>
                   </div>
                 </div>
                 <span class="text-[10px] font-bold text-purple-600">Select</span>
               </button>
               <button type="button" onclick="switchUserRole('Staff')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-blue-50 dark:hover:bg-blue-950/40 text-xs flex items-center justify-between transition cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <span class="text-base">⚡</span>
+                  <span class="w-6 h-6 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[11px]">S</span>
                   <div>
                     <div class="font-bold text-gray-900 dark:text-white">Staff (Inventory Team)</div>
                     <div class="text-[10px] text-gray-400">Adjust stock (delete restricted)</div>
@@ -110,7 +111,7 @@
               </button>
               <button type="button" onclick="switchUserRole('Buyer')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs flex items-center justify-between transition cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <span class="text-base">🛍️</span>
+                  <span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[11px]">B</span>
                   <div>
                     <div class="font-bold text-gray-900 dark:text-white">Buyer (Customer)</div>
                     <div class="text-[10px] text-gray-400">Test 403 access restriction</div>
@@ -122,6 +123,15 @@
             <div class="pt-2 border-t border-gray-100 dark:border-gray-800 px-3 py-1.5 flex items-center justify-between text-[10px]">
               <a href="admin-users.html" class="text-orange-500 font-bold hover:underline">Manage All Roles &rarr;</a>
               <button onclick="openRBACMatrixModal()" class="text-gray-400 hover:text-orange-500 underline cursor-pointer">Security Matrix</button>
+            </div>
+            <div class="pt-2 mt-1 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2 px-2 pb-1">
+              <a href="home.html" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 flex items-center justify-center gap-1.5 transition">
+                <span>Exit to Store</span>
+              </a>
+              <button type="button" data-rbac-logout onclick="logoutSession()" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200/70 flex items-center justify-center gap-1.5 transition cursor-pointer">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <span>Log Out</span>
+              </button>
             </div>
           </div>
         </div>
@@ -137,17 +147,22 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <div class="text-xs text-gray-500 mb-1 flex items-center gap-1.5">
-          <a href="dashboard-admin.html" class="hover:text-orange-600">Admin</a>
+          <a href="dashboard-admin.html" class="text-orange-600 font-bold hover:underline">&larr; Back to Executive Report</a>
           <span>/</span>
           <span class="text-gray-900 font-medium">Products</span>
         </div>
-        <h1 class="text-2xl font-black text-gray-900 tracking-tight">Product Catalog & Inventory</h1>
+        <h1 class="text-2xl font-black text-gray-900 tracking-tight">Product Catalog &amp; Inventory</h1>
       </div>
 
-      <a href="product-form.html" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold shadow-sm transition-all">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-        Add New Product
-      </a>
+      <div class="flex items-center gap-2">
+        <a href="dashboard-admin.html" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition">
+          &larr; Back to Report
+        </a>
+        <a href="product-form.html" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold shadow-sm transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          Add New Product
+        </a>
+      </div>
     </div>
 
     <!-- Filter & Search Toolbar -->
@@ -166,6 +181,10 @@
       <div class="w-full sm:w-auto flex items-center gap-3">
         <select id="categoryFilter" class="w-full sm:w-auto px-3 py-2 text-xs rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500">
           <option value="all">All Categories</option>
+          <option value="groceries">Groceries & Produce</option>
+          <option value="specialties">Local Specialties</option>
+          <option value="street-food">Street Food & Meals</option>
+          <option value="handicrafts">Crafts & Textiles</option>
         </select>
 
         <select id="stockFilter" class="w-full sm:w-auto px-3 py-2 text-xs rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500">
@@ -193,7 +212,197 @@
             </tr>
           </thead>
           <tbody id="productsTableBody" class="divide-y divide-gray-100">
-            <tr><td colspan="6" class="px-5 py-10 text-center text-xs text-gray-400">Loading products&hellip;</td></tr>
+
+            <!-- Item 1 -->
+            <tr class="product-row hover:bg-gray-50/80 transition-colors" data-title="Protected GI Kampot Black Pepper Jar" data-category="specialties" data-stock="low_stock">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+                    <img src="https://images.unsplash.com/photo-1589135233689-d56d05f324c1?auto=format&fit=crop&w=150&q=80" alt="Kampot Pepper" class="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <a href="product-detail.html" class="text-xs font-bold text-gray-900 hover:text-orange-600 transition-colors line-clamp-1">Protected GI Kampot Black Pepper Jar (100g)</a>
+                    <div class="text-[11px] text-gray-400">ម្រេចខ្មៅកំពតពិត &bull; SKU: KP-BLK-100</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-5 py-4 text-xs text-gray-600">Local Specialties</td>
+              <td class="px-5 py-4 font-semibold text-xs text-gray-900">$6.50 <span class="text-[10px] text-gray-400 font-normal block">26,650 ៛</span></td>
+              <td class="px-5 py-4">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                  3 units left
+                </span>
+              </td>
+              <td class="px-5 py-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Active
+                </span>
+              </td>
+              <td class="px-5 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <a href="product-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit Product">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  </a>
+                  <button onclick="confirmDelete('Protected GI Kampot Black Pepper Jar')" class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Item 2 -->
+            <tr class="product-row hover:bg-gray-50/80 transition-colors" data-title="Battambang Organic Jasmine Rice" data-category="groceries" data-stock="in_stock">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+                    <img src="https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=150&q=80" alt="Rice" class="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <a href="product-detail.html" class="text-xs font-bold text-gray-900 hover:text-orange-600 transition-colors line-clamp-1">Battambang Organic Jasmine Rice (5kg)</a>
+                    <div class="text-[11px] text-gray-400">អង្ករផ្កាម្លិះបាត់ដំបង &bull; SKU: BB-RCE-5K</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-5 py-4 text-xs text-gray-600">Groceries & Produce</td>
+              <td class="px-5 py-4 font-semibold text-xs text-gray-900">$8.20 <span class="text-[10px] text-gray-400 font-normal block">33,620 ៛</span></td>
+              <td class="px-5 py-4">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  42 units
+                </span>
+              </td>
+              <td class="px-5 py-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Active
+                </span>
+              </td>
+              <td class="px-5 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <a href="product-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit Product">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  </a>
+                  <button onclick="confirmDelete('Battambang Organic Jasmine Rice')" class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Item 3 -->
+            <tr class="product-row hover:bg-gray-50/80 transition-colors" data-title="Kep Wild Caught Tiger Prawns" data-category="groceries" data-stock="in_stock">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+                    <img src="https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?auto=format&fit=crop&w=150&q=80" alt="Prawns" class="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <a href="product-detail.html" class="text-xs font-bold text-gray-900 hover:text-orange-600 transition-colors line-clamp-1">Fresh Kep Wild Caught Tiger Prawns (1kg)</a>
+                    <div class="text-[11px] text-gray-400">បង្គាខ្លាកែបស្រស់ៗ &bull; SKU: KP-PRW-1K</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-5 py-4 text-xs text-gray-600">Groceries & Produce</td>
+              <td class="px-5 py-4 font-semibold text-xs text-gray-900">$12.50 <span class="text-[10px] text-gray-400 font-normal block">51,250 ៛</span></td>
+              <td class="px-5 py-4">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  18 units
+                </span>
+              </td>
+              <td class="px-5 py-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Active
+                </span>
+              </td>
+              <td class="px-5 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <a href="product-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit Product">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  </a>
+                  <button onclick="confirmDelete('Fresh Kep Wild Caught Tiger Prawns')" class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Item 4 -->
+            <tr class="product-row hover:bg-gray-50/80 transition-colors" data-title="Siem Reap Handwoven Pure Silk Kroma Scarf" data-category="handicrafts" data-stock="low_stock">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+                    <img src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=150&q=80" alt="Silk scarf" class="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <a href="product-detail.html" class="text-xs font-bold text-gray-900 hover:text-orange-600 transition-colors line-clamp-1">Siem Reap Handwoven Pure Silk Kroma Scarf</a>
+                    <div class="text-[11px] text-gray-400">ក្រមាសូត្រសៀមរាបត្បាញដៃ &bull; SKU: SR-SLK-01</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-5 py-4 text-xs text-gray-600">Crafts & Textiles</td>
+              <td class="px-5 py-4 font-semibold text-xs text-gray-900">$18.00 <span class="text-[10px] text-gray-400 font-normal block">73,800 ៛</span></td>
+              <td class="px-5 py-4">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                  2 units left
+                </span>
+              </td>
+              <td class="px-5 py-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Active
+                </span>
+              </td>
+              <td class="px-5 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <a href="product-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit Product">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  </a>
+                  <button onclick="confirmDelete('Siem Reap Handwoven Silk Kroma')" class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Item 5: Draft Item -->
+            <tr class="product-row hover:bg-gray-50/80 transition-colors" data-title="Handmade Clay Ceramic Teapot" data-category="handicrafts" data-stock="out_of_stock">
+              <td class="px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+                    <img src="https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=150&q=80" alt="Teapot" class="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <a href="product-detail.html" class="text-xs font-bold text-gray-900 hover:text-orange-600 transition-colors line-clamp-1">Kompong Chhnang Pottery Clay Teapot</a>
+                    <div class="text-[11px] text-gray-400">កំសៀវដីឥដ្ឋកំពង់ឆ្នាំង &bull; SKU: KC-POT-01</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-5 py-4 text-xs text-gray-600">Crafts & Textiles</td>
+              <td class="px-5 py-4 font-semibold text-xs text-gray-900">$9.50 <span class="text-[10px] text-gray-400 font-normal block">38,950 ៛</span></td>
+              <td class="px-5 py-4">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                  0 units
+                </span>
+              </td>
+              <td class="px-5 py-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                  Draft
+                </span>
+              </td>
+              <td class="px-5 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  <a href="product-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit Product">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  </a>
+                  <button onclick="confirmDelete('Kompong Chhnang Pottery Clay Teapot')" class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
           </tbody>
         </table>
       </div>
@@ -235,104 +444,44 @@
   </div>
 
   <script>
+    // Filtering logic
     const searchInput = document.getElementById('productSearchInput');
     const categoryFilter = document.getElementById('categoryFilter');
     const stockFilter = document.getElementById('stockFilter');
+    const rows = document.querySelectorAll('.product-row');
 
-    function adminProducts() {
-      return PSA.online ? PSA.products : ACCESSORIES_PRODUCTS;
-    }
-
-    function stockKey(p) {
-      const stock = p.stock != null ? p.stock : (p.inStock ? 50 : 0);
-      return stock <= 0 ? 'out_of_stock' : (stock <= 5 ? 'low_stock' : 'in_stock');
-    }
-
-    function stockChip(p) {
-      const stock = p.stock != null ? p.stock : (p.inStock ? 50 : 0);
-      const key = stockKey(p);
-      const tone = key === 'out_of_stock'
-        ? ['bg-red-50 text-red-700 border-red-200', 'bg-red-500', 'Out of stock']
-        : key === 'low_stock'
-          ? ['bg-amber-50 text-amber-800 border-amber-200', 'bg-amber-500', `${stock} units left`]
-          : ['bg-emerald-50 text-emerald-700 border-emerald-200', 'bg-emerald-500', `${stock} in stock`];
-      return `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold border ${tone[0]}"><span class="w-1.5 h-1.5 rounded-full ${tone[1]}"></span>${tone[2]}</span>`;
-    }
-
-    function visibilityChip(status) {
-      const s = status || 'active';
-      const tone = s === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200';
-      return `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${tone}">${s === 'active' ? 'Active' : (s === 'draft' ? 'Draft' : 'Archived')}</span>`;
-    }
-
-    function fillCategoryFilter() {
-      const seen = new Map();
-      adminProducts().forEach(p => { if (!seen.has(p.category)) seen.set(p.category, p.categoryLabel || p.category); });
-      categoryFilter.innerHTML = '<option value="all">All Categories</option>' +
-        [...seen].map(([value, label]) => `<option value="${psaEsc(value)}">${psaEsc(label)}</option>`).join('');
-    }
-
-    function renderProductsTable() {
+    function filterProducts() {
       const q = searchInput.value.toLowerCase().trim();
       const cat = categoryFilter.value;
       const stk = stockFilter.value;
-      const tbody = document.getElementById('productsTableBody');
 
-      const list = adminProducts().filter(p => {
-        const haystack = `${p.title} ${p.titleKhmer || ''} ${p.id}`.toLowerCase();
-        return (!q || haystack.includes(q)) && (cat === 'all' || p.category === cat) && (stk === 'all' || stockKey(p) === stk);
+      rows.forEach(r => {
+        const title = (r.dataset.title || '').toLowerCase();
+        const category = r.dataset.category || '';
+        const stock = r.dataset.stock || '';
+
+        const matchQ = !q || title.includes(q);
+        const matchCat = cat === 'all' || category === cat;
+        const matchStk = stk === 'all' || stock === stk;
+
+        r.style.display = (matchQ && matchCat && matchStk) ? '' : 'none';
       });
-
-      if (!list.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-5 py-10 text-center text-xs text-gray-400">No products match these filters.</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = list.map(p => `
-            <tr class="product-row hover:bg-gray-50/80 transition-colors">
-              <td class="px-5 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
-                    ${p.image ? `<img src="${psaEsc(p.image)}" alt="" class="w-full h-full object-cover" />` : ''}
-                  </div>
-                  <div>
-                    <a href="product-detail.html?id=${encodeURIComponent(p.id)}" class="text-xs font-bold text-gray-900 hover:text-orange-600 transition-colors line-clamp-1">${psaEsc(p.title)}</a>
-                    <div class="text-[11px] text-gray-400">${p.titleKhmer ? psaEsc(p.titleKhmer) + ' &bull; ' : ''}SKU: ${psaEsc(p.id)}</div>
-                  </div>
-                </div>
-              </td>
-              <td class="px-5 py-4 text-xs text-gray-600">${psaEsc(p.categoryLabel || p.category)}</td>
-              <td class="px-5 py-4 font-semibold text-xs text-gray-900">$${Number(p.priceUSD).toFixed(2)} <span class="text-[10px] text-gray-400 font-normal block">${Number(p.priceKHR).toLocaleString()} ៛</span></td>
-              <td class="px-5 py-4">${stockChip(p)}</td>
-              <td class="px-5 py-4">${visibilityChip(p.status)}</td>
-              <td class="px-5 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <a href="product-form.html?id=${encodeURIComponent(p.id)}" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit Product">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                  </a>
-                  <button onclick="confirmDelete('${psaEsc(p.id)}')" class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>`).join('');
     }
 
-    searchInput.addEventListener('input', renderProductsTable);
-    categoryFilter.addEventListener('change', renderProductsTable);
-    stockFilter.addEventListener('change', renderProductsTable);
+    searchInput.addEventListener('input', filterProducts);
+    categoryFilter.addEventListener('change', filterProducts);
+    stockFilter.addEventListener('change', filterProducts);
 
     // Delete modal logic
-    let targetProductId = '';
-    function confirmDelete(productId) {
+    let targetProductName = '';
+    function confirmDelete(name) {
       if (!hasPermission('canDeleteProducts')) {
         const user = getCurrentUser();
-        showRBACToast(`Access Denied: ${psaEsc(user.name)} (${user.role}) has inventory editing rights only. Deleting catalog products requires Admin (Studio Lead) role.`, 'danger');
+        showRBACToast(`Access Denied: ${user.name} (${user.role}) has inventory editing rights only. Deleting catalog products requires Admin (Studio Lead) role.`, 'danger');
         return;
       }
-      const product = adminProducts().find(p => p.id === productId);
-      targetProductId = productId;
-      document.getElementById('deleteTargetText').textContent = `Are you sure you want to remove "${product ? product.title : productId}" from the store catalog?`;
+      targetProductName = name;
+      document.getElementById('deleteTargetText').textContent = `Are you sure you want to remove "${name}" from the store catalog?`;
       document.getElementById('deleteModal').classList.remove('hidden');
     }
 
@@ -340,23 +489,14 @@
       document.getElementById('deleteModal').classList.add('hidden');
     }
 
-    async function executeDelete() {
+    function executeDelete() {
       if (!hasPermission('canDeleteProducts')) {
         showRBACToast('Permission Denied: Only Admin can delete products.', 'danger');
         closeDeleteModal();
         return;
       }
       closeDeleteModal();
-      const product = adminProducts().find(p => p.id === targetProductId);
-      try {
-        await psaApi('DELETE', `/api/admin/products/${encodeURIComponent(targetProductId)}`);
-      } catch (err) {
-        showRBACToast(psaEsc(err.message), 'danger');
-        return;
-      }
-      PSA.products = PSA.products.filter(p => p.id !== targetProductId);
-      renderProductsTable();
-      showRBACToast(`Product "${psaEsc(product ? product.title : targetProductId)}" removed from the catalog.`, 'success');
+      showRBACToast(`Product "${targetProductName}" successfully removed from catalog by ${getCurrentUser().name}.`, 'success');
     }
   </script>
 
@@ -364,9 +504,7 @@
   <script src="assets/js/rbac.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      if (!enforcePageRBAC('canAccessAdminPortal')) return;
-      fillCategoryFilter();
-      renderProductsTable();
+      enforcePageRBAC('canAccessAdminPortal');
     });
   </script>
 </body>

@@ -117,11 +117,7 @@ const DEFAULT_USERS = [
   }
 ];
 
-const RBAC_GUEST = { id: null, name: 'Guest', email: '', role: 'Buyer', avatar: 'G', status: 'Active', guest: true };
-
 function getRBACUsers() {
-  // Live mode: the server only sends the user list to admins.
-  if (PSA.online) return PSA.users;
   try {
     const saved = localStorage.getItem('psa_rbac_users');
     if (saved) {
@@ -140,8 +136,6 @@ function saveRBACUsers(users) {
 }
 
 function getCurrentUser() {
-  // Live mode: who you are comes from your login session, not from the browser.
-  if (PSA.online) return PSA.user || RBAC_GUEST;
   try {
     const saved = localStorage.getItem('psa_current_user');
     if (saved) {
@@ -151,7 +145,7 @@ function getCurrentUser() {
   } catch (e) {
     // fallback
   }
-  // Demo mode (no server): default to Admin so the admin portal can be previewed
+  // Default to Admin for testing admin portal
   const defaultAdmin = DEFAULT_USERS[0];
   localStorage.setItem('psa_current_user', JSON.stringify(defaultAdmin));
   return defaultAdmin;
@@ -163,12 +157,6 @@ function setCurrentUser(user) {
 }
 
 function switchUserRole(newRole) {
-  // Live mode: roles are real, so "switching" means signing in with another account.
-  if (PSA.online) {
-    showRBACToast(`Sign in with a ${newRole} account to continue.`, 'info');
-    setTimeout(() => psaLogout(`login.html?next=${encodeURIComponent(psaCurrentPage())}`), 600);
-    return;
-  }
   const users = getRBACUsers();
   let targetUser = users.find(u => u.role === newRole);
   if (!targetUser) {
@@ -233,9 +221,6 @@ function showRBACToast(msg, type = 'info') {
 
 function enforcePageRBAC(requiredPermission = 'canAccessAdminPortal') {
   const user = getCurrentUser();
-  if (PSA.online && user.guest) {
-    return psaRequireLogin();
-  }
   const allowed = hasPermission(requiredPermission);
 
   if (!allowed) {
@@ -451,7 +436,121 @@ function closeRBACMatrixModal() {
   if (modal) modal.classList.add('hidden');
 }
 
+function toggleRbacDropdown(event) {
+  if (event) {
+    event.stopPropagation();
+  }
+  const wrapper = event && event.currentTarget
+    ? event.currentTarget.closest('.rbac-dropdown-container, .relative.group')
+    : document.querySelector('.rbac-dropdown-container, .relative.group');
+  if (!wrapper) return;
+
+  const menu = wrapper.querySelector('.rbac-dropdown-menu') || wrapper.querySelector('div.absolute');
+  if (!menu) return;
+
+  const isOpen = wrapper.classList.toggle('rbac-dropdown-open');
+  if (isOpen) {
+    menu.classList.remove('hidden');
+    menu.classList.add('block');
+  } else {
+    menu.classList.remove('block');
+    menu.classList.add('hidden');
+  }
+}
+
+function closeAllRbacDropdowns() {
+  document.querySelectorAll('.rbac-dropdown-open').forEach(wrapper => {
+    wrapper.classList.remove('rbac-dropdown-open');
+    const menu = wrapper.querySelector('.rbac-dropdown-menu') || wrapper.querySelector('div.absolute');
+    if (menu) {
+      menu.classList.remove('block');
+      menu.classList.add('hidden');
+    }
+  });
+}
+
+function logoutSession() {
+  localStorage.removeItem(RBAC_USER_KEY);
+  showRBACToast('Signed out of session. Redirecting to login...', 'info');
+  setTimeout(() => {
+    window.location.href = 'login.html';
+  }, 300);
+}
+
+function setupRbacDropdownInteractions() {
+  if (!document.getElementById('rbac-dropdown-bridge-style')) {
+    const styleEl = document.createElement('style');
+    styleEl.id = 'rbac-dropdown-bridge-style';
+    styleEl.textContent = `
+      .rbac-dropdown-container > .rbac-dropdown-menu {
+        top: calc(100% + 6px) !important;
+        margin-top: 0 !important;
+      }
+      .rbac-dropdown-container > .rbac-dropdown-menu::before {
+        content: '';
+        position: absolute;
+        top: -14px;
+        left: 0;
+        right: 0;
+        height: 14px;
+        background: transparent;
+      }
+      .rbac-dropdown-container:hover > .rbac-dropdown-menu,
+      .rbac-dropdown-container.rbac-dropdown-open > .rbac-dropdown-menu {
+        display: block !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+  }
+
+  document.querySelectorAll('#rbacRoleSelectorBtn').forEach(btn => {
+    const wrapper = btn.closest('.relative');
+    if (!wrapper) return;
+    wrapper.classList.add('rbac-dropdown-container');
+
+    const menu = wrapper.querySelector('div.absolute');
+    if (menu) {
+      menu.classList.add('rbac-dropdown-menu');
+      menu.classList.remove('mt-2');
+
+      if (!menu.querySelector('[data-rbac-logout]')) {
+        const footerDiv = document.createElement('div');
+        footerDiv.className = 'pt-2 mt-1 border-t border-[#EFE4D6] dark:border-[#2D2D38] flex items-center justify-between gap-2 px-2 pb-1';
+        footerDiv.innerHTML = `
+          <a href="home.html" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-stone-700 dark:text-stone-200 bg-stone-100/80 dark:bg-[#252530] hover:bg-stone-200/80 dark:hover:bg-[#30303E] flex items-center justify-center gap-1.5 transition">
+            <svg class="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>Exit to Store</span>
+          </a>
+          <button type="button" data-rbac-logout onclick="logoutSession()" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/70 border border-red-200/70 dark:border-red-900/50 flex items-center justify-center gap-1.5 transition cursor-pointer">
+            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            <span>Log Out</span>
+          </button>
+        `;
+        menu.appendChild(footerDiv);
+      }
+    }
+
+    if (!btn.dataset.dropdownBound) {
+      btn.dataset.dropdownBound = 'true';
+      btn.addEventListener('click', toggleRbacDropdown);
+    }
+  });
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.rbac-dropdown-container')) {
+    closeAllRbacDropdowns();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeAllRbacDropdowns();
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   updateRBACUI();
+  setupRbacDropdownInteractions();
 });
 

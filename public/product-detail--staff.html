@@ -25,18 +25,21 @@
         </a>
 
         <!-- Navigation Links & User Actions -->
-        <nav class="flex items-center gap-2 sm:gap-3 text-sm">
-          <a href="admin-dashboard.html" class="text-gray-700 hover:text-orange-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-gray-50 transition">
-            Admin Dashboard
+        <nav class="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+          <a href="admin-products.html" class="text-gray-700 hover:text-orange-600 font-bold px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition">
+            &larr; Back to Products
           </a>
-          <a href="admin-products.html" class="text-orange-600 font-bold px-2.5 py-1.5 rounded-lg bg-orange-50 transition">
-            Products Catalog
+          <a href="dashboard-admin.html" class="text-gray-700 hover:text-orange-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-gray-50 transition">
+            Executive Report
           </a>
           <a href="admin-orders.html" class="text-gray-700 hover:text-orange-600 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-gray-50 transition">
             Orders
           </a>
           <a href="home.html" class="text-xs border border-gray-300 hover:bg-gray-100 text-gray-700 font-bold px-3 py-1.5 rounded-lg transition">
-            Public Storefront
+            Exit to Store
+          </a>
+          <a href="login.html" onclick="localStorage.removeItem('psa_current_user');" class="text-xs bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 font-bold px-3 py-1.5 rounded-lg transition">
+            Log Out
           </a>
         </nav>
       </div>

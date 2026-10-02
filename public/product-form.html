@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Product Editor — PsaOnline Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
 
@@ -27,8 +26,10 @@
         </nav>
       </div>
 
-      <div class="flex items-center gap-4">
-        <a href="admin-products.html" class="text-xs text-gray-500 hover:text-gray-900 font-medium">&larr; Return to Products</a>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a href="admin-products.html" class="px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs text-gray-700 font-bold transition">&larr; Back to Products</a>
+        <a href="dashboard-admin.html" class="hidden sm:inline-flex px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-xs text-orange-600 font-bold transition">Exit to Report</a>
+        <a href="login.html" onclick="localStorage.removeItem('psa_current_user');" class="px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-xs text-red-600 font-bold transition">Log Out</a>
       </div>
     </div>
   </header>
@@ -47,12 +48,12 @@
         <h1 class="text-2xl font-black text-gray-900 tracking-tight">Product Details & Specifications</h1>
       </div>
       <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
-        <span id="formModeLabel">New Product</span>
+        Editing: Draft / Active
       </span>
     </div>
 
     <!-- Product Form -->
-    <form id="productForm" class="space-y-6" onsubmit="saveProduct(event)">
+    <form id="productForm" class="space-y-6" onsubmit="event.preventDefault(); alert('Product changes saved successfully!'); window.location.href='admin-products.html';">
       
       <!-- Basic Details Card -->
       <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
@@ -67,7 +68,8 @@
               id="productName"
               name="name"
               required
-              placeholder="e.g. Silver Chrome Star Pendant Necklace"
+              value="Protected GI Kampot Black Pepper Jar (100g)"
+              placeholder="e.g. Kampot Black Pepper Jar"
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
@@ -79,7 +81,8 @@
               type="text"
               id="khmerName"
               name="khmer_name"
-              placeholder="e.g. ខ្សែកបន្តោងផ្កាយប្រាក់"
+              value="ម្រេចខ្មៅកំពតពិត GI គុណភាពខ្ពស់"
+              placeholder="e.g. ម្រេចខ្មៅកំពត"
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
@@ -88,23 +91,21 @@
           <div class="space-y-1.5">
             <label for="categorySelect" class="text-xs font-bold text-gray-700">Category <span class="text-red-500">*</span></label>
             <select id="categorySelect" name="category" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="jewelry" selected>Y2K Jewelry</option>
-              <option value="eyewear">Shades & Eyewear</option>
-              <option value="bags">Bags & Totes</option>
-              <option value="hair">Hair & Streetwear</option>
-              <option value="charms">Tech Charms</option>
+              <option value="specialties" selected>Local Specialties (Kampot pepper, palm sugar, honey)</option>
+              <option value="groceries">Groceries & Fresh Produce (Rice, prawns, vegetables)</option>
+              <option value="street-food">Street Food & Cooked Meals (Amok, Nom Banh Chok)</option>
+              <option value="handicrafts">Crafts & Textiles (Silk scarves, pottery, kroma)</option>
             </select>
           </div>
 
           <!-- Stall / Market Location -->
           <div class="space-y-1.5">
-            <label for="stallLocation" class="text-xs font-bold text-gray-700">Badge (shown on the product card)</label>
+            <label for="stallLocation" class="text-xs font-bold text-gray-700">Vendor Stall / Source Market</label>
             <input
               type="text"
               id="stallLocation"
-              name="badge"
-              maxlength="60"
-              placeholder="e.g. Trending ⚡"
+              name="stall"
+              value="Phsar Thmey (Central Market) — Stall #42"
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
@@ -118,7 +119,7 @@
               rows="4"
               required
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            ></textarea>
+            >Certified Protected Geographical Indication (PGI) Kampot black pepper directly sourced from organic family plantations in Kampot Province. Sun-dried and hand-sorted for the strongest aromatic oils, perfect for steak, lok lak, and soup broths.</textarea>
           </div>
         </div>
       </div>
@@ -127,7 +128,7 @@
       <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
         <h2 class="text-base font-bold text-gray-900 border-b border-gray-100 pb-3">Pricing & Inventory</h2>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <!-- Price USD -->
           <div class="space-y-1.5">
             <label for="priceUSD" class="text-xs font-bold text-gray-700">Price in USD ($) <span class="text-red-500">*</span></label>
@@ -140,10 +141,11 @@
                 id="priceUSD"
                 name="price"
                 required
+                value="6.50"
                 class="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold"
               />
             </div>
-            <div class="text-[11px] text-gray-400" id="khrEquivalentHint">&asymp; 0 KHR (Exchange: 4,100)</div>
+            <div class="text-[11px] text-gray-400" id="khrEquivalentHint">&asymp; 26,650 KHR (Exchange: 4,100)</div>
           </div>
 
           <!-- Stock Quantity -->
@@ -155,10 +157,23 @@
               id="stockQuantity"
               name="stock"
               required
-              value="0"
+              value="3"
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold"
             />
             <div class="text-[11px] text-amber-600 font-medium">Triggers low-stock warning if &le; 5</div>
+          </div>
+
+          <!-- Packaging Unit -->
+          <div class="space-y-1.5">
+            <label for="packagingUnit" class="text-xs font-bold text-gray-700">Packaging Unit</label>
+            <input
+              type="text"
+              id="packagingUnit"
+              name="unit"
+              value="Glass Jar (100g)"
+              placeholder="e.g. 1kg Bag, 500ml Bottle"
+              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
           </div>
         </div>
       </div>
@@ -177,6 +192,18 @@
 
         <!-- Thumbnails Gallery -->
         <div id="imageGalleryPreview" class="flex flex-wrap gap-3 pt-2">
+          <!-- Existing Thumbnail 1 -->
+          <div class="relative w-20 h-20 rounded-lg border border-gray-200 overflow-hidden group">
+            <img src="https://images.unsplash.com/photo-1589135233689-d56d05f324c1?auto=format&fit=crop&w=200&q=80" alt="Preview 1" class="w-full h-full object-cover" />
+            <button type="button" onclick="this.parentElement.remove()" class="absolute top-1 right-1 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="Remove">&times;</button>
+            <span class="absolute bottom-0 inset-x-0 bg-black/60 text-[9px] text-white text-center py-0.5 font-bold">Cover</span>
+          </div>
+
+          <!-- Existing Thumbnail 2 -->
+          <div class="relative w-20 h-20 rounded-lg border border-gray-200 overflow-hidden group">
+            <img src="https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=200&q=80" alt="Preview 2" class="w-full h-full object-cover" />
+            <button type="button" onclick="this.parentElement.remove()" class="absolute top-1 right-1 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="Remove">&times;</button>
+          </div>
         </div>
       </div>
 
@@ -194,6 +221,32 @@
         </div>
 
         <div id="specificationsList" class="space-y-3">
+          <!-- Row 1 -->
+          <div class="spec-row flex items-center gap-3">
+            <input type="text" name="spec_key[]" value="Geographical Origin" placeholder="e.g. Origin" class="w-1/3 px-3 py-2 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+            <input type="text" name="spec_val[]" value="Kampot Province, Cambodia" placeholder="e.g. Kampot" class="flex-1 px-3 py-2 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+            <button type="button" onclick="removeSpecRow(this)" class="p-2 text-gray-400 hover:text-red-600 transition-colors" title="Delete Row">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="spec-row flex items-center gap-3">
+            <input type="text" name="spec_key[]" value="Certification" placeholder="e.g. Origin" class="w-1/3 px-3 py-2 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+            <input type="text" name="spec_val[]" value="GI Certified & 100% Organic" placeholder="e.g. Kampot" class="flex-1 px-3 py-2 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+            <button type="button" onclick="removeSpecRow(this)" class="p-2 text-gray-400 hover:text-red-600 transition-colors" title="Delete Row">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+          </div>
+
+          <!-- Row 3 -->
+          <div class="spec-row flex items-center gap-3">
+            <input type="text" name="spec_key[]" value="Aroma Profile" placeholder="e.g. Origin" class="w-1/3 px-3 py-2 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+            <input type="text" name="spec_val[]" value="Citrus, floral and intense warm heat" placeholder="e.g. Kampot" class="flex-1 px-3 py-2 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+            <button type="button" onclick="removeSpecRow(this)" class="p-2 text-gray-400 hover:text-red-600 transition-colors" title="Delete Row">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -225,8 +278,7 @@
         <a href="admin-products.html" class="px-5 py-2.5 rounded-lg border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors">
           Cancel & Discard
         </a>
-        <span id="productFormError" class="hidden text-xs font-bold text-red-600" role="alert"></span>
-        <button type="submit" id="productSaveBtn" class="px-6 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold shadow-md transition-all">
+        <button type="submit" class="px-6 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold shadow-md transition-all">
           Save Product Listing
         </button>
       </div>
@@ -235,8 +287,6 @@
 
   </main>
 
-  <script src="assets/js/store.js"></script>
-  <script src="assets/js/rbac.js"></script>
   <!-- Interactive JavaScript -->
   <script>
     // Price KHR calculation
@@ -274,123 +324,24 @@
     }
 
     // Photo preview handling
-    function addGalleryImage(src) {
+    function handleFileSelect(e) {
       const gallery = document.getElementById('imageGalleryPreview');
-      const div = document.createElement('div');
-      div.className = 'gallery-item relative w-20 h-20 rounded-lg border border-gray-200 overflow-hidden group';
-      const img = document.createElement('img');
-      img.src = src;
-      img.className = 'w-full h-full object-cover';
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.title = 'Remove';
-      btn.className = 'absolute top-1 right-1 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity';
-      btn.innerHTML = '&times;';
-      btn.onclick = () => div.remove();
-      div.append(img, btn);
-      gallery.appendChild(div);
-    }
-
-    async function handleFileSelect(e) {
-      for (const file of e.target.files) {
-        try {
-          addGalleryImage(await psaImageToDataUrl(file));
-        } catch (err) {
-          alert(err.message);
+      const files = e.target.files;
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const div = document.createElement('div');
+          div.className = 'relative w-20 h-20 rounded-lg border border-gray-200 overflow-hidden group';
+          div.innerHTML = `
+            <img src="${evt.target.result}" class="w-full h-full object-cover" />
+            <button type="button" onclick="this.parentElement.remove()" class="absolute top-1 right-1 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>
+          `;
+          gallery.appendChild(div);
         }
-      }
-      e.target.value = '';
-    }
-
-    // ---------- Load & save (database) ----------
-    const editingId = new URLSearchParams(location.search).get('id');
-    const categoryLabels = { jewelry: 'Y2K Jewelry', eyewear: 'Shades & Eyewear', bags: 'Bags & Totes', hair: 'Hair & Streetwear', charms: 'Tech Charms' };
-    let editingProduct = null;
-
-    function fillForm(p) {
-      document.getElementById('productName').value = p.title || '';
-      document.getElementById('khmerName').value = p.titleKhmer || '';
-      const select = document.getElementById('categorySelect');
-      if (p.category && ![...select.options].some(o => o.value === p.category)) {
-        select.add(new Option(p.categoryLabel || p.category, p.category));
-      }
-      select.value = p.category || 'jewelry';
-      document.getElementById('stallLocation').value = p.badge || '';
-      document.getElementById('productDescription').value = p.description || '';
-      priceInput.value = Number(p.priceUSD || 0).toFixed(2);
-      priceInput.dispatchEvent(new Event('input'));
-      document.getElementById('stockQuantity').value = p.stock != null ? p.stock : (p.inStock ? 50 : 0);
-      (p.gallery && p.gallery.length ? p.gallery : (p.image ? [p.image] : [])).forEach(addGalleryImage);
-      const specs = Object.entries(p.specifications || {});
-      document.getElementById('specificationsList').innerHTML = '';
-      (specs.length ? specs : [['', '']]).forEach(([k, v]) => {
-        addSpecRow();
-        const rows = document.querySelectorAll('.spec-row');
-        const last = rows[rows.length - 1];
-        last.querySelector('[name="spec_key[]"]').value = k;
-        last.querySelector('[name="spec_val[]"]').value = v;
-      });
-      const radio = document.querySelector(`input[name="visibility"][value="${p.status === 'active' ? 'active' : 'draft'}"]`);
-      if (radio) radio.checked = true;
-    }
-
-    async function saveProduct(e) {
-      e.preventDefault();
-      const errorEl = document.getElementById('productFormError');
-      const btn = document.getElementById('productSaveBtn');
-      errorEl.classList.add('hidden');
-
-      const specifications = {};
-      document.querySelectorAll('.spec-row').forEach(row => {
-        const key = row.querySelector('[name="spec_key[]"]').value.trim();
-        const val = row.querySelector('[name="spec_val[]"]').value.trim();
-        if (key) specifications[key] = val;
-      });
-      const category = document.getElementById('categorySelect').value;
-      const payload = {
-        title: document.getElementById('productName').value.trim(),
-        titleKhmer: document.getElementById('khmerName').value.trim() || null,
-        category,
-        categoryLabel: editingProduct && editingProduct.category === category ? editingProduct.categoryLabel : (categoryLabels[category] || category),
-        badge: document.getElementById('stallLocation').value.trim() || null,
-        description: document.getElementById('productDescription').value.trim(),
-        priceUSD: Number(priceInput.value),
-        stock: Number(document.getElementById('stockQuantity').value),
-        gallery: [...document.querySelectorAll('#imageGalleryPreview img')].map(img => img.getAttribute('src')),
-        specifications,
-        status: document.querySelector('input[name="visibility"]:checked').value
-      };
-
-      btn.disabled = true;
-      try {
-        if (editingId) {
-          await psaApi('PATCH', `/api/admin/products/${encodeURIComponent(editingId)}`, payload);
-        } else {
-          await psaApi('POST', '/api/admin/products', payload);
-        }
-        window.location.replace('admin-products.html');
-      } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.classList.remove('hidden');
-        btn.disabled = false;
+        reader.readAsDataURL(file);
       }
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!enforcePageRBAC('canManageProducts')) return;
-      if (editingId) {
-        editingProduct = (PSA.online ? PSA.products : ACCESSORIES_PRODUCTS).find(p => p.id === editingId);
-        if (!editingProduct) {
-          alert('That product was not found.');
-          window.location.href = 'admin-products.html';
-          return;
-        }
-        document.getElementById('formModeLabel').textContent = `Editing ${editingProduct.id}`;
-        fillForm(editingProduct);
-      } else {
-        addSpecRow();
-      }
-    });
   </script>
 
 </body>

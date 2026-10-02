@@ -29,14 +29,21 @@
     .seg button.on { background:#2B1D1D; color:#fff; }
     .dark .seg button.on { background:#FFA552; }
   </style>
-  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-[#FDFBF7] dark:bg-[#121215] text-[#2B1D1D] dark:text-white font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
   <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2D2D38]">
-    <div class="max-w-2xl mx-auto px-4 h-16 flex items-center gap-3">
-      <button type="button" onclick="goBack()" class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#FFA552] hover:bg-zinc-800/50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFA552] cursor-pointer" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg></button>
-      <h1 id="pageTitle" class="text-base sm:text-lg font-black">Settings</h1>
+    <div class="max-w-2xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <button type="button" onclick="goBack()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:border-[#FFA552] text-xs font-bold text-[#2B1D1D] dark:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#FFA552] cursor-pointer" aria-label="Back">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#FFA552]" aria-hidden="true"><path d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          <span>Back</span>
+        </button>
+        <h1 id="pageTitle" class="text-base sm:text-lg font-black">Settings</h1>
+      </div>
+      <a href="home.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:border-[#FFA552] text-xs font-bold text-[#2B1D1D] dark:text-white transition">
+        <span>Exit to Store</span>
+      </a>
     </div>
   </header>
 
@@ -77,26 +84,7 @@
     }
 
     function getProfile() {
-      // Live mode: the profile is the signed-in account in the database
-      if (PSA.online) {
-        const u = PSA.user || {};
-        return { name: u.name || '', phone: u.phone || '', email: u.email || '', avatar: u.avatarUrl || '' };
-      }
       return Object.assign({ name: '', phone: '', email: '', avatar: '' }, readStoredValue('psa_profile', {}));
-    }
-
-    async function saveLiveProfile(fields, okMessage) {
-      if (!PSA.user) { toast('Sign in first'); location.href = 'login.html?next=setting.html'; return false; }
-      try {
-        const { user } = await psaApi('PATCH', '/api/me', fields);
-        PSA.user = user;
-        localStorage.setItem('psa_current_user', JSON.stringify(user));
-        toast(okMessage);
-        return true;
-      } catch (err) {
-        toast(err.message);
-        return false;
-      }
     }
 
     function getAddresses() {
@@ -122,37 +110,13 @@
       clearTimeout(toast._t); toast._t = setTimeout(() => t.style.opacity = '0', 1800);
     }
     const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    // Settings screens live in the URL hash (#profile, #addresses, ...).
-    // Opening a screen adds one history entry; leaving it goes back to that entry, so the
-    // browser's Back button and the arrow at the top always agree and never loop.
-    const PARENT = { address: 'addresses' };
-
-    function settingsDepth() {
-      return (history.state && history.state.settingsDepth) || 0;
-    }
-
-    function nav(v) {
-      history.pushState({ settingsDepth: settingsDepth() + 1 }, '', v ? `#${v}` : location.pathname + location.search);
-      render();
-    }
-
-    // Leave the current screen: return to the screen that opened it, or to its parent screen,
-    // or (from the main list) to the previous page.
+    function nav(v) { location.hash = v; }
     function goBack() {
-      if (settingsDepth() > 0) {
-        history.back();
-        return;
-      }
       const v = location.hash.slice(1);
-      if (v) {
-        const parent = PARENT[v];
-        history.replaceState(null, '', parent ? `#${parent}` : location.pathname + location.search);
-        render();
-        return;
-      }
-      psaGoBack('dashboard-buyer.html');
+      if (v === 'address') return nav('addresses');
+      if (v) return nav('');
+      location.href = 'dashboard-buyer.html';
     }
-
     function row(iconName, label, hint, target) {
       return `<button type="button" class="row" aria-label="${esc(label)}" onclick="nav('${target}')"><span class="flex items-center gap-3 text-sm font-bold"><span class="settings-icon">${svgIcon(iconName, 18)}</span><span>${label}</span></span><span class="flex items-center gap-2 text-xs text-stone-400">${hint || ''}${chev}</span></button>`;
     }
@@ -281,7 +245,6 @@
         const m = Math.min(img.width, img.height);
         c.getContext('2d').drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 160, 160);
         const url = c.toDataURL('image/jpeg', .8);
-        if (PSA.online) { saveLiveProfile({ photo: url }, 'Photo updated').then(render); return; }
         localStorage.setItem('psa_profile', JSON.stringify(Object.assign(getProfile(), { avatar: url })));
         render(); toast('Photo updated');
       }; img.src = r.result; };
@@ -290,27 +253,15 @@
     function saveProfile() {
       const name = document.getElementById('fName').value.trim();
       if (!name) return toast('Enter your name');
-      if (PSA.online) {
-        saveLiveProfile({ name, phone: document.getElementById('fPhone').value.trim(), email: document.getElementById('fEmail').value.trim() }, 'Profile saved')
-          .then(ok => { if (ok) goBack(); });
-        return;
-      }
       localStorage.setItem('psa_profile', JSON.stringify(Object.assign(getProfile(), {
         name, phone: document.getElementById('fPhone').value.trim(), email: document.getElementById('fEmail').value.trim() })));
-      toast('Profile saved'); goBack();
+      toast('Profile saved'); nav('');
     }
     function savePassword() {
       const o = pOld.value, n = pNew.value, c = pCon.value, e = document.getElementById('pErr');
       const msg = !o ? 'Enter your current password.' : n.length < 8 ? 'New password must be at least 8 characters.' : n !== c ? 'Passwords do not match.' : '';
       e.textContent = msg; e.classList.toggle('hidden', !msg);
-      if (msg) return;
-      if (PSA.online) {
-        psaApi('PUT', '/api/me/password', { current: o, password: n })
-          .then(() => { toast('Password updated'); goBack(); })
-          .catch(err => { e.textContent = err.message; e.classList.remove('hidden'); });
-        return;
-      }
-      toast('Password updated'); goBack();
+      if (!msg) { toast('Password updated'); nav(''); }
     }
     function openAddress(id) { editingAddr = id; nav('address'); }
     function saveAddress() {
@@ -325,7 +276,7 @@
       if (ex) Object.assign(ex, { name, phone, line, isDefault: makeDef || ex.isDefault });
       else list.push({ id: 'addr-' + Date.now(), name, phone, line, isDefault: makeDef });
       localStorage.setItem('psa_addresses', JSON.stringify(list));
-      toast('Address saved'); goBack();
+      toast('Address saved'); nav('addresses');
     }
     function setDefault(id) {
       const list = getAddresses(); list.forEach(a => a.isDefault = a.id === id);
@@ -342,7 +293,7 @@
     function setTheme(v) { applyTheme(v); render(); }
     function clearViewedHistory() { if (!confirm('Clear your viewed history?')) return; clearViewed(); render(); toast('Viewed history cleared'); }
     function clearSearch() { localStorage.removeItem('psa_search_history'); toast('Search history cleared'); }
-    function signOut() { psaLogout('login.html'); }
+    function signOut() { localStorage.removeItem('psa_current_user'); location.href = 'login.html'; }
 
     // ---------- Router ----------
     function render() {
@@ -352,13 +303,8 @@
       document.getElementById('view').innerHTML = views[key]();
       window.scrollTo(0, 0);
     }
-    window.addEventListener('popstate', render);
     window.addEventListener('hashchange', render);
-    document.addEventListener('DOMContentLoaded', () => {
-      // Settings belong to an account: guests sign in first, then come back here.
-      if (!psaRequireLogin()) return;
-      render();
-    });
+    document.addEventListener('DOMContentLoaded', render);
   </script>
 </body>
 </html>
