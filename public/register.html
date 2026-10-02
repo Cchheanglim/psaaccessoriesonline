@@ -120,14 +120,19 @@
   <script>
     async function handleRegister(e) {
       e.preventDefault();
-      if (!PSA.online) {
-        // Demo mode (no server running)
-        window.location.href = 'dashboard-buyer.html';
-        return;
-      }
       const errorEl = document.getElementById('registerError');
       const btn = document.getElementById('registerSubmitBtn');
       errorEl.classList.add('hidden');
+      if (!PSA.online) {
+        if (psaIsLocalPreview()) {
+          // Demo mode (previewing without the server)
+          window.location.href = 'dashboard-buyer.html';
+        } else {
+          errorEl.textContent = PSA_OFFLINE_MESSAGE;
+          errorEl.classList.remove('hidden');
+        }
+        return;
+      }
       btn.disabled = true;
       try {
         await psaApi('POST', '/api/auth/register', {
