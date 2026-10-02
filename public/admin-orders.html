@@ -21,7 +21,6 @@
     };
   </script>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-[#FDFBF7] dark:bg-[#121215] text-[#2B1D1D] dark:text-[#F4F4F6] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
@@ -77,9 +76,11 @@
         <div class="h-6 w-px bg-[#EFE4D6] dark:bg-[#2D2D38] hidden sm:block"></div>
 
         <!-- RBAC Interactive Role Switcher Pill -->
-        <div class="relative group">
+        <div class="relative group rbac-dropdown-container">
           <button 
             type="button" 
+            id="rbacRoleSelectorBtn"
+            onclick="toggleRbacDropdown(event)"
             class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#32323D] hover:border-[#FFA552] transition shadow-xs cursor-pointer"
           >
             <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-[#FFA552] to-[#2B1D1D] text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
@@ -95,7 +96,7 @@
           </button>
 
           <!-- Dropdown Menu to test and switch roles with 1 click -->
-          <div class="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#1A1A22] rounded-2xl border-2 border-[#FFA552]/50 shadow-2xl p-2 hidden group-hover:block transition-all z-50 animate-fade-in-up">
+          <div class="rbac-dropdown-menu absolute right-0 top-full w-72 bg-white dark:bg-[#1A1A22] rounded-2xl border border-stone-200 dark:border-[#32323D] shadow-2xl p-2 hidden group-hover:block transition-all z-50">
             <div class="px-3 py-2 border-b border-[#F9F3EA] dark:border-[#2D2D38]">
               <div class="text-[10px] font-black uppercase text-[#FFA552] tracking-wider flex items-center justify-between">
                 <span>RBAC Role Switcher</span>
@@ -106,27 +107,27 @@
             <div class="py-1 space-y-1">
               <button type="button" onclick="switchUserRole('Admin')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs flex items-center justify-between transition cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <span class="text-base">👑</span>
+                  <span class="w-6 h-6 rounded-md bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[11px]">A</span>
                   <div>
                     <div class="font-bold text-[#2B1D1D] dark:text-white">Admin (Studio Lead)</div>
-                    <div class="text-[10px] text-stone-400">Full reports, CSV exports & roles</div>
+                    <div class="text-[10px] text-stone-400">Full reports, CSV exports &amp; roles</div>
                   </div>
                 </div>
                 <span class="text-[10px] font-bold text-purple-600">Select</span>
               </button>
               <button type="button" onclick="switchUserRole('Staff')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-blue-50 dark:hover:bg-blue-950/40 text-xs flex items-center justify-between transition cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <span class="text-base">⚡</span>
+                  <span class="w-6 h-6 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[11px]">S</span>
                   <div>
                     <div class="font-bold text-[#2B1D1D] dark:text-white">Staff (Dispatch Team)</div>
-                    <div class="text-[10px] text-stone-400">Verify slips & orders</div>
+                    <div class="text-[10px] text-stone-400">Verify slips &amp; orders</div>
                   </div>
                 </div>
                 <span class="text-[10px] font-bold text-blue-600">Select</span>
               </button>
               <button type="button" onclick="switchUserRole('Buyer')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs flex items-center justify-between transition cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <span class="text-base">🛍️</span>
+                  <span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[11px]">B</span>
                   <div>
                     <div class="font-bold text-[#2B1D1D] dark:text-white">Buyer (Customer)</div>
                     <div class="text-[10px] text-stone-400">Test 403 access restriction</div>
@@ -139,6 +140,15 @@
               <a href="admin-users.html" class="text-[#FFA552] font-bold hover:underline">Manage All Roles &rarr;</a>
               <button onclick="openRBACMatrixModal()" class="text-stone-400 hover:text-[#FFA552] underline cursor-pointer">Security Matrix</button>
             </div>
+            <div class="pt-2 mt-1 border-t border-[#F9F3EA] dark:border-[#2D2D38] flex items-center justify-between gap-2 px-2 pb-1">
+              <a href="home.html" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-stone-700 dark:text-stone-200 bg-stone-100 dark:bg-[#252530] hover:bg-stone-200 flex items-center justify-center gap-1.5 transition">
+                <span>Exit to Store</span>
+              </a>
+              <button type="button" data-rbac-logout onclick="logoutSession()" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 border border-red-200/70 flex items-center justify-center gap-1.5 transition cursor-pointer">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <span>Log Out</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -150,16 +160,21 @@
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 flex-1 w-full space-y-6">
     <div class="reveal-init flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <div class="text-xs font-bold text-[#FFA552] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-          <span>📦</span> Orders & Bank Proof Slips
+        <div class="text-xs font-bold text-stone-500 dark:text-stone-400 mb-1 flex items-center gap-1.5">
+          <a href="dashboard-admin.html" class="text-[#FFA552] hover:underline font-bold">&larr; Back to Executive Report</a>
+          <span>/</span>
+          <span>Orders &amp; Bank Proof Slips</span>
         </div>
-        <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white">Customer Orders & Bakong Slips</h1>
+        <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white">Customer Orders &amp; Bakong Slips</h1>
         <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Verify Bakong universal transfer proofs, assign city couriers, and track deliveries.</p>
       </div>
 
       <div class="flex items-center gap-2">
         <a href="dashboard-admin.html" class="px-3.5 py-2 rounded-xl bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#32323D] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-xs font-bold text-[#2B1D1D] dark:text-white transition shadow-xs flex items-center gap-1.5">
-          <span>📊 View Performance Report &rarr;</span>
+          <span>&larr; Back to Report</span>
+        </a>
+        <a href="home.html" class="px-3.5 py-2 rounded-xl bg-stone-100 dark:bg-[#252530] hover:bg-stone-200 text-xs font-bold text-[#2B1D1D] dark:text-white transition flex items-center gap-1.5">
+          <span>Exit to Store</span>
         </a>
       </div>
     </div>
@@ -178,8 +193,60 @@
               <th class="py-2.5 px-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody id="ordersTableBody" class="divide-y divide-[#F9F3EA] dark:divide-[#252530]">
-            <tr><td colspan="7" class="py-8 px-3 text-center text-stone-400">Loading orders&hellip;</td></tr>
+          <tbody class="divide-y divide-[#F9F3EA] dark:divide-[#252530]">
+            <!-- Order 1 -->
+            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
+              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902184</td>
+              <td class="py-3 px-3">
+                <div class="font-bold text-[#2B1D1D] dark:text-white">Sophea Chhum</div>
+                <div class="text-[11px] text-[#FFA552] font-bold">+855 12 345 678</div>
+              </td>
+              <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate">House 42, St 240, Daun Penh, Phnom Penh</td>
+              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$18.50 <span class="text-[10px] text-[#FFA552] font-semibold">(75,850 ៛)</span></td>
+              <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">Bakong KHQR (ABA)</td>
+              <td class="py-3 px-3">
+                <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-black text-[10px] border border-amber-200">Slip Uploaded</span>
+              </td>
+              <td class="py-3 px-3 text-right">
+                <a href="order-detail--admin-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-[11px] transition shadow-xs">Review Slip</a>
+              </td>
+            </tr>
+
+            <!-- Order 2 -->
+            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
+              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902183</td>
+              <td class="py-3 px-3">
+                <div class="font-bold text-[#2B1D1D] dark:text-white">Bona Seng</div>
+                <div class="text-[11px] text-[#FFA552] font-bold">+855 98 765 432</div>
+              </td>
+              <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate">Toul Kork, St 315, House #14, Phnom Penh</td>
+              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$24.00 <span class="text-[10px] text-[#FFA552] font-semibold">(98,400 ៛)</span></td>
+              <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">Bakong KHQR (ACLEDA)</td>
+              <td class="py-3 px-3">
+                <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-black text-[10px] border border-amber-200">Slip Uploaded</span>
+              </td>
+              <td class="py-3 px-3 text-right">
+                <a href="order-detail--admin-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-[11px] transition shadow-xs">Review Slip</a>
+              </td>
+            </tr>
+
+            <!-- Order 3 -->
+            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
+              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902182</td>
+              <td class="py-3 px-3">
+                <div class="font-bold text-[#2B1D1D] dark:text-white">Dara Heng</div>
+                <div class="text-[11px] text-[#FFA552] font-bold">+855 15 889 911</div>
+              </td>
+              <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate">St 51, BKK1, Phnom Penh</td>
+              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$12.50 <span class="text-[10px] text-[#FFA552] font-semibold">(51,250 ៛)</span></td>
+              <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">Cash On Delivery</td>
+              <td class="py-3 px-3">
+                <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-black text-[10px] border border-blue-200">Courier Assigned 🛵</span>
+              </td>
+              <td class="py-3 px-3 text-right">
+                <a href="order-detail--staff-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-[#2B1D1D] dark:text-white font-black text-[11px] transition">Track Delivery</a>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -189,116 +256,8 @@
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
   <script>
-    const ORDER_TONES = {
-      'Payment Pending': 'bg-stone-100 text-stone-700 border-stone-200 dark:bg-stone-800 dark:text-stone-300',
-      'Slip Uploaded': 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300',
-      'Paid (demo)': 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300',
-      'Payment Failed': 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300',
-      'Processing': 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300',
-      'Out for delivery': 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300',
-      'Delivered': 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300',
-      'Cancelled': 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300'
-    };
-
-    function adminOrders() {
-      return PSA.online ? PSA.orders : JSON.parse(localStorage.getItem('psa_orders') || '[]');
-    }
-
-    // Which buttons make sense for an order right now
-    function orderActions(o) {
-      const actions = [];
-      const isCod = o.paymentCode === 'cod';
-      if (o.orderStatus === 'pending_payment' || !o.orderStatus) {
-        if (isCod) actions.push(['dispatch', 'Dispatch 🛵', 'primary']);
-        else {
-          actions.push(['verify', o.slipUploaded || o.paymentStatus === 'paid_demo' ? 'Verify Payment' : 'Mark Paid', 'primary']);
-          if (o.paymentStatus !== 'failed') actions.push(['reject', 'Reject Slip', 'plain']);
-        }
-      } else if (o.orderStatus === 'processing') {
-        actions.push(['dispatch', 'Dispatch 🛵', 'primary']);
-      } else if (o.orderStatus === 'out_for_delivery') {
-        actions.push(['deliver', 'Mark Delivered', 'primary']);
-      }
-      if (hasPermission('canCancelOrders') && !['delivered', 'cancelled'].includes(o.orderStatus)) {
-        actions.push(['cancel', 'Cancel', 'danger']);
-      }
-      return actions;
-    }
-
-    const BUTTON_TONES = {
-      primary: 'bg-[#FFA552] hover:bg-[#E88C35] text-white shadow-xs',
-      plain: 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-[#2B1D1D] dark:text-white',
-      danger: 'bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300'
-    };
-
-    function renderOrdersTable() {
-      const tbody = document.getElementById('ordersTableBody');
-      const orders = adminOrders();
-      if (!orders.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="py-8 px-3 text-center text-stone-400">No orders yet. They will appear here as soon as a customer checks out.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = orders.map(o => {
-        const id = psaEsc(o.id);
-        const tone = ORDER_TONES[o.status] || ORDER_TONES['Payment Pending'];
-        const slipButton = o.slipImage && o.slipImage.startsWith('data:image/')
-          ? `<button type="button" onclick="showSlip('${id}')" class="block mt-1 text-[10px] font-bold text-[#FFA552] hover:underline cursor-pointer">View slip</button>` : '';
-        const buttons = PSA.online ? orderActions(o).map(([action, label, kind]) =>
-          `<button type="button" onclick="updateOrder('${id}', '${action}')" class="px-3 py-1.5 rounded-xl font-black text-[11px] transition cursor-pointer ${BUTTON_TONES[kind]}">${label}</button>`).join('') : '';
-        return `
-            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
-              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#${id}<div class="font-sans font-normal text-[10px] text-stone-400">${psaEsc(o.date || '')}</div></td>
-              <td class="py-3 px-3">
-                <div class="font-bold text-[#2B1D1D] dark:text-white">${psaEsc(o.customerName)}</div>
-                <div class="text-[11px] text-[#FFA552] font-bold">${psaEsc(o.phone)}</div>
-              </td>
-              <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate" title="${psaEsc(o.address)}">${psaEsc(o.address)}</td>
-              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$${psaEsc(o.totalUSD)} <span class="text-[10px] text-[#FFA552] font-semibold">(${psaEsc(o.totalKHR)} ៛)</span></td>
-              <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">${psaEsc(o.paymentMethod)}</td>
-              <td class="py-3 px-3">
-                <span class="px-2 py-0.5 rounded-full font-black text-[10px] border ${tone}">${psaEsc(o.status)}</span>
-                ${slipButton}
-              </td>
-              <td class="py-3 px-3 text-right">
-                <div class="flex items-center justify-end gap-1.5 flex-wrap">
-                  ${buttons}
-                  <a href="order-detail.html?order=${encodeURIComponent(o.id)}" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-[#2B1D1D] dark:text-white font-black text-[11px] transition">View</a>
-                </div>
-              </td>
-            </tr>`;
-      }).join('');
-    }
-
-    async function updateOrder(orderId, action) {
-      if (action === 'cancel' && !confirm(`Cancel order ${orderId}? Its items go back into stock.`)) return;
-      try {
-        const { order } = await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(orderId)}`, { action });
-        PSA.orders = PSA.orders.map(o => (o.id === order.id ? order : o));
-        localStorage.setItem('psa_orders', JSON.stringify(PSA.orders));
-        renderOrdersTable();
-        showRBACToast(`Order ${psaEsc(order.id)} is now "${psaEsc(order.status)}".`, 'success');
-      } catch (err) {
-        showRBACToast(psaEsc(err.message), 'danger');
-      }
-    }
-
-    function showSlip(orderId) {
-      const order = adminOrders().find(o => o.id === orderId);
-      if (!order) return;
-      const overlay = document.createElement('div');
-      overlay.className = 'fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer';
-      overlay.onclick = () => overlay.remove();
-      const img = document.createElement('img');
-      img.src = order.slipImage;
-      img.alt = `Payment slip for ${orderId}`;
-      img.className = 'max-h-[85vh] max-w-full rounded-2xl shadow-2xl bg-white';
-      overlay.appendChild(img);
-      document.body.appendChild(overlay);
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-      if (!enforcePageRBAC('canAccessAdminPortal')) return;
-      renderOrdersTable();
+      enforcePageRBAC('canAccessAdminPortal');
     });
   </script>
 </body>

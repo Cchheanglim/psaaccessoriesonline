@@ -20,7 +20,6 @@
     };
   </script>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-gray-50 dark:bg-[#121215] text-gray-900 dark:text-[#F4F4F6] font-sans min-h-screen flex flex-col">
 
@@ -88,9 +87,11 @@
         <div class="h-6 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
 
         <!-- RBAC Interactive Role Switcher Pill -->
-        <div class="relative group">
+        <div class="relative group rbac-dropdown-container">
           <button 
             type="button" 
+            id="rbacRoleSelectorBtn"
+            onclick="toggleRbacDropdown(event)"
             class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-orange-500 transition shadow-xs cursor-pointer"
           >
             <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-orange-500 to-slate-900 text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
@@ -106,7 +107,7 @@
           </button>
 
           <!-- Dropdown Menu to test and switch roles with 1 click -->
-          <div class="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-gray-900 rounded-2xl border-2 border-orange-500/50 shadow-2xl p-2 hidden group-hover:block transition-all z-50 animate-fade-in-up">
+          <div class="rbac-dropdown-menu absolute right-0 top-full w-72 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl p-2 hidden group-hover:block transition-all z-50">
             <div class="px-3 py-2 border-b border-gray-100 dark:border-gray-800">
               <div class="text-[10px] font-black uppercase text-orange-500 tracking-wider flex items-center justify-between">
                 <span>RBAC Role Switcher</span>
@@ -117,17 +118,17 @@
             <div class="py-1 space-y-1">
               <button type="button" onclick="switchUserRole('Admin')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs flex items-center justify-between transition cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <span class="text-base">👑</span>
+                  <span class="w-6 h-6 rounded-md bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[11px]">A</span>
                   <div>
                     <div class="font-bold text-gray-900 dark:text-white">Admin (Studio Lead)</div>
-                    <div class="text-[10px] text-gray-400">Full control over roles & users</div>
+                    <div class="text-[10px] text-gray-400">Full control over roles &amp; users</div>
                   </div>
                 </div>
                 <span class="text-[10px] font-bold text-purple-600">Select</span>
               </button>
               <button type="button" onclick="switchUserRole('Staff')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-blue-50 dark:hover:bg-blue-950/40 text-xs flex items-center justify-between transition cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <span class="text-base">⚡</span>
+                  <span class="w-6 h-6 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[11px]">S</span>
                   <div>
                     <div class="font-bold text-gray-900 dark:text-white">Staff (Dispatch Team)</div>
                     <div class="text-[10px] text-gray-400">Test read-only restriction</div>
@@ -137,7 +138,7 @@
               </button>
               <button type="button" onclick="switchUserRole('Buyer')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs flex items-center justify-between transition cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <span class="text-base">🛍️</span>
+                  <span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[11px]">B</span>
                   <div>
                     <div class="font-bold text-gray-900 dark:text-white">Buyer (Customer)</div>
                     <div class="text-[10px] text-gray-400">Test 403 access restriction</div>
@@ -149,6 +150,15 @@
             <div class="pt-2 border-t border-gray-100 dark:border-gray-800 px-3 py-1.5 flex items-center justify-between text-[10px]">
               <a href="admin-users.html" class="text-orange-500 font-bold hover:underline">Manage All Roles &rarr;</a>
               <button onclick="openRBACMatrixModal()" class="text-gray-400 hover:text-orange-500 underline cursor-pointer">Security Matrix</button>
+            </div>
+            <div class="pt-2 mt-1 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2 px-2 pb-1">
+              <a href="home.html" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 flex items-center justify-center gap-1.5 transition">
+                <span>Exit to Store</span>
+              </a>
+              <button type="button" data-rbac-logout onclick="logoutSession()" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200/70 flex items-center justify-center gap-1.5 transition cursor-pointer">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <span>Log Out</span>
+              </button>
             </div>
           </div>
         </div>
@@ -164,21 +174,24 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1.5">
-          <a href="dashboard-admin.html" class="hover:text-orange-600">Admin</a>
+          <a href="dashboard-admin.html" class="text-orange-600 font-bold hover:underline">&larr; Back to Executive Report</a>
           <span>/</span>
           <span class="text-gray-900 dark:text-white font-medium">Access Management</span>
         </div>
-        <h1 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Staff & User Management</h1>
+        <h1 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Staff &amp; User Management</h1>
         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure user roles, reassign permissions dynamically, and oversee customer accounts.</p>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <a href="dashboard-admin.html" class="px-3.5 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-white text-xs font-bold transition">
+          &larr; Back to Report
+        </a>
         <button 
           type="button" 
           onclick="openRBACMatrixModal()" 
           class="px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer"
         >
-          <span>🛡️ View Permission Matrix</span>
+          <span>View Permission Matrix</span>
         </button>
 
         <a 
@@ -282,21 +295,21 @@
             <td class="px-5 py-4">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full ${u.role === 'Admin' ? 'bg-slate-900 ring-2 ring-orange-500/30' : (u.role === 'Staff' ? 'bg-blue-600' : 'bg-emerald-600')} text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs">
-                  ${psaEsc(u.avatar)}
+                  ${u.avatar}
                 </div>
                 <div>
                   <div class="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                    <span>${psaEsc(u.name)}</span>
+                    <span>${u.name}</span>
                     ${isCurrent ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-orange-100 text-orange-800 font-extrabold">You</span>' : ''}
                   </div>
-                  <div class="text-[11px] text-gray-400 font-mono">${psaEsc(u.email)}</div>
+                  <div class="text-[11px] text-gray-400 font-mono">${u.email}</div>
                 </div>
               </div>
             </td>
 
             <td class="px-5 py-4 text-xs">
-              <div class="font-bold text-gray-800 dark:text-gray-200">${psaEsc(u.department || 'Studio Ops')}</div>
-              <div class="text-[10px] text-gray-400">${psaEsc(u.description || 'PsaOnline team member')}</div>
+              <div class="font-bold text-gray-800 dark:text-gray-200">${u.department || 'Studio Ops'}</div>
+              <div class="text-[10px] text-gray-400">${u.description || 'PsaOnline team member'}</div>
             </td>
 
             <td class="px-5 py-4">
@@ -332,15 +345,15 @@
             <td class="px-5 py-4 text-right">
               <div class="flex items-center justify-end gap-1.5">
                 ${isAdmin ? `
-                  ${PSA.online ? '' : `<button 
+                  <button 
                     type="button" 
                     onclick="switchUserRole('${u.role}')" 
                     class="px-2 py-1 rounded bg-stone-100 hover:bg-stone-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[10px] font-bold transition cursor-pointer"
                     title="Login as this role to test"
                   >
                     Simulate
-                  </button>`}
-                  <a href="user-form.html?id=${encodeURIComponent(u.id)}" class="p-1.5 text-gray-500 hover:text-orange-600 rounded inline-block" title="Edit Full Account">
+                  </button>
+                  <a href="user-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 rounded inline-block" title="Edit Full Account">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                   </a>
                 ` : `
@@ -356,20 +369,6 @@
     function changeUserRole(userId, newRole) {
       if (!hasPermission('canEditRoles')) {
         showRBACToast('Permission Denied: Only Admin (Studio Lead) can reassign roles.', 'danger');
-        return;
-      }
-
-      if (PSA.online) {
-        psaApi('PATCH', `/api/admin/users/${encodeURIComponent(userId)}`, { role: newRole })
-          .then(({ user }) => {
-            PSA.users = PSA.users.map(u => (u.id === user.id ? user : u));
-            showRBACToast(`Role for ${psaEsc(user.name)} changed to ${newRole.toUpperCase()}.`, 'success');
-            renderUsersTable();
-          })
-          .catch(err => {
-            showRBACToast(psaEsc(err.message), 'danger');
-            renderUsersTable();
-          });
         return;
       }
 

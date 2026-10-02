@@ -8,18 +8,21 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-[#FDFBF7] dark:bg-[#121215] text-[#2B1D1D] dark:text-white font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
   <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2D2D38]">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0">
-        <a href="dashboard-buyer.html" onclick="event.preventDefault(); psaGoBack('dashboard-buyer.html')" class="psa-back-link text-xl font-black text-[#FFA552]" aria-label="Go back">&lsaquo;</a>
+        <a href="dashboard-buyer.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:border-[#FFA552] text-xs font-bold text-[#2B1D1D] dark:text-white transition" aria-label="Back to My Account">
+          <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span>Back</span>
+        </a>
         <h1 class="text-base sm:text-lg font-black truncate">Viewed History</h1>
       </div>
-      <div class="flex items-center gap-3 text-xs font-bold">
-        <a href="cart.html" class="text-[#FFA552] hover:underline">Bag</a>
+      <div class="flex items-center gap-2 sm:gap-3 text-xs font-bold">
+        <a href="home.html" class="px-3 py-1.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:border-[#FFA552] text-[#2B1D1D] dark:text-white transition">Exit to Store</a>
+        <a href="cart.html" class="text-[#FFA552] hover:underline px-2">Bag</a>
         <button type="button" id="editBtn" onclick="toggleEdit()" class="px-3 py-1.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] font-black cursor-pointer">Edit</button>
       </div>
     </div>

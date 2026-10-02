@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Executive Operations & Performance Report — PsaOnline Admin</title>
-  <meta name="description" content="PsaOnline Gen-Z accessories studio management dashboard, financial analytics, and order fulfillment." />
+  <title>Executive Financial & Operations Report — PsaOnline Admin</title>
+  <meta name="description" content="PsaOnline accessories studio financial report, Bakong KHQR settlement ledger, and fulfillment SLA analytics." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -21,92 +21,173 @@
     };
   </script>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <link rel="stylesheet" href="assets/css/mobile.css" />
-</head>
-<body class="bg-[#FDFBF7] dark:bg-[#121215] text-[#2B1D1D] dark:text-[#F4F4F6] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+  <style>
+    /* Force clean white-paper styling inside the official print sheet regardless of dark mode */
+    .print-sheet,
+    html.dark .print-sheet {
+      background-color: #ffffff !important;
+      color: #111827 !important;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    html.dark .print-sheet .bg-white,
+    html.dark .print-sheet .bg-stone-50,
+    html.dark .print-sheet .bg-stone-100 {
+      background-color: #f9fafb !important;
+      color: #111827 !important;
+    }
+    html.dark .print-sheet .text-\[\#2B1D1D\],
+    html.dark .print-sheet .text-stone-900,
+    html.dark .print-sheet .text-stone-800,
+    html.dark .print-sheet .text-stone-700,
+    html.dark .print-sheet .text-stone-600,
+    html.dark .print-sheet .text-stone-500 {
+      color: #111827 !important;
+    }
+    .print-table th,
+    .print-table td {
+      border: 1px solid #d6d3d1;
+      padding: 5px 8px;
+      font-variant-numeric: tabular-nums;
+    }
+    .print-table thead th {
+      background-color: #f5f5f4 !important;
+      color: #1c1917 !important;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 9.5px;
+      letter-spacing: 0.04em;
+    }
 
-  <!-- Admin Top Navigation Bar with RBAC Role Switcher -->
-  <header class="bg-[#FDFBF7]/95 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2D2D38] sticky top-0 z-40 transition-all duration-300">
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm 10mm;
+      }
+      header,
+      #mobileAdminNav,
+      #webDashboardMain,
+      #printPreviewToolbar,
+      .no-print {
+        display: none !important;
+      }
+      body,
+      html {
+        background: #ffffff !important;
+        color: #111827 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      #printReportModal {
+        display: block !important;
+        position: static !important;
+        inset: auto !important;
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+      }
+      #printableOfficialReport {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .print-avoid-break {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#F8F6F2] dark:bg-[#111115] text-[#2B1D1D] dark:text-[#F4F4F6] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+
+  <!-- Admin Top Navigation Bar with Persistent RBAC & Logout Menu -->
+  <header class="bg-white/95 dark:bg-[#16161C]/95 backdrop-blur-md border-b border-stone-200/80 dark:border-[#272732] sticky top-0 z-40 transition-all duration-200">
     
     <!-- Staff Mode Notice Banner (Visible when user has Staff role) -->
-    <div class="rbac-staff-banner hidden bg-gradient-to-r from-blue-500/10 via-amber-500/10 to-blue-500/10 border-b border-blue-200 dark:border-blue-900/60 px-4 sm:px-8 py-2 text-xs flex items-center justify-between text-[#2B1D1D] dark:text-white">
+    <div class="rbac-staff-banner hidden bg-blue-50 dark:bg-blue-950/60 border-b border-blue-200 dark:border-blue-900/60 px-4 sm:px-8 py-2 text-xs flex items-center justify-between text-[#2B1D1D] dark:text-white">
       <div class="flex items-center gap-2">
-        <span class="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-black text-[10px] uppercase">Staff Mode</span>
-        <span class="font-medium text-stone-600 dark:text-stone-300">Operational fulfillment view. Raw financial exports and user role editing are restricted.</span>
+        <span class="px-2 py-0.5 rounded bg-blue-600 text-white font-bold text-[10px] uppercase tracking-wider">Staff View</span>
+        <span class="font-medium text-stone-600 dark:text-stone-300">Operational fulfillment mode. Raw financial ledger exports and role assignments require Admin privileges.</span>
       </div>
-      <button onclick="switchUserRole('Admin')" class="text-blue-600 dark:text-blue-400 font-black hover:underline cursor-pointer flex items-center gap-1">
-        <span>👑 Switch to Admin</span>
+      <button onclick="switchUserRole('Admin')" class="text-blue-700 dark:text-blue-400 font-bold hover:underline cursor-pointer flex items-center gap-1">
+        <span>Switch to Admin Role &rarr;</span>
       </button>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
       <div class="flex items-center gap-4 sm:gap-6">
         
         <!-- Logo -->
-        <a href="dashboard-admin.html" class="flex items-center gap-2.5 sm:gap-3 group" title="PsaOnline Studio Operations">
+        <a href="dashboard-admin.html" class="flex items-center gap-2.5 group shrink-0" title="PsaOnline Studio Operations">
           <img 
             src="assets/images/psa-accessories-online-logo.svg" 
             alt="Psa Accessories Online" 
-            class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
+            class="h-9 w-auto object-contain"
           />
           <div>
             <div class="flex items-center gap-1.5">
-              <span class="text-base sm:text-lg font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">Psa<span class="text-[#FFA552]">Online</span></span>
-              <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black px-1.5 py-0.5 rounded bg-[#FFA552]/10 border border-[#FFA552]/40">Studio Ops</span>
+              <span class="text-base font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">Psa<span class="text-[#FFA552]">Online</span></span>
+              <span class="text-[9px] uppercase tracking-wider text-stone-600 dark:text-stone-300 font-bold px-1.5 py-0.5 rounded bg-stone-100 dark:bg-[#252530] border border-stone-200 dark:border-[#32323D]">Admin</span>
             </div>
-            <div class="text-[10px] text-stone-500 dark:text-stone-400 font-bold mt-0.5">Executive Report Dashboard</div>
+            <div class="text-[10px] text-stone-500 dark:text-stone-400 font-medium mt-0.5">Operations &amp; Finance</div>
           </div>
         </a>
 
         <!-- Desktop Nav Items -->
-        <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-stone-600 dark:text-stone-300">
-          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-full bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D] shadow-xs">Reports & KPIs</a>
-          <a href="admin-orders.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition">Orders & Slips</a>
-          <a href="admin-products.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition">Drops & Stock</a>
-          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition rbac-admin-only">KHQR Gateways</a>
-          <a href="admin-users.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition rbac-admin-only">Staff & RBAC</a>
+        <nav class="hidden lg:flex items-center gap-1 text-xs font-semibold text-stone-600 dark:text-stone-300">
+          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-lg bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D] font-bold">Financial Report</a>
+          <a href="admin-orders.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition">Orders &amp; Slips</a>
+          <a href="admin-products.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition">Catalog &amp; Stock</a>
+          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition rbac-admin-only">KHQR Gateways</a>
+          <a href="admin-users.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition rbac-admin-only">Staff &amp; RBAC</a>
         </nav>
       </div>
 
-      <!-- Action Items: RBAC Switcher, Theme, Currency & Storefront -->
-      <div class="flex items-center gap-2 sm:gap-3">
+      <!-- Action Items: Exit to Storefront, Currency, Theme, Profile & Logout Dropdown -->
+      <div class="flex items-center gap-2">
         
-        <!-- Live Storefront Link -->
-        <a href="home.html" target="_blank" class="hidden sm:inline-flex items-center gap-1 text-xs text-[#FFA552] font-black hover:underline transition">
-          <span>Storefront</span>
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+        <!-- Back / Exit to Storefront Button -->
+        <a href="home.html" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-stone-200 dark:border-[#32323D] bg-stone-50 dark:bg-[#1E1E26] hover:bg-stone-100 dark:hover:bg-[#272732] text-xs text-[#2B1D1D] dark:text-stone-200 font-bold transition" title="Exit Admin & Return to Storefront">
+          <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span class="hidden sm:inline">Exit to Store</span>
         </a>
 
-        <!-- Currency Selector Pill -->
-        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
-          <button type="button" onclick="setReportCurrency('USD')" id="repCurUSD" class="px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD ($)</button>
-          <button type="button" onclick="setReportCurrency('KHR')" id="repCurKHR" class="px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-stone-300">KHR (៛)</button>
+        <!-- Currency Selector -->
+        <div class="flex items-center bg-stone-100 dark:bg-[#1E1E26] p-0.5 rounded-lg border border-stone-200 dark:border-[#32323D] text-[11px]">
+          <button type="button" onclick="setReportCurrency('USD')" id="repCurUSD" class="px-2.5 py-1 font-bold rounded-md transition-all bg-[#2B1D1D] text-white shadow-xs cursor-pointer">USD ($)</button>
+          <button type="button" onclick="setReportCurrency('KHR')" id="repCurKHR" class="px-2.5 py-1 font-bold rounded-md transition-all text-stone-600 dark:text-stone-300 cursor-pointer">KHR (៛)</button>
         </div>
 
         <!-- Dark / Light Theme Toggle -->
         <button 
           type="button" 
           onclick="toggleTheme()" 
-          class="theme-toggle-btn p-2 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all shadow-xs cursor-pointer" 
-          title="Toggle Theme"
+          class="theme-toggle-btn p-2 rounded-lg border border-stone-200 dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-stone-100 dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all cursor-pointer" 
+          title="Toggle Dark / Light Theme"
         >
-          <svg class="w-4 h-4 text-stone-700 dark:text-stone-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <svg class="w-4 h-4 text-stone-600 dark:text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
         </button>
 
-        <div class="h-6 w-px bg-[#EFE4D6] dark:bg-[#2D2D38] hidden sm:block"></div>
+        <div class="h-5 w-px bg-stone-200 dark:bg-[#2D2D38] hidden sm:block"></div>
 
-        <!-- RBAC Interactive Role Switcher Pill -->
-        <div class="relative group">
+        <!-- RBAC & Account Menu (Click OR Hover with Zero Gap so it never disappears) -->
+        <div class="relative group rbac-dropdown-container">
           <button 
             type="button" 
-            class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#32323D] hover:border-[#FFA552] transition shadow-xs cursor-pointer"
+            onclick="toggleRbacDropdown(event)"
+            aria-expanded="false"
+            aria-haspopup="true"
+            class="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-white dark:bg-[#1E1E26] border border-stone-200 dark:border-[#32323D] hover:border-[#FFA552] transition cursor-pointer"
             id="rbacRoleSelectorBtn"
           >
-            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-[#FFA552] to-[#2B1D1D] text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
+            <div class="w-7 h-7 rounded-lg bg-[#2B1D1D] dark:bg-[#FFA552] text-white dark:text-[#2B1D1D] font-black text-xs flex items-center justify-center rbac-current-avatar">
               SO
             </div>
             <div class="hidden sm:block text-left text-xs leading-tight">
-              <div class="font-extrabold text-[#2B1D1D] dark:text-white rbac-current-name">Sokha Ouk</div>
+              <div class="font-bold text-[#2B1D1D] dark:text-white rbac-current-name">Sokha Ouk</div>
               <div class="flex items-center gap-1 mt-0.5">
                 <span class="rbac-role-badge">Admin</span>
                 <svg class="w-3 h-3 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -114,65 +195,82 @@
             </div>
           </button>
 
-          <!-- Dropdown Menu to test and switch roles with 1 click -->
-          <div class="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#1A1A22] rounded-2xl border-2 border-[#FFA552]/50 shadow-2xl p-2 hidden group-hover:block transition-all z-50 animate-fade-in-up">
-            <div class="px-3 py-2 border-b border-[#F9F3EA] dark:border-[#2D2D38]">
-              <div class="text-[10px] font-black uppercase text-[#FFA552] tracking-wider flex items-center justify-between">
-                <span>RBAC Role Switcher</span>
-                <span class="text-[9px] text-stone-400 font-mono">Live Session</span>
+          <!-- Dropdown Menu: Uses seamless hover bridge + click-to-pin so moving cursor never closes it -->
+          <div class="rbac-dropdown-menu absolute right-0 top-full w-72 bg-white dark:bg-[#1A1A22] rounded-xl border border-stone-200 dark:border-[#32323D] shadow-xl p-2 hidden group-hover:block z-50">
+            <div class="px-3 py-2 border-b border-stone-100 dark:border-[#2D2D38]">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-[#2B1D1D] dark:text-white rbac-current-name">Sokha Ouk</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold">Active Session</span>
               </div>
-              <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">Switch role to test access boundaries:</div>
+              <div class="text-[11px] text-stone-500 dark:text-stone-400 truncate rbac-current-email">sokha@psaonline.kh</div>
             </div>
+
+            <div class="px-3 pt-2 pb-1">
+              <div class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">Switch Role (RBAC Preview)</div>
+            </div>
+
             <div class="py-1 space-y-1">
               <button 
                 type="button" 
                 onclick="switchUserRole('Admin')" 
-                class="w-full px-3 py-2 rounded-xl text-left hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs flex items-center justify-between transition cursor-pointer"
+                class="w-full px-3 py-2 rounded-lg text-left hover:bg-stone-100 dark:hover:bg-[#252530] text-xs flex items-center justify-between transition cursor-pointer"
               >
-                <div class="flex items-center gap-2">
-                  <span class="text-base">👑</span>
+                <div class="flex items-center gap-2.5">
+                  <span class="w-6 h-6 rounded-md bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold text-[11px]">A</span>
                   <div>
                     <div class="font-bold text-[#2B1D1D] dark:text-white">Admin (Studio Lead)</div>
-                    <div class="text-[10px] text-stone-400">Full reports, CSV exports & roles</div>
+                    <div class="text-[10px] text-stone-400">Full financial report, exports &amp; roles</div>
                   </div>
                 </div>
-                <span class="text-[10px] font-bold text-purple-600 rbac-status-admin">Select</span>
+                <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400 rbac-status-admin">Select</span>
               </button>
 
               <button 
                 type="button" 
                 onclick="switchUserRole('Staff')" 
-                class="w-full px-3 py-2 rounded-xl text-left hover:bg-blue-50 dark:hover:bg-blue-950/40 text-xs flex items-center justify-between transition cursor-pointer"
+                class="w-full px-3 py-2 rounded-lg text-left hover:bg-stone-100 dark:hover:bg-[#252530] text-xs flex items-center justify-between transition cursor-pointer"
               >
-                <div class="flex items-center gap-2">
-                  <span class="text-base">⚡</span>
+                <div class="flex items-center gap-2.5">
+                  <span class="w-6 h-6 rounded-md bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-[11px]">S</span>
                   <div>
-                    <div class="font-bold text-[#2B1D1D] dark:text-white">Staff (Dispatch Team)</div>
-                    <div class="text-[10px] text-stone-400">Orders & slips (exports restricted)</div>
+                    <div class="font-bold text-[#2B1D1D] dark:text-white">Staff (Fulfillment Team)</div>
+                    <div class="text-[10px] text-stone-400">Verify KHQR slips &amp; dispatch orders</div>
                   </div>
                 </div>
-                <span class="text-[10px] font-bold text-blue-600 rbac-status-staff">Select</span>
+                <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 rbac-status-staff">Select</span>
               </button>
 
               <button 
                 type="button" 
                 onclick="switchUserRole('Buyer')" 
-                class="w-full px-3 py-2 rounded-xl text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs flex items-center justify-between transition cursor-pointer"
+                class="w-full px-3 py-2 rounded-lg text-left hover:bg-stone-100 dark:hover:bg-[#252530] text-xs flex items-center justify-between transition cursor-pointer"
               >
-                <div class="flex items-center gap-2">
-                  <span class="text-base">🛍️</span>
+                <div class="flex items-center gap-2.5">
+                  <span class="w-6 h-6 rounded-md bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-[11px]">B</span>
                   <div>
-                    <div class="font-bold text-[#2B1D1D] dark:text-white">Buyer (Customer)</div>
-                    <div class="text-[10px] text-stone-400">Test 403 access security guard</div>
+                    <div class="font-bold text-[#2B1D1D] dark:text-white">Buyer (Customer View)</div>
+                    <div class="text-[10px] text-stone-400">Test 403 security access boundary</div>
                   </div>
                 </div>
-                <span class="text-[10px] font-bold text-emerald-600 rbac-status-buyer">Select</span>
+                <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 rbac-status-buyer">Select</span>
               </button>
             </div>
             
-            <div class="pt-2 border-t border-[#F9F3EA] dark:border-[#2D2D38] px-3 py-1.5 flex items-center justify-between text-[10px]">
-              <a href="admin-users.html" class="text-[#FFA552] font-bold hover:underline">Manage All Roles &rarr;</a>
-              <button onclick="openRBACMatrixModal()" class="text-stone-400 hover:text-[#FFA552] underline cursor-pointer">Security Matrix</button>
+            <div class="pt-1.5 mt-1 border-t border-stone-100 dark:border-[#2D2D38] px-3 py-1.5 flex items-center justify-between text-[11px]">
+              <a href="admin-users.html" class="text-stone-600 dark:text-stone-300 font-semibold hover:text-[#FFA552]">Manage Staff &rarr;</a>
+              <button type="button" onclick="openRBACMatrixModal()" class="text-stone-500 dark:text-stone-400 hover:text-[#FFA552] font-medium cursor-pointer">Permissions Matrix</button>
+            </div>
+
+            <!-- Explicit Exit & Log Out Buttons -->
+            <div class="pt-2 mt-1 border-t border-stone-100 dark:border-[#2D2D38] flex items-center justify-between gap-2 px-2 pb-1">
+              <a href="home.html" class="flex-1 px-2.5 py-2 rounded-lg text-[11px] font-bold text-stone-700 dark:text-stone-200 bg-stone-100 dark:bg-[#252530] hover:bg-stone-200 dark:hover:bg-[#30303E] flex items-center justify-center gap-1.5 transition">
+                <svg class="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                <span>Storefront</span>
+              </a>
+              <button type="button" data-rbac-logout onclick="logoutSession()" class="flex-1 px-2.5 py-2 rounded-lg text-[11px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/70 border border-red-200/70 dark:border-red-900/50 flex items-center justify-center gap-1.5 transition cursor-pointer">
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <span>Log Out</span>
+              </button>
             </div>
           </div>
         </div>
@@ -181,265 +279,352 @@
     </div>
   </header>
 
-  <!-- Report Dashboard Content -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 flex-1 w-full space-y-8">
+  <!-- Executive Report Main Container -->
+  <main id="webDashboardMain" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 w-full space-y-6">
     
-    <!-- Dashboard Top Bar: Date Filter & Export Tools -->
-    <div class="reveal-init flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#EFE4D6] dark:border-[#2D2D38] pb-6">
-      <div>
-        <div class="text-xs font-extrabold text-[#FFA552] uppercase tracking-wider mb-1 flex items-center gap-2">
-          <span>📊</span>
-          <span>Analytics & Operational Intelligence</span>
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-          <span class="text-emerald-600 dark:text-emerald-400 font-bold normal-case">Live Phnom Penh Studio Hub</span>
-        </div>
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-[#2B1D1D] dark:text-white tracking-tight">
-          Performance & Sales Report
-        </h1>
-        <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1 font-medium">
-          Real-time metrics on Bakong Universal KHQR settlement, category revenue distribution, and same-day courier velocity.
-        </p>
-      </div>
-
-      <!-- Controls: Date Range Filter & Export Actions -->
-      <div class="flex flex-wrap items-center gap-2.5">
-        
-        <!-- Date Range Filter Tabs -->
-        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-1 rounded-2xl border border-[#EFE4D6] dark:border-[#32323D] text-xs font-bold" id="dateFilterBar">
-          <button type="button" onclick="setReportDateRange('today', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D]">Today</button>
-          <button type="button" onclick="setReportDateRange('7d', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D] shadow-xs">Last 7 Days</button>
-          <button type="button" onclick="setReportDateRange('30d', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D]">Last 30 Days</button>
-          <button type="button" onclick="setReportDateRange('ytd', this)" class="date-range-btn px-3 py-1.5 rounded-xl transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D]">YTD</button>
+    <!-- Formal Executive Report Header Card -->
+    <div class="report-card bg-white dark:bg-[#18181F] rounded-xl border border-stone-200/90 dark:border-[#272732] p-5 sm:p-6 shadow-xs">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-stone-100 dark:border-[#252530]">
+        <div class="space-y-1">
+          <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-stone-500 dark:text-stone-400">
+            <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] dark:text-stone-200 font-mono font-bold">REF: FIN-2026-Q4</span>
+            <span>&bull;</span>
+            <span id="reportPeriodSubtitle">Reporting Period: Sep 26 – Oct 02, 2026 (Last 7 Days)</span>
+            <span>&bull;</span>
+            <span class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-semibold">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              Audited Ledger
+            </span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight">
+            Executive Sales &amp; Operations Report
+          </h1>
+          <p class="text-xs text-stone-500 dark:text-stone-400">
+            Consolidated revenue statement, Bakong KHQR bank settlement reconciliation, SKU velocity, and Phnom Penh courier SLA performance.
+          </p>
         </div>
 
-        <!-- Export Buttons (RBAC Guarded for Admin) -->
-        <div class="flex items-center gap-2">
+        <!-- Controls: Date Range Filter & Export Actions -->
+        <div class="no-print flex flex-wrap items-center gap-2 self-start lg:self-center">
+          <!-- Date Range Segmented Filter -->
+          <div class="flex items-center bg-stone-100 dark:bg-[#22222C] p-1 rounded-lg border border-stone-200 dark:border-[#32323D] text-xs font-semibold" id="dateFilterBar">
+            <button type="button" data-range="today" onclick="setReportDateRange('today', this)" class="date-range-btn px-2.5 py-1.5 rounded-md transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D] dark:hover:text-white cursor-pointer">Today</button>
+            <button type="button" data-range="7d" onclick="setReportDateRange('7d', this)" class="date-range-btn px-2.5 py-1.5 rounded-md transition-all bg-white dark:bg-[#16161C] text-[#2B1D1D] dark:text-white font-bold shadow-xs cursor-pointer">7 Days</button>
+            <button type="button" data-range="30d" onclick="setReportDateRange('30d', this)" class="date-range-btn px-2.5 py-1.5 rounded-md transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D] dark:hover:text-white cursor-pointer">30 Days</button>
+            <button type="button" data-range="ytd" onclick="setReportDateRange('ytd', this)" class="date-range-btn px-2.5 py-1.5 rounded-md transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D] dark:hover:text-white cursor-pointer">YTD 2026</button>
+          </div>
+
+          <!-- Export Buttons -->
           <button 
             type="button" 
             onclick="exportReportData('csv')" 
-            class="btn-press px-4 py-2.5 rounded-xl bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] border border-[#EFE4D6] dark:border-[#32323D] text-xs font-extrabold text-[#2B1D1D] dark:text-white flex items-center gap-1.5 shadow-xs cursor-pointer"
+            class="px-3.5 py-2 rounded-lg bg-white dark:bg-[#22222C] hover:bg-stone-50 dark:hover:bg-[#2A2A36] border border-stone-200 dark:border-[#32323D] text-xs font-bold text-[#2B1D1D] dark:text-white flex items-center gap-1.5 shadow-xs transition cursor-pointer"
             id="exportCsvBtn"
-            title="Export CSV Spreadsheet"
+            title="Export Financial Statement CSV"
           >
-            <svg class="w-4 h-4 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <svg class="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             <span>Export CSV</span>
           </button>
 
           <button 
             type="button" 
-            onclick="window.print()" 
-            class="btn-press px-3.5 py-2.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-xs font-black flex items-center gap-1.5 shadow-md transition cursor-pointer"
-            title="Print or Save PDF"
+            onclick="openPrintReportPreview()" 
+            class="px-3.5 py-2 rounded-lg bg-[#2B1D1D] hover:bg-[#3D2929] dark:bg-[#FFA552] dark:hover:bg-[#E88C35] text-white dark:text-[#2B1D1D] text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+            title="Open Clean Printable Statement & Save as PDF"
           >
-            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-            <span class="hidden sm:inline">Print Report</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            <span>Print Report</span>
           </button>
         </div>
+      </div>
 
+      <!-- Report Metadata Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3.5 text-xs">
+        <div>
+          <span class="text-stone-400 block text-[10px] uppercase font-bold tracking-wider">Operating Entity</span>
+          <span class="font-bold text-[#2B1D1D] dark:text-stone-200">PsaOnline Studio (Phnom Penh)</span>
+        </div>
+        <div>
+          <span class="text-stone-400 block text-[10px] uppercase font-bold tracking-wider">Settlement Exchange Rate</span>
+          <span class="font-mono font-semibold text-[#2B1D1D] dark:text-stone-200">1.00 USD = 4,100 KHR (NBC)</span>
+        </div>
+        <div>
+          <span class="text-stone-400 block text-[10px] uppercase font-bold tracking-wider">Primary Merchant Gateway</span>
+          <span class="font-bold text-[#2B1D1D] dark:text-stone-200">Bakong KHQR (ABA / ACLEDA)</span>
+        </div>
+        <div>
+          <span class="text-stone-400 block text-[10px] uppercase font-bold tracking-wider">Prepared By</span>
+          <span class="font-bold text-[#2B1D1D] dark:text-stone-200"><span class="rbac-current-name">Sokha Ouk</span> (<span class="rbac-current-role">Admin</span>)</span>
+        </div>
       </div>
     </div>
 
-    <!-- 4 High-Impact KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <!-- 4 Executive KPI Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       
       <!-- KPI 1: Gross Sales Revenue -->
-      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FFA552] transition-colors">
-        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-bold">
+      <div class="report-card bg-white dark:bg-[#18181F] p-5 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-semibold">
           <span>Gross Sales Revenue</span>
-          <span class="inline-flex items-center gap-1 text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
-            ↑ +24.8%
+          <span id="kpiRevenueDelta" class="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/50 px-2 py-0.5 rounded-md tabular-nums">
+            +14.2%
           </span>
         </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2" id="kpiGrossRevenue">
+        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2.5 tabular-nums tracking-tight" id="kpiGrossRevenue">
           $1,842.50
         </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#F9F3EA] dark:border-[#272732]">
-          <span class="font-bold text-[#FFA552]" id="kpiGrossKHR">7,554,250 ៛ KHR</span>
-          <span>Net Margin: <strong>68.4%</strong></span>
+        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-3 pt-2.5 border-t border-stone-100 dark:border-[#252530] tabular-nums">
+          <span class="font-semibold text-stone-700 dark:text-stone-300" id="kpiGrossKHR">7,554,250 ៛</span>
+          <span>Net Margin: <strong class="text-[#2B1D1D] dark:text-white" id="kpiNetMargin">64.8%</strong></span>
         </div>
       </div>
 
-      <!-- KPI 2: Total Completed Orders -->
-      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FFA552] transition-colors">
-        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-bold">
-          <span>Orders Completed</span>
-          <span class="inline-flex items-center gap-1 text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
-            94.6% Rate
+      <!-- KPI 2: Completed Orders -->
+      <div class="report-card bg-white dark:bg-[#18181F] p-5 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-semibold">
+          <span>Completed Orders</span>
+          <span id="kpiOrdersRate" class="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/50 px-2 py-0.5 rounded-md tabular-nums">
+            94.6% Fulfilled
           </span>
         </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2" id="kpiTotalOrders">
+        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2.5 tabular-nums tracking-tight" id="kpiTotalOrders">
           84 Orders
         </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#F9F3EA] dark:border-[#272732]">
-          <span>Pending KHQR Review: <strong class="text-amber-500">3</strong></span>
-          <span>Returned: <strong>0</strong></span>
+        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-3 pt-2.5 border-t border-stone-100 dark:border-[#252530] tabular-nums">
+          <span>Awaiting Review: <strong class="text-amber-600 dark:text-amber-400" id="kpiPendingCount">3</strong></span>
+          <span>Refunded: <strong class="text-[#2B1D1D] dark:text-white" id="kpiRefundCount">1</strong></span>
         </div>
       </div>
 
       <!-- KPI 3: Average Order Value (AOV) -->
-      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FFA552] transition-colors">
-        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-bold">
+      <div class="report-card bg-white dark:bg-[#18181F] p-5 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-semibold">
           <span>Average Order Value</span>
-          <span class="inline-flex items-center gap-1 text-[11px] font-black text-[#FFA552] bg-orange-50 dark:bg-orange-950/60 px-2 py-0.5 rounded-full">
-            2.8 Items / Bag
+          <span id="kpiUnitsPerOrder" class="inline-flex items-center gap-0.5 text-[11px] font-bold text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-[#252530] px-2 py-0.5 rounded-md tabular-nums">
+            2.4 Units / Order
           </span>
         </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2" id="kpiAOV">
+        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2.5 tabular-nums tracking-tight" id="kpiAOV">
           $21.93
         </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#F9F3EA] dark:border-[#272732]">
-          <span class="font-bold text-[#FFA552]" id="kpiAOVKHR">89,913 ៛</span>
-          <span>Cart Conversion: <strong>6.8%</strong></span>
+        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-3 pt-2.5 border-t border-stone-100 dark:border-[#252530] tabular-nums">
+          <span class="font-semibold text-stone-700 dark:text-stone-300" id="kpiAOVKHR">89,913 ៛</span>
+          <span>Conversion: <strong class="text-[#2B1D1D] dark:text-white" id="kpiConversion">4.2%</strong></span>
         </div>
       </div>
 
-      <!-- KPI 4: Courier Dispatch Velocity -->
-      <div class="bg-white dark:bg-[#1A1A22] p-5 sm:p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm relative overflow-hidden group hover:border-[#FFA552] transition-colors">
-        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-bold">
-          <span>Courier Velocity</span>
-          <span class="inline-flex items-center gap-1 text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
-            🛵 5 Couriers Live
+      <!-- KPI 4: Courier Dispatch & SLA -->
+      <div class="report-card bg-white dark:bg-[#18181F] p-5 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-semibold">
+          <span>Avg. Dispatch SLA</span>
+          <span id="kpiSlaBadge" class="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/50 px-2 py-0.5 rounded-md tabular-nums">
+            98.4% On-Time
           </span>
         </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2">
-          38 Mins
+        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2.5 tabular-nums tracking-tight" id="kpiDispatchTime">
+          36 Mins
         </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-2 pt-2 border-t border-[#F9F3EA] dark:border-[#272732]">
-          <span>Express Delivery Hub: <strong>Phnom Penh</strong></span>
-          <span>Coverage: <strong>100%</strong></span>
+        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-3 pt-2.5 border-t border-stone-100 dark:border-[#252530]">
+          <span>Fleet: <strong class="text-[#2B1D1D] dark:text-white">Grab &amp; VET</strong></span>
+          <span>Zone: <strong class="text-[#2B1D1D] dark:text-white">Phnom Penh</strong></span>
         </div>
       </div>
 
     </div>
 
-    <!-- Charts & Analytics Section (2 Columns) -->
+    <!-- Analytical Section: Revenue Trend & Financial Reconciliation (7 Cols) + Category & Gateway Breakdown (5 Cols) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- Left 7 Cols: Revenue Velocity SVG Chart -->
-      <div class="lg:col-span-7 bg-white dark:bg-[#1A1A22] p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm space-y-4">
-        <div class="flex items-center justify-between border-b border-[#F9F3EA] dark:border-[#272732] pb-3">
+      <!-- Left 7 Cols: Revenue & Order Volume Chart + Net Reconciliation Ledger -->
+      <div class="lg:col-span-7 report-card bg-white dark:bg-[#18181F] p-5 sm:p-6 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs flex flex-col justify-between space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 dark:border-[#252530] pb-3.5">
           <div>
             <div class="flex items-center gap-2">
-              <h2 class="text-base font-black text-[#2B1D1D] dark:text-white">Daily Revenue & Velocity Trend</h2>
-              <span id="chartCurrencyBadge" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#FFA552]/10 text-[#FFA552]">USD ($)</span>
+              <h2 class="text-base font-black text-[#2B1D1D] dark:text-white" id="chartHeadingTitle">Revenue &amp; Order Trajectory</h2>
+              <span id="chartCurrencyBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-100 dark:bg-[#252530] text-stone-700 dark:text-stone-300">USD ($)</span>
             </div>
-            <p class="text-xs text-stone-400 mt-0.5">Dual currency tracking with weekend viral drop spikes</p>
+            <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Verified gross sales and completed order count across selected period</p>
           </div>
-          <span class="text-xs font-bold text-[#FFA552] bg-[#FFA552]/10 px-2.5 py-1 rounded-full">
-            +18.4% WoW
-          </span>
+          <div class="flex items-center gap-3 text-[11px] font-semibold text-stone-500">
+            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-[#2B1D1D] dark:bg-stone-300"></span> Standard Day</span>
+            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-[#FFA552]"></span> Peak Drop</span>
+          </div>
         </div>
 
-        <!-- Dynamic Bar Chart Container -->
-        <div class="h-64 flex items-end justify-between gap-2 sm:gap-3 pt-6 pb-2 px-1 select-none" id="chartBarContainer">
-          <!-- Dynamically populated via renderBarChart() -->
+        <!-- Bar Chart with Y-Axis Reference Lines -->
+        <div class="relative pt-4 pb-1">
+          <!-- Subtle horizontal grid lines -->
+          <div class="absolute inset-x-0 top-4 bottom-8 flex flex-col justify-between pointer-events-none">
+            <div class="border-b border-dashed border-stone-100 dark:border-[#23232E] w-full"></div>
+            <div class="border-b border-dashed border-stone-100 dark:border-[#23232E] w-full"></div>
+            <div class="border-b border-dashed border-stone-100 dark:border-[#23232E] w-full"></div>
+            <div class="border-b border-stone-200 dark:border-[#2D2D38] w-full"></div>
+          </div>
+
+          <!-- Dynamic Bars -->
+          <div class="relative h-56 flex items-end justify-between gap-2 sm:gap-3 pt-6 px-2 select-none z-10" id="chartBarContainer">
+            <!-- Populated via renderBarChart() -->
+          </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-stone-400 pt-2 border-t border-[#F9F3EA] dark:border-[#272732] gap-1">
-          <div>Lowest: <span id="chartMinVal">$185</span> &bull; Peak: <span id="chartMaxVal">$420</span> (Saturday Drop Surge)</div>
-          <div class="font-bold text-[#FFA552]" id="chartPeriodTotal">Total: $2,075.00 (8,507,500 ៛)</div>
+        <!-- Chart Min / Peak / Period Total Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-stone-500 dark:text-stone-400 pt-2 border-t border-stone-100 dark:border-[#252530] gap-1 tabular-nums">
+          <div>Period Low: <strong class="text-[#2B1D1D] dark:text-stone-200" id="chartMinVal">$185.00</strong> &bull; Peak Period: <strong class="text-[#2B1D1D] dark:text-stone-200" id="chartMaxVal">$395.00</strong></div>
+          <div class="font-bold text-[#2B1D1D] dark:text-white" id="chartPeriodTotal">Gross Total: $1,842.50 (7,554,250 ៛)</div>
+        </div>
+
+        <!-- Accounting Reconciliation Sub-Table -->
+        <div class="bg-stone-50/90 dark:bg-[#14141A] rounded-lg border border-stone-200/70 dark:border-[#252530] p-3.5">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-2">Financial Settlement Reconciliation</div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs tabular-nums">
+            <div>
+              <div class="text-[11px] text-stone-500">Gross Merchandise</div>
+              <div class="font-bold text-[#2B1D1D] dark:text-white mt-0.5" id="reconGross">$1,842.50</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-stone-500">Courier Fees Collected</div>
+              <div class="font-bold text-emerald-700 dark:text-emerald-400 mt-0.5" id="reconShipping">+$126.00</div>
+            </div>
+            <div>
+              <div class="text-[11px] text-stone-500">Discounts &amp; Refunds</div>
+              <div class="font-bold text-red-600 dark:text-red-400 mt-0.5" id="reconDiscounts">-$48.50</div>
+            </div>
+            <div class="border-l border-stone-200 dark:border-[#272732] pl-3">
+              <div class="text-[11px] font-semibold text-stone-600 dark:text-stone-300">Net Settled Payout</div>
+              <div class="font-black text-[#2B1D1D] dark:text-[#FFA552] mt-0.5" id="reconNet">$1,920.00</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Right 5 Cols: Payment Gateway Share & Category Split -->
+      <!-- Right 5 Cols: Category Revenue Breakdown + Payment Gateway & District SLA -->
       <div class="lg:col-span-5 space-y-6">
         
-        <!-- Category Revenue Share -->
-        <div class="bg-white dark:bg-[#1A1A22] p-6 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm space-y-4">
-          <div class="flex items-center justify-between border-b border-[#F9F3EA] dark:border-[#272732] pb-3">
+        <!-- Category Sales Breakdown Table -->
+        <div class="report-card bg-white dark:bg-[#18181F] p-5 sm:p-6 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs space-y-4">
+          <div class="flex items-center justify-between border-b border-stone-100 dark:border-[#252530] pb-3">
             <div>
-              <h2 class="text-base font-black text-[#2B1D1D] dark:text-white">Category Revenue Share</h2>
-              <p class="text-xs text-stone-400">Sales volume by Gen-Z aesthetic lines</p>
+              <h2 class="text-base font-black text-[#2B1D1D] dark:text-white">Revenue by Product Category</h2>
+              <p class="text-xs text-stone-500 dark:text-stone-400">Share of gross sales across 4 core studio lines</p>
             </div>
-            <span class="text-xs font-bold text-stone-500">12 Drops Total</span>
+            <span class="text-[11px] font-semibold text-stone-500 tabular-nums" id="catTotalUnitsBadge">202 Units Sold</span>
           </div>
 
-          <div class="space-y-3.5 pt-1">
+          <div class="space-y-3.5 pt-0.5" id="categoryBreakdownList">
             <!-- Category 1: Y2K Jewelry -->
             <div class="space-y-1.5">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-black text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
-                  <span>✨</span> Y2K Chrome Jewelry
-                </span>
-                <span class="font-extrabold text-[#FFA552]" id="catJewelryVal">42% &bull; $773.85</span>
+              <div class="flex items-center justify-between text-xs tabular-nums">
+                <span class="font-bold text-[#2B1D1D] dark:text-white">Y2K Chrome Jewelry</span>
+                <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catJewelryVal">42% &bull; $773.85</span>
               </div>
-              <div class="w-full bg-[#F9F3EA] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
-                <div class="bg-[#FFA552] h-full rounded-full transition-all duration-500" style="width: 42%;"></div>
+              <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
+                <div class="bg-[#2B1D1D] dark:bg-[#FFA552] h-full rounded-full transition-all duration-500" style="width: 42%;"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-stone-400 tabular-nums">
+                <span id="catJewelryUnits">86 units sold</span>
+                <span id="catJewelryKHR">3,172,785 ៛</span>
               </div>
             </div>
 
             <!-- Category 2: Shades & Eyewear -->
             <div class="space-y-1.5">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-black text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
-                  <span>🕶️</span> 90s Tinted Shades
-                </span>
-                <span class="font-extrabold text-[#FFA552]" id="catShadesVal">26% &bull; $479.05</span>
+              <div class="flex items-center justify-between text-xs tabular-nums">
+                <span class="font-bold text-[#2B1D1D] dark:text-white">90s Tinted Eyewear</span>
+                <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catShadesVal">26% &bull; $479.05</span>
               </div>
-              <div class="w-full bg-[#F9F3EA] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
-                <div class="bg-amber-400 h-full rounded-full transition-all duration-500" style="width: 26%;"></div>
+              <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
+                <div class="bg-[#FFA552] h-full rounded-full transition-all duration-500" style="width: 26%;"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-stone-400 tabular-nums">
+                <span id="catShadesUnits">52 units sold</span>
+                <span id="catShadesKHR">1,964,105 ៛</span>
               </div>
             </div>
 
             <!-- Category 3: Puffy Cloud Bags -->
             <div class="space-y-1.5">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-black text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
-                  <span>☁️</span> Puffy Cloud Bags
-                </span>
-                <span class="font-extrabold text-[#FFA552]" id="catBagsVal">20% &bull; $368.50</span>
+              <div class="flex items-center justify-between text-xs tabular-nums">
+                <span class="font-bold text-[#2B1D1D] dark:text-white">Puffy Cloud Bags</span>
+                <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catBagsVal">20% &bull; $368.50</span>
               </div>
-              <div class="w-full bg-[#F9F3EA] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
-                <div class="bg-indigo-400 h-full rounded-full transition-all duration-500" style="width: 20%;"></div>
+              <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
+                <div class="bg-stone-500 dark:bg-stone-400 h-full rounded-full transition-all duration-500" style="width: 20%;"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-stone-400 tabular-nums">
+                <span id="catBagsUnits">31 units sold</span>
+                <span id="catBagsKHR">1,510,850 ៛</span>
               </div>
             </div>
 
             <!-- Category 4: Claw Clips & Phone Charms -->
             <div class="space-y-1.5">
-              <div class="flex items-center justify-between text-xs">
-                <span class="font-black text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
-                  <span>🍒</span> Clips & Charms
-                </span>
-                <span class="font-extrabold text-[#FFA552]" id="catClipsVal">12% &bull; $221.10</span>
+              <div class="flex items-center justify-between text-xs tabular-nums">
+                <span class="font-bold text-[#2B1D1D] dark:text-white">Clips &amp; Artisan Charms</span>
+                <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catClipsVal">12% &bull; $221.10</span>
               </div>
-              <div class="w-full bg-[#F9F3EA] dark:bg-[#252530] h-2.5 rounded-full overflow-hidden">
-                <div class="bg-rose-400 h-full rounded-full transition-all duration-500" style="width: 12%;"></div>
+              <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
+                <div class="bg-amber-600 h-full rounded-full transition-all duration-500" style="width: 12%;"></div>
+              </div>
+              <div class="flex justify-between text-[10px] text-stone-400 tabular-nums">
+                <span id="catClipsUnits">33 units sold</span>
+                <span id="catClipsKHR">906,510 ៛</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Payment Gateway Settlement Share (Cambodian Bakong KHQR Dominance) -->
-        <div class="bg-white dark:bg-[#1A1A22] p-5 rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] shadow-sm space-y-3">
-          <div class="flex items-center justify-between border-b border-[#F9F3EA] dark:border-[#272732] pb-2.5">
+        <!-- Payment Gateway Settlement Ledger -->
+        <div class="report-card bg-white dark:bg-[#18181F] p-5 sm:p-6 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs space-y-3.5">
+          <div class="flex items-center justify-between border-b border-stone-100 dark:border-[#252530] pb-3">
             <div>
-              <div class="flex items-center gap-1.5">
-                <span class="text-sm font-black text-[#2B1D1D] dark:text-white">Payment Gateway Share</span>
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              </div>
-              <p class="text-[11px] text-stone-400">Bakong KHQR settlement velocity in Phnom Penh</p>
+              <h2 class="text-sm font-black text-[#2B1D1D] dark:text-white">Payment Gateway Settlement</h2>
+              <p class="text-[11px] text-stone-500 dark:text-stone-400">Verified payment method distribution</p>
             </div>
-            <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-full">
-              99.2% Succeeded
+            <span class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/50 px-2 py-0.5 rounded">
+              99.2% Auth Rate
             </span>
           </div>
 
-          <div class="grid grid-cols-3 gap-2 text-center text-xs">
-            <div class="p-2.5 rounded-2xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/40">
-              <div class="font-black text-rose-600 dark:text-rose-400 text-base">78%</div>
-              <div class="font-bold text-[#2B1D1D] dark:text-white text-[11px]">Bakong KHQR</div>
-              <div class="text-[9px] text-stone-400">ABA & Acleda</div>
-            </div>
-            <div class="p-2.5 rounded-2xl bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40">
-              <div class="font-black text-amber-600 dark:text-amber-400 text-base">18%</div>
-              <div class="font-bold text-[#2B1D1D] dark:text-white text-[11px]">Courier COD</div>
-              <div class="text-[9px] text-stone-400">Cash on Hand</div>
-            </div>
-            <div class="p-2.5 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40">
-              <div class="font-black text-blue-600 dark:text-blue-400 text-base">4%</div>
-              <div class="font-bold text-[#2B1D1D] dark:text-white text-[11px]">Card Gateways</div>
-              <div class="text-[9px] text-stone-400">Visa / MC</div>
-            </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs tabular-nums">
+              <thead>
+                <tr class="text-[10px] uppercase tracking-wider text-stone-400 border-b border-stone-100 dark:border-[#252530]">
+                  <th class="pb-2 font-bold">Settlement Channel</th>
+                  <th class="pb-2 font-bold text-right">Txns</th>
+                  <th class="pb-2 font-bold text-right">Share</th>
+                  <th class="pb-2 font-bold text-right">Volume</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-stone-100 dark:divide-[#252530]">
+                <tr>
+                  <td class="py-2.5">
+                    <div class="font-bold text-[#2B1D1D] dark:text-white">Bakong Universal KHQR</div>
+                    <div class="text-[10px] text-stone-400">ABA Mobile &amp; ACLEDA ToanChet</div>
+                  </td>
+                  <td class="py-2.5 text-right font-semibold text-stone-600 dark:text-stone-300" id="gwKhqrTxns">66</td>
+                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white">78%</td>
+                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white" id="gwKhqrAmt">$1,437.15</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5">
+                    <div class="font-bold text-[#2B1D1D] dark:text-white">Courier Cash on Delivery</div>
+                    <div class="text-[10px] text-stone-400">GrabExpress / VET COD Settlement</div>
+                  </td>
+                  <td class="py-2.5 text-right font-semibold text-stone-600 dark:text-stone-300" id="gwCodTxns">15</td>
+                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white">18%</td>
+                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white" id="gwCodAmt">$331.65</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5">
+                    <div class="font-bold text-[#2B1D1D] dark:text-white">International Cards</div>
+                    <div class="text-[10px] text-stone-400">Visa / Mastercard 3DS</div>
+                  </td>
+                  <td class="py-2.5 text-right font-semibold text-stone-600 dark:text-stone-300" id="gwCardTxns">3</td>
+                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white">4%</td>
+                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white" id="gwCardAmt">$73.70</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -447,824 +632,1190 @@
 
     </div>
 
-    <!-- District Courier Velocity & Delivery SLA Heatmap -->
-    <div class="bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F9F3EA] dark:border-[#272732] pb-3">
+    <!-- Top Performing SKUs & Inventory Valuation Table -->
+    <div class="report-card bg-white dark:bg-[#18181F] rounded-xl border border-stone-200/90 dark:border-[#272732] p-5 sm:p-6 shadow-xs space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 dark:border-[#252530] pb-3.5">
         <div>
-          <div class="flex items-center gap-2">
-            <span class="text-base sm:text-lg font-black text-[#2B1D1D] dark:text-white">Phnom Penh Courier Velocity & District Dispatch SLA</span>
-            <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-              🛵 Same-Day Express
-            </span>
-          </div>
-          <p class="text-xs text-stone-400 mt-0.5">Average courier transit time from studio pickup to customer door</p>
+          <h2 class="text-base font-black text-[#2B1D1D] dark:text-white">Top Performing SKUs &amp; Inventory Valuation</h2>
+          <p class="text-xs text-stone-500 dark:text-stone-400">Ranked by period revenue contribution, unit turnover, and current warehouse stock health</p>
         </div>
-        <div class="text-xs font-bold text-stone-500">
-          Central Hub: <strong class="text-[#FFA552]">St 240, Daun Penh</strong>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
-        <div class="p-3 rounded-2xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#2D2D38]">
-          <div class="text-[11px] font-black text-stone-400 uppercase">Daun Penh</div>
-          <div class="text-lg font-black text-emerald-600 mt-1">25 Mins</div>
-          <div class="text-[10px] text-stone-500 mt-0.5">Highest density &bull; 99% SLA</div>
-        </div>
-
-        <div class="p-3 rounded-2xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#2D2D38]">
-          <div class="text-[11px] font-black text-stone-400 uppercase">BKK 1 / 2 / 3</div>
-          <div class="text-lg font-black text-emerald-600 mt-1">28 Mins</div>
-          <div class="text-[10px] text-stone-500 mt-0.5">Cafe & student hub</div>
-        </div>
-
-        <div class="p-3 rounded-2xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#2D2D38]">
-          <div class="text-[11px] font-black text-stone-400 uppercase">Toul Kork</div>
-          <div class="text-lg font-black text-emerald-600 mt-1">32 Mins</div>
-          <div class="text-[10px] text-stone-500 mt-0.5">Express courier lane</div>
-        </div>
-
-        <div class="p-3 rounded-2xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#2D2D38]">
-          <div class="text-[11px] font-black text-stone-400 uppercase">Chamkarmon</div>
-          <div class="text-lg font-black text-emerald-600 mt-1">30 Mins</div>
-          <div class="text-[10px] text-stone-500 mt-0.5">Russian Market corridor</div>
-        </div>
-
-        <div class="p-3 rounded-2xl bg-[#FDFBF7] dark:bg-[#15151B] border border-[#EFE4D6] dark:border-[#2D2D38]">
-          <div class="text-[11px] font-black text-stone-400 uppercase">Sen Sok</div>
-          <div class="text-lg font-black text-amber-600 mt-1">42 Mins</div>
-          <div class="text-[10px] text-stone-500 mt-0.5">Aeon 2 mall perimeter</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Top Selling Accessories Table & Stock Matrix -->
-    <div class="bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F9F3EA] dark:border-[#272732] pb-4">
-        <div>
-          <h2 class="text-base sm:text-lg font-black text-[#2B1D1D] dark:text-white">Top Selling Viral Accessories</h2>
-          <p class="text-xs text-stone-400">Ranked by revenue contribution and order frequency</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <a href="admin-products.html" class="px-3.5 py-1.5 rounded-xl bg-[#F9F3EA] dark:bg-[#252530] hover:bg-[#FFA552] hover:text-white text-xs font-bold text-[#2B1D1D] dark:text-white transition">
-            Manage Catalog Stock &rarr;
+        <div class="no-print flex items-center gap-2">
+          <a href="admin-products.html" class="px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-[#252530] hover:bg-[#2B1D1D] hover:text-white dark:hover:bg-[#FFA552] dark:hover:text-[#2B1D1D] text-xs font-bold text-[#2B1D1D] dark:text-white transition">
+            Manage Full Catalog &rarr;
           </a>
         </div>
       </div>
 
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
+        <table class="w-full text-left text-xs tabular-nums">
           <thead>
-            <tr class="text-stone-400 border-b border-[#F9F3EA] dark:border-[#272732]">
-              <th class="py-2.5 px-3">Rank & Product</th>
-              <th class="py-2.5 px-3">Category</th>
-              <th class="py-2.5 px-3">Price</th>
-              <th class="py-2.5 px-3">Units Sold</th>
-              <th class="py-2.5 px-3">Total Sales</th>
-              <th class="py-2.5 px-3">Stock Health</th>
-              <th class="py-2.5 px-3 text-right">Action</th>
+            <tr class="text-[11px] uppercase tracking-wider text-stone-400 border-b border-stone-200/80 dark:border-[#272732]">
+              <th class="py-2.5 px-3 font-bold">Rank &amp; Product</th>
+              <th class="py-2.5 px-3 font-bold">Category</th>
+              <th class="py-2.5 px-3 font-bold text-right">Unit Price</th>
+              <th class="py-2.5 px-3 font-bold text-right">Units Sold</th>
+              <th class="py-2.5 px-3 font-bold text-right">Gross Revenue</th>
+              <th class="py-2.5 px-3 font-bold">Stock Status</th>
+              <th class="py-2.5 px-3 font-bold text-right no-print">Action</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#F9F3EA] dark:divide-[#252530]" id="topSellingTableBody">
-            <!-- Injected via JavaScript from catalog data -->
+          <tbody class="divide-y divide-stone-100 dark:divide-[#252530]" id="topSellingTableBody">
+            <!-- Populated via renderTopSellingTable() -->
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Real-time Verification & Fulfillment Queue -->
-    <div class="bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
-      <div class="flex items-center justify-between border-b border-[#F9F3EA] dark:border-[#272732] pb-4">
-        <div>
-          <div class="flex items-center gap-2">
-            <h2 class="text-base sm:text-lg font-black text-[#2B1D1D] dark:text-white">Recent Orders Awaiting KHQR Verification</h2>
-            <span id="pendingSlipsBadge" class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black animate-pulse">
-              3 Pending
-            </span>
+    <!-- District Courier SLA & Pending KHQR Verification Queue (2-Section Operational Audit) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left 4 Cols: Phnom Penh District Dispatch SLA -->
+      <div class="lg:col-span-4 report-card bg-white dark:bg-[#18181F] rounded-xl border border-stone-200/90 dark:border-[#272732] p-5 sm:p-6 shadow-xs space-y-4">
+        <div class="border-b border-stone-100 dark:border-[#252530] pb-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-black text-[#2B1D1D] dark:text-white">Phnom Penh Logistics SLA</h2>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-100 dark:bg-[#252530] text-stone-600 dark:text-stone-300">St. 240 Hub</span>
           </div>
-          <p class="text-xs text-stone-400">Review Bakong universal transfer screenshots before dispatching couriers</p>
+          <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">Average courier transit time by district</p>
         </div>
-        <a href="admin-orders.html" class="text-xs font-black text-[#FFA552] hover:underline">
-          Open All Orders Queue &rarr;
-        </a>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs tabular-nums">
+            <thead>
+              <tr class="text-[10px] uppercase tracking-wider text-stone-400 border-b border-stone-100 dark:border-[#252530]">
+                <th class="pb-2 font-bold">District Zone</th>
+                <th class="pb-2 font-bold text-right">Avg Transit</th>
+                <th class="pb-2 font-bold text-right">On-Time SLA</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100 dark:divide-[#252530]">
+              <tr>
+                <td class="py-2.5 font-bold text-[#2B1D1D] dark:text-white">Daun Penh</td>
+                <td class="py-2.5 text-right font-semibold text-stone-700 dark:text-stone-300">25 mins</td>
+                <td class="py-2.5 text-right font-bold text-emerald-700 dark:text-emerald-400">99.4%</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-[#2B1D1D] dark:text-white">BKK 1 / 2 / 3</td>
+                <td class="py-2.5 text-right font-semibold text-stone-700 dark:text-stone-300">28 mins</td>
+                <td class="py-2.5 text-right font-bold text-emerald-700 dark:text-emerald-400">99.1%</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-[#2B1D1D] dark:text-white">Chamkarmon</td>
+                <td class="py-2.5 text-right font-semibold text-stone-700 dark:text-stone-300">30 mins</td>
+                <td class="py-2.5 text-right font-bold text-emerald-700 dark:text-emerald-400">98.5%</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-[#2B1D1D] dark:text-white">Toul Kork</td>
+                <td class="py-2.5 text-right font-semibold text-stone-700 dark:text-stone-300">34 mins</td>
+                <td class="py-2.5 text-right font-bold text-emerald-700 dark:text-emerald-400">97.8%</td>
+              </tr>
+              <tr>
+                <td class="py-2.5 font-bold text-[#2B1D1D] dark:text-white">Sen Sok</td>
+                <td class="py-2.5 text-right font-semibold text-stone-700 dark:text-stone-300">42 mins</td>
+                <td class="py-2.5 text-right font-bold text-amber-600 dark:text-amber-400">95.2%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead>
-            <tr class="text-stone-400 border-b border-[#F9F3EA] dark:border-[#272732]">
-              <th class="py-2.5 px-3">Order ID</th>
-              <th class="py-2.5 px-3">Customer</th>
-              <th class="py-2.5 px-3">Total Amount</th>
-              <th class="py-2.5 px-3">Payment Method</th>
-              <th class="py-2.5 px-3">Slip Proof</th>
-              <th class="py-2.5 px-3">Fulfillment Status</th>
-              <th class="py-2.5 px-3 text-right">Quick Action</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-[#F9F3EA] dark:divide-[#252530]" id="verificationQueueTable">
-            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition" id="queueRow-1">
-              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902184</td>
-              <td class="py-3 px-3">
-                <div class="font-bold text-[#2B1D1D] dark:text-white">Sophea Chhum</div>
-                <div class="text-[10px] text-stone-400">012 345 678 &bull; Daun Penh</div>
-              </td>
-              <td class="py-3 px-3">
-                <div class="font-black text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="18.50">$18.50</div>
-                <div class="text-[10px] text-[#FFA552] font-semibold order-amount-khr">75,850 ៛</div>
-              </td>
-              <td class="py-3 px-3">
-                <span class="inline-flex items-center gap-1 font-bold text-stone-700 dark:text-stone-300">
-                  <span class="w-2 h-2 rounded-full bg-red-600"></span> Bakong KHQR
-                </span>
-                <div class="text-[9px] text-stone-400 font-mono">TXN: KHQR-902184</div>
-              </td>
-              <td class="py-3 px-3">
-                <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 font-extrabold text-[10px] border border-emerald-200">
-                  Slip Attached (ABA)
-                </span>
-              </td>
-              <td class="py-3 px-3" id="queueStatus-1">
-                <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-black text-[10px] border border-amber-200">
-                  Payment Submitted
-                </span>
-              </td>
-              <td class="py-3 px-3 text-right">
-                <div class="flex items-center justify-end gap-1.5">
-                  <button 
-                    type="button" 
-                    onclick="verifyOrderSlip('PSA-902184', 1)" 
-                    class="btn-press px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] transition cursor-pointer"
-                    title="Verify Payment & Dispatch"
-                  >
-                    Verify & Dispatch 🛵
-                  </button>
-                  <a href="order-detail--admin-payment-submitted.html" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-bold text-[10px] transition">
-                    Details
-                  </a>
-                </div>
-              </td>
-            </tr>
+      <!-- Right 8 Cols: Pending KHQR Verification & Fulfillment Log -->
+      <div class="lg:col-span-8 report-card bg-white dark:bg-[#18181F] rounded-xl border border-stone-200/90 dark:border-[#272732] p-5 sm:p-6 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 dark:border-[#252530] pb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-sm sm:text-base font-black text-[#2B1D1D] dark:text-white">Orders Awaiting KHQR Slip Verification</h2>
+              <span id="pendingSlipsBadge" class="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 text-[10px] font-bold tabular-nums">
+                2 Pending
+              </span>
+            </div>
+            <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">Verify Bakong transfer reference numbers prior to courier dispatch</p>
+          </div>
+          <a href="admin-orders.html" class="no-print text-xs font-bold text-[#FFA552] hover:underline">
+            View Full Order Ledger &rarr;
+          </a>
+        </div>
 
-            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition" id="queueRow-2">
-              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902183</td>
-              <td class="py-3 px-3">
-                <div class="font-bold text-[#2B1D1D] dark:text-white">Bona Seng</div>
-                <div class="text-[10px] text-stone-400">098 765 432 &bull; Toul Kork</div>
-              </td>
-              <td class="py-3 px-3">
-                <div class="font-black text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="24.00">$24.00</div>
-                <div class="text-[10px] text-[#FFA552] font-semibold order-amount-khr">98,400 ៛</div>
-              </td>
-              <td class="py-3 px-3">
-                <span class="inline-flex items-center gap-1 font-bold text-stone-700 dark:text-stone-300">
-                  <span class="w-2 h-2 rounded-full bg-red-600"></span> Bakong KHQR
-                </span>
-                <div class="text-[9px] text-stone-400 font-mono">TXN: KHQR-902183</div>
-              </td>
-              <td class="py-3 px-3">
-                <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 font-extrabold text-[10px] border border-emerald-200">
-                  Slip Attached (ACLEDA)
-                </span>
-              </td>
-              <td class="py-3 px-3" id="queueStatus-2">
-                <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-black text-[10px] border border-amber-200">
-                  Payment Submitted
-                </span>
-              </td>
-              <td class="py-3 px-3 text-right">
-                <div class="flex items-center justify-end gap-1.5">
-                  <button 
-                    type="button" 
-                    onclick="verifyOrderSlip('PSA-902183', 2)" 
-                    class="btn-press px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] transition cursor-pointer"
-                    title="Verify Payment & Dispatch"
-                  >
-                    Verify & Dispatch 🛵
-                  </button>
-                  <a href="order-detail--admin-payment-submitted.html" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-bold text-[10px] transition">
-                    Details
-                  </a>
-                </div>
-              </td>
-            </tr>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs tabular-nums">
+            <thead>
+              <tr class="text-[10px] uppercase tracking-wider text-stone-400 border-b border-stone-200/80 dark:border-[#272732]">
+                <th class="py-2.5 px-2.5 font-bold">Order ID</th>
+                <th class="py-2.5 px-2.5 font-bold">Customer &amp; Zone</th>
+                <th class="py-2.5 px-2.5 font-bold text-right">Amount</th>
+                <th class="py-2.5 px-2.5 font-bold">Gateway Ref</th>
+                <th class="py-2.5 px-2.5 font-bold">Status</th>
+                <th class="py-2.5 px-2.5 font-bold text-right no-print">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100 dark:divide-[#252530]" id="verificationQueueTable">
+              <tr class="hover:bg-stone-50/70 dark:hover:bg-[#20202A]/50 transition" id="queueRow-1">
+                <td class="py-3 px-2.5 font-mono font-bold text-[#2B1D1D] dark:text-white">#PSA-902184</td>
+                <td class="py-3 px-2.5">
+                  <div class="font-bold text-[#2B1D1D] dark:text-white">Sophea Chhum</div>
+                  <div class="text-[10px] text-stone-400">012 345 678 &bull; Daun Penh</div>
+                </td>
+                <td class="py-3 px-2.5 text-right">
+                  <div class="font-bold text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="18.50">$18.50</div>
+                  <div class="text-[10px] text-stone-400 order-amount-khr">75,850 ៛</div>
+                </td>
+                <td class="py-3 px-2.5">
+                  <div class="font-semibold text-stone-700 dark:text-stone-300">ABA KHQR</div>
+                  <div class="text-[10px] text-stone-400 font-mono">REF: 902184</div>
+                </td>
+                <td class="py-3 px-2.5" id="queueStatus-1">
+                  <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 font-bold text-[10px] border border-amber-200 dark:border-amber-800/60">
+                    Slip Submitted
+                  </span>
+                </td>
+                <td class="py-3 px-2.5 text-right no-print">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button 
+                      type="button" 
+                      onclick="verifyOrderSlip('PSA-902184', 1)" 
+                      class="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition cursor-pointer"
+                    >
+                      Verify
+                    </button>
+                    <a href="order-detail--admin-payment-submitted.html" class="px-2 py-1 rounded-md bg-stone-100 hover:bg-stone-200 dark:bg-[#252530] dark:hover:bg-[#30303E] text-stone-700 dark:text-stone-300 font-semibold text-[10px] transition">
+                      Inspect
+                    </a>
+                  </div>
+                </td>
+              </tr>
 
-            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition" id="queueRow-3">
-              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#PSA-902182</td>
-              <td class="py-3 px-3">
-                <div class="font-bold text-[#2B1D1D] dark:text-white">Dara Heng</div>
-                <div class="text-[10px] text-stone-400">015 889 911 &bull; BKK1</div>
-              </td>
-              <td class="py-3 px-3">
-                <div class="font-black text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="12.50">$12.50</div>
-                <div class="text-[10px] text-[#FFA552] font-semibold order-amount-khr">51,250 ៛</div>
-              </td>
-              <td class="py-3 px-3">
-                <span class="inline-flex items-center gap-1 font-bold text-stone-700 dark:text-stone-300">
-                  <span class="w-2 h-2 rounded-full bg-emerald-600"></span> Cash On Delivery
-                </span>
-              </td>
-              <td class="py-3 px-3">
-                <span class="text-stone-400 text-[10px]">Courier COD</span>
-              </td>
-              <td class="py-3 px-3">
-                <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-black text-[10px] border border-blue-200">
-                  Courier Assigned 🛵
-                </span>
-              </td>
-              <td class="py-3 px-3 text-right">
-                <a href="order-detail--staff-payment-submitted.html" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#2B1D1D] dark:bg-stone-800 dark:text-stone-200 font-black text-[11px] transition">
-                  Track Delivery
-                </a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              <tr class="hover:bg-stone-50/70 dark:hover:bg-[#20202A]/50 transition" id="queueRow-2">
+                <td class="py-3 px-2.5 font-mono font-bold text-[#2B1D1D] dark:text-white">#PSA-902183</td>
+                <td class="py-3 px-2.5">
+                  <div class="font-bold text-[#2B1D1D] dark:text-white">Bona Seng</div>
+                  <div class="text-[10px] text-stone-400">098 765 432 &bull; Toul Kork</div>
+                </td>
+                <td class="py-3 px-2.5 text-right">
+                  <div class="font-bold text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="24.00">$24.00</div>
+                  <div class="text-[10px] text-stone-400 order-amount-khr">98,400 ៛</div>
+                </td>
+                <td class="py-3 px-2.5">
+                  <div class="font-semibold text-stone-700 dark:text-stone-300">ACLEDA KHQR</div>
+                  <div class="text-[10px] text-stone-400 font-mono">REF: 902183</div>
+                </td>
+                <td class="py-3 px-2.5" id="queueStatus-2">
+                  <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 font-bold text-[10px] border border-amber-200 dark:border-amber-800/60">
+                    Slip Submitted
+                  </span>
+                </td>
+                <td class="py-3 px-2.5 text-right no-print">
+                  <div class="flex items-center justify-end gap-1.5">
+                    <button 
+                      type="button" 
+                      onclick="verifyOrderSlip('PSA-902183', 2)" 
+                      class="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition cursor-pointer"
+                    >
+                      Verify
+                    </button>
+                    <a href="order-detail--admin-payment-submitted.html" class="px-2 py-1 rounded-md bg-stone-100 hover:bg-stone-200 dark:bg-[#252530] dark:hover:bg-[#30303E] text-stone-700 dark:text-stone-300 font-semibold text-[10px] transition">
+                      Inspect
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-stone-50/70 dark:hover:bg-[#20202A]/50 transition" id="queueRow-3">
+                <td class="py-3 px-2.5 font-mono font-bold text-[#2B1D1D] dark:text-white">#PSA-902182</td>
+                <td class="py-3 px-2.5">
+                  <div class="font-bold text-[#2B1D1D] dark:text-white">Dara Heng</div>
+                  <div class="text-[10px] text-stone-400">015 889 911 &bull; BKK 1</div>
+                </td>
+                <td class="py-3 px-2.5 text-right">
+                  <div class="font-bold text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="12.50">$12.50</div>
+                  <div class="text-[10px] text-stone-400 order-amount-khr">51,250 ៛</div>
+                </td>
+                <td class="py-3 px-2.5">
+                  <div class="font-semibold text-stone-700 dark:text-stone-300">Courier COD</div>
+                  <div class="text-[10px] text-stone-400 font-mono">GrabExpress</div>
+                </td>
+                <td class="py-3 px-2.5">
+                  <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-bold text-[10px] border border-blue-200 dark:border-blue-800/60">
+                    Dispatched
+                  </span>
+                </td>
+                <td class="py-3 px-2.5 text-right no-print">
+                  <a href="order-detail--staff-payment-submitted.html" class="px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-[#2B1D1D] dark:bg-[#252530] dark:text-stone-200 font-semibold text-[10px] transition">
+                    Track
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Formal Report Footer -->
+    <div class="border-t border-stone-200 dark:border-[#272732] pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-stone-400">
+      <div>PsaOnline Studio Operations &bull; Internal Financial &amp; Fulfillment Statement &bull; All KHR figures converted at 1 USD = 4,100 KHR</div>
+      <div class="flex items-center gap-4 no-print">
+        <a href="home.html" class="hover:text-[#FFA552] font-semibold">&larr; Return to Storefront</a>
+        <button type="button" onclick="logoutSession()" class="text-red-500 hover:underline font-semibold cursor-pointer">Log Out of Admin</button>
       </div>
     </div>
 
   </main>
 
-  <!-- RBAC Role Matrix Modal (Interactive Documentation) -->
-  <div id="rbacMatrixModal" class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-black/75 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300" role="dialog">
-    <div class="relative w-full max-w-2xl bg-white dark:bg-[#1A1A22] rounded-3xl border-2 border-[#FFA552] p-6 shadow-2xl space-y-4 my-auto text-[#2B1D1D] dark:text-white" id="rbacMatrixCard">
-      <div class="flex items-center justify-between border-b border-[#F9F3EA] dark:border-[#2D2D38] pb-3">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-bold">
-            🛡️
-          </div>
-          <div>
-            <h3 class="text-base font-black">Role-Based Access Control (RBAC) Matrix</h3>
-            <p class="text-[11px] text-stone-400">Permissions breakdown across Admin, Staff, and Buyer roles</p>
-          </div>
+  <!-- =========================================================================
+       OFFICIAL A4 PRINTABLE FINANCIAL & OPERATIONS REPORT (PREVIEW + @MEDIA PRINT)
+       ========================================================================= -->
+  <div id="printReportModal" class="hidden fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-xs overflow-y-auto py-6 px-3 sm:px-6">
+    
+    <!-- Floating Action Toolbar (Hidden on actual paper/PDF printout) -->
+    <div id="printPreviewToolbar" class="no-print max-w-[210mm] mx-auto mb-4 bg-[#2B1D1D] text-white rounded-xl px-4 py-3 shadow-xl border border-stone-700 flex flex-wrap items-center justify-between gap-3 sticky top-2 z-50">
+      <div class="flex items-center gap-3">
+        <button 
+          type="button" 
+          onclick="closePrintReportPreview()" 
+          class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-white text-xs font-bold flex items-center gap-1.5 border border-stone-600 transition cursor-pointer"
+        >
+          <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span>Back to Dashboard</span>
+        </button>
+        <div class="hidden sm:block">
+          <div class="text-xs font-bold text-white">Official A4 Print Statement Preview</div>
+          <div class="text-[10px] text-stone-300">Formatted for single-sheet A4 / Letter printing &amp; PDF export</div>
         </div>
-        <button onclick="closeRBACMatrixModal()" class="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 hover:bg-[#FFA552] hover:text-white flex items-center justify-center transition cursor-pointer">&times;</button>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-xs text-left">
+      <!-- Period Selector inside Print Preview -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center bg-stone-800 p-0.5 rounded-lg border border-stone-700 text-[11px] font-semibold">
+          <button type="button" onclick="setReportDateRange('today')" data-print-range="today" class="print-range-btn px-2 py-1 rounded text-stone-300 hover:text-white cursor-pointer">Today</button>
+          <button type="button" onclick="setReportDateRange('7d')" data-print-range="7d" class="print-range-btn px-2 py-1 rounded bg-[#FFA552] text-[#2B1D1D] font-bold cursor-pointer">7 Days</button>
+          <button type="button" onclick="setReportDateRange('30d')" data-print-range="30d" class="print-range-btn px-2 py-1 rounded text-stone-300 hover:text-white cursor-pointer">30 Days</button>
+          <button type="button" onclick="setReportDateRange('ytd')" data-print-range="ytd" class="print-range-btn px-2 py-1 rounded text-stone-300 hover:text-white cursor-pointer">YTD 2026</button>
+        </div>
+
+        <button 
+          type="button" 
+          onclick="window.print()" 
+          class="px-4 py-1.5 rounded-lg bg-[#FFA552] hover:bg-[#E88C35] text-[#2B1D1D] text-xs font-black flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          <span>Print / Save PDF</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Clean A4 Paper Statement Sheet -->
+    <div id="printableOfficialReport" class="print-sheet max-w-[210mm] mx-auto bg-white text-stone-900 rounded-none sm:rounded-lg shadow-2xl border border-stone-300 p-6 sm:p-8 space-y-5 text-[11px] leading-snug">
+      
+      <!-- 1. Official Corporate Letterhead -->
+      <div class="border-b-2 border-stone-900 pb-4 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-lg bg-[#2B1D1D] text-white font-black text-lg flex items-center justify-center shrink-0 mt-0.5">
+            P
+          </div>
+          <div>
+            <div class="text-base font-black tracking-tight text-stone-900 uppercase">PsaOnline Accessories Studio Co., Ltd.</div>
+            <div class="text-[10.5px] text-stone-600 mt-0.5">Showroom &amp; Dispatch Hub: No. 24, Street 240, Sangkat Chaktomuk, Khan Daun Penh, Phnom Penh</div>
+            <div class="text-[10px] text-stone-500 font-mono mt-0.5">Commercial Reg: MOC-KH-2026-88412 &bull; VAT TIN: K004-90218402 &bull; Tel: +855 12 889 104</div>
+          </div>
+        </div>
+
+        <div class="sm:text-right shrink-0 space-y-0.5">
+          <div class="inline-block px-2 py-0.5 bg-stone-900 text-white font-black text-[10px] uppercase tracking-widest">
+            Official Financial &amp; Operations Report
+          </div>
+          <div class="text-[11px] font-bold text-stone-900 mt-1" id="printPeriodTitle">Reporting Period: Sep 26 – Oct 02, 2026 (Last 7 Days)</div>
+          <div class="text-[10px] text-stone-600 font-mono">Doc Ref: <strong class="text-stone-900">FIN-OPS-2026-Q4</strong> &bull; Generated: <span id="printGeneratedDate">Oct 02, 2026, 15:00 ICT</span></div>
+          <div class="text-[10px] text-stone-600 font-mono">NBC Exchange Rate: <strong class="text-stone-900">1.00 USD = 4,100 KHR (៛)</strong></div>
+        </div>
+      </div>
+
+      <!-- 2. Executive Summary KPI Strip (Always 4 Columns on Paper) -->
+      <div class="print-avoid-break">
+        <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section I &mdash; Executive Summary &amp; Operational Key Performance Indicators</div>
+        <div class="grid grid-cols-4 gap-2.5">
+          <div class="border border-stone-300 rounded p-2.5 bg-stone-50/60">
+            <div class="text-[9.5px] font-bold uppercase text-stone-500">Gross Merchandise (GMV)</div>
+            <div class="text-base font-black text-stone-900 mt-0.5 tabular-nums" id="printKpiGrossUSD">$1,842.50</div>
+            <div class="text-[10px] font-mono text-stone-700 font-semibold" id="printKpiGrossKHR">7,554,250 ៛</div>
+            <div class="text-[9.5px] text-emerald-700 font-bold mt-1" id="printKpiDelta">+14.2% vs prior period</div>
+          </div>
+
+          <div class="border border-stone-300 rounded p-2.5 bg-stone-50/60">
+            <div class="text-[9.5px] font-bold uppercase text-stone-500">Net Settled Payout</div>
+            <div class="text-base font-black text-stone-900 mt-0.5 tabular-nums" id="printKpiNetUSD">$1,920.00</div>
+            <div class="text-[10px] font-mono text-stone-700 font-semibold" id="printKpiNetKHR">7,872,000 ៛</div>
+            <div class="text-[9.5px] text-stone-600 font-semibold mt-1">Gross Margin: <strong id="printKpiMargin">64.8%</strong></div>
+          </div>
+
+          <div class="border border-stone-300 rounded p-2.5 bg-stone-50/60">
+            <div class="text-[9.5px] font-bold uppercase text-stone-500">Completed Orders</div>
+            <div class="text-base font-black text-stone-900 mt-0.5 tabular-nums" id="printKpiOrders">84 Orders</div>
+            <div class="text-[10px] text-stone-700 font-semibold" id="printKpiFulfilled">94.6% Fulfilled</div>
+            <div class="text-[9.5px] text-stone-600 mt-1">Pending Audit: <strong id="printKpiPending">2</strong> &bull; Refund: <strong id="printKpiRefund">1</strong></div>
+          </div>
+
+          <div class="border border-stone-300 rounded p-2.5 bg-stone-50/60">
+            <div class="text-[9.5px] font-bold uppercase text-stone-500">AOV &amp; Dispatch SLA</div>
+            <div class="text-base font-black text-stone-900 mt-0.5 tabular-nums" id="printKpiAOV">$21.93</div>
+            <div class="text-[10px] font-mono text-stone-700 font-semibold" id="printKpiAOVKHR">89,913 ៛ / order</div>
+            <div class="text-[9.5px] text-emerald-700 font-bold mt-1" id="printKpiSLA">36 Mins Avg (98.4% SLA)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Financial Reconciliation & Payment Gateway Settlement (2 Columns Side-by-Side) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 print-avoid-break" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+        
+        <!-- 3A. Net Financial Reconciliation Ledger -->
+        <div>
+          <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section II-A &mdash; Revenue &amp; Settlement Reconciliation</div>
+          <table class="w-full text-left border-collapse print-table text-[10.5px]">
+            <thead>
+              <tr>
+                <th>Ledger Account Line</th>
+                <th class="text-right">Amount (USD)</th>
+                <th class="text-right">Equivalent (KHR)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-semibold text-stone-800">Gross Merchandise Sales (GMV)</td>
+                <td class="text-right font-bold text-stone-900" id="printReconGrossUSD">$1,842.50</td>
+                <td class="text-right font-mono text-stone-700" id="printReconGrossKHR">7,554,250 ៛</td>
+              </tr>
+              <tr>
+                <td class="font-semibold text-stone-800">(+) Courier Delivery Fees Collected</td>
+                <td class="text-right font-semibold text-emerald-700" id="printReconShipUSD">+$126.00</td>
+                <td class="text-right font-mono text-stone-700" id="printReconShipKHR">+516,600 ៛</td>
+              </tr>
+              <tr>
+                <td class="font-semibold text-stone-800">(&ndash;) Promotional Discounts &amp; Refunds</td>
+                <td class="text-right font-semibold text-red-700" id="printReconDiscUSD">-$48.50</td>
+                <td class="text-right font-mono text-stone-700" id="printReconDiscKHR">-198,850 ៛</td>
+              </tr>
+              <tr class="bg-stone-100 font-black">
+                <td class="font-black text-stone-900">(=) Net Settled Operating Payout</td>
+                <td class="text-right font-black text-stone-900 underline decoration-double" id="printReconNetUSD">$1,920.00</td>
+                <td class="text-right font-mono font-black text-stone-900 underline decoration-double" id="printReconNetKHR">7,872,000 ៛</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 3B. Payment Gateway Settlement Breakdown -->
+        <div>
+          <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section II-B &mdash; Settlement by Payment Gateway</div>
+          <table class="w-full text-left border-collapse print-table text-[10.5px]">
+            <thead>
+              <tr>
+                <th>Payment Channel</th>
+                <th class="text-right">Txns</th>
+                <th class="text-right">Share</th>
+                <th class="text-right">USD</th>
+                <th class="text-right">KHR (៛)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="font-semibold text-stone-800">Bakong Universal KHQR (ABA/ACLEDA)</td>
+                <td class="text-right" id="printGwKhqrTxns">66</td>
+                <td class="text-right font-semibold">78.0%</td>
+                <td class="text-right font-bold text-stone-900" id="printGwKhqrUSD">$1,437.15</td>
+                <td class="text-right font-mono text-stone-700" id="printGwKhqrKHR">5,892,315 ៛</td>
+              </tr>
+              <tr>
+                <td class="font-semibold text-stone-800">Courier Cash on Delivery (COD)</td>
+                <td class="text-right" id="printGwCodTxns">15</td>
+                <td class="text-right font-semibold">18.0%</td>
+                <td class="text-right font-bold text-stone-900" id="printGwCodUSD">$331.65</td>
+                <td class="text-right font-mono text-stone-700" id="printGwCodKHR">1,359,765 ៛</td>
+              </tr>
+              <tr>
+                <td class="font-semibold text-stone-800">International Cards (Visa/MC 3DS)</td>
+                <td class="text-right" id="printGwCardTxns">3</td>
+                <td class="text-right font-semibold">4.0%</td>
+                <td class="text-right font-bold text-stone-900" id="printGwCardUSD">$73.70</td>
+                <td class="text-right font-mono text-stone-700" id="printGwCardKHR">302,170 ៛</td>
+              </tr>
+              <tr class="bg-stone-100 font-black">
+                <td class="font-black text-stone-900">Total Gateway Volume</td>
+                <td class="text-right font-black" id="printGwTotalTxns">84</td>
+                <td class="text-right font-black">100.0%</td>
+                <td class="text-right font-black text-stone-900" id="printGwTotalUSD">$1,842.50</td>
+                <td class="text-right font-mono font-black text-stone-900" id="printGwTotalKHR">7,554,250 ៛</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- 4. Chronological Period Schedule & Category Breakdown (2 Columns Side-by-Side) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 print-avoid-break" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+        
+        <!-- 4A. Period Revenue Schedule Table (Replaces messy CSS bar chart in print!) -->
+        <div>
+          <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section III-A &mdash; Chronological Revenue Schedule</div>
+          <table class="w-full text-left border-collapse print-table text-[10.5px]">
+            <thead>
+              <tr>
+                <th>Period / Window</th>
+                <th class="text-right">Orders</th>
+                <th class="text-right">Gross (USD)</th>
+                <th class="text-right">Gross (KHR)</th>
+              </tr>
+            </thead>
+            <tbody id="printPeriodScheduleBody">
+              <!-- Populated dynamically from active period dataset -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 4B. Category Sales Breakdown Table -->
+        <div>
+          <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section III-B &mdash; Sales by Product Category</div>
+          <table class="w-full text-left border-collapse print-table text-[10.5px]">
+            <thead>
+              <tr>
+                <th>Studio Category Line</th>
+                <th class="text-right">Units</th>
+                <th class="text-right">Share</th>
+                <th class="text-right">Gross (USD)</th>
+                <th class="text-right">Gross (KHR)</th>
+              </tr>
+            </thead>
+            <tbody id="printCategoryTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- 5. Top Performing SKUs & Inventory Audit Table -->
+      <div class="print-avoid-break">
+        <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section IV &mdash; Top Performing SKUs &amp; Warehouse Inventory Valuation</div>
+        <table class="w-full text-left border-collapse print-table text-[10.5px]">
           <thead>
-            <tr class="border-b border-[#F9F3EA] dark:border-[#2D2D38] text-stone-400">
-              <th class="py-2">System Capability</th>
-              <th class="py-2 text-center text-purple-600 font-black">👑 Admin</th>
-              <th class="py-2 text-center text-blue-600 font-black">⚡ Staff</th>
-              <th class="py-2 text-center text-emerald-600 font-black">🛍️ Buyer</th>
+            <tr>
+              <th class="w-10 text-center">Rank</th>
+              <th>SKU Code</th>
+              <th>Product Description</th>
+              <th>Category</th>
+              <th class="text-right">Unit Price</th>
+              <th class="text-right">Units Sold</th>
+              <th class="text-right">Stock On-Hand</th>
+              <th class="text-right">Gross Revenue (USD / KHR)</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[#F9F3EA] dark:divide-[#252530]">
-            <tr><td class="py-2 font-medium">Access Studio Operations Portal</td><td class="text-center text-emerald-600 font-bold">✓ Full</td><td class="text-center text-emerald-600 font-bold">✓ Full</td><td class="text-center text-red-500 font-bold">✗ Blocked (403)</td></tr>
-            <tr><td class="py-2 font-medium">View Performance & Sales Analytics</td><td class="text-center text-emerald-600 font-bold">✓ Full</td><td class="text-center text-blue-600 font-bold">✓ Operational</td><td class="text-center text-red-500 font-bold">✗ No Access</td></tr>
-            <tr><td class="py-2 font-medium">Export Financial CSV & PDF Summary</td><td class="text-center text-emerald-600 font-bold">✓ Allowed</td><td class="text-center text-red-500 font-bold">✗ Restricted</td><td class="text-center text-red-500 font-bold">✗ No Access</td></tr>
-            <tr><td class="py-2 font-medium">Verify Bakong KHQR Payment Slips</td><td class="text-center text-emerald-600 font-bold">✓ Approve/Reject</td><td class="text-center text-emerald-600 font-bold">✓ Review/Dispatch</td><td class="text-center text-red-500 font-bold">✗ No Access</td></tr>
-            <tr><td class="py-2 font-medium">Add & Edit Products / Adjust Stock</td><td class="text-center text-emerald-600 font-bold">✓ Full CRUD</td><td class="text-center text-blue-600 font-bold">✓ Stock Adjust</td><td class="text-center text-red-500 font-bold">✗ View Only</td></tr>
-            <tr><td class="py-2 font-medium">Manage Staff Users & Assign Roles</td><td class="text-center text-emerald-600 font-bold">✓ Allowed</td><td class="text-center text-red-500 font-bold">✗ Restricted</td><td class="text-center text-red-500 font-bold">✗ No Access</td></tr>
-            <tr><td class="py-2 font-medium">Configure Universal KHQR Gateways</td><td class="text-center text-emerald-600 font-bold">✓ Allowed</td><td class="text-center text-red-500 font-bold">✗ Restricted</td><td class="text-center text-red-500 font-bold">✗ No Access</td></tr>
+          <tbody id="printTopSkusTableBody">
+            <!-- Populated dynamically -->
           </tbody>
         </table>
       </div>
 
-      <div class="pt-2 flex justify-end">
-        <button onclick="closeRBACMatrixModal()" class="px-4 py-2 rounded-xl bg-[#FFA552] text-white font-bold text-xs">
-          Got It
-        </button>
+      <!-- 6. Recent KHQR Slip Verification & Dispatch Audit Log -->
+      <div class="print-avoid-break">
+        <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section V &mdash; Recent KHQR Settlement &amp; Fulfillment Audit Log</div>
+        <table class="w-full text-left border-collapse print-table text-[10.5px]">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer &amp; Delivery Zone</th>
+              <th>Payment Method &amp; Ref</th>
+              <th class="text-right">Order Total (USD)</th>
+              <th class="text-right">Order Total (KHR)</th>
+              <th>Verification Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-mono font-bold">#PSA-902184</td>
+              <td>Sophea Chhum &bull; Daun Penh (012 345 678)</td>
+              <td class="font-mono">ABA KHQR &bull; REF: 902184</td>
+              <td class="text-right font-bold">$18.50</td>
+              <td class="text-right font-mono">75,850 ៛</td>
+              <td class="font-bold text-amber-800">Slip Submitted (Pending Audit)</td>
+            </tr>
+            <tr>
+              <td class="font-mono font-bold">#PSA-902183</td>
+              <td>Bona Seng &bull; Toul Kork (098 765 432)</td>
+              <td class="font-mono">ACLEDA KHQR &bull; REF: 902183</td>
+              <td class="text-right font-bold">$24.00</td>
+              <td class="text-right font-mono">98,400 ៛</td>
+              <td class="font-bold text-amber-800">Slip Submitted (Pending Audit)</td>
+            </tr>
+            <tr>
+              <td class="font-mono font-bold">#PSA-902182</td>
+              <td>Dara Heng &bull; BKK 1 (015 889 911)</td>
+              <td class="font-mono">GrabExpress Courier COD</td>
+              <td class="text-right font-bold">$12.50</td>
+              <td class="text-right font-mono">51,250 ៛</td>
+              <td class="font-bold text-emerald-800">Verified &amp; Dispatched</td>
+            </tr>
+            <tr>
+              <td class="font-mono font-bold">#PSA-902181</td>
+              <td>Malis Chan &bull; Chamkarmon (017 224 910)</td>
+              <td class="font-mono">ABA KHQR &bull; REF: 902181</td>
+              <td class="text-right font-bold">$31.00</td>
+              <td class="text-right font-mono">127,100 ៛</td>
+              <td class="font-bold text-emerald-800">Settled &amp; Delivered</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
+
+      <!-- 7. Official Certification & Signatures Block -->
+      <div class="pt-4 border-t-2 border-stone-900 print-avoid-break">
+        <div class="grid grid-cols-3 gap-6 text-[10px]">
+          <div class="border border-stone-300 rounded p-3 space-y-4">
+            <div>
+              <div class="font-black uppercase text-stone-500 tracking-wider">1. Prepared &amp; Certified By</div>
+              <div class="font-bold text-stone-900 mt-0.5"><span class="rbac-current-name">Sokha Ouk</span> (<span class="rbac-current-role">Admin</span>)</div>
+              <div class="text-stone-500">PsaOnline Operations &amp; Finance</div>
+            </div>
+            <div class="border-t border-dashed border-stone-400 pt-1.5 flex justify-between text-stone-500 font-mono text-[9.5px]">
+              <span>Signed Electronically</span>
+              <span>02 Oct 2026</span>
+            </div>
+          </div>
+
+          <div class="border border-stone-300 rounded p-3 space-y-4">
+            <div>
+              <div class="font-black uppercase text-stone-500 tracking-wider">2. Treasury &amp; KHQR Audit</div>
+              <div class="font-bold text-stone-900 mt-0.5">Bakong / ABA Merchant Ledger</div>
+              <div class="text-emerald-700 font-bold">Status: RECONCILED (99.2% Auth)</div>
+            </div>
+            <div class="border-t border-dashed border-stone-400 pt-1.5 flex justify-between text-stone-500 font-mono text-[9.5px]">
+              <span>Batch #KHQR-2026-1002</span>
+              <span>Verified</span>
+            </div>
+          </div>
+
+          <div class="border border-stone-300 rounded p-3 space-y-4">
+            <div>
+              <div class="font-black uppercase text-stone-500 tracking-wider">3. Executive Approval</div>
+              <div class="font-bold text-stone-900 mt-0.5">Studio Managing Director</div>
+              <div class="text-stone-500">Final Presentation / Audit Sign-Off</div>
+            </div>
+            <div class="border-t border-dashed border-stone-400 pt-1.5 flex justify-between text-stone-500 font-mono text-[9.5px]">
+              <span>Signature / Stamp</span>
+              <span>Date: ____/____/2026</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 flex items-center justify-between text-[9.5px] text-stone-500 font-mono">
+          <span>PsaOnline Accessories Studio &bull; Confidential Financial &amp; Operations Statement</span>
+          <span>Page 1 of 1 &bull; Currency Rate Fixed at 1.00 USD = 4,100 KHR</span>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
+  <!-- Mobile Admin Bottom Navigation Bar -->
+  <nav id="mobileAdminNav" class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#16161C]/95 backdrop-blur-lg border-t border-stone-200 dark:border-[#272732] px-3 py-2 flex items-center justify-around text-center select-none">
+    <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-[#FFA552] font-bold text-[10px]">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      <span>Report</span>
+    </a>
+    <a href="admin-orders.html" class="flex flex-col items-center gap-0.5 text-stone-500 dark:text-stone-400 text-[10px]">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      <span>Orders</span>
+    </a>
+    <a href="admin-products.html" class="flex flex-col items-center gap-0.5 text-stone-500 dark:text-stone-400 text-[10px]">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+      <span>Catalog</span>
+    </a>
+    <a href="home.html" class="flex flex-col items-center gap-0.5 text-stone-500 dark:text-stone-400 text-[10px]">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span>Store</span>
+    </a>
+    <button type="button" onclick="logoutSession()" class="flex flex-col items-center gap-0.5 text-red-500 font-semibold text-[10px] cursor-pointer">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      <span>Log Out</span>
+    </button>
+  </nav>
+
+  <!-- Storefront & RBAC Scripts -->
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
   <script>
     let reportCurrency = 'USD';
-    let reportDateRange = '7d';
-    let pendingSlipsCount = 3;
+    let currentRangeKey = '7d';
+    const RATE_KHR = 4100;
 
-    function setReportCurrency(cur) {
-      reportCurrency = cur;
-      const bUSD = document.getElementById('repCurUSD');
-      const bKHR = document.getElementById('repCurKHR');
-      const badge = document.getElementById('chartCurrencyBadge');
-
-      if (cur === 'KHR') {
-        bKHR.classList.add('bg-[#2B1D1D]', 'text-white');
-        bKHR.classList.remove('text-[#2B1D1D]', 'dark:text-stone-300');
-        bUSD.classList.remove('bg-[#2B1D1D]', 'text-white');
-        bUSD.classList.add('text-[#2B1D1D]');
-        if (badge) badge.textContent = 'KHR (៛)';
-      } else {
-        bUSD.classList.add('bg-[#2B1D1D]', 'text-white');
-        bUSD.classList.remove('text-[#2B1D1D]');
-        bKHR.classList.remove('bg-[#2B1D1D]', 'text-white');
-        bKHR.classList.add('text-[#2B1D1D]', 'dark:text-stone-300');
-        if (badge) badge.textContent = 'USD ($)';
+    // Comprehensive, realistic datasets for each reporting window
+    const REPORT_DATASETS = {
+      today: {
+        subtitle: 'Reporting Period: Oct 02, 2026 (Intraday 08:00 – 18:00 ICT)',
+        grossUSD: 312.50,
+        delta: '+8.4% vs yesterday',
+        margin: '65.2%',
+        orders: 14,
+        fulfilledRate: '92.8% Fulfilled',
+        pending: 2,
+        refunded: 0,
+        aovUSD: 22.32,
+        unitsPerOrder: '2.3 Units / Order',
+        conversion: '4.4%',
+        dispatchTime: '31 Mins',
+        slaBadge: '100% On-Time',
+        shippingUSD: 21.00,
+        discountsUSD: 6.50,
+        unitMultiplier: 0.18,
+        bars: [
+          { label: '09:00', usd: 28.00, orders: 1 },
+          { label: '11:00', usd: 54.50, orders: 3 },
+          { label: '13:00', usd: 76.00, orders: 3, peak: true },
+          { label: '15:00', usd: 62.00, orders: 3 },
+          { label: '17:00', usd: 92.00, orders: 4, peak: true }
+        ]
+      },
+      '7d': {
+        subtitle: 'Reporting Period: Sep 26 – Oct 02, 2026 (Last 7 Days)',
+        grossUSD: 1842.50,
+        delta: '+14.2% WoW',
+        margin: '64.8%',
+        orders: 84,
+        fulfilledRate: '94.6% Fulfilled',
+        pending: 2,
+        refunded: 1,
+        aovUSD: 21.93,
+        unitsPerOrder: '2.4 Units / Order',
+        conversion: '4.2%',
+        dispatchTime: '36 Mins',
+        slaBadge: '98.4% On-Time',
+        shippingUSD: 126.00,
+        discountsUSD: 48.50,
+        unitMultiplier: 1,
+        bars: [
+          { label: 'Thu 26', usd: 210.00, orders: 10 },
+          { label: 'Fri 27', usd: 265.50, orders: 12 },
+          { label: 'Sat 28', usd: 395.00, orders: 18, peak: true },
+          { label: 'Sun 29', usd: 342.00, orders: 15, peak: true },
+          { label: 'Mon 30', usd: 185.00, orders: 9 },
+          { label: 'Tue 01', usd: 218.50, orders: 10 },
+          { label: 'Wed 02', usd: 226.50, orders: 10 }
+        ]
+      },
+      '30d': {
+        subtitle: 'Reporting Period: Sep 03 – Oct 02, 2026 (Last 30 Days)',
+        grossUSD: 7480.00,
+        delta: '+19.6% MoM',
+        margin: '66.1%',
+        orders: 342,
+        fulfilledRate: '96.2% Fulfilled',
+        pending: 2,
+        refunded: 4,
+        aovUSD: 21.87,
+        unitsPerOrder: '2.5 Units / Order',
+        conversion: '4.5%',
+        dispatchTime: '35 Mins',
+        slaBadge: '98.1% On-Time',
+        shippingUSD: 513.00,
+        discountsUSD: 195.00,
+        unitMultiplier: 4.1,
+        bars: [
+          { label: 'Wk 1 (Sep 3)', usd: 1640.00, orders: 75 },
+          { label: 'Wk 2 (Sep 10)', usd: 1825.00, orders: 84 },
+          { label: 'Wk 3 (Sep 17)', usd: 2110.00, orders: 96, peak: true },
+          { label: 'Wk 4 (Sep 24)', usd: 1905.00, orders: 87 }
+        ]
+      },
+      ytd: {
+        subtitle: 'Reporting Period: Jan 01 – Oct 02, 2026 (Fiscal YTD)',
+        grossUSD: 46920.00,
+        delta: '+31.4% YoY',
+        margin: '65.5%',
+        orders: 2145,
+        fulfilledRate: '97.1% Fulfilled',
+        pending: 2,
+        refunded: 19,
+        aovUSD: 21.87,
+        unitsPerOrder: '2.4 Units / Order',
+        conversion: '4.3%',
+        dispatchTime: '37 Mins',
+        slaBadge: '97.9% On-Time',
+        shippingUSD: 3217.50,
+        discountsUSD: 1140.00,
+        unitMultiplier: 24.5,
+        bars: [
+          { label: 'Jan–Feb', usd: 7850.00, orders: 360 },
+          { label: 'Mar–Apr', usd: 9420.00, orders: 432, peak: true },
+          { label: 'May–Jun', usd: 8910.00, orders: 408 },
+          { label: 'Jul–Aug', usd: 10340.00, orders: 472, peak: true },
+          { label: 'Sep–Oct', usd: 10400.00, orders: 473, peak: true }
+        ]
       }
-      renderReportDashboard();
+    };
+
+    const CATEGORY_SHARES = [
+      { key: 'Jewelry', share: 0.42, baseUnits: 86 },
+      { key: 'Shades', share: 0.26, baseUnits: 52 },
+      { key: 'Bags', share: 0.20, baseUnits: 31 },
+      { key: 'Clips', share: 0.12, baseUnits: 33 }
+    ];
+
+    function fmtMoney(usdAmount) {
+      if (reportCurrency === 'KHR') {
+        return Math.round(usdAmount * RATE_KHR).toLocaleString() + ' ៛';
+      }
+      return '$' + usdAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function setReportDateRange(range, btn) {
-      reportDateRange = range;
-      document.querySelectorAll('.date-range-btn').forEach(b => {
-        b.classList.remove('bg-[#2B1D1D]', 'text-white', 'dark:bg-[#FFA552]', 'dark:text-[#2B1D1D]', 'shadow-xs');
-        b.classList.add('text-stone-600', 'dark:text-stone-400');
+    function fmtKHR(usdAmount) {
+      return Math.round(usdAmount * RATE_KHR).toLocaleString() + ' ៛';
+    }
+
+    function renderReportAll() {
+      const ds = REPORT_DATASETS[currentRangeKey] || REPORT_DATASETS['7d'];
+
+      // Header subtitle
+      const subEl = document.getElementById('reportPeriodSubtitle');
+      if (subEl) subEl.textContent = ds.subtitle;
+
+      // KPIs
+      document.getElementById('kpiGrossRevenue').textContent = fmtMoney(ds.grossUSD);
+      document.getElementById('kpiGrossKHR').textContent = reportCurrency === 'USD'
+        ? fmtKHR(ds.grossUSD)
+        : ('$' + ds.grossUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USD');
+      document.getElementById('kpiRevenueDelta').textContent = ds.delta;
+      document.getElementById('kpiNetMargin').textContent = ds.margin;
+
+      document.getElementById('kpiTotalOrders').textContent = ds.orders.toLocaleString() + ' Orders';
+      document.getElementById('kpiOrdersRate').textContent = ds.fulfilledRate;
+      document.getElementById('kpiPendingCount').textContent = ds.pending;
+      document.getElementById('kpiRefundCount').textContent = ds.refunded;
+
+      document.getElementById('kpiAOV').textContent = fmtMoney(ds.aovUSD);
+      document.getElementById('kpiAOVKHR').textContent = reportCurrency === 'USD'
+        ? fmtKHR(ds.aovUSD)
+        : ('$' + ds.aovUSD.toFixed(2) + ' USD');
+      document.getElementById('kpiUnitsPerOrder').textContent = ds.unitsPerOrder;
+      document.getElementById('kpiConversion').textContent = ds.conversion;
+
+      document.getElementById('kpiDispatchTime').textContent = ds.dispatchTime;
+      document.getElementById('kpiSlaBadge').textContent = ds.slaBadge;
+
+      // Reconciliation strip
+      const netUSD = ds.grossUSD + ds.shippingUSD - ds.discountsUSD;
+      document.getElementById('reconGross').textContent = fmtMoney(ds.grossUSD);
+      document.getElementById('reconShipping').textContent = '+' + fmtMoney(ds.shippingUSD);
+      document.getElementById('reconDiscounts').textContent = '-' + fmtMoney(ds.discountsUSD);
+      document.getElementById('reconNet').textContent = fmtMoney(netUSD);
+
+      // Category breakdown
+      let totalUnits = 0;
+      CATEGORY_SHARES.forEach(c => {
+        const catUSD = ds.grossUSD * c.share;
+        const units = Math.max(1, Math.round(c.baseUnits * ds.unitMultiplier));
+        totalUnits += units;
+        const pct = Math.round(c.share * 100);
+        const valEl = document.getElementById('cat' + c.key + 'Val');
+        const unitEl = document.getElementById('cat' + c.key + 'Units');
+        const khrEl = document.getElementById('cat' + c.key + 'KHR');
+        if (valEl) valEl.textContent = `${pct}% • ${fmtMoney(catUSD)}`;
+        if (unitEl) unitEl.textContent = `${units.toLocaleString()} units sold`;
+        if (khrEl) khrEl.textContent = reportCurrency === 'USD' ? fmtKHR(catUSD) : ('$' + catUSD.toFixed(2));
       });
-      if (btn) {
-        btn.classList.add('bg-[#2B1D1D]', 'text-white', 'dark:bg-[#FFA552]', 'dark:text-[#2B1D1D]', 'shadow-xs');
-        btn.classList.remove('text-stone-600', 'dark:text-stone-400');
-      }
-      renderReportDashboard();
-      showRBACToast(`Filtered report metrics for: ${range.toUpperCase()}`, 'info');
+      const totalUnitsBadge = document.getElementById('catTotalUnitsBadge');
+      if (totalUnitsBadge) totalUnitsBadge.textContent = `${totalUnits.toLocaleString()} Units Sold`;
+
+      // Payment Gateway settlement
+      const khqrTxns = Math.round(ds.orders * 0.78);
+      const codTxns = Math.round(ds.orders * 0.18);
+      const cardTxns = Math.max(1, ds.orders - khqrTxns - codTxns);
+      document.getElementById('gwKhqrTxns').textContent = khqrTxns.toLocaleString();
+      document.getElementById('gwCodTxns').textContent = codTxns.toLocaleString();
+      document.getElementById('gwCardTxns').textContent = cardTxns.toLocaleString();
+      document.getElementById('gwKhqrAmt').textContent = fmtMoney(ds.grossUSD * 0.78);
+      document.getElementById('gwCodAmt').textContent = fmtMoney(ds.grossUSD * 0.18);
+      document.getElementById('gwCardAmt').textContent = fmtMoney(ds.grossUSD * 0.04);
+
+      renderBarChart();
+      renderTopSellingTable();
+      renderPrintableOfficialReport();
     }
 
-    function exportReportData(format) {
-      const user = getCurrentUser();
-      if (!hasPermission('canExportReports')) {
-        showRBACToast(`Access Denied: ${user.name} (${user.role}) is restricted from raw ledger exports. Studio Lead (Admin) permission required.`, 'danger');
-        return;
-      }
+    function renderPrintableOfficialReport() {
+      const ds = REPORT_DATASETS[currentRangeKey] || REPORT_DATASETS['7d'];
+      const fmtU = (v) => '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const fmtK = (v) => Math.round(v * RATE_KHR).toLocaleString() + ' ៛';
+      const netUSD = ds.grossUSD + ds.shippingUSD - ds.discountsUSD;
 
-      if (format === 'json') {
-        const reportData = {
-          generatedAt: new Date().toISOString(),
-          period: reportDateRange,
-          currency: reportCurrency,
-          operator: user.name,
-          role: user.role,
-          metrics: {
-            grossUSD: 1842.50,
-            grossKHR: 7554250,
-            orders: 84,
-            aovUSD: 21.93,
-            courierVelocityMins: 38
-          },
-          gateways: {
-            bakongKHQR: '78%',
-            cod: '18%',
-            cards: '4%'
-          }
-        };
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(reportData, null, 2));
-        const dl = document.createElement('a');
-        dl.setAttribute("href", dataStr);
-        dl.setAttribute("download", `PsaOnline_Report_${reportDateRange}_${new Date().toISOString().slice(0,10)}.json`);
-        document.body.appendChild(dl);
-        dl.click();
-        document.body.removeChild(dl);
-        showRBACToast('Export complete! Downloaded JSON ledger.', 'success');
-        return;
-      }
+      const setTxt = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
 
-      // Generate simulated comprehensive CSV export
-      const rows = [
-        ['Order ID', 'Date & Time', 'Customer', 'Phone', 'District', 'Product SKU', 'Product Name', 'Category', 'Units', 'Amount USD', 'Amount KHR', 'Payment Gateway', 'Bakong TXN Hash', 'Status'],
-        ['#PSA-902184', '2026-09-30 10:14', 'Sophea Chhum', '+855 12 345 678', 'Daun Penh', 'GENZ-01', 'Star Pendant Necklace', 'Jewelry', '1', '6.50', '26650', 'Bakong Universal KHQR (ABA)', 'KHQR-882194-ABA', 'Completed'],
-        ['#PSA-902183', '2026-09-30 09:32', 'Bona Seng', '+855 98 765 432', 'Toul Kork', 'GENZ-05', 'Puffy Cloud Nylon Bag', 'Bags', '1', '14.00', '57400', 'Bakong Universal KHQR (ACLEDA)', 'KHQR-882183-ACL', 'Completed'],
-        ['#PSA-902182', '2026-09-29 18:45', 'Dara Heng', '+855 15 889 911', 'BKK1', 'GENZ-03', 'Cyberpunk Ring Set', 'Jewelry', '2', '9.00', '36900', 'Cash on Delivery (Courier COD)', 'N/A', 'Dispatched'],
-        ['#PSA-902181', '2026-09-29 14:20', 'Vannak Lim', '+855 77 112 334', 'Chamkarmon', 'GENZ-02', '90s Tinted Sunglasses', 'Eyewear', '1', '8.50', '34850', 'Bakong Universal KHQR (Canadia)', 'KHQR-882181-CAN', 'Completed'],
-        ['#PSA-902180', '2026-09-28 20:10', 'Sreyleak Keo', '+855 81 990 011', 'Sen Sok', 'GENZ-07', 'Pastel Blossom Claw Clip', 'Clips', '3', '7.50', '30750', 'Bakong Universal KHQR (ABA)', 'KHQR-882180-ABA', 'Completed']
-      ];
+      setTxt('printPeriodTitle', ds.subtitle);
+      setTxt('printKpiGrossUSD', fmtU(ds.grossUSD));
+      setTxt('printKpiGrossKHR', fmtK(ds.grossUSD));
+      setTxt('printKpiDelta', ds.delta);
 
-      const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.map(cell => `"${cell}"`).join(",")).join("\n");
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `PsaOnline_Financial_Ledger_${reportDateRange}_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showRBACToast('Export complete! Downloaded CSV summary.', 'success');
-    }
+      setTxt('printKpiNetUSD', fmtU(netUSD));
+      setTxt('printKpiNetKHR', fmtK(netUSD));
+      setTxt('printKpiMargin', ds.margin);
 
-    function verifyOrderSlip(orderId, rowId) {
-      if (!hasPermission('canVerifyOrders')) {
-        showRBACToast('Permission Denied: Insufficient authority to verify payment slips.', 'danger');
-        return;
-      }
+      setTxt('printKpiOrders', ds.orders.toLocaleString() + ' Orders');
+      setTxt('printKpiFulfilled', ds.fulfilledRate);
+      setTxt('printKpiPending', ds.pending);
+      setTxt('printKpiRefund', ds.refunded);
 
-      const statusEl = document.getElementById(`queueStatus-${rowId}`);
-      const rowEl = document.getElementById(`queueRow-${rowId}`);
-      const user = getCurrentUser();
+      setTxt('printKpiAOV', fmtU(ds.aovUSD));
+      setTxt('printKpiAOVKHR', fmtK(ds.aovUSD) + ' / order');
+      setTxt('printKpiSLA', `${ds.dispatchTime} Avg (${ds.slaBadge})`);
 
-      if (statusEl) {
-        statusEl.innerHTML = `
-          <div class="space-y-0.5">
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 font-black text-[10px] border border-emerald-200">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Verified & Dispatched 🛵
-            </span>
-            <div class="text-[9px] text-stone-400 font-mono">By: ${user.name} (${user.role})</div>
-          </div>
+      // Section II-A: Reconciliation
+      setTxt('printReconGrossUSD', fmtU(ds.grossUSD));
+      setTxt('printReconGrossKHR', fmtK(ds.grossUSD));
+      setTxt('printReconShipUSD', '+' + fmtU(ds.shippingUSD));
+      setTxt('printReconShipKHR', '+' + fmtK(ds.shippingUSD));
+      setTxt('printReconDiscUSD', '-' + fmtU(ds.discountsUSD));
+      setTxt('printReconDiscKHR', '-' + fmtK(ds.discountsUSD));
+      setTxt('printReconNetUSD', fmtU(netUSD));
+      setTxt('printReconNetKHR', fmtK(netUSD));
+
+      // Section II-B: Payment Gateways
+      const khqrTxns = Math.round(ds.orders * 0.78);
+      const codTxns = Math.round(ds.orders * 0.18);
+      const cardTxns = Math.max(1, ds.orders - khqrTxns - codTxns);
+      const khqrUSD = ds.grossUSD * 0.78;
+      const codUSD = ds.grossUSD * 0.18;
+      const cardUSD = ds.grossUSD * 0.04;
+
+      setTxt('printGwKhqrTxns', khqrTxns.toLocaleString());
+      setTxt('printGwKhqrUSD', fmtU(khqrUSD));
+      setTxt('printGwKhqrKHR', fmtK(khqrUSD));
+
+      setTxt('printGwCodTxns', codTxns.toLocaleString());
+      setTxt('printGwCodUSD', fmtU(codUSD));
+      setTxt('printGwCodKHR', fmtK(codUSD));
+
+      setTxt('printGwCardTxns', cardTxns.toLocaleString());
+      setTxt('printGwCardUSD', fmtU(cardUSD));
+      setTxt('printGwCardKHR', fmtK(cardUSD));
+
+      setTxt('printGwTotalTxns', ds.orders.toLocaleString());
+      setTxt('printGwTotalUSD', fmtU(ds.grossUSD));
+      setTxt('printGwTotalKHR', fmtK(ds.grossUSD));
+
+      // Section III-A: Chronological Schedule Table
+      const schedBody = document.getElementById('printPeriodScheduleBody');
+      if (schedBody) {
+        const rowsHtml = ds.bars.map(b => `
+          <tr>
+            <td class="font-semibold text-stone-800">${b.label} ${b.peak ? '<span class="text-[9px] font-bold px-1 py-0.2 bg-stone-200 rounded ml-1">PEAK</span>' : ''}</td>
+            <td class="text-right">${b.orders}</td>
+            <td class="text-right font-bold text-stone-900">${fmtU(b.usd)}</td>
+            <td class="text-right font-mono text-stone-700">${fmtK(b.usd)}</td>
+          </tr>
+        `).join('');
+        schedBody.innerHTML = rowsHtml + `
+          <tr class="bg-stone-100 font-black">
+            <td class="font-black text-stone-900">Period Total</td>
+            <td class="text-right font-black">${ds.orders.toLocaleString()}</td>
+            <td class="text-right font-black text-stone-900">${fmtU(ds.grossUSD)}</td>
+            <td class="text-right font-mono font-black text-stone-900">${fmtK(ds.grossUSD)}</td>
+          </tr>
         `;
       }
 
-      if (rowEl) {
-        rowEl.classList.add('bg-emerald-50/20');
-        const btn = rowEl.querySelector('button');
-        if (btn) {
-          btn.outerHTML = `<span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1 justify-end">✓ Courier Assigned</span>`;
+      // Section III-B: Category Breakdown Table
+      const catNames = {
+        Jewelry: 'Y2K Chrome Jewelry',
+        Shades: '90s Tinted Eyewear',
+        Bags: 'Puffy Cloud Bags',
+        Clips: 'Clips & Artisan Charms'
+      };
+      const catBody = document.getElementById('printCategoryTableBody');
+      if (catBody) {
+        let totalCatUnits = 0;
+        const catRows = CATEGORY_SHARES.map(c => {
+          const units = Math.max(1, Math.round(c.baseUnits * ds.unitMultiplier));
+          totalCatUnits += units;
+          const catUSD = ds.grossUSD * c.share;
+          return `
+            <tr>
+              <td class="font-semibold text-stone-800">${catNames[c.key] || c.key}</td>
+              <td class="text-right">${units.toLocaleString()}</td>
+              <td class="text-right font-semibold">${Math.round(c.share * 100)}%</td>
+              <td class="text-right font-bold text-stone-900">${fmtU(catUSD)}</td>
+              <td class="text-right font-mono text-stone-700">${fmtK(catUSD)}</td>
+            </tr>
+          `;
+        }).join('');
+        catBody.innerHTML = catRows + `
+          <tr class="bg-stone-100 font-black">
+            <td class="font-black text-stone-900">Total All Categories</td>
+            <td class="text-right font-black">${totalCatUnits.toLocaleString()}</td>
+            <td class="text-right font-black">100%</td>
+            <td class="text-right font-black text-stone-900">${fmtU(ds.grossUSD)}</td>
+            <td class="text-right font-mono font-black text-stone-900">${fmtK(ds.grossUSD)}</td>
+          </tr>
+        `;
+      }
+
+      // Section IV: Top SKUs Table
+      const skuBody = document.getElementById('printTopSkusTableBody');
+      if (skuBody && typeof ACCESSORIES_PRODUCTS !== 'undefined') {
+        const baseUnitsSold = [34, 29, 24, 19, 16, 13];
+        const topProducts = ACCESSORIES_PRODUCTS.slice(0, 6);
+        skuBody.innerHTML = topProducts.map((p, idx) => {
+          const sold = Math.max(2, Math.round((baseUnitsSold[idx] || 10) * ds.unitMultiplier));
+          const revUSD = sold * p.priceUSD;
+          return `
+            <tr>
+              <td class="text-center font-bold">#${idx + 1}</td>
+              <td class="font-mono text-[10px]">SKU-${p.id.toUpperCase()}</td>
+              <td class="font-bold text-stone-900">${p.title}</td>
+              <td>${p.categoryLabel}</td>
+              <td class="text-right">${fmtU(p.priceUSD)}</td>
+              <td class="text-right font-bold">${sold.toLocaleString()}</td>
+              <td class="text-right">${p.stock} units</td>
+              <td class="text-right font-bold text-stone-900">${fmtU(revUSD)} <span class="font-mono font-normal text-stone-600">(${fmtK(revUSD)})</span></td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Highlight active period button in Print Preview Toolbar
+      document.querySelectorAll('.print-range-btn').forEach(btn => {
+        if (btn.getAttribute('data-print-range') === currentRangeKey) {
+          btn.className = 'print-range-btn px-2 py-1 rounded bg-[#FFA552] text-[#2B1D1D] font-bold cursor-pointer';
+        } else {
+          btn.className = 'print-range-btn px-2 py-1 rounded text-stone-300 hover:text-white cursor-pointer';
         }
-      }
-
-      pendingSlipsCount = Math.max(0, pendingSlipsCount - 1);
-      const badge = document.getElementById('pendingSlipsBadge');
-      if (badge) {
-        badge.textContent = `${pendingSlipsCount} Pending`;
-        if (pendingSlipsCount === 0) {
-          badge.className = 'px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black';
-        }
-      }
-
-      // Celebratory micro-confetti
-      if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 35,
-          spread: 50,
-          origin: { y: 0.7 }
-        });
-      }
-
-      showRBACToast(`Order #${orderId} verified by ${user.name} (${user.role})! Courier dispatch initiated.`, 'success');
+      });
     }
 
-    function renderBarChart(mult) {
+    function openPrintReportPreview() {
+      renderPrintableOfficialReport();
+      const modal = document.getElementById('printReportModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closePrintReportPreview() {
+      const modal = document.getElementById('printReportModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+      }
+    }
+
+    function renderBarChart() {
       const container = document.getElementById('chartBarContainer');
       if (!container) return;
 
-      const baseData = [
-        { day: 'Mon', val: 185, orders: 12 },
-        { day: 'Tue', val: 240, orders: 15 },
-        { day: 'Wed', val: 210, orders: 14 },
-        { day: 'Thu', val: 295, orders: 19 },
-        { day: 'Fri', val: 340, orders: 22 },
-        { day: 'Sat', val: 420, orders: 28, isPeak: true },
-        { day: 'Sun', val: 385, orders: 24 }
-      ];
+      const ds = REPORT_DATASETS[currentRangeKey] || REPORT_DATASETS['7d'];
+      const bars = ds.bars;
+      const maxUSD = Math.max(...bars.map(d => d.usd));
+      const minUSD = Math.min(...bars.map(d => d.usd));
 
-      const maxVal = Math.max(...baseData.map(d => d.val * mult));
-      const minVal = Math.min(...baseData.map(d => d.val * mult));
-      const totalVal = baseData.reduce((acc, d) => acc + (d.val * mult), 0);
-
-      const minEl = document.getElementById('chartMinVal');
-      const maxEl = document.getElementById('chartMaxVal');
-      const totEl = document.getElementById('chartPeriodTotal');
-
-      if (minEl) minEl.textContent = reportCurrency === 'KHR' ? `${Math.round(minVal * 4100).toLocaleString()} ៛` : `$${Math.round(minVal)}`;
-      if (maxEl) maxEl.textContent = reportCurrency === 'KHR' ? `${Math.round(maxVal * 4100).toLocaleString()} ៛` : `$${Math.round(maxVal)}`;
-      if (totEl) {
-        totEl.textContent = reportCurrency === 'KHR'
-          ? `Total: ${Math.round(totalVal * 4100).toLocaleString()} ៛ ($${totalVal.toFixed(2)})`
-          : `Total: $${totalVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${Math.round(totalVal * 4100).toLocaleString()} ៛)`;
-      }
-
-      container.innerHTML = baseData.map(d => {
-        const val = d.val * mult;
-        const pct = Math.max(15, Math.round((val / maxVal) * 100));
-        const formattedVal = reportCurrency === 'KHR' 
-          ? `${Math.round(val * 4100).toLocaleString()} ៛` 
-          : `$${Math.round(val)}`;
+      container.innerHTML = bars.map(bar => {
+        const heightPct = Math.max(16, Math.round((bar.usd / maxUSD) * 100));
+        const valDisplay = reportCurrency === 'USD'
+          ? '$' + bar.usd.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+          : Math.round((bar.usd * RATE_KHR) / 1000).toLocaleString() + 'k ៛';
 
         return `
-          <div class="flex-1 flex flex-col items-center gap-1.5 group h-full justify-end relative cursor-pointer">
-            
-            <!-- Tooltip -->
-            <div class="absolute -top-12 opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-20 bg-stone-900 text-white rounded-lg px-2 py-1 text-[10px] whitespace-nowrap shadow-lg text-center">
-              <div class="font-bold">${formattedVal}</div>
-              <div class="text-[9px] text-stone-300 font-mono">${Math.round(d.orders * mult)} orders</div>
+          <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
+            <div class="text-[10px] font-bold text-stone-600 dark:text-stone-300 tabular-nums">
+              ${valDisplay}
             </div>
-
-            <span class="text-[10px] font-bold text-[#FFA552] opacity-0 group-hover:opacity-100 transition truncate max-w-full">
-              ${formattedVal}
-            </span>
-
-            <div 
-              class="w-full ${d.isPeak ? 'bg-[#FFA552] shadow-md' : 'bg-[#FFA552]/40 group-hover:bg-[#FFA552]'} rounded-xl transition-all duration-300 hover:scale-x-105" 
-              style="height: ${pct}%;"
-            ></div>
-
-            <span class="text-[10px] font-bold ${d.isPeak ? 'text-[#FFA552] font-black' : 'text-stone-400'}">
-              ${d.day}
-            </span>
+            <div class="w-full max-w-[52px] bg-stone-100 dark:bg-[#23232E] rounded-t-md h-full flex items-end overflow-hidden p-0.5">
+              <div 
+                class="w-full rounded-t transition-all duration-500 ${bar.peak ? 'bg-[#FFA552]' : 'bg-[#2B1D1D] dark:bg-stone-300 group-hover:bg-[#FFA552]'}" 
+                style="height: ${heightPct}%"
+                title="${bar.label}: ${fmtMoney(bar.usd)} (${bar.orders} orders)"
+              ></div>
+            </div>
+            <div class="text-[11px] font-bold text-[#2B1D1D] dark:text-stone-200 mt-0.5">${bar.label}</div>
+            <div class="text-[10px] text-stone-400 tabular-nums">${bar.orders} ord</div>
           </div>
         `;
       }).join('');
-    }
 
-    function renderReportDashboard() {
-      // Dynamic multipliers based on range
-      const mult = reportDateRange === 'today' ? 0.35 : (reportDateRange === '30d' ? 3.8 : (reportDateRange === 'ytd' ? 12.4 : 1.0));
-      const baseRev = 1842.50 * mult;
-      const baseOrders = Math.round(84 * mult);
-      const aov = baseOrders > 0 ? baseRev / baseOrders : 21.93;
-
-      const revEl = document.getElementById('kpiGrossRevenue');
-      const revKhrEl = document.getElementById('kpiGrossKHR');
-      const ordEl = document.getElementById('kpiTotalOrders');
-      const aovEl = document.getElementById('kpiAOV');
-      const aovKhrEl = document.getElementById('kpiAOVKHR');
-
-      if (revEl) {
-        revEl.textContent = reportCurrency === 'KHR' 
-          ? `${Math.round(baseRev * 4100).toLocaleString()} ៛` 
-          : `$${baseRev.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-      }
-      if (revKhrEl) {
-        revKhrEl.textContent = reportCurrency === 'KHR'
-          ? `$${baseRev.toFixed(2)} USD`
-          : `${Math.round(baseRev * 4100).toLocaleString()} ៛ KHR`;
-      }
-      if (ordEl) ordEl.textContent = `${baseOrders} Orders`;
-      if (aovEl) {
-        aovEl.textContent = reportCurrency === 'KHR' 
-          ? `${Math.round(aov * 4100).toLocaleString()} ៛` 
-          : `$${aov.toFixed(2)}`;
-      }
-      if (aovKhrEl) {
-        aovKhrEl.textContent = reportCurrency === 'KHR' ? `$${aov.toFixed(2)} USD` : `${Math.round(aov * 4100).toLocaleString()} ៛`;
-      }
-
-      // Update category values
-      const jEl = document.getElementById('catJewelryVal');
-      const sEl = document.getElementById('catShadesVal');
-      const bEl = document.getElementById('catBagsVal');
-      const cEl = document.getElementById('catClipsVal');
-
-      const jRev = 773.85 * mult;
-      const sRev = 479.05 * mult;
-      const bRev = 368.50 * mult;
-      const cRev = 221.10 * mult;
-
-      if (jEl) jEl.textContent = reportCurrency === 'KHR' ? `42% • ${Math.round(jRev * 4100).toLocaleString()} ៛` : `42% • $${jRev.toFixed(2)}`;
-      if (sEl) sEl.textContent = reportCurrency === 'KHR' ? `26% • ${Math.round(sRev * 4100).toLocaleString()} ៛` : `26% • $${sRev.toFixed(2)}`;
-      if (bEl) bEl.textContent = reportCurrency === 'KHR' ? `20% • ${Math.round(bRev * 4100).toLocaleString()} ៛` : `20% • $${bRev.toFixed(2)}`;
-      if (cEl) cEl.textContent = reportCurrency === 'KHR' ? `12% • ${Math.round(cRev * 4100).toLocaleString()} ៛` : `12% • $${cRev.toFixed(2)}`;
-
-      // Render Bar Chart
-      renderBarChart(mult);
-
-      // Render Top Selling Table
-      renderTopSellingTable();
+      document.getElementById('chartMinVal').textContent = fmtMoney(minUSD);
+      document.getElementById('chartMaxVal').textContent = fmtMoney(maxUSD);
+      document.getElementById('chartPeriodTotal').textContent =
+        `Gross Total: $${ds.grossUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${fmtKHR(ds.grossUSD)})`;
     }
 
     function renderTopSellingTable() {
       const tbody = document.getElementById('topSellingTableBody');
-      if (!tbody) return;
+      if (!tbody || typeof ACCESSORIES_PRODUCTS === 'undefined') return;
 
-      const topProducts = [
-        { rank: 1, p: ACCESSORIES_PRODUCTS[0], units: 64, sales: 416.00, stock: 45 },
-        { rank: 2, p: ACCESSORIES_PRODUCTS[2], units: 48, sales: 408.00, stock: 18 },
-        { rank: 3, p: ACCESSORIES_PRODUCTS[4], units: 36, sales: 504.00, stock: 12 },
-        { rank: 4, p: ACCESSORIES_PRODUCTS[1], units: 32, sales: 144.00, stock: 65 },
-        { rank: 5, p: ACCESSORIES_PRODUCTS[6], units: 28, sales: 98.00, stock: 80 }
-      ];
+      const ds = REPORT_DATASETS[currentRangeKey] || REPORT_DATASETS['7d'];
+      const mult = ds.unitMultiplier;
+      const baseUnitsSold = [34, 29, 24, 19, 16, 13];
+      const topProducts = ACCESSORIES_PRODUCTS.slice(0, 6);
 
-      tbody.innerHTML = topProducts.map(item => `
-        <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
-          <td class="py-3 px-3">
-            <div class="flex items-center gap-3">
-              <span class="w-5 h-5 rounded-full ${item.rank === 1 ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-600'} flex items-center justify-center font-black text-[10px] shrink-0">
-                ${item.rank}
-              </span>
-              <img src="${item.p.image}" alt="${item.p.title}" class="w-10 h-10 rounded-xl object-cover border border-[#EFE4D6] dark:border-[#2D2D38] shrink-0" />
-              <div class="min-w-0">
-                <div class="font-extrabold text-[#2B1D1D] dark:text-white truncate max-w-xs">${item.p.title}</div>
-                <div class="text-[10px] text-stone-400 font-mono">SKU: ${item.p.id.toUpperCase()}</div>
+      tbody.innerHTML = topProducts.map((p, index) => {
+        const sold = Math.max(2, Math.round((baseUnitsSold[index] || 10) * mult));
+        const revUSD = sold * p.priceUSD;
+        const unitDisplay = fmtMoney(p.priceUSD);
+        const revDisplay = fmtMoney(revUSD);
+        const subRevDisplay = reportCurrency === 'USD' ? fmtKHR(revUSD) : ('$' + revUSD.toFixed(2));
+        const skuCode = 'SKU-' + p.id.toUpperCase();
+
+        return `
+          <tr class="hover:bg-stone-50/80 dark:hover:bg-[#20202A]/50 transition">
+            <td class="py-3 px-3">
+              <div class="flex items-center gap-3">
+                <span class="w-6 h-6 rounded-md ${index < 3 ? 'bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D]' : 'bg-stone-100 dark:bg-[#252530] text-stone-500'} font-bold text-[11px] flex items-center justify-center shrink-0">
+                  #${index + 1}
+                </span>
+                <img src="${p.image}" alt="${p.title}" class="w-9 h-9 rounded-md object-cover border border-stone-200 dark:border-[#32323D] shrink-0" />
+                <div>
+                  <div class="font-bold text-[#2B1D1D] dark:text-white line-clamp-1">${p.title}</div>
+                  <div class="text-[10px] text-stone-400 font-mono">${skuCode} &bull; ${p.khmerTitle}</div>
+                </div>
               </div>
-            </div>
-          </td>
-          <td class="py-3 px-3">
-            <span class="px-2 py-0.5 rounded-full bg-[#FFA552]/10 text-[#FFA552] font-black text-[10px]">
-              ${item.p.categoryLabel}
-            </span>
-          </td>
-          <td class="py-3 px-3 font-bold text-[#2B1D1D] dark:text-white">
-            ${reportCurrency === 'KHR' ? (item.p.priceUSD * 4100).toLocaleString() + ' ៛' : '$' + item.p.priceUSD.toFixed(2)}
-          </td>
-          <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">
-            ${item.units} pcs
-          </td>
-          <td class="py-3 px-3 font-black text-emerald-600 dark:text-emerald-400">
-            ${reportCurrency === 'KHR' ? (item.sales * 4100).toLocaleString() + ' ៛' : '$' + item.sales.toFixed(2)}
-          </td>
-          <td class="py-3 px-3">
-            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${item.stock < 20 ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
-              <span class="w-1.5 h-1.5 rounded-full ${item.stock < 20 ? 'bg-amber-500' : 'bg-emerald-500'}"></span>
-              ${item.stock} left (${item.stock < 20 ? 'Low Stock' : 'Healthy'})
-            </span>
-          </td>
-          <td class="py-3 px-3 text-right">
-            <a href="admin-products.html" class="text-xs font-bold text-[#FFA552] hover:underline">
-              Restock &rarr;
-            </a>
-          </td>
-        </tr>
-      `).join('');
+            </td>
+            <td class="py-3 px-3">
+              <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] dark:text-stone-300 font-semibold text-[10px] uppercase">
+                ${p.categoryLabel}
+              </span>
+            </td>
+            <td class="py-3 px-3 text-right font-semibold text-[#2B1D1D] dark:text-stone-200">${unitDisplay}</td>
+            <td class="py-3 px-3 text-right font-bold text-[#2B1D1D] dark:text-white">${sold.toLocaleString()}</td>
+            <td class="py-3 px-3 text-right">
+              <div class="font-bold text-[#2B1D1D] dark:text-white">${revDisplay}</div>
+              <div class="text-[10px] text-stone-400">${subRevDisplay}</div>
+            </td>
+            <td class="py-3 px-3">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold ${p.stock > 10 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50'}">
+                <span class="w-1.5 h-1.5 rounded-full ${p.stock > 10 ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
+                ${p.stock} in stock
+              </span>
+            </td>
+            <td class="py-3 px-3 text-right no-print">
+              <a href="product-form.html" class="px-2.5 py-1 rounded-md border border-stone-200 dark:border-[#32323D] hover:border-[#FFA552] text-[#2B1D1D] dark:text-stone-300 font-semibold text-[10px] transition">
+                Edit SKU
+              </a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function setReportCurrency(cur) {
+      reportCurrency = cur;
+      const btnUSD = document.getElementById('repCurUSD');
+      const btnKHR = document.getElementById('repCurKHR');
+      const badge = document.getElementById('chartCurrencyBadge');
+
+      if (cur === 'USD') {
+        btnUSD.className = 'px-2.5 py-1 font-bold rounded-md transition-all bg-[#2B1D1D] text-white shadow-xs cursor-pointer';
+        btnKHR.className = 'px-2.5 py-1 font-bold rounded-md transition-all text-stone-600 dark:text-stone-300 cursor-pointer';
+        if (badge) badge.textContent = 'USD ($)';
+      } else {
+        btnKHR.className = 'px-2.5 py-1 font-bold rounded-md transition-all bg-[#2B1D1D] text-white shadow-xs cursor-pointer';
+        btnUSD.className = 'px-2.5 py-1 font-bold rounded-md transition-all text-stone-600 dark:text-stone-300 cursor-pointer';
+        if (badge) badge.textContent = 'KHR (៛)';
+      }
+
+      renderReportAll();
+    }
+
+    function setReportDateRange(range, clickedBtn) {
+      currentRangeKey = REPORT_DATASETS[range] ? range : '7d';
+      document.querySelectorAll('.date-range-btn').forEach(btn => {
+        if (btn === clickedBtn || btn.getAttribute('data-range') === currentRangeKey) {
+          btn.className = 'date-range-btn px-2.5 py-1.5 rounded-md transition-all bg-white dark:bg-[#16161C] text-[#2B1D1D] dark:text-white font-bold shadow-xs cursor-pointer';
+        } else {
+          btn.className = 'date-range-btn px-2.5 py-1.5 rounded-md transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D] dark:hover:text-white cursor-pointer';
+        }
+      });
+
+      renderReportAll();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closePrintReportPreview();
+      }
+    });
+
+    function verifyOrderSlip(orderId, rowIndex) {
+      if (!hasPermission('canVerifyKHQR')) {
+        showRBACToast('Your role does not have permission to verify bank slips.', 'danger');
+        return;
+      }
+
+      const statusCell = document.getElementById('queueStatus-' + rowIndex);
+      if (statusCell) {
+        statusCell.innerHTML = `
+          <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 font-bold text-[10px] border border-emerald-200 dark:border-emerald-800/60">
+            Verified &amp; Dispatched
+          </span>
+        `;
+      }
+
+      const badge = document.getElementById('pendingSlipsBadge');
+      if (badge) {
+        const currentCount = parseInt(badge.textContent) || 2;
+        const nextCount = Math.max(0, currentCount - 1);
+        badge.textContent = nextCount + ' Pending';
+      }
+
+      showRBACToast(`Order #${orderId} Bakong KHQR verified and assigned to courier.`, 'success');
+    }
+
+    function exportReportData(format) {
+      if (!hasPermission('canExportCSV')) {
+        showRBACToast('Restricted: Staff role cannot export raw financial statements. Switch to Admin.', 'danger');
+        return;
+      }
+
+      if (format === 'csv') {
+        const ds = REPORT_DATASETS[currentRangeKey] || REPORT_DATASETS['7d'];
+        const rows = [
+          ['PSAONLINE STUDIO OPERATIONS - FINANCIAL & FULFILLMENT STATEMENT'],
+          ['Report Reference', 'FIN-2026-Q4', 'Period', ds.subtitle],
+          ['Exchange Rate', '1 USD = 4100 KHR'],
+          [],
+          ['PERIOD BREAKDOWN', 'Revenue (USD)', 'Revenue (KHR)', 'Completed Orders'],
+          ...ds.bars.map(b => [b.label, b.usd.toFixed(2), Math.round(b.usd * RATE_KHR), b.orders]),
+          [],
+          ['SUMMARY METRIC', 'USD Value', 'KHR Equivalent'],
+          ['Gross Merchandise Value', ds.grossUSD.toFixed(2), Math.round(ds.grossUSD * RATE_KHR)],
+          ['Courier Fees Collected', ds.shippingUSD.toFixed(2), Math.round(ds.shippingUSD * RATE_KHR)],
+          ['Discounts & Refunds', (-ds.discountsUSD).toFixed(2), -Math.round(ds.discountsUSD * RATE_KHR)],
+          ['Net Settled Revenue', (ds.grossUSD + ds.shippingUSD - ds.discountsUSD).toFixed(2), Math.round((ds.grossUSD + ds.shippingUSD - ds.discountsUSD) * RATE_KHR)]
+        ];
+        const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `PsaOnline_Executive_Report_${currentRangeKey}_2026.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        showRBACToast('Financial statement exported to CSV.', 'success');
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Guard page via RBAC
       enforcePageRBAC('canAccessAdminPortal');
-      renderReportDashboard();
+      renderReportAll();
+
+      if (!hasPermission('canExportCSV')) {
+        const exportBtn = document.getElementById('exportCsvBtn');
+        if (exportBtn) {
+          exportBtn.classList.add('opacity-60');
+          exportBtn.setAttribute('title', 'Restricted to Admin Role');
+        }
+      }
     });
-  </script>
-
-  <!-- Live mode: KPIs, top sellers, the verification queue and exports use real orders from the database.
-       The bar chart and category split below stay illustrative. -->
-  <script>
-    if (PSA.online) {
-      const RANGE_DAYS = { today: 0, '7d': 7, '30d': 30 };
-
-      function ordersInRange() {
-        const now = new Date();
-        let from;
-        if (reportDateRange === 'today') from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        else if (reportDateRange === 'ytd') from = new Date(now.getFullYear(), 0, 1);
-        else from = new Date(now.getTime() - (RANGE_DAYS[reportDateRange] || 7) * 86400000);
-        return PSA.orders.filter(o => o.orderStatus !== 'cancelled' && o.createdAt && new Date(o.createdAt) >= from);
-      }
-
-      function money(usd) {
-        return reportCurrency === 'KHR'
-          ? `${Math.round(usd * EXCHANGE_RATE).toLocaleString()} ៛`
-          : `$${usd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      }
-
-      function altMoney(usd) {
-        return reportCurrency === 'KHR' ? `$${usd.toFixed(2)} USD` : `${Math.round(usd * EXCHANGE_RATE).toLocaleString()} ៛ KHR`;
-      }
-
-      const demoRenderReport = renderReportDashboard;
-      renderReportDashboard = function () {
-        demoRenderReport();
-        const orders = ordersInRange();
-        const revenue = orders.reduce((sum, o) => sum + Number(o.totalUSD), 0);
-        const aov = orders.length ? revenue / orders.length : 0;
-        const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
-        set('kpiGrossRevenue', money(revenue));
-        set('kpiGrossKHR', altMoney(revenue));
-        set('kpiTotalOrders', `${orders.length} Order${orders.length === 1 ? '' : 's'}`);
-        set('kpiAOV', money(aov));
-        set('kpiAOVKHR', altMoney(aov).replace(' KHR', ''));
-      };
-
-      renderTopSellingTable = function () {
-        const tbody = document.getElementById('topSellingTableBody');
-        if (!tbody) return;
-        const totals = new Map();
-        ordersInRange().forEach(o => (o.items || []).forEach(i => {
-          const t = totals.get(i.id) || { units: 0, sales: 0, title: i.title, image: i.image };
-          t.units += Number(i.quantity);
-          t.sales += Number(i.priceUSD) * Number(i.quantity);
-          totals.set(i.id, t);
-        }));
-        const rows = [...totals.entries()].sort((a, b) => b[1].units - a[1].units).slice(0, 5);
-        if (!rows.length) {
-          tbody.innerHTML = '<tr><td colspan="7" class="py-6 px-3 text-center text-xs text-stone-400">No sales in this period yet.</td></tr>';
-          return;
-        }
-        tbody.innerHTML = rows.map(([id, t], index) => {
-          const p = PSA.products.find(x => x.id === id) || {};
-          const stock = p.stock != null ? p.stock : 0;
-          const low = stock < 20;
-          return `
-        <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
-          <td class="py-3 px-3">
-            <div class="flex items-center gap-3">
-              <span class="w-5 h-5 rounded-full ${index === 0 ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-600'} flex items-center justify-center font-black text-[10px] shrink-0">${index + 1}</span>
-              <img src="${psaEsc(p.image || t.image)}" alt="" class="w-10 h-10 rounded-xl object-cover border border-[#EFE4D6] dark:border-[#2D2D38] shrink-0" />
-              <div class="min-w-0">
-                <div class="font-extrabold text-[#2B1D1D] dark:text-white truncate max-w-xs">${psaEsc(p.title || t.title)}</div>
-                <div class="text-[10px] text-stone-400 font-mono">SKU: ${psaEsc(String(id).toUpperCase())}</div>
-              </div>
-            </div>
-          </td>
-          <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full bg-[#FFA552]/10 text-[#FFA552] font-black text-[10px]">${psaEsc(p.categoryLabel || '—')}</span></td>
-          <td class="py-3 px-3 font-bold text-[#2B1D1D] dark:text-white">${p.priceUSD != null ? money(p.priceUSD) : '—'}</td>
-          <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">${t.units} pcs</td>
-          <td class="py-3 px-3 font-black text-emerald-600 dark:text-emerald-400">${money(t.sales)}</td>
-          <td class="py-3 px-3">
-            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${low ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
-              <span class="w-1.5 h-1.5 rounded-full ${low ? 'bg-amber-500' : 'bg-emerald-500'}"></span>
-              ${stock} left (${low ? 'Low Stock' : 'Healthy'})
-            </span>
-          </td>
-          <td class="py-3 px-3 text-right"><a href="product-form.html?id=${encodeURIComponent(id)}" class="text-xs font-bold text-[#FFA552] hover:underline">Restock &rarr;</a></td>
-        </tr>`;
-        }).join('');
-      };
-
-      function awaitingVerification() {
-        return PSA.orders.filter(o => o.orderStatus === 'pending_payment' && o.paymentCode !== 'cod' && o.paymentStatus !== 'failed');
-      }
-
-      function renderVerificationQueue() {
-        const tbody = document.getElementById('verificationQueueTable');
-        const queue = awaitingVerification();
-        const badge = document.getElementById('pendingSlipsBadge');
-        if (badge) {
-          badge.textContent = `${queue.length} Pending`;
-          badge.className = queue.length
-            ? 'px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black animate-pulse'
-            : 'px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black';
-        }
-        if (!tbody) return;
-        if (!queue.length) {
-          tbody.innerHTML = '<tr><td colspan="7" class="py-6 px-3 text-center text-xs text-stone-400">Nothing to verify right now. 🎉</td></tr>';
-          return;
-        }
-        tbody.innerHTML = queue.slice(0, 8).map(o => {
-          const id = psaEsc(o.id);
-          return `
-            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
-              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#${id}</td>
-              <td class="py-3 px-3">
-                <div class="font-bold text-[#2B1D1D] dark:text-white">${psaEsc(o.customerName)}</div>
-                <div class="text-[10px] text-stone-400">${psaEsc(o.phone)}</div>
-              </td>
-              <td class="py-3 px-3">
-                <div class="font-black text-[#2B1D1D] dark:text-white">$${psaEsc(o.totalUSD)}</div>
-                <div class="text-[10px] text-[#FFA552] font-semibold">${psaEsc(o.totalKHR)} ៛</div>
-              </td>
-              <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">${psaEsc(o.paymentMethod)}</td>
-              <td class="py-3 px-3">
-                ${o.slipUploaded
-                  ? '<span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 font-extrabold text-[10px] border border-emerald-200">Slip Attached</span>'
-                  : '<span class="px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-extrabold text-[10px] border border-stone-200">No slip yet</span>'}
-              </td>
-              <td class="py-3 px-3">
-                <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-black text-[10px] border border-amber-200">${psaEsc(o.status)}</span>
-              </td>
-              <td class="py-3 px-3 text-right">
-                <div class="flex items-center justify-end gap-1.5">
-                  <button type="button" onclick="verifyOrderSlip('${id}')" class="btn-press px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] transition cursor-pointer" title="Verify Payment & Dispatch">Verify &amp; Dispatch 🛵</button>
-                  <a href="order-detail.html?order=${encodeURIComponent(o.id)}" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-bold text-[10px] transition">Details</a>
-                </div>
-              </td>
-            </tr>`;
-        }).join('');
-      }
-
-      verifyOrderSlip = async function (orderId) {
-        if (!hasPermission('canVerifyOrders')) {
-          showRBACToast('Permission Denied: Insufficient authority to verify payment slips.', 'danger');
-          return;
-        }
-        try {
-          await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(orderId)}`, { action: 'verify' });
-          const { order } = await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(orderId)}`, { action: 'dispatch' });
-          PSA.orders = PSA.orders.map(o => (o.id === order.id ? order : o));
-          localStorage.setItem('psa_orders', JSON.stringify(PSA.orders));
-        } catch (err) {
-          showRBACToast(psaEsc(err.message), 'danger');
-          return;
-        }
-        renderVerificationQueue();
-        renderReportDashboard();
-        if (typeof confetti === 'function') confetti({ particleCount: 35, spread: 50, origin: { y: 0.7 } });
-        const user = getCurrentUser();
-        showRBACToast(`Order #${psaEsc(orderId)} verified by ${psaEsc(user.name)} (${user.role})! Courier dispatch initiated.`, 'success');
-      };
-
-      exportReportData = function (format) {
-        const user = getCurrentUser();
-        if (!hasPermission('canExportReports')) {
-          showRBACToast(`Access Denied: ${psaEsc(user.name)} (${user.role}) is restricted from raw ledger exports. Studio Lead (Admin) permission required.`, 'danger');
-          return;
-        }
-        const orders = ordersInRange();
-        const stamp = new Date().toISOString().slice(0, 10);
-        let blob;
-        let name;
-        if (format === 'json') {
-          const revenue = orders.reduce((sum, o) => sum + Number(o.totalUSD), 0);
-          blob = new Blob([JSON.stringify({
-            generatedAt: new Date().toISOString(),
-            period: reportDateRange,
-            operator: user.name,
-            metrics: { grossUSD: Number(revenue.toFixed(2)), grossKHR: Math.round(revenue * EXCHANGE_RATE), orders: orders.length },
-            orders
-          }, null, 2)], { type: 'application/json' });
-          name = `PsaOnline_Report_${reportDateRange}_${stamp}.json`;
-        } else {
-          const header = ['Order', 'Date', 'Customer', 'Phone', 'Address', 'Item SKU', 'Item', 'Qty', 'Line USD', 'Order Total USD', 'Order Total KHR', 'Payment', 'Status'];
-          const rows = [header];
-          orders.forEach(o => (o.items || []).forEach(i => rows.push([
-            o.id, o.date, o.customerName, o.phone, o.address, i.id, i.title, i.quantity,
-            (Number(i.priceUSD) * Number(i.quantity)).toFixed(2), o.totalUSD, o.totalKHR, o.paymentMethod, o.status
-          ])));
-          const csv = rows.map(r => r.map(cell => `"${String(cell == null ? '' : cell).replace(/"/g, '""')}"`).join(',')).join('\n');
-          blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
-          name = `PsaOnline_Financial_Ledger_${reportDateRange}_${stamp}.csv`;
-        }
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = name;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
-        showRBACToast(`Export complete! Downloaded ${format === 'json' ? 'JSON' : 'CSV'} for ${orders.length} order(s).`, 'success');
-      };
-
-      document.addEventListener('DOMContentLoaded', renderVerificationQueue);
-    }
   </script>
 </body>
 </html>
