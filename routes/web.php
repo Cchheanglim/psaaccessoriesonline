@@ -13,8 +13,6 @@ use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminPaymentMethodController;
-use App\Http\Controllers\Api\StoreApiController;
-use App\Http\Controllers\Api\AdminApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,36 +25,13 @@ use App\Http\Controllers\Api\AdminApiController;
 |
 */
 
-// Storefront: the full site lives in public/*.html (home.html, products.html, ...).
-// Those files are served directly; "/" just shows the home page.
-Route::get('/', fn () => response()->file(public_path('home.html')))->name('home');
-Route::redirect('/home', '/home.html');
+// Public Storefront Routes
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index']);
 
-// JSON API used by public/assets/js/store.js (session cookie + CSRF header)
-Route::prefix('api')->group(function () {
-    Route::get('/bootstrap', [StoreApiController::class, 'bootstrap']);
-    Route::post('/auth/login', [StoreApiController::class, 'login'])->middleware('throttle:10,1');
-    Route::post('/auth/register', [StoreApiController::class, 'register'])->middleware('throttle:10,1');
-    Route::post('/auth/logout', [StoreApiController::class, 'logout']);
-    Route::patch('/me', [StoreApiController::class, 'updateProfile']);
-    Route::put('/me/password', [StoreApiController::class, 'updatePassword']);
-
-    Route::post('/orders', [StoreApiController::class, 'placeOrder'])->middleware('throttle:20,1');
-    Route::post('/orders/{orderNumber}/slip', [StoreApiController::class, 'uploadSlip']);
-    Route::post('/orders/{orderNumber}/demo-paid', [StoreApiController::class, 'markDemoPaid']);
-
-    Route::prefix('admin')->group(function () {
-        Route::post('/products', [AdminApiController::class, 'storeProduct']);
-        Route::patch('/products/{sku}', [AdminApiController::class, 'updateProduct']);
-        Route::delete('/products/{sku}', [AdminApiController::class, 'destroyProduct']);
-        Route::patch('/orders/{orderNumber}', [AdminApiController::class, 'updateOrder']);
-        Route::post('/users', [AdminApiController::class, 'storeUser']);
-        Route::patch('/users/{user}', [AdminApiController::class, 'updateUser']);
-        Route::post('/payment-methods', [AdminApiController::class, 'storePaymentMethod']);
-        Route::patch('/payment-methods/{paymentMethod}', [AdminApiController::class, 'updatePaymentMethod']);
-        Route::delete('/payment-methods/{paymentMethod}', [AdminApiController::class, 'destroyPaymentMethod']);
-    });
-});
+// Legal pages
+Route::view('/privacy', 'legal.privacy')->name('privacy');
+Route::view('/terms', 'legal.terms')->name('terms');
 
 // Product Drops & Catalog
 Route::prefix('products')->name('products.')->group(function () {
