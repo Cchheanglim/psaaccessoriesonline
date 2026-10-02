@@ -30,6 +30,10 @@ export default defineConfig({
   server: {
     port: 3000,
     host: '0.0.0.0',
+    // Send API calls to Laravel (`php artisan serve`) so this dev server shows the same live data.
+    proxy: {
+      '/api': 'http://127.0.0.1:8000',
+    },
   },
   build: {
     outDir: resolve(__dirname, 'dist'),

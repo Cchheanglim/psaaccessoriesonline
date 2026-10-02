@@ -1063,5 +1063,207 @@
       renderReportDashboard();
     });
   </script>
+
+  <!-- Live mode: KPIs, top sellers, the verification queue and exports use real orders from the database.
+       The bar chart and category split below stay illustrative. -->
+  <script>
+    if (PSA.online) {
+      const RANGE_DAYS = { today: 0, '7d': 7, '30d': 30 };
+
+      function ordersInRange() {
+        const now = new Date();
+        let from;
+        if (reportDateRange === 'today') from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        else if (reportDateRange === 'ytd') from = new Date(now.getFullYear(), 0, 1);
+        else from = new Date(now.getTime() - (RANGE_DAYS[reportDateRange] || 7) * 86400000);
+        return PSA.orders.filter(o => o.orderStatus !== 'cancelled' && o.createdAt && new Date(o.createdAt) >= from);
+      }
+
+      function money(usd) {
+        return reportCurrency === 'KHR'
+          ? `${Math.round(usd * EXCHANGE_RATE).toLocaleString()} ៛`
+          : `$${usd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+
+      function altMoney(usd) {
+        return reportCurrency === 'KHR' ? `$${usd.toFixed(2)} USD` : `${Math.round(usd * EXCHANGE_RATE).toLocaleString()} ៛ KHR`;
+      }
+
+      const demoRenderReport = renderReportDashboard;
+      renderReportDashboard = function () {
+        demoRenderReport();
+        const orders = ordersInRange();
+        const revenue = orders.reduce((sum, o) => sum + Number(o.totalUSD), 0);
+        const aov = orders.length ? revenue / orders.length : 0;
+        const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+        set('kpiGrossRevenue', money(revenue));
+        set('kpiGrossKHR', altMoney(revenue));
+        set('kpiTotalOrders', `${orders.length} Order${orders.length === 1 ? '' : 's'}`);
+        set('kpiAOV', money(aov));
+        set('kpiAOVKHR', altMoney(aov).replace(' KHR', ''));
+      };
+
+      renderTopSellingTable = function () {
+        const tbody = document.getElementById('topSellingTableBody');
+        if (!tbody) return;
+        const totals = new Map();
+        ordersInRange().forEach(o => (o.items || []).forEach(i => {
+          const t = totals.get(i.id) || { units: 0, sales: 0, title: i.title, image: i.image };
+          t.units += Number(i.quantity);
+          t.sales += Number(i.priceUSD) * Number(i.quantity);
+          totals.set(i.id, t);
+        }));
+        const rows = [...totals.entries()].sort((a, b) => b[1].units - a[1].units).slice(0, 5);
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="7" class="py-6 px-3 text-center text-xs text-stone-400">No sales in this period yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = rows.map(([id, t], index) => {
+          const p = PSA.products.find(x => x.id === id) || {};
+          const stock = p.stock != null ? p.stock : 0;
+          const low = stock < 20;
+          return `
+        <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
+          <td class="py-3 px-3">
+            <div class="flex items-center gap-3">
+              <span class="w-5 h-5 rounded-full ${index === 0 ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-600'} flex items-center justify-center font-black text-[10px] shrink-0">${index + 1}</span>
+              <img src="${psaEsc(p.image || t.image)}" alt="" class="w-10 h-10 rounded-xl object-cover border border-[#EFE4D6] dark:border-[#2D2D38] shrink-0" />
+              <div class="min-w-0">
+                <div class="font-extrabold text-[#2B1D1D] dark:text-white truncate max-w-xs">${psaEsc(p.title || t.title)}</div>
+                <div class="text-[10px] text-stone-400 font-mono">SKU: ${psaEsc(String(id).toUpperCase())}</div>
+              </div>
+            </div>
+          </td>
+          <td class="py-3 px-3"><span class="px-2 py-0.5 rounded-full bg-[#FFA552]/10 text-[#FFA552] font-black text-[10px]">${psaEsc(p.categoryLabel || '—')}</span></td>
+          <td class="py-3 px-3 font-bold text-[#2B1D1D] dark:text-white">${p.priceUSD != null ? money(p.priceUSD) : '—'}</td>
+          <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">${t.units} pcs</td>
+          <td class="py-3 px-3 font-black text-emerald-600 dark:text-emerald-400">${money(t.sales)}</td>
+          <td class="py-3 px-3">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${low ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}">
+              <span class="w-1.5 h-1.5 rounded-full ${low ? 'bg-amber-500' : 'bg-emerald-500'}"></span>
+              ${stock} left (${low ? 'Low Stock' : 'Healthy'})
+            </span>
+          </td>
+          <td class="py-3 px-3 text-right"><a href="product-form.html?id=${encodeURIComponent(id)}" class="text-xs font-bold text-[#FFA552] hover:underline">Restock &rarr;</a></td>
+        </tr>`;
+        }).join('');
+      };
+
+      function awaitingVerification() {
+        return PSA.orders.filter(o => o.orderStatus === 'pending_payment' && o.paymentCode !== 'cod' && o.paymentStatus !== 'failed');
+      }
+
+      function renderVerificationQueue() {
+        const tbody = document.getElementById('verificationQueueTable');
+        const queue = awaitingVerification();
+        const badge = document.getElementById('pendingSlipsBadge');
+        if (badge) {
+          badge.textContent = `${queue.length} Pending`;
+          badge.className = queue.length
+            ? 'px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black animate-pulse'
+            : 'px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black';
+        }
+        if (!tbody) return;
+        if (!queue.length) {
+          tbody.innerHTML = '<tr><td colspan="7" class="py-6 px-3 text-center text-xs text-stone-400">Nothing to verify right now. 🎉</td></tr>';
+          return;
+        }
+        tbody.innerHTML = queue.slice(0, 8).map(o => {
+          const id = psaEsc(o.id);
+          return `
+            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
+              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#${id}</td>
+              <td class="py-3 px-3">
+                <div class="font-bold text-[#2B1D1D] dark:text-white">${psaEsc(o.customerName)}</div>
+                <div class="text-[10px] text-stone-400">${psaEsc(o.phone)}</div>
+              </td>
+              <td class="py-3 px-3">
+                <div class="font-black text-[#2B1D1D] dark:text-white">$${psaEsc(o.totalUSD)}</div>
+                <div class="text-[10px] text-[#FFA552] font-semibold">${psaEsc(o.totalKHR)} ៛</div>
+              </td>
+              <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">${psaEsc(o.paymentMethod)}</td>
+              <td class="py-3 px-3">
+                ${o.slipUploaded
+                  ? '<span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 font-extrabold text-[10px] border border-emerald-200">Slip Attached</span>'
+                  : '<span class="px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-extrabold text-[10px] border border-stone-200">No slip yet</span>'}
+              </td>
+              <td class="py-3 px-3">
+                <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 font-black text-[10px] border border-amber-200">${psaEsc(o.status)}</span>
+              </td>
+              <td class="py-3 px-3 text-right">
+                <div class="flex items-center justify-end gap-1.5">
+                  <button type="button" onclick="verifyOrderSlip('${id}')" class="btn-press px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] transition cursor-pointer" title="Verify Payment & Dispatch">Verify &amp; Dispatch 🛵</button>
+                  <a href="order-detail.html?order=${encodeURIComponent(o.id)}" class="px-2 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 font-bold text-[10px] transition">Details</a>
+                </div>
+              </td>
+            </tr>`;
+        }).join('');
+      }
+
+      verifyOrderSlip = async function (orderId) {
+        if (!hasPermission('canVerifyOrders')) {
+          showRBACToast('Permission Denied: Insufficient authority to verify payment slips.', 'danger');
+          return;
+        }
+        try {
+          await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(orderId)}`, { action: 'verify' });
+          const { order } = await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(orderId)}`, { action: 'dispatch' });
+          PSA.orders = PSA.orders.map(o => (o.id === order.id ? order : o));
+          localStorage.setItem('psa_orders', JSON.stringify(PSA.orders));
+        } catch (err) {
+          showRBACToast(psaEsc(err.message), 'danger');
+          return;
+        }
+        renderVerificationQueue();
+        renderReportDashboard();
+        if (typeof confetti === 'function') confetti({ particleCount: 35, spread: 50, origin: { y: 0.7 } });
+        const user = getCurrentUser();
+        showRBACToast(`Order #${psaEsc(orderId)} verified by ${psaEsc(user.name)} (${user.role})! Courier dispatch initiated.`, 'success');
+      };
+
+      exportReportData = function (format) {
+        const user = getCurrentUser();
+        if (!hasPermission('canExportReports')) {
+          showRBACToast(`Access Denied: ${psaEsc(user.name)} (${user.role}) is restricted from raw ledger exports. Studio Lead (Admin) permission required.`, 'danger');
+          return;
+        }
+        const orders = ordersInRange();
+        const stamp = new Date().toISOString().slice(0, 10);
+        let blob;
+        let name;
+        if (format === 'json') {
+          const revenue = orders.reduce((sum, o) => sum + Number(o.totalUSD), 0);
+          blob = new Blob([JSON.stringify({
+            generatedAt: new Date().toISOString(),
+            period: reportDateRange,
+            operator: user.name,
+            metrics: { grossUSD: Number(revenue.toFixed(2)), grossKHR: Math.round(revenue * EXCHANGE_RATE), orders: orders.length },
+            orders
+          }, null, 2)], { type: 'application/json' });
+          name = `PsaOnline_Report_${reportDateRange}_${stamp}.json`;
+        } else {
+          const header = ['Order', 'Date', 'Customer', 'Phone', 'Address', 'Item SKU', 'Item', 'Qty', 'Line USD', 'Order Total USD', 'Order Total KHR', 'Payment', 'Status'];
+          const rows = [header];
+          orders.forEach(o => (o.items || []).forEach(i => rows.push([
+            o.id, o.date, o.customerName, o.phone, o.address, i.id, i.title, i.quantity,
+            (Number(i.priceUSD) * Number(i.quantity)).toFixed(2), o.totalUSD, o.totalKHR, o.paymentMethod, o.status
+          ])));
+          const csv = rows.map(r => r.map(cell => `"${String(cell == null ? '' : cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+          blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+          name = `PsaOnline_Financial_Ledger_${reportDateRange}_${stamp}.csv`;
+        }
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = name;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        showRBACToast(`Export complete! Downloaded ${format === 'json' ? 'JSON' : 'CSV'} for ${orders.length} order(s).`, 'success');
+      };
+
+      document.addEventListener('DOMContentLoaded', renderVerificationQueue);
+    }
+  </script>
 </body>
 </html>

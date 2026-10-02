@@ -164,165 +164,8 @@
               <th class="px-5 py-3 font-semibold text-right">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100">
-            
-            <!-- Method 1: Bakong KHQR -->
-            <tr class="hover:bg-gray-50/80 transition-colors">
-              <td class="px-5 py-4">
-                <div class="font-bold text-xs text-gray-900">Bakong KHQR (National Standard)</div>
-                <div class="text-[11px] text-gray-400">Universal QR scan with any Cambodian banking app</div>
-              </td>
-              <td class="px-5 py-4">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200">
-                  KHQR Code
-                </span>
-              </td>
-              <td class="px-5 py-4">
-                <div class="w-12 h-12 rounded border border-gray-200 p-0.5 bg-white overflow-hidden shadow-xs cursor-pointer" onclick="showQrModal('Bakong KHQR', 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=00020101021229370016bakong@nbc.gov.kh520459995802KH5917PSAONLINE+MARKET6010PHNOM+PENH6304ABCD')">
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=00020101021229370016bakong@nbc.gov.kh520459995802KH5917PSAONLINE+MARKET6010PHNOM+PENH6304ABCD" alt="KHQR" class="w-full h-full object-contain" />
-                </div>
-              </td>
-              <td class="px-5 py-4 text-xs font-mono text-gray-700">
-                psaonline@acleda
-                <div class="text-[10px] text-gray-400 font-sans">Remark: Order # mandatory</div>
-              </td>
-              <td class="px-5 py-4">
-                <!-- Toggle switch -->
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" checked class="sr-only peer" onchange="toggleMethodStatus(this, 'Bakong KHQR')" />
-                  <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
-                  <span class="ml-2 text-xs font-semibold text-emerald-700 status-label">Enabled</span>
-                </label>
-              </td>
-              <td class="px-5 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <a href="payment-method-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                  </a>
-                  <button class="p-1.5 text-gray-400 hover:text-red-600 rounded" onclick="alert('Primary gateway cannot be deleted.')">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- Method 2: ABA Pay -->
-            <tr class="hover:bg-gray-50/80 transition-colors">
-              <td class="px-5 py-4">
-                <div class="font-bold text-xs text-gray-900">ABA Pay / ABA Mobile</div>
-                <div class="text-[11px] text-gray-400">Direct transfer to ABA Bank Cambodia</div>
-              </td>
-              <td class="px-5 py-4">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                  Bank Transfer
-                </span>
-              </td>
-              <td class="px-5 py-4">
-                <div class="w-12 h-12 rounded border border-gray-200 p-0.5 bg-white overflow-hidden shadow-xs cursor-pointer" onclick="showQrModal('ABA Pay QR', 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=ABA-PAY-PSAONLINE-001928374')">
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=ABA-PAY-PSAONLINE-001928374" alt="ABA QR" class="w-full h-full object-contain" />
-                </div>
-              </td>
-              <td class="px-5 py-4 text-xs font-mono text-gray-700">
-                001 928 374 (USD)
-                <div class="text-[10px] text-gray-400 font-sans">Name: PSAONLINE CO., LTD</div>
-              </td>
-              <td class="px-5 py-4">
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" checked class="sr-only peer" onchange="toggleMethodStatus(this, 'ABA Pay')" />
-                  <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
-                  <span class="ml-2 text-xs font-semibold text-emerald-700 status-label">Enabled</span>
-                </label>
-              </td>
-              <td class="px-5 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <a href="payment-method-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                  </a>
-                  <button class="p-1.5 text-gray-400 hover:text-red-600 rounded" onclick="alert('Are you sure you want to delete ABA Pay?')">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- Method 3: Cash on Delivery -->
-            <tr class="hover:bg-gray-50/80 transition-colors">
-              <td class="px-5 py-4">
-                <div class="font-bold text-xs text-gray-900">Cash on Delivery (COD)</div>
-                <div class="text-[11px] text-gray-400">Pay cash upon courier arrival (Phnom Penh central only)</div>
-              </td>
-              <td class="px-5 py-4">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  Cash Handover
-                </span>
-              </td>
-              <td class="px-5 py-4">
-                <div class="w-12 h-12 rounded border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-400">
-                  <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                </div>
-              </td>
-              <td class="px-5 py-4 text-xs text-gray-700">
-                No bank account required
-                <div class="text-[10px] text-gray-400">Limits: Up to $100 per basket</div>
-              </td>
-              <td class="px-5 py-4">
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" checked class="sr-only peer" onchange="toggleMethodStatus(this, 'Cash on Delivery')" />
-                  <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
-                  <span class="ml-2 text-xs font-semibold text-emerald-700 status-label">Enabled</span>
-                </label>
-              </td>
-              <td class="px-5 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <a href="payment-method-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                  </a>
-                  <button class="p-1.5 text-gray-400 hover:text-red-600 rounded" onclick="alert('Disabled COD method.')">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <!-- Method 4: Wing Money -->
-            <tr class="hover:bg-gray-50/80 transition-colors opacity-60">
-              <td class="px-5 py-4">
-                <div class="font-bold text-xs text-gray-900">Wing Bank & Agent Transfer</div>
-                <div class="text-[11px] text-gray-400">Wing account deposit via app or nearby agent booth</div>
-              </td>
-              <td class="px-5 py-4">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  Wing Account
-                </span>
-              </td>
-              <td class="px-5 py-4">
-                <div class="w-12 h-12 rounded border border-gray-200 bg-emerald-50 text-emerald-600 font-bold text-xs flex items-center justify-center">
-                  WING
-                </div>
-              </td>
-              <td class="px-5 py-4 text-xs font-mono text-gray-700">
-                023 998 111
-                <div class="text-[10px] text-gray-400 font-sans">Under maintenance</div>
-              </td>
-              <td class="px-5 py-4">
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" class="sr-only peer" onchange="toggleMethodStatus(this, 'Wing Bank')" />
-                  <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
-                  <span class="ml-2 text-xs font-semibold text-gray-400 status-label">Disabled</span>
-                </label>
-              </td>
-              <td class="px-5 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  <a href="payment-method-form.html" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                  </a>
-                  <button class="p-1.5 text-gray-400 hover:text-red-600 rounded" onclick="alert('Removed Wing Bank.')">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-
+          <tbody id="methodsTableBody" class="divide-y divide-gray-100">
+            <tr><td colspan="6" class="px-5 py-10 text-center text-xs text-gray-400">Loading payment methods&hellip;</td></tr>
           </tbody>
         </table>
       </div>
@@ -345,25 +188,108 @@
   </div>
 
   <script>
-    function toggleMethodStatus(checkbox, name) {
+    const TYPE_CHIPS = {
+      khqr: ['KHQR Code', 'bg-red-50 text-red-700 border-red-200'],
+      bank: ['Bank Transfer', 'bg-sky-50 text-sky-700 border-sky-200'],
+      cod: ['Cash', 'bg-emerald-50 text-emerald-700 border-emerald-200'],
+      other: ['Other', 'bg-gray-100 text-gray-700 border-gray-200']
+    };
+    const BUILT_IN_CODES = ['bakong_khqr', 'aba_pay', 'acleda_khqr', 'visa_card', 'cod'];
+
+    // A QR can be stored as an uploaded image, a link, or KHQR text (rendered via a QR image service).
+    function qrImageUrl(m, size) {
+      if (!m.qrData) return '';
+      if (/^(data:image\/|https?:\/\/)/.test(m.qrData)) return m.qrData;
+      return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(m.qrData)}`;
+    }
+
+    function renderMethodsTable() {
+      const tbody = document.getElementById('methodsTableBody');
+      const methods = PSA.online ? PSA.paymentMethods : [];
+      if (!methods.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-10 text-center text-xs text-gray-400">${PSA.online ? 'No payment methods yet.' : 'Start the server (php artisan serve) to manage payment methods.'}</td></tr>`;
+        return;
+      }
+      const canEdit = hasPermission('canManagePaymentGateways');
+      tbody.innerHTML = methods.map(m => {
+        const chip = TYPE_CHIPS[m.type] || TYPE_CHIPS.other;
+        const qr = qrImageUrl(m, 100);
+        const builtIn = BUILT_IN_CODES.includes(m.code);
+        return `
+            <tr class="hover:bg-gray-50/80 transition-colors ${m.isActive ? '' : 'opacity-60'}">
+              <td class="px-5 py-4">
+                <div class="font-bold text-xs text-gray-900">${psaEsc(m.name)}</div>
+                <div class="text-[11px] text-gray-400">${psaEsc(m.description || '')}</div>
+              </td>
+              <td class="px-5 py-4">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${chip[1]}">${chip[0]}</span>
+              </td>
+              <td class="px-5 py-4">
+                ${qr ? `<div class="w-12 h-12 rounded border border-gray-200 p-0.5 bg-white overflow-hidden shadow-xs cursor-pointer" onclick="showMethodQr(${m.id})"><img src="${psaEsc(qr)}" alt="QR" class="w-full h-full object-contain" /></div>`
+                  : '<span class="text-[11px] text-gray-400">&mdash;</span>'}
+              </td>
+              <td class="px-5 py-4 text-xs font-mono text-gray-700">
+                ${psaEsc(m.accountNumber || '—')}
+                ${m.accountName ? `<div class="text-[10px] text-gray-400 font-sans">${psaEsc(m.accountName)}</div>` : ''}
+              </td>
+              <td class="px-5 py-4">
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" ${m.isActive ? 'checked' : ''} ${canEdit ? '' : 'disabled'} class="sr-only peer" onchange="toggleMethodStatus(this, ${m.id})" />
+                  <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
+                  <span class="ml-2 text-xs font-semibold status-label ${m.isActive ? 'text-emerald-700' : 'text-gray-400'}">${m.isActive ? 'Enabled' : 'Disabled'}</span>
+                </label>
+              </td>
+              <td class="px-5 py-4 text-right">
+                <div class="flex items-center justify-end gap-2 ${canEdit ? '' : 'opacity-50 pointer-events-none'}">
+                  <a href="payment-method-form.html?id=${m.id}" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  </a>
+                  <button class="p-1.5 text-gray-400 hover:text-red-600 rounded" title="${builtIn ? 'Built-in checkout method: turn it off instead' : 'Delete'}" onclick="deleteMethod(${m.id})">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>`;
+      }).join('');
+    }
+
+    async function toggleMethodStatus(checkbox, id) {
       if (!hasPermission('canManagePaymentGateways')) {
         showRBACToast(`Access Denied: Only Admin (Studio Lead) can modify payment gateway merchant credentials. Staff role has read-only access.`, 'danger');
         checkbox.checked = !checkbox.checked;
         return;
       }
-      const label = checkbox.parentElement.querySelector('.status-label');
-      const row = checkbox.closest('tr');
-      if (checkbox.checked) {
-        label.textContent = 'Enabled';
-        label.className = 'ml-2 text-xs font-semibold text-emerald-700 status-label';
-        row.classList.remove('opacity-60');
-        showRBACToast(`${name} payment gateway enabled.`, 'success');
-      } else {
-        label.textContent = 'Disabled';
-        label.className = 'ml-2 text-xs font-semibold text-gray-400 status-label';
-        row.classList.add('opacity-60');
-        showRBACToast(`${name} payment gateway disabled.`, 'info');
+      try {
+        const { paymentMethod } = await psaApi('PATCH', `/api/admin/payment-methods/${id}`, { isActive: checkbox.checked });
+        PSA.paymentMethods = PSA.paymentMethods.map(m => (m.id === paymentMethod.id ? paymentMethod : m));
+        renderMethodsTable();
+        showRBACToast(`${psaEsc(paymentMethod.name)} ${paymentMethod.isActive ? 'enabled' : 'disabled'} at checkout.`, paymentMethod.isActive ? 'success' : 'info');
+      } catch (err) {
+        checkbox.checked = !checkbox.checked;
+        showRBACToast(psaEsc(err.message), 'danger');
       }
+    }
+
+    async function deleteMethod(id) {
+      const m = PSA.paymentMethods.find(x => x.id === id);
+      if (!m) return;
+      if (BUILT_IN_CODES.includes(m.code)) {
+        alert('This is a built-in checkout method and cannot be deleted. Turn it off instead.');
+        return;
+      }
+      if (!confirm(`Delete "${m.name}"?`)) return;
+      try {
+        await psaApi('DELETE', `/api/admin/payment-methods/${id}`);
+        PSA.paymentMethods = PSA.paymentMethods.filter(x => x.id !== id);
+        renderMethodsTable();
+      } catch (err) {
+        showRBACToast(psaEsc(err.message), 'danger');
+      }
+    }
+
+    function showMethodQr(id) {
+      const m = PSA.paymentMethods.find(x => x.id === id);
+      if (m) showQrModal(m.name, qrImageUrl(m, 300));
     }
 
     function showQrModal(title, url) {
@@ -381,7 +307,8 @@
   <script src="assets/js/rbac.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      enforcePageRBAC('canAccessAdminPortal');
+      if (!enforcePageRBAC('canAccessAdminPortal')) return;
+      renderMethodsTable();
       if (!hasPermission('canManagePaymentGateways')) {
         // Disable checkboxes and add button if staff
         document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = true);

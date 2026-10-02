@@ -5,6 +5,92 @@
 
 const EXCHANGE_RATE = 4100; // 1 USD = 4,100 KHR
 
+// Live data from the Laravel API (Supabase database). Loaded synchronously on purpose:
+// every page script reads the catalog / user / orders as soon as it runs.
+// When the API is unreachable (e.g. `npm run dev` without `php artisan serve`),
+// PSA.online is false and the pages fall back to the built-in demo data below.
+const PSA = (function loadPsaBootstrap() {
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/bootstrap', false);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.send();
+    if (xhr.status === 200) {
+      const data = JSON.parse(xhr.responseText);
+      data.online = true;
+      return data;
+    }
+  } catch (e) {
+    // offline: fall through to demo mode
+  }
+  return { online: false, csrf: '', user: null, products: [], paymentMethods: [], orders: [], users: [] };
+})();
+
+// JSON call to the Laravel API. Resolves with the response body or throws an Error with a readable message.
+async function psaApi(method, url, body) {
+  if (!PSA.online) {
+    throw new Error('The server is offline. Start it with "php artisan serve" and open http://127.0.0.1:8000');
+  }
+  const res = await fetch(url, {
+    method,
+    credentials: 'same-origin',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-CSRF-TOKEN': PSA.csrf,
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: body === undefined ? undefined : JSON.stringify(body)
+  });
+  let data = null;
+  try { data = await res.json(); } catch (e) { /* empty body */ }
+  if (!res.ok) {
+    const firstError = data && data.errors ? Object.values(data.errors)[0] : null;
+    const message = (firstError && firstError[0]) || (data && data.message) || `Request failed (${res.status})`;
+    const err = new Error(res.status === 419 ? 'Your session expired. Refresh the page and try again.' : message);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+async function psaLogout(redirectTo = 'login.html') {
+  try { await psaApi('POST', '/api/auth/logout'); } catch (e) { /* already logged out */ }
+  localStorage.removeItem('psa_current_user');
+  window.location.href = redirectTo;
+}
+
+// Escape text before putting it into innerHTML (names, addresses and titles come from other users).
+function psaEsc(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// Shrink a picked image file to a JPEG data URL so it can be stored in the database.
+function psaImageToDataUrl(file, maxSize = 900, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    if (!file || !/^image\//.test(file.type)) { reject(new Error('Please choose an image file.')); return; }
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Could not read that file.'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('That image could not be opened.'));
+      img.onload = () => {
+        const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 // Gen-Z Trendy Accessories Catalog (Affordable, Aesthetic, TikTok & Streetwear Trending)
 const ACCESSORIES_PRODUCTS = [
   {
@@ -313,6 +399,28 @@ const ACCESSORIES_PRODUCTS = [
     }
   }
 ];
+
+// Replace the demo data with the database copy, and mirror the server's user/orders into the
+// localStorage keys the pages already read (psa_current_user, psa_orders, psa_rbac_users).
+if (PSA.online) {
+  ACCESSORIES_PRODUCTS.splice(0, ACCESSORIES_PRODUCTS.length, ...PSA.products.filter(p => p.status === 'active'));
+  try {
+    localStorage.setItem('psa_orders', JSON.stringify(PSA.orders));
+    if (PSA.user) localStorage.setItem('psa_current_user', JSON.stringify(PSA.user));
+    else localStorage.removeItem('psa_current_user');
+    localStorage.setItem('psa_rbac_users', JSON.stringify(PSA.users));
+
+    // Refresh bag lines with current prices; drop products that were removed.
+    const bag = JSON.parse(localStorage.getItem('psa_cart') || '[]');
+    const fresh = bag.flatMap(item => {
+      const p = ACCESSORIES_PRODUCTS.find(x => x.id === item.id);
+      return p ? [{ ...item, title: p.title, priceUSD: p.priceUSD, priceKHR: p.priceKHR, image: p.image, categoryLabel: p.categoryLabel }] : [];
+    });
+    localStorage.setItem('psa_cart', JSON.stringify(fresh));
+  } catch (e) {
+    // storage unavailable: pages still render from PSA
+  }
+}
 
 // Active Currency State
 let CURRENT_CURRENCY = localStorage.getItem('psa_currency') || 'USD';
@@ -1094,6 +1202,17 @@ function getViewed() {
     return list.filter(v => v && typeof v.id === 'string' && ACCESSORIES_PRODUCTS.some(p => p.id === v.id));
   } catch (e) {
     return [];
+  }
+}
+
+// Record a product view (newest first, one entry per product, last 50) for viewed.html
+function trackView(productId) {
+  try {
+    const list = JSON.parse(localStorage.getItem('psa_viewed') || '[]');
+    const rest = Array.isArray(list) ? list.filter(v => v && v.id !== productId) : [];
+    localStorage.setItem('psa_viewed', JSON.stringify([{ id: productId, ts: Date.now() }, ...rest].slice(0, 50)));
+  } catch (e) {
+    // storage unavailable
   }
 }
 
