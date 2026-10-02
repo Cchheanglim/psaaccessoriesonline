@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Product Editor — PsaOnline Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
 
@@ -367,7 +368,7 @@
         } else {
           await psaApi('POST', '/api/admin/products', payload);
         }
-        window.location.href = 'admin-products.html';
+        window.location.replace('admin-products.html');
       } catch (err) {
         errorEl.textContent = err.message;
         errorEl.classList.remove('hidden');

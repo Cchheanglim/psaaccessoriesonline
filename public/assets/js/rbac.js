@@ -166,7 +166,7 @@ function switchUserRole(newRole) {
   // Live mode: roles are real, so "switching" means signing in with another account.
   if (PSA.online) {
     showRBACToast(`Sign in with a ${newRole} account to continue.`, 'info');
-    setTimeout(() => psaLogout(`login.html?next=${encodeURIComponent(location.pathname.replace(/^\//, '') + location.search)}`), 600);
+    setTimeout(() => psaLogout(`login.html?next=${encodeURIComponent(psaCurrentPage())}`), 600);
     return;
   }
   const users = getRBACUsers();
@@ -234,8 +234,7 @@ function showRBACToast(msg, type = 'info') {
 function enforcePageRBAC(requiredPermission = 'canAccessAdminPortal') {
   const user = getCurrentUser();
   if (PSA.online && user.guest) {
-    window.location.href = `login.html?next=${encodeURIComponent(location.pathname.replace(/^\//, '') + location.search)}`;
-    return false;
+    return psaRequireLogin();
   }
   const allowed = hasPermission(requiredPermission);
 

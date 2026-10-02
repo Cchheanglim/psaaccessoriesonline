@@ -29,6 +29,7 @@
     .seg button.on { background:#2B1D1D; color:#fff; }
     .dark .seg button.on { background:#FFA552; }
   </style>
+  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-[#FDFBF7] dark:bg-[#121215] text-[#2B1D1D] dark:text-white font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
@@ -121,13 +122,37 @@
       clearTimeout(toast._t); toast._t = setTimeout(() => t.style.opacity = '0', 1800);
     }
     const esc = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    function nav(v) { location.hash = v; }
-    function goBack() {
-      const v = location.hash.slice(1);
-      if (v === 'address') return nav('addresses');
-      if (v) return nav('');
-      location.href = 'dashboard-buyer.html';
+    // Settings screens live in the URL hash (#profile, #addresses, ...).
+    // Opening a screen adds one history entry; leaving it goes back to that entry, so the
+    // browser's Back button and the arrow at the top always agree and never loop.
+    const PARENT = { address: 'addresses' };
+
+    function settingsDepth() {
+      return (history.state && history.state.settingsDepth) || 0;
     }
+
+    function nav(v) {
+      history.pushState({ settingsDepth: settingsDepth() + 1 }, '', v ? `#${v}` : location.pathname + location.search);
+      render();
+    }
+
+    // Leave the current screen: return to the screen that opened it, or to its parent screen,
+    // or (from the main list) to the previous page.
+    function goBack() {
+      if (settingsDepth() > 0) {
+        history.back();
+        return;
+      }
+      const v = location.hash.slice(1);
+      if (v) {
+        const parent = PARENT[v];
+        history.replaceState(null, '', parent ? `#${parent}` : location.pathname + location.search);
+        render();
+        return;
+      }
+      psaGoBack('dashboard-buyer.html');
+    }
+
     function row(iconName, label, hint, target) {
       return `<button type="button" class="row" aria-label="${esc(label)}" onclick="nav('${target}')"><span class="flex items-center gap-3 text-sm font-bold"><span class="settings-icon">${svgIcon(iconName, 18)}</span><span>${label}</span></span><span class="flex items-center gap-2 text-xs text-stone-400">${hint || ''}${chev}</span></button>`;
     }
@@ -267,12 +292,12 @@
       if (!name) return toast('Enter your name');
       if (PSA.online) {
         saveLiveProfile({ name, phone: document.getElementById('fPhone').value.trim(), email: document.getElementById('fEmail').value.trim() }, 'Profile saved')
-          .then(ok => { if (ok) nav(''); });
+          .then(ok => { if (ok) goBack(); });
         return;
       }
       localStorage.setItem('psa_profile', JSON.stringify(Object.assign(getProfile(), {
         name, phone: document.getElementById('fPhone').value.trim(), email: document.getElementById('fEmail').value.trim() })));
-      toast('Profile saved'); nav('');
+      toast('Profile saved'); goBack();
     }
     function savePassword() {
       const o = pOld.value, n = pNew.value, c = pCon.value, e = document.getElementById('pErr');
@@ -281,11 +306,11 @@
       if (msg) return;
       if (PSA.online) {
         psaApi('PUT', '/api/me/password', { current: o, password: n })
-          .then(() => { toast('Password updated'); nav(''); })
+          .then(() => { toast('Password updated'); goBack(); })
           .catch(err => { e.textContent = err.message; e.classList.remove('hidden'); });
         return;
       }
-      toast('Password updated'); nav('');
+      toast('Password updated'); goBack();
     }
     function openAddress(id) { editingAddr = id; nav('address'); }
     function saveAddress() {
@@ -300,7 +325,7 @@
       if (ex) Object.assign(ex, { name, phone, line, isDefault: makeDef || ex.isDefault });
       else list.push({ id: 'addr-' + Date.now(), name, phone, line, isDefault: makeDef });
       localStorage.setItem('psa_addresses', JSON.stringify(list));
-      toast('Address saved'); nav('addresses');
+      toast('Address saved'); goBack();
     }
     function setDefault(id) {
       const list = getAddresses(); list.forEach(a => a.isDefault = a.id === id);
@@ -327,8 +352,13 @@
       document.getElementById('view').innerHTML = views[key]();
       window.scrollTo(0, 0);
     }
+    window.addEventListener('popstate', render);
     window.addEventListener('hashchange', render);
-    document.addEventListener('DOMContentLoaded', render);
+    document.addEventListener('DOMContentLoaded', () => {
+      // Settings belong to an account: guests sign in first, then come back here.
+      if (!psaRequireLogin()) return;
+      render();
+    });
   </script>
 </body>
 </html>

@@ -7,6 +7,7 @@
   <meta name="description" content="Sign in to your PsaOnline account to track your accessories orders and save your favorites." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-[#FFA552] selection:text-white">
 
@@ -166,11 +167,11 @@
       const next = new URLSearchParams(location.search).get('next');
       // only follow same-site relative links
       if (next && /^[a-z0-9._-]+\.html(\?.*)?$/i.test(next)) {
-        window.location.href = next;
+        window.location.replace(next);
       } else if (user.role === 'Admin' || user.role === 'Staff') {
-        window.location.href = 'dashboard-admin.html';
+        window.location.replace('dashboard-admin.html');
       } else {
-        window.location.href = 'dashboard-buyer.html';
+        window.location.replace('dashboard-buyer.html');
       }
     }
 

@@ -57,8 +57,97 @@ async function psaApi(method, url, body) {
 async function psaLogout(redirectTo = 'login.html') {
   try { await psaApi('POST', '/api/auth/logout'); } catch (e) { /* already logged out */ }
   localStorage.removeItem('psa_current_user');
-  window.location.href = redirectTo;
+  window.location.replace(redirectTo);
 }
+
+// ---------- Navigation helpers ----------
+// Redirects use location.replace() so the page you were sent away from is not left in the
+// history. Otherwise the browser's Back button returns to it and it redirects again (a loop).
+
+function psaCurrentPage() {
+  return (location.pathname.replace(/^\//, '') || 'home.html') + location.search;
+}
+
+// Guests are sent to the login page and come back here after signing in.
+// Returns true when the visitor may stay on the page.
+function psaRequireLogin() {
+  if (!PSA.online || PSA.user) return true;
+  window.location.replace(`login.html?next=${encodeURIComponent(psaCurrentPage())}`);
+  return false;
+}
+
+// Go back to the previous page of this site. When there is none (opened from a link,
+// bookmark or new tab), go to `fallback` instead, without adding a history entry.
+function psaGoBack(fallback = 'home.html') {
+  let cameFromThisSite = false;
+  try {
+    const ref = document.referrer ? new URL(document.referrer) : null;
+    cameFromThisSite = !!ref && ref.origin === location.origin && ref.href !== location.href;
+  } catch (e) {
+    cameFromThisSite = false;
+  }
+  if (cameFromThisSite && history.length > 1) {
+    history.back();
+  } else {
+    window.location.replace(fallback);
+  }
+}
+
+// Pages that get a back arrow in the header, and where it goes when there is no previous page.
+const PSA_BACK_FALLBACKS = {
+  'product-detail.html': 'products.html',
+  'cart.html': 'products.html',
+  'checkout.html': 'cart.html',
+  'wishlist.html': 'home.html',
+  'order-detail.html': 'dashboard-buyer.html',
+  'order-detail--buyer-pending.html': 'dashboard-buyer.html',
+  'login.html': 'home.html',
+  'register.html': 'login.html',
+  'admin-orders.html': 'dashboard-admin.html',
+  'admin-products.html': 'dashboard-admin.html',
+  'admin-users.html': 'dashboard-admin.html',
+  'admin-payment-methods.html': 'dashboard-admin.html',
+  'product-form.html': 'admin-products.html',
+  'user-form.html': 'admin-users.html',
+  'payment-method-form.html': 'admin-payment-methods.html'
+};
+
+function psaAddHeaderBackButton() {
+  const fallback = PSA_BACK_FALLBACKS[location.pathname.split('/').pop()];
+  const logo = document.querySelector('header a');
+  if (!fallback || !logo || document.getElementById('psaBackBtn')) return;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.id = 'psaBackBtn';
+  btn.className = 'psa-back-btn';
+  btn.setAttribute('aria-label', 'Go back');
+  btn.title = 'Back';
+  btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>';
+  btn.addEventListener('click', () => psaGoBack(fallback));
+  logo.parentNode.insertBefore(btn, logo);
+}
+
+// The header avatar was hard-coded ("SC"): show the signed-in user's initials, or a sign-in icon for guests.
+function psaUpdateHeaderAccount() {
+  if (!PSA.online) return;
+  document.querySelectorAll('header a[href="dashboard-buyer.html"] > div.rounded-full').forEach(avatar => {
+    const link = avatar.parentElement;
+    if (PSA.user) {
+      avatar.textContent = PSA.user.avatar || '?';
+      if (PSA.user.role !== 'Buyer') link.href = 'dashboard-admin.html';
+      link.setAttribute('aria-label', `My account (${PSA.user.name})`);
+    } else {
+      avatar.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
+      link.href = 'login.html';
+      link.setAttribute('aria-label', 'Sign in');
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  psaAddHeaderBackButton();
+  psaUpdateHeaderAccount();
+});
 
 // Escape text before putting it into innerHTML (names, addresses and titles come from other users).
 function psaEsc(value) {

@@ -8,13 +8,14 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
 </head>
 <body class="bg-[#FDFBF7] dark:bg-[#121215] text-[#2B1D1D] dark:text-white font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
 
   <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2D2D38]">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       <div class="flex items-center gap-3 min-w-0">
-        <a href="dashboard-buyer.html" class="text-xl font-black text-[#FFA552]" aria-label="Back to My Account">&lsaquo;</a>
+        <a href="dashboard-buyer.html" onclick="event.preventDefault(); psaGoBack('dashboard-buyer.html')" class="psa-back-link text-xl font-black text-[#FFA552]" aria-label="Go back">&lsaquo;</a>
         <h1 class="text-base sm:text-lg font-black truncate">Viewed History</h1>
       </div>
       <div class="flex items-center gap-3 text-xs font-bold">
