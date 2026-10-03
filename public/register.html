@@ -74,7 +74,7 @@
         </div>
 
         <div class="space-y-1">
-          <label for="reg_phone" class="text-xs font-bold text-[#2B1D1D]">Telegram / Phone Number</label>
+          <label for="reg_phone" class="text-xs font-bold text-[#2B1D1D]">Phone Number</label>
           <input
             type="tel"
             id="reg_phone"
@@ -97,6 +97,19 @@
           />
         </div>
 
+        <!-- Required Terms & Privacy Checkbox -->
+        <div class="flex items-start gap-2 pt-1">
+          <input
+            type="checkbox"
+            id="reg_agree"
+            required
+            class="mt-0.5 rounded border-[#EFE4D6] text-[#FFA552] focus:ring-[#FFA552] cursor-pointer"
+          />
+          <label for="reg_agree" class="text-xs text-stone-600 select-none cursor-pointer leading-tight">
+            I agree to the <a href="terms.html" target="_blank" class="font-bold text-[#FFA552] underline underline-offset-2">Terms of Service</a> and <a href="privacy.html" target="_blank" class="font-bold text-[#FFA552] underline underline-offset-2">Privacy Policy</a>
+          </label>
+        </div>
+
         <p id="registerError" class="hidden text-[11px] font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2" role="alert"></p>
 
         <button
@@ -116,24 +129,100 @@
     </div>
   </main>
 
+  <!-- Footer -->
+  <footer class="bg-[#F9F3EA] border-t border-[#EFE4D6] mt-auto py-6 text-xs text-stone-500">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+      <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
+      <div class="flex items-center justify-center gap-4 text-[11px]">
+        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
+        <span>&bull;</span>
+        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
+        <span>&bull;</span>
+        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
   <script src="assets/js/store.js"></script>
   <script>
+    // Real-time clearing of error on typing
+    ['reg_name', 'reg_email', 'reg_phone', 'reg_password'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', () => psaClearFieldError(el));
+      }
+    });
+    const agreeBox = document.getElementById('reg_agree');
+    if (agreeBox) {
+      agreeBox.addEventListener('change', () => psaClearFieldError('reg_agree'));
+    }
+
+    function validateRegisterForm() {
+      psaClearAllFieldErrors(document.querySelector('form'));
+      let hasError = false;
+
+      const nameVal = document.getElementById('reg_name').value.trim();
+      const emailVal = document.getElementById('reg_email').value.trim();
+      const phoneVal = document.getElementById('reg_phone').value.trim();
+      const passVal = document.getElementById('reg_password').value;
+      const agreeVal = document.getElementById('reg_agree').checked;
+
+      const nameErr = psaValidateMinLength(nameVal, 2, 'Full name');
+      if (nameErr) {
+        psaShowFieldError('reg_name', nameErr);
+        hasError = true;
+      }
+
+      const emailErr = psaValidateEmail(emailVal);
+      if (emailErr) {
+        psaShowFieldError('reg_email', emailErr);
+        hasError = true;
+      }
+
+      const phoneErr = psaValidatePhone(phoneVal, true);
+      if (phoneErr) {
+        psaShowFieldError('reg_phone', phoneErr);
+        hasError = true;
+      }
+
+      const passErr = psaValidatePassword(passVal, 6);
+      if (passErr) {
+        psaShowFieldError('reg_password', passErr);
+        hasError = true;
+      }
+
+      if (!agreeVal) {
+        psaShowFieldError('reg_agree', 'You must agree to the Terms of Service and Privacy Policy to register.');
+        hasError = true;
+      }
+
+      return !hasError;
+    }
+
     async function handleRegister(e) {
       e.preventDefault();
       const errorEl = document.getElementById('registerError');
       const btn = document.getElementById('registerSubmitBtn');
       errorEl.classList.add('hidden');
+
+      if (!validateRegisterForm()) {
+        return;
+      }
+
       if (!PSA.online) {
         if (psaIsLocalPreview()) {
-          // Demo mode (previewing without the server)
-          window.location.href = 'dashboard-buyer.html';
+          psaSetButtonLoading(btn, true, 'Creating Account...');
+          setTimeout(() => {
+            window.location.href = 'dashboard-buyer.html';
+          }, 300);
         } else {
           errorEl.textContent = PSA_OFFLINE_MESSAGE;
           errorEl.classList.remove('hidden');
         }
         return;
       }
-      btn.disabled = true;
+
+      psaSetButtonLoading(btn, true, 'Creating Account...');
       try {
         await psaApi('POST', '/api/auth/register', {
           name: document.getElementById('reg_name').value.trim(),
@@ -143,9 +232,13 @@
         });
         window.location.replace('dashboard-buyer.html');
       } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.classList.remove('hidden');
-        btn.disabled = false;
+        psaSetButtonLoading(btn, false);
+        if (err.errors) {
+          psaApplyServerErrors(document.querySelector('form'), err.errors);
+        } else {
+          errorEl.textContent = err.message;
+          errorEl.classList.remove('hidden');
+        }
       }
     }
   </script>

@@ -49,9 +49,236 @@ async function psaApi(method, url, body) {
     const message = (firstError && firstError[0]) || (data && data.message) || `Request failed (${res.status})`;
     const err = new Error(res.status === 419 ? 'Your session expired. Refresh the page and try again.' : message);
     err.status = res.status;
+    err.errors = data && data.errors ? data.errors : null;
     throw err;
   }
   return data;
+}
+
+// =========================================================================
+// SHARED FORM VALIDATION & FEEDBACK HELPERS
+// =========================================================================
+
+function psaValidateEmail(email) {
+  const v = (email || '').trim();
+  if (!v) return 'Email address is required.';
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!re.test(v)) return 'Please enter a valid email address (e.g. name@example.com).';
+  return null;
+}
+
+function psaValidatePhone(phone, required = true) {
+  const v = (phone || '').trim();
+  if (!v) return required ? 'Phone number is required.' : null;
+  const digits = v.replace(/\D/g, '');
+  if (digits.length < 8) return 'Phone number must be at least 8 digits.';
+  if (!/^[+0-9\s\-()]+$/.test(v)) return 'Please enter a valid phone number (digits, spaces, or +).';
+  return null;
+}
+
+function psaValidatePassword(password, minLength = 6, label = 'Password') {
+  const v = password || '';
+  if (!v) return `${label} is required.`;
+  if (v.length < minLength) return `${label} must be at least ${minLength} characters.`;
+  return null;
+}
+
+function psaValidateRequired(value, label = 'This field') {
+  if (value === null || value === undefined) return `${label} is required.`;
+  if (typeof value === 'string' && !value.trim()) return `${label} is required.`;
+  if (Array.isArray(value) && value.length === 0) return `${label} is required.`;
+  return null;
+}
+
+function psaValidateMinLength(value, min, label = 'This field') {
+  const v = (value || '').trim();
+  if (v.length < min) return `${label} must be at least ${min} characters.`;
+  return null;
+}
+
+function psaValidateNumber(value, min = 0, label = 'This field') {
+  const num = Number(value);
+  if (isNaN(num)) return `${label} must be a valid number.`;
+  if (num < min) return `${label} must be at least ${min}.`;
+  return null;
+}
+
+function psaGetInputElement(inputOrId, root = document) {
+  if (!inputOrId) return null;
+  if (typeof inputOrId !== 'string') return inputOrId;
+  return (root.getElementById ? root.getElementById(inputOrId) : null) ||
+         document.getElementById(inputOrId) ||
+         (root.querySelector ? root.querySelector(`[name="${inputOrId}"]`) : null) ||
+         (root.querySelector ? root.querySelector(`#${inputOrId}`) : null);
+}
+
+const PSA_FIELD_BORDERS = ['border-[#EFE4D6]', 'border-stone-200', 'border-gray-200', 'border-gray-300'];
+
+// The message <p> sits right after the input, or right after its wrapper when the input has an icon.
+function psaFindFieldError(el) {
+  const key = el.id || el.name;
+  const parent = el.parentElement;
+  if (key && parent) {
+    const sel = `.field-error[data-for="${CSS.escape(key)}"]`;
+    const next = parent.nextElementSibling;
+    const found = parent.querySelector(sel) || (next && next.matches(sel) ? next : null);
+    if (found) return found;
+  }
+  return el.id ? (document.getElementById(`${el.id}_error`) || document.getElementById(`${el.id}Error`)) : null;
+}
+
+// Put back the field's own border colour (saved by psaShowFieldError).
+function psaRestoreFieldBorder(el) {
+  el.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
+  if (el.dataset.psaBorder) {
+    el.classList.add(...el.dataset.psaBorder.split(' '));
+    delete el.dataset.psaBorder;
+  }
+}
+
+function psaShowFieldError(inputOrId, message, root = document) {
+  const el = psaGetInputElement(inputOrId, root);
+  if (!el) return;
+
+  const borders = PSA_FIELD_BORDERS.filter(c => el.classList.contains(c));
+  if (borders.length) el.dataset.psaBorder = borders.join(' ');
+  el.classList.remove(...PSA_FIELD_BORDERS);
+  el.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
+
+  let errEl = psaFindFieldError(el);
+  if (!errEl) {
+    errEl = document.createElement('p');
+    errEl.className = 'field-error text-[11px] font-bold text-red-600 dark:text-red-400 mt-1';
+    errEl.setAttribute('role', 'alert');
+    if (el.id || el.name) errEl.setAttribute('data-for', el.id || el.name);
+    const parent = el.parentElement;
+    if (parent && (parent.classList.contains('relative') || parent.classList.contains('flex'))) {
+      parent.insertAdjacentElement('afterend', errEl);
+    } else if (parent) {
+      el.insertAdjacentElement('afterend', errEl);
+    }
+  }
+
+  errEl.textContent = message;
+  errEl.classList.remove('hidden');
+}
+
+function psaClearFieldError(inputOrId, root = document) {
+  const el = psaGetInputElement(inputOrId, root);
+  if (!el) return;
+
+  psaRestoreFieldBorder(el);
+
+  const errEl = psaFindFieldError(el);
+  if (errEl) {
+    errEl.textContent = '';
+    errEl.classList.add('hidden');
+  }
+}
+
+function psaClearAllFieldErrors(container = document) {
+  if (!container) return;
+  const errors = container.querySelectorAll ? container.querySelectorAll('.field-error') : [];
+  errors.forEach(err => {
+    err.textContent = '';
+    err.classList.add('hidden');
+  });
+
+  const inputs = container.querySelectorAll ? container.querySelectorAll('.border-red-500') : [];
+  inputs.forEach(psaRestoreFieldBorder);
+}
+
+function psaSetButtonLoading(buttonOrId, isLoading, loadingText = 'Processing...') {
+  const btn = typeof buttonOrId === 'string' ? document.getElementById(buttonOrId) : buttonOrId;
+  if (!btn) return;
+
+  if (isLoading) {
+    btn.disabled = true;
+    if (!btn.dataset.originalHtml) {
+      btn.dataset.originalHtml = btn.innerHTML;
+    }
+    btn.classList.add('opacity-75', 'cursor-not-allowed');
+    btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>${loadingText}</span>`;
+  } else {
+    btn.disabled = false;
+    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+    if (btn.dataset.originalHtml) {
+      btn.innerHTML = btn.dataset.originalHtml;
+    }
+  }
+}
+
+function psaApplyServerErrors(container, errors) {
+  if (!errors || typeof errors !== 'object') return;
+  const root = container || document;
+  const aliasMap = {
+    title: ['productName', 'title'],
+    titleKhmer: ['khmerName', 'titleKhmer'],
+    category: ['categorySelect', 'category'],
+    badge: ['stallLocation', 'badge'],
+    description: ['productDescription', 'description', 'instructions'],
+    priceUSD: ['priceUSD', 'price'],
+    stock: ['stockQuantity', 'stock'],
+    name: ['userName', 'methodName', 'fName', 'aName', 'name', 'reg_name', 'shipping_name', 'customerName'],
+    customerName: ['shipping_name', 'customerName', 'name'],
+    email: ['userEmail', 'fEmail', 'email', 'reg_email', 'login'],
+    phone: ['userPhone', 'fPhone', 'aPhone', 'shipping_phone', 'phone', 'reg_phone'],
+    address: ['shipping_address', 'aLine', 'address'],
+    role: ['userRole', 'role'],
+    password: ['newPassword', 'pNew', 'reg_password', 'password'],
+    current: ['pOld', 'current'],
+    type: ['methodType', 'type'],
+    accountNumber: ['accountNumber'],
+    accountName: ['accountName'],
+    paymentMethod: ['paymentMethodContainer', 'payment_method'],
+    login: ['email']
+  };
+
+  for (const [field, msgs] of Object.entries(errors)) {
+    const message = Array.isArray(msgs) ? msgs[0] : msgs;
+    const aliases = aliasMap[field] || [];
+    const possibleIds = [
+      ...aliases,
+      field,
+      `reg_${field}`,
+      `shipping_${field}`,
+      `user${field.charAt(0).toUpperCase() + field.slice(1)}`,
+      `product${field.charAt(0).toUpperCase() + field.slice(1)}`,
+      `method${field.charAt(0).toUpperCase() + field.slice(1)}`,
+      field.replace(/([A-Z])/g, '_$1').toLowerCase(),
+      `f${field.charAt(0).toUpperCase() + field.slice(1)}`,
+      `p${field.charAt(0).toUpperCase() + field.slice(1)}`,
+      `a${field.charAt(0).toUpperCase() + field.slice(1)}`
+    ];
+    let matched = false;
+    for (const id of possibleIds) {
+      const el = psaGetInputElement(id, root);
+      if (el) {
+        psaShowFieldError(el, message, root);
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      const alerts = root.querySelectorAll ? root.querySelectorAll('[role="alert"]') : [];
+      let shownInAlert = false;
+      for (const alertEl of alerts) {
+        if (!alertEl.classList.contains('field-error') && alertEl.offsetParent !== null) {
+          alertEl.textContent = message;
+          alertEl.classList.remove('hidden');
+          shownInAlert = true;
+          break;
+        }
+      }
+      if (!shownInAlert) {
+        if (typeof showRBACToast === 'function') {
+          showRBACToast(message, 'error');
+        } else {
+          alert(message);
+        }
+      }
+    }
+  }
 }
 
 // Demo mode (no server) is only for previewing pages on your own computer. On the real site a

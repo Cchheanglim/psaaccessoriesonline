@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>About Us — PsaOnline Gen-Z Accessories Studio</title>
+  <meta name="description" content="Discover PsaOnline: Phnom Penh's viral Gen-Z streetwear accessories marketplace featuring Y2K jewelry, shades, cloud bags, and Bakong KHQR checkout." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sorbet: '#FFA552',
+            cotton: '#F9F3EA',
+            espresso: '#2B1D1D'
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+</head>
+<body class="bg-[#FDFBF7] dark:bg-[#111115] text-[#2B1D1D] dark:text-[#F4F4F6] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 dark:bg-[#111115]/90 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#272732] transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+      <a href="home.html" class="flex items-center gap-2.5 sm:gap-3 group" title="Psa Accessories Online">
+        <img 
+          src="assets/images/psa-accessories-online-logo.svg" 
+          alt="Psa Accessories Online Logo" 
+          class="h-10 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
+        />
+        <div class="flex flex-col">
+          <div class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">
+            Psa<span class="text-[#FFA552]">Online</span>
+          </div>
+          <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">
+            Accessories &bull; Studio
+          </span>
+        </div>
+      </a>
+
+      <!-- Quick Nav Links -->
+      <nav class="hidden md:flex items-center gap-6 text-xs font-bold text-[#2B1D1D] dark:text-white">
+        <a href="home.html" class="hover:text-[#FFA552] transition-colors">Store</a>
+        <a href="products.html" class="hover:text-[#FFA552] transition-colors">Catalog</a>
+        <a href="about.html" class="text-[#FFA552] font-black hover:text-[#FFA552] transition-colors">About Us</a>
+      </nav>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Theme Toggle -->
+        <button 
+          type="button" 
+          onclick="toggleTheme()" 
+          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
+          title="Toggle Dark Theme"
+          aria-label="Toggle Dark Theme"
+        >
+          <svg class="w-4 h-4 text-stone-700 dark:text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <span class="hidden sm:inline font-bold">Dark</span>
+        </button>
+
+        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
+          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD</button>
+          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-white">KHR</button>
+        </div>
+
+        <a href="cart.html" class="relative p-2.5 rounded-full bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white transition-transform hover:scale-105" title="Bag">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+          <span class="cart-count-badge absolute -top-1 -right-1 bg-[#FFA552] text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-[#1E1E26] shadow-sm hidden">0</span>
+        </a>
+
+        <a href="dashboard-buyer.html" class="p-1 rounded-full hover:ring-2 hover:ring-[#FFA552] transition flex items-center gap-1.5 text-xs font-bold text-[#2B1D1D]">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFA552] to-[#2B1D1D] text-white font-black flex items-center justify-center text-xs shadow-xs">
+            SC
+          </div>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main About Us Content -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 flex-1 w-full space-y-16">
+    
+    <!-- Hero Banner -->
+    <div class="text-center space-y-4 max-w-3xl mx-auto">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FFA552]/10 dark:bg-[#FFA552]/20 border border-[#FFA552]/30 text-[#FFA552] text-xs font-black uppercase tracking-wider">
+        <span>✨ Phnom Penh Born &bull; Gen-Z Curated</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-[#2B1D1D] dark:text-white tracking-tight leading-tight">
+        Aesthetic Streetwear &amp; Y2K Accessories
+      </h1>
+      <p class="text-stone-600 dark:text-stone-300 text-sm sm:text-base leading-relaxed">
+        PsaOnline is Cambodia's premier destination for viral street-style accessories. We connect trending TikTok aesthetics, cyber chrome jewelry, and effortless daily essentials directly with fashion lovers across Phnom Penh.
+      </p>
+    </div>
+
+    <!-- Who We Are & Mission -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <div class="space-y-4">
+        <span class="text-xs font-black uppercase tracking-wider text-[#FFA552]">Our Story &amp; Culture</span>
+        <h2 class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white tracking-tight">
+          Born out of youth creativity in Phnom Penh
+        </h2>
+        <p class="text-stone-600 dark:text-stone-300 text-sm sm:text-base leading-relaxed">
+          Inspired by early 2000s cyber aesthetics, modern streetwear, and café culture in Phnom Penh, PsaOnline was launched to offer high-style pieces that don't break student budgets.
+        </p>
+        <p class="text-stone-600 dark:text-stone-300 text-sm sm:text-base leading-relaxed">
+          We curate every single piece to guarantee quality materials—from 316L hypoallergenic tarnish-free stainless steel to ultra-soft quilted nylon—ensuring your daily fits look effortlessly cool.
+        </p>
+        <div class="pt-2 flex flex-wrap gap-4 text-xs font-bold text-stone-700 dark:text-stone-300">
+          <div class="flex items-center gap-2 bg-[#F9F3EA] dark:bg-[#1E1E26] px-3.5 py-2 rounded-xl border border-[#EFE4D6] dark:border-[#30303E]">
+            <span class="text-[#FFA552]">★</span> 100% Curated Drops
+          </div>
+          <div class="flex items-center gap-2 bg-[#F9F3EA] dark:bg-[#1E1E26] px-3.5 py-2 rounded-xl border border-[#EFE4D6] dark:border-[#30303E]">
+            <span class="text-[#FFA552]">⚡</span> Bakong KHQR Instant Pay
+          </div>
+          <div class="flex items-center gap-2 bg-[#F9F3EA] dark:bg-[#1E1E26] px-3.5 py-2 rounded-xl border border-[#EFE4D6] dark:border-[#30303E]">
+            <span class="text-[#FFA552]">🇰🇭</span> Local Phnom Penh Delivery
+          </div>
+        </div>
+      </div>
+
+      <div class="p-6 sm:p-8 bg-[#F9F3EA] dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#30303E] rounded-3xl space-y-4 shadow-sm">
+        <h3 class="text-lg font-black text-[#2B1D1D] dark:text-white">What Sets Us Apart</h3>
+        <ul class="space-y-3 text-xs sm:text-sm text-stone-600 dark:text-stone-300">
+          <li class="flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-[#FFA552] text-white flex items-center justify-center font-black shrink-0 text-xs mt-0.5">✓</span>
+            <div><strong class="text-[#2B1D1D] dark:text-white">Dual Currency (USD &amp; KHR):</strong> Live prices shown in both dollars and Cambodian Riel at 1 USD = 4,100 KHR.</div>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-[#FFA552] text-white flex items-center justify-center font-black shrink-0 text-xs mt-0.5">✓</span>
+            <div><strong class="text-[#2B1D1D] dark:text-white">Direct KHQR Checkout:</strong> Scan directly with your ABA, ACLEDA, Canadia, Wing or Bakong app without card transaction fees.</div>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <span class="w-5 h-5 rounded-full bg-[#FFA552] text-white flex items-center justify-center font-black shrink-0 text-xs mt-0.5">✓</span>
+            <div><strong class="text-[#2B1D1D] dark:text-white">Private by Design:</strong> No third-party ad trackers. Your cart and saved items stay privately on your device.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- What We Sell: Core Categories -->
+    <div class="space-y-6">
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <span class="text-xs font-black uppercase tracking-wider text-[#FFA552]">Product Range</span>
+        <h2 class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white tracking-tight">Our Core Aesthetic Drops</h2>
+        <p class="text-stone-500 dark:text-stone-400 text-xs sm:text-sm">Everyday pieces tailored to complete your fit.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- 1. Y2K Jewelry -->
+        <div class="p-5 bg-white dark:bg-[#1E1E26] rounded-2xl border border-[#EFE4D6] dark:border-[#30303E] space-y-3 hover:border-[#FFA552] transition-all shadow-xs">
+          <div class="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-[#FFA552] font-black flex items-center justify-center text-lg">
+            💍
+          </div>
+          <h3 class="text-base font-black text-[#2B1D1D] dark:text-white">Y2K &amp; Cyber Jewelry</h3>
+          <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+            Layered star pendants, molten liquid metal rings, unisex cyberpunk chains, and non-piercing ear cuffs crafted in 316L stainless steel.
+          </p>
+          <a href="products.html?category=jewelry" class="text-xs font-bold text-[#FFA552] hover:underline inline-flex items-center gap-1">Browse Jewelry &rarr;</a>
+        </div>
+
+        <!-- 2. Shades & Eyewear -->
+        <div class="p-5 bg-white dark:bg-[#1E1E26] rounded-2xl border border-[#EFE4D6] dark:border-[#30303E] space-y-3 hover:border-[#FFA552] transition-all shadow-xs">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 font-black flex items-center justify-center text-lg">
+            🕶️
+          </div>
+          <h3 class="text-base font-black text-[#2B1D1D] dark:text-white">Shades &amp; Eyewear</h3>
+          <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+            90s tinted retro oval sunglasses and rimless wrap shield shades with full UV400 protection suited for sunny Phnom Penh afternoons.
+          </p>
+          <a href="products.html?category=eyewear" class="text-xs font-bold text-[#FFA552] hover:underline inline-flex items-center gap-1">Browse Shades &rarr;</a>
+        </div>
+
+        <!-- 3. Puffy Cloud Bags -->
+        <div class="p-5 bg-white dark:bg-[#1E1E26] rounded-2xl border border-[#EFE4D6] dark:border-[#30303E] space-y-3 hover:border-[#FFA552] transition-all shadow-xs">
+          <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 font-black flex items-center justify-center text-lg">
+            ☁️
+          </div>
+          <h3 class="text-base font-black text-[#2B1D1D] dark:text-white">Puffy Cloud Bags</h3>
+          <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+            Ultra-soft quilted nylon dumpling silhouettes and metallic foil crossbody bags made to carry your daily tech, wallet, and essentials.
+          </p>
+          <a href="products.html?category=bags" class="text-xs font-bold text-[#FFA552] hover:underline inline-flex items-center gap-1">Browse Bags &rarr;</a>
+        </div>
+
+        <!-- 4. Claw Clips & Pins -->
+        <div class="p-5 bg-white dark:bg-[#1E1E26] rounded-2xl border border-[#EFE4D6] dark:border-[#30303E] space-y-3 hover:border-[#FFA552] transition-all shadow-xs">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 font-black flex items-center justify-center text-lg">
+            🌸
+          </div>
+          <h3 class="text-base font-black text-[#2B1D1D] dark:text-white">Claw Clips &amp; Pins</h3>
+          <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+            French matte rubberized pastel claw clips and cyber chrome snap star pins designed for firm, snag-free all-day hair hold.
+          </p>
+          <a href="products.html?category=hair" class="text-xs font-bold text-[#FFA552] hover:underline inline-flex items-center gap-1">Browse Hair Gear &rarr;</a>
+        </div>
+
+        <!-- 5. Phone Charms & Lanyards -->
+        <div class="p-5 bg-white dark:bg-[#1E1E26] rounded-2xl border border-[#EFE4D6] dark:border-[#30303E] space-y-3 hover:border-[#FFA552] transition-all shadow-xs">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950/60 text-purple-600 font-black flex items-center justify-center text-lg">
+            💖
+          </div>
+          <h3 class="text-base font-black text-[#2B1D1D] dark:text-white">Tech &amp; Phone Charms</h3>
+          <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+            Hand-strung iridescent butterfly wrist lanyards and metallic heart locket keychains with heavy-duty carabiners.
+          </p>
+          <a href="products.html?category=charms" class="text-xs font-bold text-[#FFA552] hover:underline inline-flex items-center gap-1">Browse Charms &rarr;</a>
+        </div>
+
+        <!-- 6. Streetwear Caps & Accs -->
+        <div class="p-5 bg-white dark:bg-[#1E1E26] rounded-2xl border border-[#EFE4D6] dark:border-[#30303E] space-y-3 hover:border-[#FFA552] transition-all shadow-xs">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/60 text-blue-600 font-black flex items-center justify-center text-lg">
+            🧢
+          </div>
+          <h3 class="text-base font-black text-[#2B1D1D] dark:text-white">Streetwear Essentials</h3>
+          <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+            Washed vintage low-profile dad caps, keychains, and street-ready accessories designed for casual everyday wear.
+          </p>
+          <a href="products.html" class="text-xs font-bold text-[#FFA552] hover:underline inline-flex items-center gap-1">View Full Catalog &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- How Ordering & Payment Works -->
+    <div class="p-6 sm:p-10 bg-[#F9F3EA] dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#30303E] rounded-3xl space-y-8">
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <span class="text-xs font-black uppercase tracking-wider text-[#FFA552]">Simple Process</span>
+        <h2 class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white tracking-tight">How It Works</h2>
+        <p class="text-stone-500 dark:text-stone-400 text-xs sm:text-sm">From discovering a piece to delivery at your doorstep.</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+        <div class="space-y-2.5">
+          <div class="w-12 h-12 rounded-2xl bg-[#FFA552] text-white font-black flex items-center justify-center mx-auto text-lg shadow-sm">1</div>
+          <h3 class="text-sm font-black text-[#2B1D1D] dark:text-white">Choose Your Pieces</h3>
+          <p class="text-xs text-stone-600 dark:text-stone-300">Browse curated drops, check specs and close-up gallery photos, and add to your bag.</p>
+        </div>
+
+        <div class="space-y-2.5">
+          <div class="w-12 h-12 rounded-2xl bg-[#FFA552] text-white font-black flex items-center justify-center mx-auto text-lg shadow-sm">2</div>
+          <h3 class="text-sm font-black text-[#2B1D1D] dark:text-white">Add Delivery Pin</h3>
+          <p class="text-xs text-stone-600 dark:text-stone-300">Enter your address in Phnom Penh and drop an exact map pin so our couriers find you easily.</p>
+        </div>
+
+        <div class="space-y-2.5">
+          <div class="w-12 h-12 rounded-2xl bg-[#FFA552] text-white font-black flex items-center justify-center mx-auto text-lg shadow-sm">3</div>
+          <h3 class="text-sm font-black text-[#2B1D1D] dark:text-white">Scan Bakong KHQR</h3>
+          <p class="text-xs text-stone-600 dark:text-stone-300">Scan via ABA, ACLEDA, or any mobile bank, upload your payment slip (or select Cash on Delivery).</p>
+        </div>
+
+        <div class="space-y-2.5">
+          <div class="w-12 h-12 rounded-2xl bg-[#FFA552] text-white font-black flex items-center justify-center mx-auto text-lg shadow-sm">4</div>
+          <h3 class="text-sm font-black text-[#2B1D1D] dark:text-white">Fast Local Delivery</h3>
+          <p class="text-xs text-stone-600 dark:text-stone-300">Order is packaged with care and dispatched across Phnom Penh for $1.50 (Free over $15).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Official Details & Placeholders -->
+    <div class="p-6 sm:p-8 bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#30303E] rounded-3xl space-y-6">
+      <h2 class="text-xl font-black text-[#2B1D1D] dark:text-white">Studio Information &amp; Official Notice</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs sm:text-sm text-stone-600 dark:text-stone-300">
+        <div class="space-y-2">
+          <div class="font-bold text-[#2B1D1D] dark:text-white">Showroom &amp; Pick-up Point</div>
+          <p class="font-mono text-xs bg-[#F9F3EA] dark:bg-[#15151C] p-2.5 rounded-xl border border-[#EFE4D6] dark:border-[#272732] text-stone-700 dark:text-stone-300">
+            [SHOWROOM ADDRESS — TO CONFIRM]<br />
+            Phnom Penh, Kingdom of Cambodia
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <div class="font-bold text-[#2B1D1D] dark:text-white">Operating Hours</div>
+          <p class="font-mono text-xs bg-[#F9F3EA] dark:bg-[#15151C] p-2.5 rounded-xl border border-[#EFE4D6] dark:border-[#272732] text-stone-700 dark:text-stone-300">
+            [OPERATING HOURS — TO CONFIRM]<br />
+            Customer Support: Monday &ndash; Sunday (Telegram)
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <div class="font-bold text-[#2B1D1D] dark:text-white">Commercial Registration</div>
+          <p class="font-mono text-xs bg-[#F9F3EA] dark:bg-[#15151C] p-2.5 rounded-xl border border-[#EFE4D6] dark:border-[#272732] text-stone-700 dark:text-stone-300">
+            [COMPANY REGISTRATION NUMBER — TO CONFIRM]<br />
+            Registered in the Kingdom of Cambodia
+          </p>
+        </div>
+
+        <div class="space-y-2">
+          <div class="font-bold text-[#2B1D1D] dark:text-white">Contact &amp; Support</div>
+          <p class="font-mono text-xs bg-[#F9F3EA] dark:bg-[#15151C] p-2.5 rounded-xl border border-[#EFE4D6] dark:border-[#272732] text-stone-700 dark:text-stone-300">
+            Telegram: @psaonline_support<br />
+            Instagram: @psaonline_kh
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="text-center space-y-4">
+      <h2 class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white">Ready to elevate your daily style?</h2>
+      <p class="text-stone-500 dark:text-stone-400 text-xs sm:text-sm">Browse our complete collection of Gen-Z accessories today.</p>
+      <div class="flex items-center justify-center gap-4">
+        <a href="products.html" class="px-6 py-3 rounded-full bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md transition-all">
+          Explore Accessories Catalog &rarr;
+        </a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Col 1: Brand -->
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <img src="assets/images/psa-accessories-online-logo.svg" alt="Logo" class="h-8 w-auto">
+            <span class="text-xl font-black text-[#2B1D1D] dark:text-white">Psa<span class="text-[#FFA552]">Online</span></span>
+          </div>
+          <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-medium">
+            Gen-Z streetwear accessories, cyber Y2K jewelry, and everyday aesthetic essentials based in Phnom Penh.
+          </p>
+        </div>
+
+        <!-- Col 2: Categories -->
+        <div class="space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Categories</div>
+          <ul class="text-xs space-y-1.5 text-stone-600 dark:text-stone-300 font-medium">
+            <li><a href="products.html?category=jewelry" class="hover:text-[#FFA552]">Y2K &amp; Cyber Jewelry</a></li>
+            <li><a href="products.html?category=eyewear" class="hover:text-[#FFA552]">Shades &amp; Eyewear</a></li>
+            <li><a href="products.html?category=bags" class="hover:text-[#FFA552]">Puffy Cloud Bags</a></li>
+            <li><a href="products.html?category=hair" class="hover:text-[#FFA552]">Claw Clips &amp; Pins</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Visit Us (Socials) -->
+        <div class="space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Visit Us (Socials)</div>
+          <ul class="text-xs space-y-2 font-medium">
+            <li>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">IG</span>
+                <span>Instagram (@psaonline_kh)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">TikTok</span>
+                <span>TikTok (@psaonline)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">FB</span>
+                <span>Facebook Page</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://t.me/psaonline_support" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">TG</span>
+                <span>Telegram (@psaonline_support)</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Payments Accepted -->
+        <div class="space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Accepted Payments</div>
+          <div class="p-3 bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#30303E] rounded-xl space-y-1.5 text-xs">
+            <div class="font-bold text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-red-600"></span>
+              Bakong Universal KHQR
+            </div>
+            <p class="text-[11px] text-stone-500 dark:text-stone-400">Scan via ABA, ACLEDA, Canadia, Wing mobile banking.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-[#EFE4D6] dark:border-[#272732] flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 dark:text-stone-400 gap-2">
+        <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
+        <div class="flex items-center gap-4 text-[11px]">
+          <a href="about.html" class="hover:text-[#FFA552] transition-colors font-bold text-[#FFA552]">About Us</a>
+          <span>&bull;</span>
+          <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
+          <span>&bull;</span>
+          <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
+          <span>&bull;</span>
+          <span>Made for Gen-Z in Cambodia 🇰🇭</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#16161C]/95 backdrop-blur-lg border-t border-[#EFE4D6] dark:border-[#272732] px-4 py-2 flex items-center justify-around text-center select-none shadow-[0_-4px_20px_rgba(43,29,29,0.06)]">
+    <a href="home.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span>Store</span>
+    </a>
+    <a href="products.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      <span>Catalog</span>
+    </a>
+    <a href="cart.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <div class="relative">
+        <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span class="cart-count-badge hidden absolute -top-1.5 -right-2 bg-[#FFA552] text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">0</span>
+      </div>
+      <span>Bag</span>
+    </a>
+    <a href="dashboard-buyer.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <span>Account</span>
+    </a>
+  </nav>
+
+  <script src="assets/js/store.js"></script>
+</body>
+</html>

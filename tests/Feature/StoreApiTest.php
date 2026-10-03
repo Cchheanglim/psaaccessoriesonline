@@ -149,4 +149,47 @@ class StoreApiTest extends TestCase
 
         $this->postJson('/api/auth/login', ['login' => 'banned@example.com', 'password' => 'secret123'])->assertStatus(422);
     }
+
+    public function test_profile_photo_can_be_saved_on_its_own(): void
+    {
+        $user = $this->makeUser();
+        $photo = 'data:image/png;base64,iVBORw0KGgo=';
+
+        // dashboard-buyer.html sends only the photo, so no other field may be required.
+        $this->actingAs($user)->patchJson('/api/me', ['photo' => $photo])
+            ->assertOk()
+            ->assertJsonPath('user.avatarUrl', $photo);
+    }
+
+    public function test_profile_and_payment_method_text_fits_the_database(): void
+    {
+        $user = $this->makeUser();
+        $this->actingAs($user)->patchJson('/api/me', ['address' => str_repeat('a', 256)])
+            ->assertStatus(422)->assertJsonValidationErrors('address');
+        $this->actingAs($user)->patchJson('/api/me', ['phone' => '@telegram_name'])
+            ->assertStatus(422)->assertJsonValidationErrors('phone');
+
+        $admin = $this->makeUser(['role' => 'admin']);
+        $this->actingAs($admin)->postJson('/api/admin/payment-methods', ['name' => 'Wing', 'description' => str_repeat('a', 256)])
+            ->assertStatus(422)->assertJsonValidationErrors('description');
+    }
+
+    public function test_admin_can_edit_a_user_without_changing_their_password(): void
+    {
+        $admin = $this->makeUser(['role' => 'admin']);
+        $buyer = $this->makeUser();
+
+        $this->actingAs($admin)->patchJson("/api/admin/users/{$buyer->id}", ['role' => 'Staff', 'password' => null])
+            ->assertOk();
+        $this->assertSame('staff', $buyer->fresh()->role);
+        $this->postJson('/api/auth/logout');
+        $this->postJson('/api/auth/login', ['login' => $buyer->email, 'password' => 'secret123'])->assertOk();
+    }
+
+    public function test_legal_pages_redirect_to_their_html_files(): void
+    {
+        $this->get('/about')->assertRedirect('/about.html');
+        $this->get('/privacy')->assertRedirect('/privacy.html');
+        $this->get('/terms')->assertRedirect('/terms.html');
+    }
 }

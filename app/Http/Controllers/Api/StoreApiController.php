@@ -68,8 +68,12 @@ class StoreApiController extends Controller
     public function login(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'login' => ['required', 'string', 'max:255'],
+            'login' => ['required', 'string', 'min:3', 'max:255'],
             'password' => ['required', 'string'],
+        ], [
+            'login.required' => 'Email or phone number is required.',
+            'login.min' => 'Please enter a valid email or phone number.',
+            'password.required' => 'Password is required.',
         ]);
 
         $login = trim($data['login']);
@@ -94,10 +98,21 @@ class StoreApiController extends Controller
     public function register(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'min:2', 'max:100'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['required', 'string', 'min:8', 'max:30', 'regex:/^[+0-9\s\-()]+$/'],
             'password' => ['required', 'string', 'min:6', 'max:255'],
+        ], [
+            'name.required' => 'Full name is required.',
+            'name.min' => 'Full name must be at least 2 characters.',
+            'email.required' => 'Email address is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email is already registered.',
+            'phone.required' => 'Phone number is required.',
+            'phone.min' => 'Phone number must be at least 8 digits.',
+            'phone.regex' => 'Please enter a valid phone number (digits, spaces, or +).',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 6 characters.',
         ]);
 
         $user = User::create([
@@ -126,11 +141,19 @@ class StoreApiController extends Controller
         $user = $this->requireUser($request);
 
         $data = $request->validate([
-            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'name' => ['sometimes', 'required', 'string', 'min:2', 'max:100'],
             'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'phone' => ['sometimes', 'nullable', 'string', 'max:30'],
-            'address' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'phone' => ['sometimes', 'nullable', 'string', 'min:8', 'max:30', 'regex:/^[+0-9\s\-()]+$/'],
+            'address' => ['sometimes', 'nullable', 'string', 'min:5', 'max:255'],
             'photo' => ['sometimes', 'nullable', 'string', 'max:3000000', Storefront::imageRule()],
+        ], [
+            'name.required' => 'Full name is required.',
+            'name.min' => 'Full name must be at least 2 characters.',
+            'email.required' => 'Email address is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email is already in use by another account.',
+            'phone.regex' => 'Please enter a valid phone number.',
+            'address.min' => 'Delivery address must be at least 5 characters.',
         ]);
 
         if (array_key_exists('photo', $data)) {
@@ -152,7 +175,12 @@ class StoreApiController extends Controller
 
         $data = $request->validate([
             'current' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:6', 'max:255'],
+            'password' => ['required', 'string', 'min:6', 'max:255', 'different:current'],
+        ], [
+            'current.required' => 'Current password is required.',
+            'password.required' => 'New password is required.',
+            'password.min' => 'New password must be at least 6 characters.',
+            'password.different' => 'New password must be different from your current password.',
         ]);
 
         if (! Hash::check($data['current'], $user->password)) {
@@ -173,9 +201,9 @@ class StoreApiController extends Controller
         $user = $this->requireUser($request);
 
         $data = $request->validate([
-            'customerName' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:30'],
-            'address' => ['required', 'string', 'max:1000'],
+            'customerName' => ['required', 'string', 'min:2', 'max:100'],
+            'phone' => ['required', 'string', 'min:8', 'max:30', 'regex:/^[+0-9\s\-()]+$/'],
+            'address' => ['required', 'string', 'min:5', 'max:1000'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
@@ -183,6 +211,17 @@ class StoreApiController extends Controller
             'items' => ['required', 'array', 'min:1', 'max:50'],
             'items.*.id' => ['required', 'string', 'max:64'],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
+        ], [
+            'customerName.required' => 'Recipient name is required.',
+            'customerName.min' => 'Recipient name must be at least 2 characters.',
+            'phone.required' => 'Contact phone number is required.',
+            'phone.min' => 'Phone number must be at least 8 digits.',
+            'phone.regex' => 'Please enter a valid phone number.',
+            'address.required' => 'Delivery address is required.',
+            'address.min' => 'Please enter a full delivery address in Phnom Penh (at least 5 characters).',
+            'paymentMethod.required' => 'Please select a payment method.',
+            'items.required' => 'Your shopping bag is empty.',
+            'items.min' => 'Please add at least one item to your bag before checking out.',
         ]);
 
         $code = Storefront::PAYMENT_CODES[$data['paymentMethod']];
@@ -289,6 +328,57 @@ class StoreApiController extends Controller
         $order->update(['payment_status' => 'paid_demo']);
 
         return response()->json(['order' => Storefront::order($order->load('items'))]);
+    }
+
+    /**
+     * Send a customer support or merchant message.
+     */
+    public function sendChatMessage(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'conversation_id' => ['required', 'string', 'max:100'],
+            'message' => ['required', 'string', 'min:1', 'max:2000'],
+        ], [
+            'conversation_id.required' => 'Conversation channel is required.',
+            'message.required' => 'Message text cannot be empty.',
+            'message.min' => 'Message text cannot be empty.',
+            'message.max' => 'Message text cannot exceed 2,000 characters.',
+        ]);
+
+        $user = $request->user();
+        $text = trim($data['message']);
+
+        return response()->json([
+            'ok' => true,
+            'message' => [
+                'id' => 'msg-' . (int)(microtime(true) * 1000),
+                'conversation_id' => $data['conversation_id'],
+                'sender' => $user?->name ?? 'Guest Buyer',
+                'sender_id' => $user?->id ?? null,
+                'is_me' => true,
+                'text' => $text,
+                'created_at' => now()->toIso8601String(),
+            ],
+        ]);
+    }
+
+    /**
+     * Retrieve chat channels and active messages.
+     */
+    public function getChatMessages(Request $request): JsonResponse
+    {
+        return response()->json([
+            'ok' => true,
+            'conversations' => [
+                [
+                    'id' => 'support',
+                    'name' => 'PsaOnline Care & Support',
+                    'subtitle' => 'Orders, KHQR & Dispatch',
+                    'status' => 'Online',
+                    'verified' => true,
+                ],
+            ],
+        ]);
     }
 
     private function ownOrder(Request $request, string $orderNumber): Order

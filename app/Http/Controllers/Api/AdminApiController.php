@@ -191,11 +191,11 @@ class AdminApiController extends Controller
         $req = $partial ? 'sometimes' : 'required';
 
         $data = $request->validate([
-            'title' => [$req, 'string', 'max:255'],
+            'title' => [$req, 'string', 'min:2', 'max:255'],
             'titleKhmer' => ['sometimes', 'nullable', 'string', 'max:255'],
             'category' => [$req, 'string', 'max:50'],
             'categoryLabel' => ['sometimes', 'nullable', 'string', 'max:100'],
-            'priceUSD' => [$req, 'numeric', 'min:0', 'max:100000'],
+            'priceUSD' => [$req, 'numeric', 'min:0.01', 'max:100000'],
             'stock' => [$req, 'integer', 'min:0', 'max:1000000'],
             'badge' => ['sometimes', 'nullable', 'string', 'max:60'],
             'description' => ['sometimes', 'nullable', 'string', 'max:5000'],
@@ -204,6 +204,14 @@ class AdminApiController extends Controller
             'gallery.*' => ['string', 'max:3000000', Storefront::imageRule()],
             'specifications' => ['sometimes', 'array', 'max:30'],
             'specifications.*' => ['nullable', 'string', 'max:255'],
+        ], [
+            'title.required' => 'Product title is required.',
+            'title.min' => 'Product title must be at least 2 characters.',
+            'category.required' => 'Product category is required.',
+            'priceUSD.required' => 'Price in USD is required.',
+            'priceUSD.min' => 'Price must be greater than $0.00.',
+            'stock.required' => 'Stock quantity is required.',
+            'stock.min' => 'Stock quantity cannot be negative.',
         ]);
 
         $map = [
@@ -237,12 +245,22 @@ class AdminApiController extends Controller
         $req = $user ? 'sometimes' : 'required';
 
         $data = $request->validate([
-            'name' => [$req, 'string', 'max:255'],
+            'name' => [$req, 'string', 'min:2', 'max:100'],
             'email' => [$req, 'email', 'max:255', Rule::unique('users', 'email')->ignore($user?->id)],
-            'phone' => ['sometimes', 'nullable', 'string', 'max:30'],
+            'phone' => ['sometimes', 'nullable', 'string', 'min:8', 'max:30', 'regex:/^[+0-9\s\-()]+$/'],
             'role' => [$req, Rule::in(['Admin', 'Staff', 'Buyer'])],
             'status' => ['sometimes', Rule::in(['Active', 'Suspended'])],
             'password' => [$user ? 'nullable' : 'required', 'string', 'min:6', 'max:255'],
+        ], [
+            'name.required' => 'User full name is required.',
+            'name.min' => 'User name must be at least 2 characters.',
+            'email.required' => 'Email address is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.unique' => 'This email address is already assigned to another user.',
+            'phone.regex' => 'Please enter a valid phone number.',
+            'role.required' => 'Please select a role for this user.',
+            'password.required' => 'Password is required for new accounts.',
+            'password.min' => 'Password must be at least 6 characters.',
         ]);
 
         if (isset($data['role'])) {
@@ -260,13 +278,16 @@ class AdminApiController extends Controller
         $req = $partial ? 'sometimes' : 'required';
 
         $data = $request->validate([
-            'name' => [$req, 'string', 'max:255'],
+            'name' => [$req, 'string', 'min:2', 'max:100'],
             'type' => ['sometimes', Rule::in(['khqr', 'bank', 'cod', 'other'])],
-            'accountName' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'accountNumber' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'accountName' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'accountNumber' => ['sometimes', 'nullable', 'string', 'max:50'],
             'qrData' => ['sometimes', 'nullable', 'string', 'max:3000000'],
             'description' => ['sometimes', 'nullable', 'string', 'max:255'],
             'isActive' => ['sometimes', 'boolean'],
+        ], [
+            'name.required' => 'Payment gateway name is required.',
+            'name.min' => 'Name must be at least 2 characters.',
         ]);
 
         $map = ['name' => 'name', 'type' => 'type', 'accountName' => 'account_name', 'accountNumber' => 'account_number',

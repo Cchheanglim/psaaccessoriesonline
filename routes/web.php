@@ -42,9 +42,10 @@ Route::get('/{page}.html', fn (string $page) => response()->file(resource_path("
     'payment-method-form', 'product-detail--staff', 'product-form', 'user-form',
 ])->middleware('staff');
 
-// Legal pages
-Route::view('/privacy', 'legal.privacy')->name('privacy');
-Route::view('/terms', 'legal.terms')->name('terms');
+// About & legal pages are static files in public/; these short URLs point to them.
+Route::redirect('/about', '/about.html')->name('about');
+Route::redirect('/privacy', '/privacy.html')->name('privacy');
+Route::redirect('/terms', '/terms.html')->name('terms');
 
 // JSON API used by public/assets/js/store.js (session cookie + CSRF header)
 Route::prefix('api')->group(function () {
@@ -58,6 +59,9 @@ Route::prefix('api')->group(function () {
     Route::post('/orders', [StoreApiController::class, 'placeOrder'])->middleware('throttle:20,1');
     Route::post('/orders/{orderNumber}/slip', [StoreApiController::class, 'uploadSlip']);
     Route::post('/orders/{orderNumber}/demo-paid', [StoreApiController::class, 'markDemoPaid']);
+
+    Route::get('/chat/messages', [StoreApiController::class, 'getChatMessages']);
+    Route::post('/chat/messages', [StoreApiController::class, 'sendChatMessage'])->middleware('throttle:30,1');
 
     Route::prefix('admin')->group(function () {
         Route::post('/products', [AdminApiController::class, 'storeProduct']);
