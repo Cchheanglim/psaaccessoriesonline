@@ -39,31 +39,48 @@ class ChatAssistantController extends Controller
             return response()->json(['message' => 'Send a question first.'], 422);
         }
 
-        $model = config('services.gemini.model');
+        // Try the main model, then the backup model when the main one is rate-limited or overloaded
+        // (each model has its own free-tier allowance).
+        $models = array_values(array_unique(array_filter([config('services.gemini.model'), config('services.gemini.fallback_model')])));
+        $response = null;
 
-        try {
-            // Gemini sometimes answers "high demand, try again" (503) or a brief 500; retry those twice.
-            $response = Http::timeout(30)
-                ->retry(3, 1200, fn ($e) => $e instanceof RequestException && in_array($e->response->status(), [500, 502, 503], true), throw: false)
-                ->withHeaders(['x-goog-api-key' => $key])
-                ->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", [
-                    'system_instruction' => ['parts' => [['text' => $this->instructions($request)]]],
-                    'contents' => $contents,
-                    // The cap includes the model's hidden "thinking" tokens, so it's well above the length of a short answer.
-                    'generationConfig' => ['temperature' => 0.5, 'maxOutputTokens' => 4096],
-                ]);
-        } catch (\Throwable $e) {
-            Log::warning('Gemini request failed', ['error' => $e->getMessage()]);
+        foreach ($models as $i => $model) {
+            try {
+                // Gemini sometimes answers "high demand, try again" (503) or a brief 500; retry those twice.
+                $response = Http::timeout(30)
+                    ->retry(3, 1200, fn ($e) => $e instanceof RequestException && in_array($e->response->status(), [500, 502, 503], true), throw: false)
+                    ->withHeaders(['x-goog-api-key' => $key])
+                    ->post("https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent", [
+                        'system_instruction' => ['parts' => [['text' => $this->instructions($request)]]],
+                        'contents' => $contents,
+                        // The cap includes the model's hidden "thinking" tokens, so it's well above the length of a short answer.
+                        'generationConfig' => ['temperature' => 0.5, 'maxOutputTokens' => 4096],
+                    ]);
+            } catch (\Throwable $e) {
+                Log::warning('Gemini request failed', ['model' => $model, 'error' => $e->getMessage()]);
+                $response = null;
+                continue;
+            }
 
-            return response()->json(['message' => 'The assistant is not reachable right now. Please try again, or message us on Telegram.'], 502);
+            if ($response->successful()) {
+                break;
+            }
+            Log::warning('Gemini returned an error', ['model' => $model, 'status' => $response->status(), 'body' => mb_substr($response->body(), 0, 500)]);
+            if (! in_array($response->status(), [404, 429, 500, 502, 503], true)) {
+                break; // a request problem the backup model won't fix
+            }
         }
 
-        if ($response->failed()) {
-            Log::warning('Gemini returned an error', ['status' => $response->status(), 'body' => mb_substr($response->body(), 0, 500)]);
+        if (! $response || $response->failed()) {
+            $busy = ! $response || in_array($response->status(), [429, 500, 502, 503], true);
 
-            return response()->json(['message' => in_array($response->status(), [429, 503], true)
-                ? 'The assistant is busy right now. Please try again in a minute.'
-                : 'The assistant could not answer right now. Please try again, or message us on Telegram.'], 502);
+            // "busy" tells the page to answer with its built-in basics instead of a dead end
+            return response()->json([
+                'busy' => $busy,
+                'message' => $busy
+                    ? 'The assistant is busy right now. Please try again in a minute.'
+                    : 'The assistant could not answer right now. Please try again, or message us on Telegram.',
+            ], 502);
         }
 
         $text = collect($response->json('candidates.0.content.parts', []))->pluck('text')->filter()->implode('');

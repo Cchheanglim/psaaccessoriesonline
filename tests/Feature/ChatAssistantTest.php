@@ -62,6 +62,18 @@ class ChatAssistantTest extends TestCase
         $this->ask()->assertStatus(502)->assertJsonPath('message', 'The assistant is busy right now. Please try again in a minute.');
     }
 
+    public function test_backup_model_answers_when_the_main_model_is_rate_limited(): void
+    {
+        config(['services.gemini.key' => 'test-key', 'services.gemini.model' => 'main-model', 'services.gemini.fallback_model' => 'backup-model']);
+        Http::fake([
+            '*models/main-model:generateContent' => Http::response(['error' => ['message' => 'quota']], 429),
+            '*models/backup-model:generateContent' => Http::response(['candidates' => [['content' => ['parts' => [['text' => 'Try the bunny plush!']]]]]]),
+        ]);
+
+        $this->ask()->assertOk()->assertJsonPath('reply', 'Try the bunny plush!');
+        Http::assertSentCount(2);
+    }
+
     public function test_conversation_is_validated(): void
     {
         config(['services.gemini.key' => 'test-key']);
