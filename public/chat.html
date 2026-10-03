@@ -622,7 +622,7 @@
           if (note) note.textContent = 'Automatic replies (the AI assistant is not set up yet). For real help, message us on Telegram.';
           return null;
         }
-        return { text: err.message, ai: false, error: true };
+        return null; // busy or unreachable: answer with the built-in replies instead of an error
       }
     }
 

@@ -80,17 +80,19 @@
     talk();
 
     let reply;
+    let busy = false;
     if (typeof PSA !== 'undefined' && PSA.online && !assistantDown) {
       try {
         const res = await psaApi('POST', '/api/chat/assistant', { messages: history.slice(-12) });
         reply = res.reply;
       } catch (err) {
-        if (err.status === 503) assistantDown = true;
-        reply = err.status === 503 ? null : err.message;
+        if (err.status === 503) assistantDown = true; // AI not set up: stop asking for this visit
+        busy = err.status !== 503;
       }
     }
     if (!reply) {
-      reply = 'I can only answer the basics right now. Delivery in Phnom Penh is $1.50, free on orders of $15 or more, and you can pay by KHQR or cash on delivery. For anything else, message our team on Telegram: https://t.me/psaonline_support';
+      const basics = 'Delivery in Phnom Penh is $1.50, free on orders of $15 or more, and you can pay by KHQR or cash on delivery. You can browse gift ideas here: products.html?max=10 For anything else, message our team on Telegram: https://t.me/psaonline_support';
+      reply = (busy ? "I'm getting lots of questions right now 🐰 Please ask me again in a minute! Quick answers: " : "I can only answer the basics right now. ") + basics;
     }
     history.push({ role: 'assistant', text: reply });
     sending = false;
