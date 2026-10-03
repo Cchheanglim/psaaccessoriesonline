@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminPaymentMethodController;
 use App\Http\Controllers\Api\StoreApiController;
 use App\Http\Controllers\Api\AdminApiController;
+use App\Http\Controllers\Api\ChatAssistantController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,6 +61,13 @@ Route::prefix('api')->group(function () {
     Route::post('/orders/{orderNumber}/slip', [StoreApiController::class, 'uploadSlip']);
     Route::post('/orders/{orderNumber}/demo-paid', [StoreApiController::class, 'markDemoPaid']);
 
+    Route::get('/orders/{orderNumber}/messages', [StoreApiController::class, 'orderMessages']);
+    Route::post('/orders/{orderNumber}/messages', [StoreApiController::class, 'sendOrderMessage'])->middleware('throttle:30,1');
+    Route::post('/orders/{orderNumber}/reviews', [StoreApiController::class, 'reviewOrder'])->middleware('throttle:20,1');
+    Route::get('/products/{sku}/reviews', [StoreApiController::class, 'productReviews']);
+
+    // AI shopping assistant (Gemini) for chat.html
+    Route::post('/chat/assistant', [ChatAssistantController::class, 'reply'])->middleware('throttle:10,1');
     Route::get('/chat/messages', [StoreApiController::class, 'getChatMessages']);
     Route::post('/chat/messages', [StoreApiController::class, 'sendChatMessage'])->middleware('throttle:30,1');
 

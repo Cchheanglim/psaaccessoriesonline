@@ -3,496 +3,365 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Order Receipt & Tracking — PsaOnline</title>
-  <meta name="description" content="View your order receipt, live courier dispatch tracker, and delivery status on PsaOnline." />
+  <title>Your Order | PsaOnline</title>
+  <meta name="description" content="Track your PsaOnline order, message the shop and review your items." />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { sorbet: '#FFA552', 'sorbet-ink': '#A3520F', cotton: '#F9F3EA', espresso: '#2B1D1D' } } }
+    };
+  </script>
   <link rel="stylesheet" href="assets/css/style.css" />
   <style>
-    .print-invoice-table th,
-    .print-invoice-table td {
-      border: 1px solid #d6d3d1;
-      padding: 6px 10px;
-      font-variant-numeric: tabular-nums;
-    }
-    .print-invoice-table thead th {
-      background-color: #f5f5f4 !important;
-      color: #1c1917 !important;
-      font-weight: 800;
-      text-transform: uppercase;
-      font-size: 10px;
-      letter-spacing: 0.04em;
-    }
     @media print {
-      header,
-      #webOrderReceiptMain,
-      #receiptPrintToolbar,
-      .no-print {
-        display: none !important;
-      }
-      #receiptPrintModal {
-        display: block !important;
-        position: static !important;
-        background: #ffffff !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-      #printableCustomerInvoice {
-        max-width: 100% !important;
-        width: 100% !important;
-        box-shadow: none !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
+      header, footer, .no-print { display: none !important; }
+      body { background: #fff !important; }
+      main { padding: 0 !important; }
     }
+    .star-input input:focus-visible + label { outline: 3px solid #2B1D1D; outline-offset: 2px; border-radius: 6px; }
   </style>
 </head>
-<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased">
 
-  <!-- Header -->
-  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#EFE4D6] transition-all duration-300">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-      <a href="home.html" class="flex items-center gap-2.5 sm:gap-3 group">
-        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-[#2B1D1D] via-[#3D2929] to-[#FFA552] flex items-center justify-center text-white font-black text-xl shadow-xs group-hover:scale-105 transition-transform duration-300 border border-[#FFA552]/40">P</div>
-        <span class="text-lg sm:text-xl font-black text-[#2B1D1D]">Psa<span class="text-[#FFA552]">Online</span></span>
+  <header class="sticky top-0 z-40 bg-[#FDFBF7]/95 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2A2A34]">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <a href="home.html" class="flex items-center gap-2" aria-label="PsaOnline home">
+        <img src="assets/images/psa-accessories-online-logo.svg" alt="" class="h-9 w-auto" />
+        <span class="text-lg font-black text-[#2B1D1D]">Psa<span class="text-sorbet-ink dark:text-sorbet">Online</span></span>
       </a>
-
-      <div class="flex items-center gap-2 sm:gap-3 text-xs">
-        <a href="dashboard-buyer.html" class="px-3.5 py-1.5 rounded-full border border-[#EFE4D6] bg-white hover:bg-[#F9F3EA] font-bold text-[#2B1D1D] transition">
-          &larr; Back to My Orders
-        </a>
-        <a href="home.html" class="btn-press px-4 py-1.5 rounded-full bg-[#FFA552] text-white font-black transition">
-          Exit to Store
-        </a>
-      </div>
+      <a href="dashboard-buyer.html" class="h-11 px-4 inline-flex items-center gap-1.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] text-sm font-bold text-[#2B1D1D] hover:bg-[#F9F3EA]">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        My orders
+      </a>
     </div>
   </header>
 
-  <!-- Main Order Detail Receipt Container -->
-  <main id="webOrderReceiptMain" class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6">
-    
-    <!-- Top Order Info & Status Card -->
-    <div class="reveal-init bg-white p-6 sm:p-8 rounded-3xl border border-[#EFE4D6] shadow-sm space-y-6">
-      
-      <!-- Receipt Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#F9F3EA]">
-        <div>
-          <div class="flex items-center gap-2.5 flex-wrap">
-            <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] tracking-tight" id="orderHeading">Order #PSA-889104</h1>
-            <span id="paymentStatusPill" class="px-3 py-1 rounded-full text-xs font-black bg-[#F9F3EA] text-[#2B1D1D] border border-[#FFA552] flex items-center gap-1.5">
-              <span id="paymentStatusDot" class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
-              <span id="paymentStatusLabel">Payment Confirmed &bull; Packed for Delivery</span>
-            </span>
-          </div>
-          <p class="text-xs text-stone-500 mt-1">Ordered on September 30, 2026 &bull; Express delivery within 2 hours</p>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="openReceiptPrintPreview()" class="px-3.5 py-2 rounded-xl bg-[#FDFBF7] hover:bg-[#F9F3EA] border border-[#EFE4D6] text-xs font-bold text-[#2B1D1D] transition flex items-center gap-1.5 cursor-pointer">
-            <svg class="w-4 h-4 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-            <span>Print Receipt</span>
-          </button>
-          <a href="products.html" class="btn-press px-4 py-2 rounded-xl bg-[#FFA552] text-white text-xs font-black shadow-xs transition">
-            Shop Drops
-          </a>
-        </div>
-      </div>
-
-      <!-- Live Delivery Tracking Stepper in Sorbet Orange & Cotton Beige -->
-      <div class="space-y-4">
-        <div class="flex items-center justify-between text-xs font-black text-[#2B1D1D]">
-          <span>Phnom Penh Courier Tracking</span>
-          <span class="text-[#FFA552] font-black">Estimated: Today, 3:30 PM</span>
-        </div>
-
-        <div class="grid grid-cols-4 gap-2 sm:gap-4 relative pt-2">
-          <!-- Step 1 -->
-          <div class="flex flex-col items-center text-center space-y-1.5">
-            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#FFA552] text-white flex items-center justify-center font-black text-sm shadow-sm">
-              ✓
-            </div>
-            <div class="text-[11px] sm:text-xs font-black text-[#2B1D1D]">Order Placed</div>
-            <div class="text-[10px] text-stone-400">1:15 PM</div>
-          </div>
-
-          <!-- Step 2 -->
-          <div class="flex flex-col items-center text-center space-y-1.5">
-            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#FFA552] text-white flex items-center justify-center font-black text-sm shadow-sm">
-              ✓
-            </div>
-            <div class="text-[11px] sm:text-xs font-black text-[#2B1D1D]">Payment Verified</div>
-            <div id="paymentStepStatus" class="text-[10px] text-stone-400">1:20 PM</div>
-          </div>
-
-          <!-- Step 3 (Active) -->
-          <div class="flex flex-col items-center text-center space-y-1.5">
-            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#2B1D1D] text-[#FFA552] border-2 border-[#FFA552] flex items-center justify-center font-black text-sm shadow-sm animate-pulse-glow">
-              🛵
-            </div>
-            <div class="text-[11px] sm:text-xs font-black text-[#FFA552]">On The Way</div>
-            <div class="text-[10px] text-[#FFA552] font-bold">Rider Assigned</div>
-          </div>
-
-          <!-- Step 4 -->
-          <div class="flex flex-col items-center text-center space-y-1.5">
-            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-[#F9F3EA] text-stone-400 border border-[#EFE4D6] flex items-center justify-center font-bold text-sm">
-              🏠
-            </div>
-            <div class="text-[11px] sm:text-xs font-bold text-stone-400">Delivered</div>
-            <div class="text-[10px] text-stone-400">~3:30 PM</div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- 2 Column Details: Items Ordered vs Shipping Destination -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      <!-- Purchased Items List in Pure Clean White -->
-      <div class="reveal-init delay-100 lg:col-span-2 bg-white rounded-3xl border border-[#EFE4D6] p-6 sm:p-8 shadow-sm space-y-5">
-        <h3 class="text-sm font-black text-[#2B1D1D] border-b border-[#F9F3EA] pb-3">Accessories in this Order</h3>
-
-        <div id="receiptItemsList" class="space-y-4 divide-y divide-[#F9F3EA]">
-          
-          <!-- Item 1 -->
-          <div class="pt-4 first:pt-0 flex items-center gap-4">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-[#EFE4D6] p-1 overflow-hidden shrink-0 flex items-center justify-center">
-              <img
-                src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80"
-                alt="Silver Chrome Star Pendant Necklace"
-                class="w-full h-full object-cover rounded-xl"
-              />
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-[10px] font-bold text-[#FFA552] uppercase">Y2K Jewelry</div>
-              <h4 class="text-xs sm:text-sm font-black text-[#2B1D1D] truncate">Silver Chrome Star Pendant Necklace</h4>
-              <div class="text-[11px] text-stone-500 mt-0.5">316L Stainless Steel &bull; Unisex &bull; Qty: 1</div>
-            </div>
-            <div class="text-right shrink-0">
-              <div class="text-xs sm:text-sm font-black text-[#2B1D1D]">$6.50</div>
-              <div class="text-[10px] text-[#FFA552] font-bold">26,650 ៛</div>
-            </div>
-          </div>
-
-          <!-- Item 2 -->
-          <div class="pt-4 flex items-center gap-4">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-[#EFE4D6] p-1 overflow-hidden shrink-0 flex items-center justify-center">
-              <img
-                src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80"
-                alt="Puffy Cloud Quilted Nylon Shoulder Bag"
-                class="w-full h-full object-cover rounded-xl"
-              />
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-[10px] font-bold text-[#FFA552] uppercase">Cloud Bags</div>
-              <h4 class="text-xs sm:text-sm font-black text-[#2B1D1D] truncate">Puffy Cloud Quilted Nylon Shoulder Bag</h4>
-              <div class="text-[11px] text-stone-500 mt-0.5">Matcha Cream &bull; Waterproof Nylon &bull; Qty: 1</div>
-            </div>
-            <div class="text-right shrink-0">
-              <div class="text-xs sm:text-sm font-black text-[#2B1D1D]">$12.00</div>
-              <div class="text-[10px] text-[#FFA552] font-bold">49,200 ៛</div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Receipt Totals -->
-        <div class="border-t border-[#F9F3EA] pt-4 space-y-2 text-xs text-stone-600">
-          <div class="flex justify-between">
-            <span>Subtotal:</span>
-            <span id="receiptSubtotalUSD" class="font-bold text-[#2B1D1D]">$18.50</span>
-          </div>
-          <div class="flex justify-between">
-            <span>Express Courier:</span>
-            <span id="receiptDeliveryUSD" class="font-bold text-[#FFA552]">FREE (Promotion)</span>
-          </div>
-          <div class="border-t border-[#F9F3EA] pt-3 flex justify-between items-baseline text-sm font-black text-[#2B1D1D]">
-            <span id="receiptTotalLabel">Total (USD):</span>
-            <span id="receiptTotalUSD" class="text-xl font-black text-[#2B1D1D]">$18.50</span>
-          </div>
-          <div class="flex justify-between text-xs text-[#FFA552] font-bold">
-            <span>Total in Khmer Riel:</span>
-            <span id="receiptTotalKHR" class="khmer-font">75,850 ៛</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Delivery Destination & Customer Info in Cotton Beige -->
-      <div class="reveal-init delay-200 bg-[#F9F3EA] rounded-3xl border border-[#EFE4D6] p-6 shadow-sm space-y-5 h-fit">
-        <h3 class="text-sm font-black text-[#2B1D1D] border-b border-[#EFE4D6] pb-3">Courier Destination</h3>
-
-        <div class="space-y-3 text-xs">
-          <div>
-            <div class="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Recipient Name</div>
-            <div class="font-black text-[#2B1D1D] text-sm mt-0.5">Sophea Chhum</div>
-          </div>
-
-          <div>
-            <div class="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Telegram / Contact</div>
-            <div class="font-black text-[#2B1D1D] mt-0.5">+855 96 554 1234</div>
-          </div>
-
-          <div>
-            <div class="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Delivery Address</div>
-            <div class="text-stone-700 leading-relaxed font-semibold mt-0.5">
-              Toul Kork, St 315, House #14, Phnom Penh
-            </div>
-          </div>
-
-          <div>
-            <div class="text-[10px] uppercase font-bold text-stone-500 tracking-wider">Payment Gateway</div>
-            <div class="font-black text-[#2B1D1D] mt-0.5 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-red-600"></span>
-              <span id="receiptPaymentMethod">Bakong Universal KHQR (Verified)</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="pt-4 border-t border-[#EFE4D6] text-center">
-          <a href="https://t.me/psaonline_support" target="_blank" class="text-xs text-[#FFA552] font-black hover:underline flex items-center justify-center gap-1">
-            <span>Contact Rider on Telegram &rarr;</span>
-          </a>
-        </div>
-      </div>
-
-    </div>
-
+  <main id="orderPage" class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-5" aria-live="polite">
+    <p class="text-sm text-stone-600">Loading your order…</p>
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto py-6 text-xs text-stone-500 dark:text-stone-400 no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
+  <footer class="no-print bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] py-6 text-sm text-stone-600">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div>&copy; 2026 PsaOnline</div>
+      <div class="flex items-center gap-5">
+        <a href="about.html" class="py-2 hover:text-sorbet-ink">About us</a>
+        <a href="privacy.html" class="py-2 hover:text-sorbet-ink">Privacy</a>
+        <a href="terms.html" class="py-2 hover:text-sorbet-ink">Terms</a>
       </div>
     </div>
   </footer>
 
-  <!-- Official Printable Customer Tax Invoice & Delivery Receipt -->
-  <div id="receiptPrintModal" class="hidden fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-xs overflow-y-auto py-6 px-3 sm:px-6">
-    <div id="receiptPrintToolbar" class="no-print max-w-[190mm] mx-auto mb-4 bg-[#2B1D1D] text-white rounded-xl px-4 py-3 shadow-xl border border-stone-700 flex items-center justify-between gap-3 sticky top-2 z-50">
-      <div class="flex items-center gap-3">
-        <button type="button" onclick="closeReceiptPrintPreview()" class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-white text-xs font-bold flex items-center gap-1.5 border border-stone-600 transition cursor-pointer">
-          <span>&larr; Back to Order</span>
-        </button>
-        <span class="text-xs font-bold text-stone-200 hidden sm:inline">Official Customer Tax Invoice &amp; Delivery Receipt</span>
-      </div>
-      <button type="button" onclick="window.print()" class="px-4 py-1.5 rounded-lg bg-[#FFA552] hover:bg-[#E88C35] text-[#2B1D1D] text-xs font-black flex items-center gap-1.5 transition cursor-pointer">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-        <span>Print / Save PDF</span>
-      </button>
-    </div>
-
-    <div id="printableCustomerInvoice" class="max-w-[190mm] mx-auto bg-white text-stone-900 rounded-none sm:rounded-lg shadow-2xl border border-stone-300 p-6 sm:p-8 space-y-5 text-xs leading-snug">
-      <div class="border-b-2 border-stone-900 pb-4 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-        <div class="flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg bg-[#2B1D1D] text-white font-black text-lg flex items-center justify-center shrink-0">P</div>
-          <div>
-            <div class="text-base font-black uppercase text-stone-900">PsaOnline Accessories Studio Co., Ltd.</div>
-            <div class="text-[11px] text-stone-600">No. 24, Street 240, Sangkat Chaktomuk, Khan Daun Penh, Phnom Penh</div>
-            <div class="text-[10px] text-stone-500 font-mono mt-0.5">VAT TIN: K004-90218402 &bull; Support: +855 12 889 104</div>
-          </div>
-        </div>
-        <div class="sm:text-right">
-          <div class="inline-block px-2.5 py-0.5 bg-stone-900 text-white font-black text-[10px] uppercase tracking-widest">Official Customer Receipt</div>
-          <div class="text-sm font-black text-stone-900 mt-1" id="printInvOrderId">Order #PSA-889104</div>
-          <div class="text-[10.5px] text-stone-600 font-mono">Date: September 30, 2026 &bull; Rate: 1 USD = 4,100 ៛</div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4 border border-stone-300 rounded p-3.5 bg-stone-50/70 text-[11px]">
-        <div class="space-y-1">
-          <div class="text-[9.5px] font-black uppercase text-stone-500 tracking-wider">Billed &amp; Dispatched To</div>
-          <div class="font-bold text-stone-900 text-xs">Sophea Chhum</div>
-          <div class="text-stone-700">Tel / Telegram: +855 96 554 1234</div>
-          <div class="text-stone-700">Address: Toul Kork, St 315, House #14, Phnom Penh</div>
-        </div>
-        <div class="space-y-1 border-l border-stone-300 pl-4">
-          <div class="text-[9.5px] font-black uppercase text-stone-500 tracking-wider">Payment &amp; Settlement Details</div>
-          <div class="font-bold text-stone-900" id="printInvGateway">Bakong Universal KHQR (Verified)</div>
-          <div class="text-emerald-700 font-bold" id="printInvStatus">Payment Confirmed &bull; Packed for Delivery</div>
-          <div class="text-stone-600 font-mono text-[10px]">Courier: GrabExpress / Studio Direct (2-Hr SLA)</div>
-        </div>
-      </div>
-
-      <div>
-        <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Itemized Accessories Schedule</div>
-        <table class="w-full text-left border-collapse print-invoice-table text-[11px]">
-          <thead>
-            <tr>
-              <th class="w-10 text-center">#</th>
-              <th>Item Description</th>
-              <th>Category</th>
-              <th class="text-center">Qty</th>
-              <th class="text-right">Unit Price</th>
-              <th class="text-right">Line Total (USD)</th>
-              <th class="text-right">Line Total (KHR)</th>
-            </tr>
-          </thead>
-          <tbody id="printInvItemsBody">
-            <tr>
-              <td class="text-center font-bold">1</td>
-              <td class="font-bold text-stone-900">Silver Chrome Star Pendant Necklace</td>
-              <td>Y2K Jewelry</td>
-              <td class="text-center font-bold">1</td>
-              <td class="text-right">$6.50</td>
-              <td class="text-right font-bold">$6.50</td>
-              <td class="text-right font-mono">26,650 ៛</td>
-            </tr>
-            <tr>
-              <td class="text-center font-bold">2</td>
-              <td class="font-bold text-stone-900">Puffy Cloud Quilted Nylon Shoulder Bag</td>
-              <td>Cloud Bags</td>
-              <td class="text-center font-bold">1</td>
-              <td class="text-right">$12.00</td>
-              <td class="text-right font-bold">$12.00</td>
-              <td class="text-right font-mono">49,200 ៛</td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="5" class="text-right font-semibold text-stone-600">Merchandise Subtotal</td>
-              <td class="text-right font-bold text-stone-900" id="printInvSubUSD">$18.50</td>
-              <td class="text-right font-mono text-stone-700" id="printInvSubKHR">75,850 ៛</td>
-            </tr>
-            <tr>
-              <td colspan="5" class="text-right font-semibold text-stone-600">Phnom Penh Express Courier</td>
-              <td colspan="2" class="text-right font-bold text-emerald-700" id="printInvDeliv">FREE (Promotion)</td>
-            </tr>
-            <tr class="bg-stone-100">
-              <td colspan="5" class="text-right font-black text-stone-900 uppercase">Total Settled Amount</td>
-              <td class="text-right font-black text-stone-900 text-sm underline decoration-double" id="printInvTotUSD">$18.50</td>
-              <td class="text-right font-mono font-black text-stone-900 underline decoration-double" id="printInvTotKHR">75,850 ៛</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      <div class="pt-4 border-t border-stone-300 grid grid-cols-2 gap-6 text-[10.5px]">
-        <div>
-          <div class="font-bold text-stone-800">Return &amp; Authenticity Guarantee</div>
-          <p class="text-stone-500 mt-0.5">All PsaOnline studio items include a 7-day exchange guarantee for manufacturing defects upon presentation of this receipt.</p>
-        </div>
-        <div class="border border-stone-300 rounded p-2.5 flex flex-col justify-between">
-          <div class="font-bold text-stone-700 text-[10px] uppercase">Customer / Courier Handover Confirmation</div>
-          <div class="border-t border-dashed border-stone-400 mt-5 pt-1 flex justify-between text-[9.5px] text-stone-500 font-mono">
-            <span>Received in Good Condition</span>
-            <span>Time: ____:____</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script src="assets/js/store.js"></script>
   <script>
-    (() => {
-      const params = new URLSearchParams(window.location.search);
-      const orderId = params.get('order');
-      const isDemoApproval = params.get('status') === 'demo-approved';
-      let order = null;
-      try { order = JSON.parse(localStorage.getItem('psa_orders') || '[]').find(item => item.id === orderId); } catch (error) {}
-      if (order) {
-        document.getElementById('receiptTotalUSD').textContent = `$${Number(order.totalUSD).toFixed(2)}`;
-        document.getElementById('receiptTotalKHR').textContent = `${order.totalKHR} ៛`;
-        document.getElementById('receiptPaymentMethod').textContent = isDemoApproval ? `${order.paymentMethod} (Demo)` : order.paymentMethod;
-        document.getElementById('receiptSubtotalUSD').textContent = `$${Number(order.subtotalUSD ?? order.totalUSD).toFixed(2)}`;
-        const delivery = Number(order.deliveryUSD || 0);
-        document.getElementById('receiptDeliveryUSD').textContent = delivery ? `$${delivery.toFixed(2)}` : 'FREE (Promotion)';
-        const itemsList = document.getElementById('receiptItemsList');
-        const items = document.createDocumentFragment();
-        (order.items || []).forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'pt-4 flex items-center gap-4';
-          const imageFrame = document.createElement('div');
-          imageFrame.className = 'w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-[#EFE4D6] p-1 overflow-hidden shrink-0 flex items-center justify-center';
-          const image = document.createElement('img');
-          image.src = item.image || '';
-          image.alt = item.title || 'Order item';
-          image.className = 'w-full h-full object-cover rounded-xl';
-          imageFrame.append(image);
-          const details = document.createElement('div');
-          details.className = 'flex-1 min-w-0';
-          const category = document.createElement('div');
-          category.className = 'text-[10px] font-bold text-[#FFA552] uppercase';
-          category.textContent = item.categoryLabel || 'PsaOnline';
-          const title = document.createElement('h4');
-          title.className = 'text-xs sm:text-sm font-black text-[#2B1D1D] truncate';
-          title.textContent = item.title || 'Order item';
-          const quantity = document.createElement('div');
-          quantity.className = 'text-[11px] text-stone-500 mt-0.5';
-          quantity.textContent = `Qty: ${item.quantity}`;
-          details.append(category, title, quantity);
-          const amount = document.createElement('div');
-          amount.className = 'text-right shrink-0';
-          const usd = document.createElement('div');
-          usd.className = 'text-xs sm:text-sm font-black text-[#2B1D1D]';
-          usd.textContent = `$${(Number(item.priceUSD) * Number(item.quantity)).toFixed(2)}`;
-          const khr = document.createElement('div');
-          khr.className = 'text-[10px] text-[#FFA552] font-bold';
-          khr.textContent = `${Math.round(Number(item.priceUSD) * Number(item.quantity) * 4100).toLocaleString()} ៛`;
-          amount.append(usd, khr);
-          row.append(imageFrame, details, amount);
-          items.append(row);
-        });
-        if (items.childElementCount) itemsList.replaceChildren(items);
-      }
-      if (isDemoApproval) {
-        document.getElementById('paymentStatusLabel').textContent = '3D Secure Simulated • Not Charged';
-        document.getElementById('paymentStatusDot').className = 'w-1.5 h-1.5 rounded-full bg-amber-500';
-        document.getElementById('paymentStepStatus').textContent = 'Simulation only';
-        document.getElementById('receiptTotalLabel').textContent = 'Total (USD):';
-      }
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('order') || '';
+    const page = document.getElementById('orderPage');
+    const card = 'rounded-3xl bg-white dark:bg-[#1A1A22] border border-[#EFE4D6] dark:border-[#2D2D38] p-5 sm:p-6';
+    let order = null;
+    let messagesTimer = null;
 
-      // Sync Printable Customer Invoice
-      if (order) {
-        document.getElementById('printInvOrderId').textContent = `Order #${order.id}`;
-        document.getElementById('printInvGateway').textContent = isDemoApproval ? `${order.paymentMethod} (Demo)` : order.paymentMethod;
-        document.getElementById('printInvSubUSD').textContent = `$${Number(order.subtotalUSD ?? order.totalUSD).toFixed(2)}`;
-        document.getElementById('printInvSubKHR').textContent = `${Math.round(Number(order.subtotalUSD ?? order.totalUSD) * 4100).toLocaleString()} ៛`;
-        document.getElementById('printInvTotUSD').textContent = `$${Number(order.totalUSD).toFixed(2)}`;
-        document.getElementById('printInvTotKHR').textContent = `${order.totalKHR} ៛`;
-        const printBody = document.getElementById('printInvItemsBody');
-        if (printBody && Array.isArray(order.items) && order.items.length) {
-          printBody.innerHTML = order.items.map((it, idx) => {
-            const lineUSD = Number(it.priceUSD) * Number(it.quantity);
-            const lineKHR = Math.round(lineUSD * 4100);
+    function findOrder() {
+      if (PSA.online) return PSA.orders.find(o => o.id === orderId) || null;
+      try { return JSON.parse(localStorage.getItem('psa_orders') || '[]').find(o => o.id === orderId) || null; } catch (e) { return null; }
+    }
+
+    // The current step: 1 payment/confirmation, 2 preparing, 3 out for delivery, 4 delivered (step 0, placed, is always done).
+    function progress(o) {
+      const status = String(o.status || '').toLowerCase();
+      const orderStatus = o.orderStatus || (status === 'delivered' ? 'delivered' : status === 'cancelled' ? 'cancelled'
+        : /out for delivery|dispatched|shipped/.test(status) ? 'out_for_delivery' : status === 'processing' ? 'processing' : 'pending_payment');
+      const pay = o.paymentStatus || (/slip/.test(status) ? 'slip_uploaded' : /verified|paid/.test(status) ? 'verified' : /failed/.test(status) ? 'failed' : 'pending');
+      const cod = o.paymentCode === 'cod';
+      const paid = pay === 'verified' || pay === 'paid_demo';
+      const step = { pending_payment: paid ? 2 : 1, processing: 2, out_for_delivery: 3, delivered: 4 }[orderStatus] ?? 1;
+      return { step, orderStatus, pay, cod, awaiting: orderStatus === 'pending_payment' && !paid, cancelled: orderStatus === 'cancelled' };
+    }
+
+    function paymentNote(p) {
+      if (p.cod) return p.awaiting ? 'Waiting for the shop to confirm' : 'Pay cash when it arrives';
+      if (p.pay === 'slip_uploaded' && p.awaiting) return 'Slip sent, we are checking it';
+      if (p.pay === 'failed') return 'Slip could not be verified';
+      if (p.awaiting) return 'Waiting for your payment';
+      return 'Paid';
+    }
+
+    function money(usd) { return `$${Number(usd || 0).toFixed(2)}`; }
+    function riel(usd) { return `${Math.round(Number(usd || 0) * 4100).toLocaleString()} ៛`; }
+
+    function renderNotFound() {
+      page.innerHTML = `
+        <section class="${card} text-center space-y-4">
+          <h1 class="text-2xl font-black">We couldn't find that order</h1>
+          <p class="text-base text-stone-600">${PSA.online && !PSA.user ? 'Sign in with the account you ordered with to see it.' : 'Check the link, or open it from your orders list.'}</p>
+          <div class="flex flex-wrap justify-center gap-3">
+            ${PSA.online && !PSA.user ? `<a href="login.html?next=${encodeURIComponent('order-detail.html?order=' + orderId)}" class="h-12 px-6 inline-flex items-center rounded-2xl bg-espresso text-cotton font-black">Sign in</a>` : ''}
+            <a href="dashboard-buyer.html" class="h-12 px-6 inline-flex items-center rounded-2xl border-2 border-espresso dark:border-sorbet font-black text-[#2B1D1D]">My orders</a>
+          </div>
+        </section>`;
+    }
+
+    function renderTracker(p) {
+      if (p.cancelled) {
+        return `<div class="rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 p-4 text-base font-bold text-rose-800 dark:text-rose-200">This order was cancelled. If you already paid, message us below and we'll sort out a refund.</div>`;
+      }
+      const steps = [
+        { label: 'Order placed', note: order.date || '' },
+        { label: p.cod ? 'Confirmed' : 'Payment', note: paymentNote(p) },
+        { label: 'Preparing', note: p.step >= 2 ? 'Packing your items' : '' },
+        { label: 'Out for delivery', note: p.step >= 3 ? 'On the way to you' : '' },
+        { label: 'Delivered', note: p.step >= 4 ? 'Enjoy!' : '' }
+      ];
+      return `
+        <ol class="grid grid-cols-5 gap-1 sm:gap-2" aria-label="Order progress">
+          ${steps.map((s, i) => {
+            const done = i < p.step || (i === p.step && i === 4);
+            const current = i === p.step && i !== 4;
+            const warn = i === 1 && p.pay === 'failed';
+            const dot = warn ? 'bg-rose-600 text-white' : done ? 'bg-espresso text-cotton dark:bg-sorbet dark:text-espresso' : current ? 'bg-sorbet text-espresso ring-4 ring-sorbet/30' : 'bg-[#EFE4D6] dark:bg-[#2D2D38] text-stone-500';
             return `
-              <tr>
-                <td class="text-center font-bold">${idx + 1}</td>
-                <td class="font-bold text-stone-900">${it.title || 'Accessory'}</td>
-                <td>${it.categoryLabel || 'Studio Drop'}</td>
-                <td class="text-center font-bold">${it.quantity}</td>
-                <td class="text-right">$${Number(it.priceUSD).toFixed(2)}</td>
-                <td class="text-right font-bold">$${lineUSD.toFixed(2)}</td>
-                <td class="text-right font-mono">${lineKHR.toLocaleString()} ៛</td>
-              </tr>
-            `;
-          }).join('');
-        }
-      }
-    })();
+            <li class="flex flex-col items-center text-center gap-2" ${current ? 'aria-current="step"' : ''}>
+              <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-sm ${dot}">${done ? '✓' : warn ? '!' : i + 1}</span>
+              <span class="text-xs sm:text-sm font-black leading-tight ${done || current ? 'text-[#2B1D1D]' : 'text-stone-500'}">${s.label}</span>
+              ${s.note ? `<span class="hidden sm:block text-xs text-stone-600 leading-snug">${psaEsc(s.note)}</span>` : ''}
+            </li>`;
+          }).join('')}
+        </ol>
+        <p class="sm:hidden mt-3 text-sm font-bold text-[#2B1D1D]">${psaEsc(steps[Math.min(p.step, 4)].label)}: <span class="font-semibold text-stone-600">${psaEsc(steps[Math.min(p.step, 4)].note || paymentNote(p))}</span></p>`;
+    }
 
-    function openReceiptPrintPreview() {
-      const modal = document.getElementById('receiptPrintModal');
-      if (modal) {
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+    function nextAction(p) {
+      const payHref = `order-detail--buyer-pending.html?order=${encodeURIComponent(order.id)}`;
+      if (p.cancelled) return '';
+      if (!p.cod && p.awaiting && p.pay === 'failed') {
+        return `<a href="${payHref}" class="no-print h-12 px-6 inline-flex items-center justify-center rounded-2xl bg-sorbet text-espresso font-black">Upload a new slip</a>`;
+      }
+      if (!p.cod && p.awaiting && p.pay !== 'slip_uploaded') {
+        return `<a href="${payHref}" class="no-print h-12 px-6 inline-flex items-center justify-center rounded-2xl bg-sorbet text-espresso font-black">Pay now &amp; upload slip</a>`;
+      }
+      if (p.step === 4 && !order.reviewed) {
+        return `<a href="#review" class="no-print h-12 px-6 inline-flex items-center justify-center rounded-2xl bg-sorbet text-espresso font-black">Review your items</a>`;
+      }
+      return '';
+    }
+
+    function renderOrder() {
+      const p = progress(order);
+      const items = Array.isArray(order.items) ? order.items : [];
+      const subtotal = Number(order.subtotalUSD ?? order.totalUSD);
+      const delivery = Number(order.deliveryUSD || 0);
+      const slip = typeof order.slipImage === 'string' && /^(data:image\/|https?:\/\/)/.test(order.slipImage) ? order.slipImage : null;
+
+      page.innerHTML = `
+        <section class="${card}">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 class="text-2xl sm:text-3xl font-black tracking-tight">Order ${psaEsc(order.id)}</h1>
+              <p class="mt-1 text-sm text-stone-600">Placed ${psaEsc(order.date || '')} &middot; ${psaEsc(order.paymentMethod || '')}</p>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-black">${money(order.totalUSD)}</div>
+              <div class="text-sm font-semibold text-stone-600">${psaEsc(order.totalKHR)} ៛</div>
+            </div>
+          </div>
+          <div class="mt-6">${renderTracker(p)}</div>
+          <div class="mt-6 flex flex-wrap gap-3">
+            ${nextAction(p)}
+            <button type="button" onclick="window.print()" class="no-print h-12 px-5 inline-flex items-center rounded-2xl border border-[#EFE4D6] dark:border-[#32323D] font-bold text-[#2B1D1D] hover:bg-[#F9F3EA] cursor-pointer">Print receipt</button>
+          </div>
+        </section>
+
+        <div class="grid gap-5 md:grid-cols-5">
+          <section class="${card} md:col-span-3" aria-labelledby="itemsTitle">
+            <h2 id="itemsTitle" class="text-lg font-black">Items</h2>
+            <ul class="mt-3 divide-y divide-[#F3EAD9] dark:divide-[#2D2D38]">
+              ${items.map(it => `
+                <li class="py-3 flex items-center gap-3">
+                  <img src="${psaEsc(it.image || '')}" alt="" class="w-16 h-16 rounded-2xl object-cover bg-cotton shrink-0" />
+                  <div class="min-w-0 flex-1">
+                    <a href="product-detail.html?id=${encodeURIComponent(it.id || '')}" class="block text-base font-bold text-[#2B1D1D] leading-snug hover:underline">${psaEsc(it.title)}</a>
+                    <div class="text-sm text-stone-600">Qty ${Number(it.quantity) || 1} &middot; ${money(it.priceUSD)} each</div>
+                  </div>
+                  <div class="text-right text-base font-black tabular-nums">${money(Number(it.priceUSD) * Number(it.quantity))}</div>
+                </li>`).join('')}
+            </ul>
+            <dl class="mt-3 pt-3 border-t border-[#EFE4D6] dark:border-[#2D2D38] space-y-1.5 text-base">
+              <div class="flex justify-between"><dt class="text-stone-600">Subtotal</dt><dd class="font-bold tabular-nums">${money(subtotal)}</dd></div>
+              <div class="flex justify-between"><dt class="text-stone-600">Delivery</dt><dd class="font-bold tabular-nums">${delivery ? money(delivery) : 'Free'}</dd></div>
+              <div class="flex justify-between text-lg"><dt class="font-black">Total</dt><dd class="font-black tabular-nums">${money(order.totalUSD)} <span class="text-sm font-semibold text-stone-600">(${psaEsc(order.totalKHR)} ៛)</span></dd></div>
+            </dl>
+          </section>
+
+          <section class="${card} md:col-span-2 space-y-4" aria-labelledby="deliveryTitle">
+            <div>
+              <h2 id="deliveryTitle" class="text-lg font-black">Delivery</h2>
+              <p class="mt-2 text-base font-bold">${psaEsc(order.customerName || '')}</p>
+              <p class="text-base text-stone-600">${psaEsc(order.phone || '')}</p>
+              <p class="mt-1 text-base text-stone-600 whitespace-pre-line">${psaEsc(order.address || '')}</p>
+              ${order.notes ? `<p class="mt-2 text-sm text-stone-600"><span class="font-bold text-[#2B1D1D]">Note:</span> ${psaEsc(order.notes)}</p>` : ''}
+            </div>
+            <div>
+              <h2 class="text-lg font-black">Payment</h2>
+              <p class="mt-1 text-base text-stone-600">${psaEsc(order.paymentMethod || '')} &middot; ${psaEsc(paymentNote(p))}</p>
+              ${slip ? `<a href="${psaEsc(slip)}" target="_blank" rel="noopener" class="mt-3 block w-32"><img src="${psaEsc(slip)}" alt="Your payment slip" class="w-32 h-32 object-cover rounded-2xl border border-[#EFE4D6]" /><span class="mt-1 block text-sm font-bold text-sorbet-ink dark:text-sorbet underline underline-offset-2">View your slip</span></a>` : ''}
+            </div>
+          </section>
+        </div>
+
+        <section id="messages" class="${card} no-print" aria-labelledby="messagesTitle"></section>
+        <section id="review" class="${card} no-print scroll-mt-24 ${p.step === 4 ? '' : 'hidden'}" aria-labelledby="reviewTitle"></section>`;
+
+      renderMessagesShell();
+      if (p.step === 4) renderReview();
+      if (location.hash === '#review' && p.step === 4) document.getElementById('review').scrollIntoView();
+    }
+
+    /* ---------- Messages ---------- */
+    function renderMessagesShell() {
+      const box = document.getElementById('messages');
+      if (!PSA.online || !PSA.user) {
+        box.innerHTML = `<h2 id="messagesTitle" class="text-lg font-black">Questions about this order?</h2>
+          <p class="mt-2 text-base text-stone-600">${PSA.online ? 'Sign in to message the shop here, or ' : ''}message us on <a href="https://t.me/psaonline_support" target="_blank" rel="noopener noreferrer" class="font-bold text-sorbet-ink dark:text-sorbet underline">Telegram</a>.</p>`;
+        return;
+      }
+      box.innerHTML = `
+        <h2 id="messagesTitle" class="text-lg font-black">Messages with the shop</h2>
+        <p class="text-sm text-stone-600">Ask about delivery times, changes or anything else about this order.</p>
+        <div id="messageList" class="mt-4 space-y-3 max-h-[28rem] overflow-y-auto" aria-live="polite"><p class="text-sm text-stone-600">Loading messages…</p></div>
+        <form id="messageForm" class="mt-4 flex flex-col sm:flex-row gap-2">
+          <label for="messageInput" class="sr-only">Your message</label>
+          <textarea id="messageInput" rows="2" maxlength="2000" required placeholder="Write a message…" class="flex-1 min-h-[3rem] rounded-2xl border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] px-4 py-3 text-base text-[#2B1D1D] focus:outline-none focus:border-sorbet focus:ring-2 focus:ring-sorbet/30"></textarea>
+          <button type="submit" id="messageSendBtn" class="h-12 sm:self-end px-6 rounded-2xl bg-espresso text-cotton dark:bg-sorbet dark:text-espresso font-black cursor-pointer">Send</button>
+        </form>
+        <p id="messageError" class="hidden mt-2 text-sm font-bold text-rose-700" role="alert"></p>`;
+      document.getElementById('messageForm').addEventListener('submit', sendMessage);
+      loadMessages();
+      clearInterval(messagesTimer);
+      messagesTimer = setInterval(() => { if (!document.hidden) loadMessages(true); }, 20000);
+    }
+
+    function renderMessages(list) {
+      const box = document.getElementById('messageList');
+      if (!box) return;
+      if (!list.length) {
+        box.innerHTML = '<p class="text-sm text-stone-600">No messages yet. We usually reply here, so check back after you send one.</p>';
+        return;
+      }
+      box.innerHTML = list.map(m => {
+        const mine = !m.fromStaff;
+        const when = m.createdAt ? new Date(m.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
+        return `
+          <div class="flex ${mine ? 'justify-end' : 'justify-start'}">
+            <div class="max-w-[85%] rounded-2xl px-4 py-2.5 ${mine ? 'bg-espresso text-cotton rounded-br-md' : 'bg-cotton dark:bg-[#252530] text-[#2B1D1D] rounded-bl-md'}">
+              <div class="text-xs font-bold ${mine ? 'text-cotton/80' : 'text-stone-600'}">${mine ? 'You' : 'PsaOnline'} &middot; ${psaEsc(when)}</div>
+              <p class="mt-0.5 text-base whitespace-pre-line break-words">${psaEsc(m.body)}</p>
+            </div>
+          </div>`;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function loadMessages(quiet) {
+      try {
+        const { messages } = await psaApi('GET', `/api/orders/${encodeURIComponent(order.id)}/messages`);
+        renderMessages(messages);
+      } catch (err) {
+        if (!quiet) document.getElementById('messageList').innerHTML = `<p class="text-sm font-bold text-rose-700">${psaEsc(err.message)}</p>`;
       }
     }
 
-    function closeReceiptPrintPreview() {
-      const modal = document.getElementById('receiptPrintModal');
-      if (modal) {
-        modal.classList.add('hidden');
-        document.body.style.overflow = '';
+    async function sendMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('messageInput');
+      const errorEl = document.getElementById('messageError');
+      const body = input.value.trim();
+      errorEl.classList.add('hidden');
+      if (!body) return;
+      const btn = document.getElementById('messageSendBtn');
+      psaSetButtonLoading(btn, true, 'Sending…');
+      try {
+        const { messages } = await psaApi('POST', `/api/orders/${encodeURIComponent(order.id)}/messages`, { body });
+        input.value = '';
+        renderMessages(messages);
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove('hidden');
+      } finally {
+        psaSetButtonLoading(btn, false);
       }
+    }
+
+    /* ---------- Reviews ---------- */
+    function renderReview() {
+      const box = document.getElementById('review');
+      if (order.reviewed) {
+        box.innerHTML = `<h2 id="reviewTitle" class="text-lg font-black">Thanks for your review!</h2>
+          <p class="mt-1 text-base text-stone-600">It now shows on the product pages. You can update it below anytime.</p>
+          <button type="button" id="editReviewBtn" class="mt-3 h-11 px-5 rounded-2xl border border-[#EFE4D6] dark:border-[#32323D] font-bold text-[#2B1D1D] cursor-pointer">Update my review</button>`;
+        document.getElementById('editReviewBtn').addEventListener('click', () => { order.reviewed = false; renderReview(); });
+        return;
+      }
+      if (!PSA.online || !PSA.user) {
+        box.innerHTML = `<h2 id="reviewTitle" class="text-lg font-black">Review your items</h2><p class="mt-1 text-base text-stone-600">Sign in to leave a review.</p>`;
+        return;
+      }
+      const items = (order.items || []).filter((it, i, all) => it.id && all.findIndex(x => x.id === it.id) === i);
+      box.innerHTML = `
+        <h2 id="reviewTitle" class="text-lg font-black">How did you like them?</h2>
+        <p class="text-sm text-stone-600">Your first name and last initial show with your review.</p>
+        <form id="reviewForm" class="mt-4 space-y-5" novalidate>
+          ${items.map((it, n) => `
+            <fieldset class="rounded-2xl border border-[#EFE4D6] dark:border-[#2D2D38] p-4" data-review-id="${psaEsc(it.id)}">
+              <legend class="px-1 text-base font-black text-[#2B1D1D]">${psaEsc(it.title)}</legend>
+              <div class="flex items-center gap-3">
+                <img src="${psaEsc(it.image || '')}" alt="" class="w-14 h-14 rounded-xl object-cover bg-cotton" />
+                <div class="star-input flex flex-row-reverse justify-end gap-1" role="radiogroup" aria-label="Rating for ${psaEsc(it.title)}">
+                  ${[5, 4, 3, 2, 1].map(v => `
+                    <input type="radio" id="r${n}-${v}" name="rating-${n}" value="${v}" class="peer sr-only" />
+                    <label for="r${n}-${v}" class="cursor-pointer w-11 h-11 flex items-center justify-center text-3xl text-stone-300 hover:text-sorbet peer-hover:text-sorbet peer-checked:text-sorbet" title="${v} star${v > 1 ? 's' : ''}"><span aria-hidden="true">★</span><span class="sr-only">${v} star${v > 1 ? 's' : ''}</span></label>`).join('')}
+                </div>
+              </div>
+              <label for="c${n}" class="sr-only">Comment about ${psaEsc(it.title)}</label>
+              <textarea id="c${n}" rows="2" maxlength="1000" placeholder="What did you think? (optional)" class="mt-3 w-full rounded-2xl border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] px-4 py-3 text-base text-[#2B1D1D] focus:outline-none focus:border-sorbet focus:ring-2 focus:ring-sorbet/30"></textarea>
+            </fieldset>`).join('')}
+          <p id="reviewError" class="hidden text-sm font-bold text-rose-700" role="alert"></p>
+          <button type="submit" id="reviewSubmitBtn" class="h-12 px-7 rounded-2xl bg-espresso text-cotton dark:bg-sorbet dark:text-espresso font-black cursor-pointer">Post review</button>
+        </form>`;
+      document.getElementById('reviewForm').addEventListener('submit', submitReview);
+    }
+
+    async function submitReview(e) {
+      e.preventDefault();
+      const errorEl = document.getElementById('reviewError');
+      errorEl.classList.add('hidden');
+      const reviews = [...document.querySelectorAll('[data-review-id]')].map((fs, n) => {
+        const picked = fs.querySelector(`input[name="rating-${n}"]:checked`);
+        return picked ? { id: fs.dataset.reviewId, rating: Number(picked.value), comment: document.getElementById(`c${n}`).value.trim() } : null;
+      }).filter(Boolean);
+      if (!reviews.length) {
+        errorEl.textContent = 'Pick a star rating for at least one item.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      const btn = document.getElementById('reviewSubmitBtn');
+      psaSetButtonLoading(btn, true, 'Posting…');
+      try {
+        const res = await psaApi('POST', `/api/orders/${encodeURIComponent(order.id)}/reviews`, { reviews });
+        order = { ...order, ...res.order };
+        renderReview();
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove('hidden');
+        psaSetButtonLoading(btn, false);
+      }
+    }
+
+    order = findOrder();
+    if (order) {
+      document.title = `Order ${order.id} | PsaOnline`;
+      renderOrder();
+    } else {
+      renderNotFound();
     }
   </script>
 </body>

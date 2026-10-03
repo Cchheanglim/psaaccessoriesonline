@@ -170,6 +170,18 @@ class StoreApiTest extends TestCase
             ->assertJsonPath('user.avatarUrl', $photo);
     }
 
+    public function test_profile_banner_can_be_set_and_removed(): void
+    {
+        $user = $this->makeUser();
+        $banner = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ==';
+
+        $this->actingAs($user)->patchJson('/api/me', ['banner' => $banner])
+            ->assertOk()->assertJsonPath('user.bannerUrl', $banner);
+        $this->actingAs($user)->patchJson('/api/me', ['banner' => null])
+            ->assertOk()->assertJsonPath('user.bannerUrl', null);
+        $this->actingAs($user)->patchJson('/api/me', ['banner' => 'javascript:alert(1)'])->assertStatus(422);
+    }
+
     public function test_profile_and_payment_method_text_fits_the_database(): void
     {
         $user = $this->makeUser();
@@ -193,6 +205,65 @@ class StoreApiTest extends TestCase
         $this->assertSame('staff', $buyer->fresh()->role);
         $this->postJson('/api/auth/logout');
         $this->postJson('/api/auth/login', ['login' => $buyer->email, 'password' => 'secret123'])->assertOk();
+    }
+
+    public function test_orders_can_use_a_payment_method_an_admin_created(): void
+    {
+        $admin = $this->makeUser(['role' => 'admin']);
+        $code = $this->actingAs($admin)->postJson('/api/admin/payment-methods', [
+            'name' => 'Wing Bank', 'type' => 'khqr', 'qrData' => 'data:image/png;base64,iVBORw0KGgo=',
+        ])->assertCreated()->json('paymentMethod.code');
+
+        $this->actingAs($this->makeUser())->postJson('/api/orders', $this->orderPayload(['paymentMethod' => $code]))
+            ->assertCreated()
+            ->assertJsonPath('order.paymentCode', $code)
+            ->assertJsonPath('order.paymentMethod', 'Wing Bank');
+
+        $this->actingAs($this->makeUser())->postJson('/api/orders', $this->orderPayload(['paymentMethod' => 'no-such-method']))
+            ->assertStatus(422)->assertJsonValidationErrors('paymentMethod');
+    }
+
+    public function test_customer_and_staff_can_message_about_an_order(): void
+    {
+        $buyer = $this->makeUser();
+        $staff = $this->makeUser(['role' => 'staff']);
+        $number = $this->actingAs($buyer)->postJson('/api/orders', $this->orderPayload())->json('order.id');
+
+        $this->actingAs($buyer)->postJson("/api/orders/{$number}/messages", ['body' => 'Can you deliver after 5pm?'])
+            ->assertCreated()->assertJsonPath('messages.0.fromStaff', false);
+        $this->actingAs($staff)->postJson("/api/orders/{$number}/messages", ['body' => 'Yes, no problem!'])
+            ->assertCreated()
+            ->assertJsonPath('messages.1.fromStaff', true)
+            ->assertJsonPath('messages.1.author', 'PsaOnline');
+
+        $this->actingAs($buyer)->getJson("/api/orders/{$number}/messages")->assertOk()->assertJsonCount(2, 'messages');
+        $this->actingAs($this->makeUser())->getJson("/api/orders/{$number}/messages")->assertStatus(403);
+        $this->actingAs($buyer)->postJson("/api/orders/{$number}/messages", ['body' => ''])->assertStatus(422);
+    }
+
+    public function test_customers_review_items_after_delivery(): void
+    {
+        $buyer = $this->makeUser(['name' => 'Sophea Chhum']);
+        $staff = $this->makeUser(['role' => 'staff']);
+        $number = $this->actingAs($buyer)->postJson('/api/orders', $this->orderPayload())->json('order.id');
+        $review = ['reviews' => [['id' => 'genz-01', 'rating' => 4, 'comment' => 'So comfy']]];
+
+        $this->actingAs($buyer)->postJson("/api/orders/{$number}/reviews", $review)->assertStatus(422);
+
+        $this->actingAs($staff)->patchJson("/api/admin/orders/{$number}", ['action' => 'verify'])->assertOk();
+        $this->actingAs($staff)->patchJson("/api/admin/orders/{$number}", ['action' => 'deliver'])->assertOk();
+
+        $this->actingAs($buyer)->postJson("/api/orders/{$number}/reviews", $review)
+            ->assertOk()->assertJsonPath('order.reviewed', true);
+        $this->actingAs($buyer)->postJson("/api/orders/{$number}/reviews", ['reviews' => [['id' => 'genz-02', 'rating' => 5]]])
+            ->assertStatus(422);
+
+        $this->getJson('/api/products/genz-01/reviews')
+            ->assertOk()
+            ->assertJsonPath('count', 1)
+            ->assertJsonPath('reviews.0.author', 'Sophea C.')
+            ->assertJsonPath('reviews.0.comment', 'So comfy');
+        $this->assertEquals(4.0, (float) Product::where('sku', 'genz-01')->value('rating'));
     }
 
     public function test_legal_pages_redirect_to_their_html_files(): void

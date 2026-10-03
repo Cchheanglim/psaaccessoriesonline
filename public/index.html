@@ -242,12 +242,8 @@
         </div>
 
         <div>
-          <h2 class="text-sm font-black text-[#2B1D1D]">Display</h2>
-          <div class="mt-3 flex items-center bg-white dark:bg-[#1E1E26] p-1 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-sm w-max" role="group" aria-label="Currency">
-            <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn h-10 px-4 font-black rounded-full text-[#2B1D1D]">USD</button>
-            <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn h-10 px-4 font-black rounded-full text-[#2B1D1D]">KHR ៛</button>
-          </div>
-          <button type="button" onclick="toggleTheme()" class="theme-toggle-btn mt-3 h-11 px-4 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] text-[#2B1D1D] dark:text-white flex items-center gap-1.5 text-sm font-bold cursor-pointer" aria-label="Switch colour theme">Theme</button>
+          <h2 class="text-sm font-black text-[#2B1D1D]">Find us</h2>
+          <ul id="socialLinks" class="mt-3 space-y-2"></ul>
         </div>
       </div>
 
@@ -410,7 +406,25 @@
       }).join('');
     }
 
+    // Shop social accounts for the footer. Add Facebook / Instagram / TikTok here with their real profile links.
+    const SOCIAL_LINKS = [
+      { name: 'Telegram', handle: '@psaonline_support', url: 'https://t.me/psaonline_support', icon: '<path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/>' }
+    ];
+
+    function renderSocialLinks() {
+      const list = document.getElementById('socialLinks');
+      if (!list) return;
+      list.innerHTML = SOCIAL_LINKS.map(s => `
+        <li>
+          <a href="${psaEsc(s.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 min-h-11 pr-2 text-sm font-bold text-[#2B1D1D] hover:text-sorbet-ink dark:hover:text-sorbet">
+            <span class="w-10 h-10 rounded-full bg-espresso text-cotton dark:bg-sorbet dark:text-espresso flex items-center justify-center shrink-0"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${s.icon}</svg></span>
+            <span>${psaEsc(s.name)}<span class="block text-sm font-semibold text-stone-600">${psaEsc(s.handle)}</span></span>
+          </a>
+        </li>`).join('');
+    }
+
     function renderHomePage() {
+      renderSocialLinks();
       const total = ACCESSORIES_PRODUCTS.length;
       document.getElementById('heroCount').textContent = total;
       document.getElementById('picksCount').textContent = total;

@@ -3,179 +3,183 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Pending Payment: Scan Bakong KHQR — PsaOnline</title>
-  <meta name="description" content="Complete your Gen-Z accessories order via Bakong Universal KHQR or ABA Mobile." />
+  <title>Pay for Your Order | PsaOnline</title>
+  <meta name="description" content="Scan the shop's payment QR, then upload your transfer slip." />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { sorbet: '#FFA552', 'sorbet-ink': '#A3520F', cotton: '#F9F3EA', espresso: '#2B1D1D' } } }
+    };
+  </script>
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased">
 
-  <!-- Header -->
-  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#EFE4D6] transition-all duration-300">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-      <a href="home.html" class="flex items-center gap-2.5 sm:gap-3 group">
-        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-[#2B1D1D] via-[#3D2929] to-[#FFA552] flex items-center justify-center text-white font-black text-base shadow-xs group-hover:scale-105 transition-transform duration-300 border border-[#FFA552]/40">
-          P
-        </div>
-        <div class="flex flex-col">
-          <span class="text-base sm:text-lg font-black text-[#2B1D1D] leading-none">Psa<span class="text-[#FFA552]">Online</span></span>
-          <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">Gen-Z Studio</span>
-        </div>
+  <header class="sticky top-0 z-40 bg-[#FDFBF7]/95 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2A2A34]">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <a href="home.html" class="flex items-center gap-2" aria-label="PsaOnline home">
+        <img src="assets/images/psa-accessories-online-logo.svg" alt="" class="h-9 w-auto" />
+        <span class="text-lg font-black text-[#2B1D1D]">Psa<span class="text-sorbet-ink dark:text-sorbet">Online</span></span>
       </a>
-
-      <div class="flex items-center gap-2 sm:gap-3 text-xs">
-        <a href="dashboard-buyer.html" class="px-3.5 py-1.5 rounded-full border border-[#EFE4D6] bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] font-bold transition flex items-center gap-1.5">
-          <span>&larr; Back to My Orders</span>
-        </a>
-        <a href="home.html" class="px-3.5 py-1.5 rounded-full bg-[#FFA552] hover:bg-[#E88C35] text-white font-bold transition">
-          Exit to Store
-        </a>
-      </div>
+      <a href="dashboard-buyer.html" class="h-11 px-4 inline-flex items-center gap-1.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] text-sm font-bold text-[#2B1D1D] hover:bg-[#F9F3EA]">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        My orders
+      </a>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-1 w-full space-y-6">
-
-    <!-- Status Alert Header -->
-    <div class="reveal-init bg-white border-2 border-[#FFA552] rounded-3xl p-6 text-center space-y-3 shadow-sm">
-      <div class="w-12 h-12 rounded-2xl bg-[#F9F3EA] text-[#FFA552] border border-[#FFA552] flex items-center justify-center mx-auto text-2xl font-black">
-        ៛
-      </div>
-      <div>
-        <span class="text-[11px] font-black uppercase tracking-wider text-[#FFA552]">Awaiting Payment</span>
-        <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] tracking-tight mt-0.5">Scan KHQR to Complete Order</h1>
-      </div>
-      <p class="text-xs sm:text-sm text-stone-600 max-w-lg mx-auto leading-relaxed">
-        Scan the Universal KHQR code below with ABA, ACLEDA, Canadia, or Wing. Then upload your transfer slip to expedite instant courier dispatch.
-      </p>
-
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#F9F3EA] rounded-full border border-[#EFE4D6] font-mono text-xs font-black text-[#2B1D1D] mt-1">
-        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-        <span id="orderIdTag">Order #PSA-902184</span>
-      </div>
-    </div>
-
-    <!-- KHQR Code Card (Clean Pure White Container) -->
-    <div class="reveal-init delay-100 bg-white rounded-3xl border border-[#EFE4D6] p-6 sm:p-8 shadow-md text-center space-y-6">
-      
-      <div class="space-y-1">
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-red-600 text-[11px] font-black uppercase tracking-wider">
-          <span class="w-2 h-2 rounded-full bg-red-600"></span>
-          <span>Bakong Universal KHQR</span>
-        </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] pt-2" id="dueAmountUSD">$18.50</div>
-        <div class="text-xs text-[#FFA552] font-black" id="dueAmountKHR">75,850 ៛</div>
-      </div>
-
-      <!-- Clean White QR Code Container Frame -->
-      <div class="p-4 sm:p-6 bg-white border-2 border-[#FFA552] rounded-3xl inline-block shadow-lg mx-auto max-w-xs">
-        <div class="aspect-square w-52 h-52 sm:w-60 sm:h-60 bg-white border border-[#EFE4D6] rounded-2xl p-2.5 flex items-center justify-center relative overflow-hidden">
-          <img
-            src="https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=bakong_khqr_psaonline_psa902184"
-            alt="Bakong Universal KHQR"
-            class="w-full h-full object-contain"
-          />
-        </div>
-        <div class="mt-3 text-xs font-extrabold text-[#2B1D1D]">
-          PSA ONLINE ACCESSORIES
-        </div>
-        <div class="text-[11px] text-[#FFA552] font-bold">
-          Merchant: psaonline@aclb
-        </div>
-      </div>
-
-      <!-- Action: Upload Slip Screenshot -->
-      <div class="max-w-md mx-auto pt-4 border-t border-[#EFE4D6] space-y-4 text-left">
-        <div>
-          <label class="block text-xs font-extrabold text-[#2B1D1D] mb-1">
-            Upload Transfer Slip Screenshot
-          </label>
-          <input
-            type="file"
-            id="slipInput"
-            accept="image/*"
-            class="w-full text-xs text-stone-600 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-[#FFA552] file:text-white hover:file:bg-[#E88C35] file:cursor-pointer"
-          />
-        </div>
-
-        <button
-          onclick="submitSlip()"
-          class="btn-press w-full py-3.5 rounded-2xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
-        >
-          <span>I've Paid — Confirm & View Receipt</span>
-          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-        </button>
-
-        <p class="text-[11px] text-center text-stone-400 leading-normal">
-          Our Phnom Penh dispatch team will verify your slip in ~5 minutes and assign a courier.
-        </p>
-      </div>
-
-    </div>
-
+  <main id="payPage" class="flex-1 w-full max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-5">
+    <p class="text-sm text-stone-600">Loading your order…</p>
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto py-6 text-xs text-stone-500 dark:text-stone-400">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
+  <footer class="bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] py-6 text-sm text-stone-600">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div>&copy; 2026 PsaOnline</div>
+      <div class="flex items-center gap-5">
+        <a href="about.html" class="py-2 hover:text-sorbet-ink">About us</a>
+        <a href="privacy.html" class="py-2 hover:text-sorbet-ink">Privacy</a>
+        <a href="terms.html" class="py-2 hover:text-sorbet-ink">Terms</a>
       </div>
     </div>
   </footer>
 
   <script src="assets/js/store.js"></script>
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderId = urlParams.get('order') || 'PSA-902184';
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('order') || '';
+    const page = document.getElementById('payPage');
+    const card = 'rounded-3xl bg-white dark:bg-[#1A1A22] border border-[#EFE4D6] dark:border-[#2D2D38] p-5 sm:p-7';
+    let slipDataUrl = null;
 
-    const liveOrder = PSA.online ? PSA.orders.find(o => o.id === orderId) : null;
-    if (liveOrder) {
-      urlParams.set('usd', liveOrder.totalUSD);
-      urlParams.set('khr', liveOrder.totalKHR);
+    function findOrder() {
+      if (PSA.online) return PSA.orders.find(o => o.id === orderId) || null;
+      try { return JSON.parse(localStorage.getItem('psa_orders') || '[]').find(o => o.id === orderId) || null; } catch (e) { return null; }
     }
-    const totalUSD = urlParams.get('usd') || '18.50';
-    const totalKHR = urlParams.get('khr') || '75,850';
-    document.getElementById('orderIdTag').textContent = `Order #${orderId}`;
-    document.getElementById('dueAmountUSD').textContent = `$${parseFloat(totalUSD).toFixed(2)}`;
-    document.getElementById('dueAmountKHR').textContent = `${totalKHR} ៛`;
 
-    async function submitSlip() {
-      if (PSA.online) {
-        const btn = document.querySelector('button[onclick="submitSlip()"]');
-        const file = document.getElementById('slipInput').files[0];
-        btn.disabled = true;
-        try {
-          const slip = file ? await psaImageToDataUrl(file, 1200) : null;
-          await psaApi('POST', `/api/orders/${encodeURIComponent(orderId)}/slip`, { slip });
-        } catch (err) {
-          alert(err.message);
-          btn.disabled = false;
-          return;
-        }
-        window.location.replace(`order-detail.html?order=${encodeURIComponent(orderId)}&status=submitted`);
+    // The QR the admin set for this payment method: an uploaded picture, a link, or text to encode.
+    function qrImage(method) {
+      const data = method && method.qrData;
+      if (!data) return null;
+      if (/^(data:image\/|https?:\/\/)/.test(data)) return data;
+      return `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(data)}`;
+    }
+
+    const order = findOrder();
+    const method = order ? (PSA.paymentMethods || []).find(m => m.code === order.paymentCode) : null;
+
+    function render() {
+      if (!order) {
+        page.innerHTML = `
+          <section class="${card} text-center space-y-4">
+            <h1 class="text-2xl font-black">We couldn't find that order</h1>
+            <p class="text-base text-stone-600">${PSA.online && !PSA.user ? 'Sign in with the account you ordered with.' : 'Open it from your orders list.'}</p>
+            <a href="${PSA.online && !PSA.user ? 'login.html?next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search) : 'dashboard-buyer.html'}" class="h-12 px-6 inline-flex items-center rounded-2xl bg-espresso text-cotton font-black">${PSA.online && !PSA.user ? 'Sign in' : 'My orders'}</a>
+          </section>`;
         return;
       }
 
-      // Demo mode (no server): mark as slip submitted in this browser
-      try {
-        const orders = JSON.parse(localStorage.getItem('psa_orders') || '[]');
-        const ord = orders.find(o => o.id === orderId);
-        if (ord) {
-          ord.status = 'Slip Uploaded';
-          ord.slipUploaded = true;
-          localStorage.setItem('psa_orders', JSON.stringify(orders));
-        }
-      } catch (e) {}
+      if (order.paymentCode === 'cod' || order.slipUploaded && order.paymentStatus !== 'failed' || ['verified', 'paid_demo'].includes(order.paymentStatus)) {
+        window.location.replace(`order-detail.html?order=${encodeURIComponent(order.id)}`);
+        return;
+      }
 
-      window.location.href = `order-detail.html?order=${orderId}&status=submitted`;
+      const qr = qrImage(method);
+      const failed = order.paymentStatus === 'failed';
+      page.innerHTML = `
+        <section class="${card} text-center">
+          <p class="text-sm font-black text-sorbet-ink dark:text-sorbet">Order ${psaEsc(order.id)}</p>
+          <h1 class="mt-1 text-3xl sm:text-4xl font-black tracking-tight">${failed ? 'Please send a new slip' : 'Pay, then send your slip'}</h1>
+          ${failed ? '<p class="mt-3 text-base font-bold text-rose-700">We couldn\'t match your last slip to this order. Check the amount and upload the correct screenshot.</p>' : ''}
+          <div class="mt-5 inline-flex flex-col items-center rounded-2xl bg-cotton dark:bg-[#252530] px-6 py-4">
+            <span class="text-sm font-bold text-stone-600">Amount to pay</span>
+            <span class="text-4xl font-black tabular-nums">$${Number(order.totalUSD).toFixed(2)}</span>
+            <span class="text-base font-bold text-stone-600 tabular-nums">or ${psaEsc(order.totalKHR)} ៛</span>
+          </div>
+        </section>
+
+        <section class="${card}" aria-labelledby="stepScan">
+          <h2 id="stepScan" class="text-xl font-black"><span class="text-sorbet-ink dark:text-sorbet">1.</span> Scan with your banking app</h2>
+          <p class="mt-1 text-base text-stone-600">${psaEsc(method ? method.name : (order.paymentMethod || 'Bank transfer'))}${method && method.description ? ' &middot; ' + psaEsc(method.description) : ''}</p>
+          ${qr ? `
+            <div class="mt-5 mx-auto w-full max-w-[18rem] rounded-3xl bg-white p-4 border-2 border-espresso">
+              <img src="${psaEsc(qr)}" alt="Payment QR code for ${psaEsc(method ? method.name : 'this order')}" class="w-full aspect-square object-contain" />
+            </div>
+            <p class="mt-3 text-center text-sm text-stone-600">Screenshot this QR and open it from your banking app's scan screen if you're on the same phone.</p>`
+          : `<div class="mt-4 rounded-2xl border-2 border-dashed border-[#EFE4D6] dark:border-[#2D2D38] p-5 text-base text-stone-600">The shop hasn't added a QR code for this method yet. Transfer to the account below, or <a href="https://t.me/psaonline_support" target="_blank" rel="noopener noreferrer" class="font-bold text-sorbet-ink dark:text-sorbet underline">ask us on Telegram</a>.</div>`}
+          ${method && (method.accountName || method.accountNumber) ? `
+            <dl class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-base">
+              ${method.accountName ? `<div class="rounded-2xl bg-cotton dark:bg-[#252530] px-4 py-3"><dt class="text-sm text-stone-600">Account name</dt><dd class="font-black break-words">${psaEsc(method.accountName)}</dd></div>` : ''}
+              ${method.accountNumber ? `<div class="rounded-2xl bg-cotton dark:bg-[#252530] px-4 py-3"><dt class="text-sm text-stone-600">Account number</dt><dd class="font-black break-words font-mono">${psaEsc(method.accountNumber)}</dd></div>` : ''}
+            </dl>` : ''}
+        </section>
+
+        <section class="${card}" aria-labelledby="stepSlip">
+          <h2 id="stepSlip" class="text-xl font-black"><span class="text-sorbet-ink dark:text-sorbet">2.</span> Upload your transfer slip</h2>
+          <p class="mt-1 text-base text-stone-600">A screenshot of the successful transfer from your banking app. We check it and start packing.</p>
+          <label for="slipInput" id="slipDrop" class="mt-4 flex flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-[#E3D3BC] dark:border-[#3A3A46] bg-[#FDFBF7] dark:bg-[#17171C] p-6 text-center cursor-pointer hover:border-sorbet">
+            <span id="slipPreviewWrap" class="hidden"><img id="slipPreview" alt="Your slip" class="max-h-72 rounded-2xl" /></span>
+            <span id="slipPrompt" class="text-base font-black text-[#2B1D1D]">Tap to choose your slip screenshot</span>
+            <span class="text-sm text-stone-600">JPG or PNG</span>
+          </label>
+          <input type="file" id="slipInput" accept="image/*" class="sr-only" />
+          <p id="slipError" class="hidden mt-3 text-sm font-bold text-rose-700" role="alert"></p>
+          <button type="button" id="slipSubmitBtn" class="mt-5 w-full h-14 rounded-2xl bg-espresso text-cotton dark:bg-sorbet dark:text-espresso font-black text-base cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">Send slip</button>
+          <p class="mt-3 text-center text-sm text-stone-600">Paying cash instead, or stuck? <a href="order-detail.html?order=${encodeURIComponent(order.id)}#messages" class="font-bold text-sorbet-ink dark:text-sorbet underline">Message us about this order</a>.</p>
+        </section>`;
+
+      document.getElementById('slipInput').addEventListener('change', pickSlip);
+      document.getElementById('slipSubmitBtn').addEventListener('click', submitSlip);
     }
+
+    async function pickSlip(e) {
+      const file = e.target.files && e.target.files[0];
+      const errorEl = document.getElementById('slipError');
+      errorEl.classList.add('hidden');
+      if (!file) return;
+      try {
+        slipDataUrl = await psaImageToDataUrl(file, 1400, 0.85);
+        document.getElementById('slipPreview').src = slipDataUrl;
+        document.getElementById('slipPreviewWrap').classList.remove('hidden');
+        document.getElementById('slipPrompt').textContent = 'Tap to choose a different screenshot';
+      } catch (err) {
+        slipDataUrl = null;
+        errorEl.textContent = err.message;
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    async function submitSlip() {
+      const errorEl = document.getElementById('slipError');
+      errorEl.classList.add('hidden');
+      if (!slipDataUrl) {
+        errorEl.textContent = 'Choose your slip screenshot first.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+      const btn = document.getElementById('slipSubmitBtn');
+      if (PSA.online) {
+        psaSetButtonLoading(btn, true, 'Sending…');
+        try {
+          await psaApi('POST', `/api/orders/${encodeURIComponent(order.id)}/slip`, { slip: slipDataUrl });
+        } catch (err) {
+          psaSetButtonLoading(btn, false);
+          errorEl.textContent = err.message;
+          errorEl.classList.remove('hidden');
+          return;
+        }
+      } else {
+        // Preview without the server: remember it in this browser only
+        try {
+          const orders = JSON.parse(localStorage.getItem('psa_orders') || '[]');
+          const o = orders.find(x => x.id === order.id);
+          if (o) { o.status = 'Slip Uploaded'; o.slipUploaded = true; o.paymentStatus = 'slip_uploaded'; localStorage.setItem('psa_orders', JSON.stringify(orders)); }
+        } catch (e) {}
+      }
+      window.location.replace(`order-detail.html?order=${encodeURIComponent(order.id)}`);
+    }
+
+    render();
   </script>
 </body>
 </html>

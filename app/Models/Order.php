@@ -50,4 +50,14 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function messages()
+    {
+        return $this->hasMany(OrderMessage::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
+    }
 }

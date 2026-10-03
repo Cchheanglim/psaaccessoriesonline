@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\OrderMessage;
 use App\Models\PaymentMethod;
 use App\Models\Product;
+use App\Models\ProductReview;
 use App\Models\User;
 use App\Support\Storefront;
 use Illuminate\Http\JsonResponse;
@@ -41,7 +43,7 @@ class StoreApiController extends Controller
         // The catalog is the same for every visitor, so keep it briefly (Supabase round trips are slow).
         $catalog = Storefront::catalog($isStaff);
 
-        $orders = (! $isStaff && ! $user && ! $guestOrders) ? collect() : Order::with('items')
+        $orders = (! $isStaff && ! $user && ! $guestOrders) ? collect() : Order::with('items')->withCount(['messages', 'reviews'])
             ->when(! $isStaff, function ($q) use ($user, $guestOrders) {
                 $q->where(function ($q) use ($user, $guestOrders) {
                     $q->whereIn('order_number', $guestOrders);
@@ -92,7 +94,7 @@ class StoreApiController extends Controller
         Auth::login($user, true);
         $request->session()->regenerate();
 
-        return response()->json(['user' => Storefront::user($user)]);
+        return response()->json(['user' => Storefront::user($user), 'csrf' => csrf_token()]);
     }
 
     public function register(Request $request): JsonResponse
@@ -126,7 +128,7 @@ class StoreApiController extends Controller
         Auth::login($user, true);
         $request->session()->regenerate();
 
-        return response()->json(['user' => Storefront::user($user)], 201);
+        return response()->json(['user' => Storefront::user($user), 'csrf' => csrf_token()], 201);
     }
 
     public function logout(Request $request): JsonResponse
@@ -146,6 +148,7 @@ class StoreApiController extends Controller
             'phone' => ['sometimes', 'nullable', 'string', 'min:8', 'max:30', 'regex:/^[+0-9\s\-()]+$/'],
             'address' => ['sometimes', 'nullable', 'string', 'min:5', 'max:255'],
             'photo' => ['sometimes', 'nullable', 'string', 'max:3000000', Storefront::imageRule()],
+            'banner' => ['sometimes', 'nullable', 'string', 'max:4000000', Storefront::imageRule()],
         ], [
             'name.required' => 'Full name is required.',
             'name.min' => 'Full name must be at least 2 characters.',
@@ -207,7 +210,7 @@ class StoreApiController extends Controller
             'notes' => ['nullable', 'string', 'max:1000'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
-            'paymentMethod' => ['required', Rule::in(array_keys(Storefront::PAYMENT_CODES))],
+            'paymentMethod' => ['required', 'string', 'max:64'],
             'items' => ['required', 'array', 'min:1', 'max:50'],
             'items.*.id' => ['required', 'string', 'max:64'],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
@@ -224,8 +227,12 @@ class StoreApiController extends Controller
             'items.min' => 'Please add at least one item to your bag before checking out.',
         ]);
 
-        $code = Storefront::PAYMENT_CODES[$data['paymentMethod']];
+        // Built-in checkout options send short names (khqr, cod...); methods an admin created send their code.
+        $code = Storefront::PAYMENT_CODES[$data['paymentMethod']] ?? $data['paymentMethod'];
         $method = PaymentMethod::where('code', $code)->first();
+        if (! $method && ! isset(Storefront::PAYMENT_LABELS[$code])) {
+            throw ValidationException::withMessages(['paymentMethod' => 'Please choose one of the payment methods shown.']);
+        }
         if ($method && ! $method->is_active) {
             throw ValidationException::withMessages(['paymentMethod' => 'This payment method is currently turned off.']);
         }
@@ -379,6 +386,133 @@ class StoreApiController extends Controller
                 ],
             ],
         ]);
+    }
+
+    /* ---------- Messages about an order (customer <-> shop) ---------- */
+
+    public function orderMessages(Request $request, string $orderNumber): JsonResponse
+    {
+        $order = $this->ownOrder($request, $orderNumber);
+
+        return response()->json(['messages' => $this->messageList($order)]);
+    }
+
+    public function sendOrderMessage(Request $request, string $orderNumber): JsonResponse
+    {
+        $user = $this->requireUser($request);
+        $order = $this->ownOrder($request, $orderNumber);
+
+        $data = $request->validate([
+            'body' => ['required', 'string', 'max:2000'],
+        ], [
+            'body.required' => 'Write a message first.',
+            'body.max' => 'Messages can be up to 2,000 characters.',
+        ]);
+
+        $order->messages()->create([
+            'user_id' => $user->id,
+            'from_staff' => $user->isStaff() && $order->user_id !== $user->id,
+            'body' => trim($data['body']),
+        ]);
+
+        return response()->json(['messages' => $this->messageList($order)], 201);
+    }
+
+    private function messageList(Order $order): array
+    {
+        return $order->messages()->with('user:id,name')->orderBy('created_at')->orderBy('id')->get()
+            ->map(fn (OrderMessage $m) => [
+                'id' => $m->id,
+                'body' => $m->body,
+                'fromStaff' => $m->from_staff,
+                'author' => $m->from_staff ? 'PsaOnline' : ($m->user?->name ?? $order->customer_name),
+                'staffName' => $m->from_staff ? $m->user?->name : null,
+                'createdAt' => $m->created_at?->toIso8601String(),
+            ])->all();
+    }
+
+    /* ---------- Reviews ---------- */
+
+    /** The customer reviews items from one of their delivered orders. */
+    public function reviewOrder(Request $request, string $orderNumber): JsonResponse
+    {
+        $user = $this->requireUser($request);
+        $order = Order::with('items')->where('order_number', $orderNumber)->firstOrFail();
+
+        abort_unless($order->user_id === $user->id, 403, 'You can only review your own orders.');
+        if ($order->order_status !== 'delivered') {
+            throw ValidationException::withMessages(['reviews' => 'You can review items once your order has been delivered.']);
+        }
+
+        $data = $request->validate([
+            'reviews' => ['required', 'array', 'min:1', 'max:50'],
+            'reviews.*.id' => ['required', 'string', 'max:64'],
+            'reviews.*.rating' => ['required', 'integer', 'between:1,5'],
+            'reviews.*.comment' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'reviews.*.rating.required' => 'Choose a star rating for each item.',
+            'reviews.*.rating.between' => 'Ratings go from 1 to 5 stars.',
+        ]);
+
+        $skus = $order->items->pluck('product_id')->all();
+        foreach ($data['reviews'] as $review) {
+            if (! in_array($review['id'], $skus, true)) {
+                throw ValidationException::withMessages(['reviews' => 'One of those items is not in this order.']);
+            }
+        }
+
+        DB::transaction(function () use ($data, $order, $user) {
+            foreach ($data['reviews'] as $review) {
+                ProductReview::updateOrCreate(
+                    ['order_id' => $order->id, 'product_sku' => $review['id']],
+                    ['user_id' => $user->id, 'rating' => $review['rating'], 'comment' => trim($review['comment'] ?? '') ?: null],
+                );
+                $this->refreshProductRating($review['id']);
+            }
+        });
+
+        Storefront::forgetCatalog();
+
+        return response()->json(['order' => Storefront::order($order->refresh()->load('items'))]);
+    }
+
+    /** Public list of reviews for a product page. */
+    public function productReviews(string $sku): JsonResponse
+    {
+        $query = ProductReview::where('product_sku', $sku);
+        $count = (clone $query)->count();
+
+        return response()->json([
+            'average' => $count ? round((float) (clone $query)->avg('rating'), 1) : null,
+            'count' => $count,
+            'reviews' => (clone $query)->with('user:id,name')->latest()->limit(30)->get()
+                ->map(fn (ProductReview $r) => [
+                    'rating' => $r->rating,
+                    'comment' => $r->comment,
+                    'author' => $this->shortName($r->user?->name),
+                    'date' => $r->created_at?->timezone(config('app.timezone'))->format('d M Y'),
+                ])->all(),
+        ]);
+    }
+
+    private function refreshProductRating(string $sku): void
+    {
+        $reviews = ProductReview::where('product_sku', $sku);
+        Product::where('sku', $sku)->update([
+            'rating' => round((float) (clone $reviews)->avg('rating'), 1),
+            'review_count' => (clone $reviews)->count(),
+        ]);
+    }
+
+    /** "Sophea Chhum" becomes "Sophea C." so reviews don't publish full names. */
+    private function shortName(?string $name): string
+    {
+        $parts = preg_split('/\s+/', trim((string) $name)) ?: [];
+        if (! $parts || $parts[0] === '') {
+            return 'Customer';
+        }
+
+        return count($parts) > 1 ? $parts[0].' '.mb_strtoupper(mb_substr(end($parts), 0, 1)).'.' : $parts[0];
     }
 
     private function ownOrder(Request $request, string $orderNumber): Order

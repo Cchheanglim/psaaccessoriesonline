@@ -46,7 +46,7 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
           <span class="cart-count-badge hidden absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] px-1 rounded-full bg-[#FFA552] text-stone-900 text-[10px] font-bold items-center justify-center flex">0</span>
         </a>
-        <button type="button" onclick="psaLogout('login.html')" class="px-3 h-9 inline-flex items-center gap-1.5 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-xs font-bold text-red-600 dark:text-red-400 cursor-pointer transition" title="Log Out">
+        <button type="button" id="headerLogoutBtn" onclick="psaLogout('login.html')" class="px-3 h-9 inline-flex items-center gap-1.5 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 text-xs font-bold text-red-600 dark:text-red-400 cursor-pointer transition" title="Log Out">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
           <span class="hidden sm:inline">Log Out</span>
         </button>
@@ -59,9 +59,20 @@
 
     <!-- Header card: avatar, name, level, stats -->
     <section class="rounded-2xl bg-[#2B1D1D] border border-[#2B1D1D] dark:border-[#3A2A2A] text-white overflow-hidden" aria-label="Profile">
-      <div class="p-4 sm:p-6 flex items-center gap-3 sm:gap-4">
-        <div class="shrink-0">
-          <button type="button" id="avatarBtn" class="relative block w-14 h-14 sm:w-20 sm:h-20 rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFA552] disabled:cursor-default" aria-label="Change profile photo">
+      <!-- Banner: the customer's own picture, or the brand colours until they add one -->
+      <div id="bannerBox" class="relative h-28 sm:h-44 bg-[#FFA552] bg-cover bg-center">
+        <div id="bannerActions" class="hidden absolute top-2 right-2 flex gap-2">
+          <button type="button" id="bannerRemoveBtn" class="hidden h-10 px-3 rounded-lg bg-black/60 hover:bg-black/75 text-white text-sm font-bold cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-white">Remove</button>
+          <button type="button" id="bannerBtn" class="h-10 px-3 rounded-lg bg-black/60 hover:bg-black/75 text-white text-sm font-bold inline-flex items-center gap-1.5 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-white">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span id="bannerBtnLabel">Add banner</span>
+          </button>
+        </div>
+        <input type="file" id="bannerInput" accept="image/*" class="sr-only" tabindex="-1" aria-hidden="true" />
+      </div>
+      <div class="px-4 sm:px-6 pb-4 sm:pb-6 pt-3 flex items-start gap-3 sm:gap-4">
+        <div class="shrink-0 -mt-10 sm:-mt-14">
+          <button type="button" id="avatarBtn" class="relative block w-16 h-16 sm:w-24 sm:h-24 rounded-full ring-4 ring-[#2B1D1D] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFA552] disabled:cursor-default" aria-label="Change profile photo">
             <span id="avatarBox" class="flex w-full h-full items-center justify-center rounded-full overflow-hidden bg-[#FFA552] text-stone-900 text-lg sm:text-2xl font-extrabold"></span>
             <span id="avatarCamera" class="absolute -bottom-1 -right-1 w-7 h-7 rounded-lg bg-stone-100 text-stone-900 border-2 border-[#2B1D1D] flex items-center justify-center" aria-hidden="true">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -75,8 +86,11 @@
             <div id="profileName" class="min-w-0 text-lg sm:text-2xl font-extrabold leading-tight text-white break-words"></div>
             <span id="levelBadge" class="hidden items-center rounded-md bg-[#FFA552] text-stone-900 text-xs font-bold px-2 py-0.5" title="Level is based on completed orders"></span>
           </div>
-          <div id="profileEmail" class="text-sm text-[#E9DCCB] break-words"></div>
-          <div id="profilePhone" class="text-sm text-[#E9DCCB] break-words"></div>
+          <!-- Email and phone stay private here; they're shown only under Settings > My info -->
+          <div id="profileEmail" class="hidden"></div>
+          <div id="profilePhone" class="hidden"></div>
+          <a id="myInfoLink" href="setting.html#profile" class="hidden mt-1 text-sm font-bold text-[#FFC48F] hover:underline underline-offset-2">My info &amp; contact details</a>
+          <p id="guestNote" class="hidden text-sm text-[#E9DCCB]">Sign in to manage your account.</p>
           <a id="signInLink" href="login.html" class="hidden mt-2 h-9 px-4 items-center rounded-lg bg-[#FFA552] hover:bg-[#E88C35] text-stone-900 text-sm font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Sign in</a>
         </div>
 
@@ -353,10 +367,12 @@
       $('avatarBtn').setAttribute('aria-label', user ? 'Change profile photo' : 'Profile photo');
 
       $('profileName').textContent = user ? user.name : 'Guest';
-      setEmail($('profileEmail'), user ? (user.email || '') : 'Sign in to manage your account.', !!user);
-      $('profilePhone').textContent = user && user.phone ? user.phone : '';
-      $('profilePhone').classList.toggle('hidden', !(user && user.phone));
+      // Contact details are private on this page: they live under Settings > My info.
+      $('myInfoLink').classList.toggle('hidden', !user);
+      $('guestNote').classList.toggle('hidden', !!user);
+      renderBanner(user);
       $('signInLink').classList.toggle('hidden', !!user);
+      $('headerLogoutBtn').classList.toggle('hidden', !user);
       $('signInLink').classList.toggle('inline-flex', !user);
 
       const badge = $('levelBadge');
@@ -457,6 +473,57 @@
           if (prevUsers === null) localStorage.removeItem('psa_rbac_users'); else localStorage.setItem('psa_rbac_users', prevUsers);
         } catch (e2) { /* nothing more to restore */ }
         return false;
+      }
+    }
+
+    /* ---------- Profile banner ---------- */
+    function bannerOf(user) {
+      if (!user) return '';
+      if (typeof user.bannerUrl === 'string' && /^(data:image\/|https?:\/\/|\/assets\/)/.test(user.bannerUrl)) return user.bannerUrl;
+      return PSA.online ? '' : (localStorage.getItem('psa_banner') || '');
+    }
+
+    function renderBanner(user) {
+      const url = bannerOf(user);
+      $('bannerBox').style.backgroundImage = url ? `url("${url.replace(/"/g, '%22')}")` : '';
+      $('bannerActions').classList.toggle('hidden', !user);
+      $('bannerRemoveBtn').classList.toggle('hidden', !url);
+      $('bannerBtnLabel').textContent = url ? 'Change banner' : 'Add banner';
+    }
+
+    async function saveBanner(dataUrl) {
+      if (PSA.online) {
+        const { user } = await psaApi('PATCH', '/api/me', { banner: dataUrl });
+        PSA.user = user;
+        localStorage.setItem('psa_current_user', JSON.stringify(user));
+      } else if (dataUrl) {
+        localStorage.setItem('psa_banner', dataUrl);
+      } else {
+        localStorage.removeItem('psa_banner');
+      }
+      renderProfile();
+    }
+
+    async function handleBannerFile(file) {
+      if (!file) return;
+      if (!/^image\//.test(file.type)) { notify('Choose an image file (JPG, PNG or WebP).'); return; }
+      if (file.size > 15 * 1024 * 1024) { notify('Choose an image smaller than 15 MB.'); return; }
+      try {
+        const dataUrl = await psaImageToDataUrl(file, 1600, 0.82);
+        await saveBanner(dataUrl);
+        notify('Banner updated.');
+      } catch (err) {
+        notify(err.message || 'The banner could not be saved.');
+      }
+    }
+
+    async function removeBanner() {
+      if (!confirm('Remove your banner picture?')) return;
+      try {
+        await saveBanner(null);
+        notify('Banner removed.');
+      } catch (err) {
+        notify(err.message);
       }
     }
 
@@ -601,8 +668,9 @@
               <span class="text-stone-500 tabular-nums">(${esc(ord.totalKHR)} ៛)</span>
             </div>
             <div class="flex items-center gap-2">
-              ${orderGroup(ord) === 'pending' ? `<a href="${payHref}" class="${btnBase} bg-[#FFA552] hover:bg-[#E88C35] text-stone-900">Pay now</a>` : ''}
-              <a href="order-detail.html?order=${idQ}" class="${btnBase} border border-[#EFE4D6] dark:border-[#2D2D38] text-[#2B1D1D] hover:bg-[#F9F3EA]">View receipt</a>
+              ${orderGroup(ord) === 'pending' && ord.paymentCode !== 'cod' ? `<a href="${payHref}" class="${btnBase} bg-[#FFA552] hover:bg-[#E88C35] text-stone-900">Pay now</a>` : ''}
+              ${filterKeyOf(ord) === 'review' ? `<a href="order-detail.html?order=${idQ}#review" class="${btnBase} bg-[#FFA552] hover:bg-[#E88C35] text-stone-900">Write a review</a>` : ''}
+              <a href="order-detail.html?order=${idQ}" class="${btnBase} border border-[#EFE4D6] dark:border-[#2D2D38] text-[#2B1D1D] hover:bg-[#F9F3EA]">${ord.messageCount ? `Track &amp; messages (${Number(ord.messageCount)})` : 'Track order'}</a>
             </div>
           </div>
         </article>`;
@@ -723,8 +791,8 @@
 
       $('recsGrid').innerHTML = items.map((p) => `
         <article class="flex flex-col rounded-xl overflow-hidden bg-white dark:bg-[#1A1A22] border border-[#EFE4D6] dark:border-[#2D2D38]">
-          <a href="product-detail.html?id=${encodeURIComponent(p.id)}" class="block aspect-square bg-[#F9F3EA] ${FOCUS}" tabindex="-1" aria-hidden="true">
-            <img src="${esc(p.image)}" alt="" loading="lazy" class="w-full h-full object-cover" />
+          <a href="product-detail.html?id=${encodeURIComponent(p.id)}" class="relative block w-full shrink-0 aspect-square overflow-hidden bg-[#F9F3EA] ${FOCUS}" tabindex="-1" aria-hidden="true">
+            <img src="${esc(p.image)}" alt="" loading="lazy" class="absolute inset-0 w-full h-full object-cover" />
           </a>
           <div class="p-3 flex flex-col gap-2 flex-1">
             <a href="product-detail.html?id=${encodeURIComponent(p.id)}" class="text-sm font-semibold text-[#2B1D1D] line-clamp-2 min-h-[2.5rem] hover:underline ${FOCUS}">${esc(p.title)}</a>
@@ -760,6 +828,13 @@
       refreshAll();
 
       $('avatarBtn').addEventListener('click', () => $('avatarInput').click());
+      $('bannerBtn').addEventListener('click', () => $('bannerInput').click());
+      $('bannerRemoveBtn').addEventListener('click', removeBanner);
+      $('bannerInput').addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        e.target.value = '';
+        handleBannerFile(file);
+      });
       $('avatarInput').addEventListener('change', (e) => {
         const file = e.target.files && e.target.files[0];
         e.target.value = '';

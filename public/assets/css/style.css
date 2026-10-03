@@ -132,16 +132,9 @@ html, body {
   animation: floatWiggle 4s ease-in-out infinite;
 }
 
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(255, 165, 82, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(255, 165, 82, 0);
-  }
-}
+/* Badges that used to pulse with an orange halo now sit still; emphasis comes from colour and weight. */
 .animate-pulse-glow {
-  animation: pulseGlow 2.5s infinite;
+  animation: none;
 }
 
 /* Sparkle Rotating */
@@ -402,7 +395,7 @@ html.dark #psaQuickViewModal .text-\[\#4A3333\] {
 }
 .btn-press:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(255, 165, 82, 0.35);
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.25);
 }
 .btn-press:active {
   transform: scale(0.96);

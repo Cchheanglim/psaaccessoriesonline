@@ -94,10 +94,10 @@
               alt="Product Photo"
               class="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
             />
-            <div id="productBadgeTag" class="absolute top-4 left-4 bg-[#FFA552] text-white px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-sm">
-              Trending ⚡
-            </div>
+            <div id="productBadgeTag" class="absolute top-4 left-4 bg-[#FFA552] text-[#2B1D1D] px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider shadow-sm"></div>
           </div>
+          <!-- Every photo the shop uploaded for this product -->
+          <div id="galleryThumbs" class="hidden mt-3 flex gap-2 overflow-x-auto pb-1" role="group" aria-label="Product photos"></div>
         </div>
       </div>
 
@@ -107,10 +107,7 @@
         <div class="space-y-2">
           <div class="flex items-center gap-2 text-xs font-black text-[#FFA552]">
             <span id="categoryLabelTag" class="px-2.5 py-0.5 rounded-full bg-[#F9F3EA] uppercase tracking-wider">Y2K Jewelry</span>
-            <span class="text-amber-500 flex items-center gap-1 font-bold">
-              ★ <span id="productRating">4.9</span>
-              <span class="text-stone-400 font-normal">(<span id="productReviews">142</span> reviews)</span>
-            </span>
+            <a href="#reviews" id="ratingSummary" class="text-[#2B1D1D] flex items-center gap-1 font-bold text-sm hover:underline">No reviews yet</a>
           </div>
 
           <h1 id="productTitle" class="text-2xl sm:text-4xl font-black text-[#2B1D1D] tracking-tight">
@@ -128,15 +125,15 @@
             <div class="text-xs text-[#FFA552] font-black khmer-font mt-0.5" id="productPriceKHR">26,650 ៛ (Fixed 4,100 Rate)</div>
           </div>
           <div class="text-right">
-            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
-              In Stock &bull; Phnom Penh Dispatch
+            <span id="stockBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-sm font-bold border border-emerald-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              In stock
             </span>
           </div>
         </div>
 
         <!-- Description -->
-        <div class="space-y-3 text-xs sm:text-sm text-stone-600 leading-relaxed">
+        <div class="space-y-3 text-base text-stone-600 leading-relaxed">
           <h3 class="text-xs font-black text-[#2B1D1D] uppercase tracking-wider">About This Piece</h3>
           <p id="productDescription">
             Layered stainless steel chain with a chrome Cyber Y2K star motif. Tarnish-free, hypoallergenic, and perfect for streetwear daily fits.
@@ -176,6 +173,12 @@
 
     </div>
 
+    <!-- Customer reviews (only from people who received this item) -->
+    <section id="reviews" class="mt-12 scroll-mt-24 rounded-3xl bg-white border border-[#EFE4D6] p-5 sm:p-7" aria-labelledby="reviewsTitle">
+      <h2 id="reviewsTitle" class="text-2xl font-black text-[#2B1D1D] tracking-tight">Reviews</h2>
+      <div id="reviewsBody" class="mt-3 text-base text-stone-600">Loading reviews…</div>
+    </section>
+
   </main>
 
   <!-- Footer -->
@@ -203,13 +206,86 @@
     selectedProduct = ACCESSORIES_PRODUCTS.find(p => p.id === productId) || ACCESSORIES_PRODUCTS[0];
     trackView(selectedProduct.id);
 
-    document.getElementById('mainProductImage').src = selectedProduct.image;
-    document.getElementById('productBadgeTag').textContent = selectedProduct.badge;
+    // Badges claiming popularity or craft we can't back up show the category instead.
+    const UNPROVEN_BADGE = /best\s*seller|viral|trending|hot pick|handmade/i;
+    const badge = selectedProduct.badge && !UNPROVEN_BADGE.test(selectedProduct.badge) ? selectedProduct.badge : '';
+    document.getElementById('productBadgeTag').textContent = badge;
+    document.getElementById('productBadgeTag').classList.toggle('hidden', !badge);
+
+    // Main photo + thumbnails for every uploaded image
+    const photos = [...new Set([selectedProduct.image, ...(selectedProduct.gallery || [])].filter(Boolean))];
+    const mainImage = document.getElementById('mainProductImage');
+    mainImage.src = photos[0] || '';
+    mainImage.alt = selectedProduct.title;
+    function showPhoto(index) {
+      mainImage.src = photos[index];
+      document.querySelectorAll('#galleryThumbs button').forEach((b, i) => {
+        b.setAttribute('aria-pressed', String(i === index));
+        b.classList.toggle('border-[#2B1D1D]', i === index);
+        b.classList.toggle('border-transparent', i !== index);
+      });
+    }
+    if (photos.length > 1) {
+      const thumbs = document.getElementById('galleryThumbs');
+      thumbs.innerHTML = photos.map((src, i) => `
+        <button type="button" class="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 ${i === 0 ? 'border-[#2B1D1D]' : 'border-transparent'} bg-[#F9F3EA] cursor-pointer" aria-pressed="${i === 0}" aria-label="Photo ${i + 1} of ${photos.length}">
+          <img src="${psaEsc(src)}" alt="" class="w-full h-full object-cover" />
+        </button>`).join('');
+      thumbs.classList.remove('hidden');
+      thumbs.addEventListener('click', e => {
+        const btn = e.target.closest('button');
+        if (btn) showPhoto([...thumbs.children].indexOf(btn));
+      });
+    }
+
     document.getElementById('categoryLabelTag').textContent = selectedProduct.categoryLabel;
     document.getElementById('breadcrumbCategory').textContent = selectedProduct.categoryLabel;
-    document.getElementById('productRating').textContent = selectedProduct.rating;
-    document.getElementById('productReviews').textContent = selectedProduct.reviewsCount;
     document.getElementById('productTitle').textContent = selectedProduct.title;
+
+    // Stock
+    if (selectedProduct.inStock === false) {
+      const stock = document.getElementById('stockBadge');
+      stock.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 text-stone-700 text-sm font-bold border border-stone-300';
+      stock.textContent = 'Sold out';
+      document.querySelectorAll('button[onclick="addCurrentToCart()"], button[onclick="buyNowDirect()"]').forEach(b => {
+        b.disabled = true;
+        b.classList.add('opacity-50', 'cursor-not-allowed');
+      });
+    }
+
+    // Reviews from customers who received this item
+    function stars(n) {
+      const full = Math.round(n);
+      return `<span aria-hidden="true" class="text-[#E88C35] tracking-tight">${'★'.repeat(full)}<span class="text-stone-300">${'★'.repeat(5 - full)}</span></span>`;
+    }
+    function renderRatingSummary(average, count) {
+      document.getElementById('ratingSummary').innerHTML = count
+        ? `${stars(average)} <span>${Number(average).toFixed(1)}</span> <span class="font-normal text-stone-600">(${count} review${count === 1 ? '' : 's'})</span>`
+        : 'No reviews yet';
+    }
+    async function loadReviews() {
+      const body = document.getElementById('reviewsBody');
+      if (!PSA.online) {
+        body.textContent = 'Reviews show here when the shop is online.';
+        return;
+      }
+      try {
+        const data = await psaApi('GET', `/api/products/${encodeURIComponent(selectedProduct.id)}/reviews`);
+        renderRatingSummary(data.average, data.count);
+        body.innerHTML = data.count ? `
+          <p class="text-lg font-black text-[#2B1D1D]">${stars(data.average)} ${Number(data.average).toFixed(1)} out of 5 <span class="text-base font-semibold text-stone-600">from ${data.count} customer${data.count === 1 ? '' : 's'}</span></p>
+          <ul class="mt-4 space-y-4">
+            ${data.reviews.map(r => `
+              <li class="border-t border-[#EFE4D6] pt-4">
+                <div class="flex flex-wrap items-center gap-2 text-sm"><span class="text-base">${stars(r.rating)}</span><span class="font-black text-[#2B1D1D]">${psaEsc(r.author)}</span><span class="text-stone-600">${psaEsc(r.date || '')}</span><span class="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">Bought this</span></div>
+                ${r.comment ? `<p class="mt-1.5 text-base text-[#2B1D1D] whitespace-pre-line">${psaEsc(r.comment)}</p>` : ''}
+              </li>`).join('')}
+          </ul>` : '<p>No reviews yet. Customers can review this item from their order page once it is delivered.</p>';
+      } catch (err) {
+        body.textContent = 'Reviews could not be loaded right now.';
+      }
+    }
+    loadReviews();
     document.getElementById('productKhmerTitle').textContent = selectedProduct.titleKhmer;
     document.getElementById('productDescription').textContent = selectedProduct.description;
     document.getElementById('productPriceUSD').textContent = `$${selectedProduct.priceUSD.toFixed(2)}`;

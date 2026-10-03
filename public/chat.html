@@ -169,7 +169,7 @@
         <div class="px-4 py-2 bg-amber-50 dark:bg-amber-950/30 border-b border-amber-200 dark:border-amber-900/40 text-xs text-amber-900 dark:text-amber-200 flex items-center justify-between gap-3">
           <div class="flex items-center gap-1.5 font-medium">
             <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span>Demo chat &mdash; replies are automatic. For real help, contact us on Telegram.</span>
+            <span id="assistantNote">Replies come from our AI assistant and can make mistakes. For a person, message us on Telegram.</span>
           </div>
           <a href="https://t.me/psaonline_support" target="_blank" rel="noopener noreferrer" class="font-bold text-[#FFA552] hover:underline shrink-0 text-[11px]">Telegram &rarr;</a>
         </div>
@@ -490,7 +490,7 @@
           return `
             <div class="flex items-end justify-end gap-2 group">
               <div class="text-right max-w-md sm:max-w-lg">
-                <div class="p-3 sm:p-3.5 rounded-2xl rounded-tr-xs bg-[#FFA552] text-white text-xs leading-relaxed shadow-xs break-words">
+                <div class="p-3 sm:p-3.5 rounded-2xl rounded-tr-xs bg-[#FFA552] text-stone-900 text-sm whitespace-pre-line leading-relaxed shadow-xs break-words">
                   ${escapeHtml(msg.text)}
                 </div>
                 <div class="flex items-center justify-end gap-1 mt-1 text-[10px] text-stone-400">
@@ -510,8 +510,8 @@
                 ${ch.avatarLetter}
               </div>
               <div>
-                <div class="p-3 sm:p-3.5 rounded-2xl rounded-tl-xs bg-[#F9F3EA] dark:bg-[#20202C] text-[#2B1D1D] dark:text-stone-100 text-xs leading-relaxed shadow-2xs border border-[#EFE4D6]/50 dark:border-[#2C2C3A] break-words">
-                  ${escapeHtml(msg.text)}
+                <div class="p-3 sm:p-3.5 rounded-2xl rounded-tl-xs bg-[#F9F3EA] dark:bg-[#20202C] text-[#2B1D1D] dark:text-stone-100 text-sm leading-relaxed whitespace-pre-line shadow-2xs border border-[#EFE4D6]/50 dark:border-[#2C2C3A] break-words">
+                  ${linkify(escapeHtml(msg.text))}
                 </div>
                 <span class="text-[10px] text-stone-400 mt-1 block ml-1">${msg.time}</span>
               </div>
@@ -592,91 +592,108 @@
       renderActiveThread();
       renderConversations();
 
-      // If backend API is active, send to real server
-      if (PSA.online) {
-        try {
-          await psaApi('POST', '/api/chat/messages', {
-            conversation_id: currentChannelId,
-            message: messageText
-          });
-        } catch (apiErr) {
-          console.warn('Backend message sync error (fallback active)', apiErr);
-        }
-      }
-
       // Restore button
       psaSetButtonLoading(btn, false);
       input.focus();
 
-      // Trigger automatic smart assistant reply simulation
       triggerAgentReply(messageText);
     }
 
-    function triggerAgentReply(userText) {
+    // Once the server says the AI isn't set up (no GEMINI_API_KEY), stop asking and use the built-in replies.
+    let assistantUnavailable = false;
+
+    // Ask the Gemini assistant (through our server, which holds the key). Falls back to the built-in replies.
+    async function askAssistant(channelId) {
+      if (!PSA.online || assistantUnavailable) return null;
+      const history = (chatThreads[channelId] || [])
+        .filter(m => m.text && !m.isWelcome)
+        .slice(-12)
+        .map(m => ({ role: m.isMe ? 'user' : 'assistant', text: String(m.text).slice(0, 1500) }));
+      while (history.length && history[0].role !== 'user') history.shift();
+      if (!history.length) return null;
+      try {
+        const { reply } = await psaApi('POST', '/api/chat/assistant', { messages: history });
+        return { text: reply, ai: true };
+      } catch (err) {
+        if (err.status === 503) {
+          assistantUnavailable = true;
+          const note = document.getElementById('assistantNote');
+          if (note) note.textContent = 'Automatic replies (the AI assistant is not set up yet). For real help, message us on Telegram.';
+          return null;
+        }
+        return { text: err.message, ai: false, error: true };
+      }
+    }
+
+    async function triggerAgentReply(userText) {
       const typingEl = document.getElementById('typingIndicator');
+      const channelId = currentChannelId;
       typingEl.classList.remove('hidden');
       typingEl.classList.add('flex');
       scrollToBottom();
 
-      const delay = 800 + Math.random() * 800;
+      const started = Date.now();
+      const answer = await askAssistant(channelId);
+      // Keep the typing dots up briefly so instant answers don't feel jumpy
+      const wait = Math.max(0, 600 - (Date.now() - started));
+      await new Promise(r => setTimeout(r, wait));
 
-      setTimeout(() => {
-        typingEl.classList.add('hidden');
-        typingEl.classList.remove('flex');
+      typingEl.classList.add('hidden');
+      typingEl.classList.remove('flex');
 
-        const replyText = generateBotReply(userText, currentChannelId);
-        const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const replyText = answer ? answer.text : generateBotReply(userText, channelId);
+      const replyMsg = {
+        id: 'reply-' + Date.now(),
+        sender: answer && answer.ai ? 'PsaOnline AI Assistant' : 'PsaOnline Bot (Automated)',
+        isMe: false,
+        text: replyText,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
 
-        const replyMsg = {
-          id: 'reply-' + Date.now(),
-          sender: 'PsaOnline Bot (Automated)',
-          isMe: false,
-          text: replyText,
-          time: nowTime
-        };
+      chatThreads[channelId].push(replyMsg);
+      saveThreads();
+      renderActiveThread();
+      renderConversations();
+    }
 
-        chatThreads[currentChannelId].push(replyMsg);
-        saveThreads();
-        renderActiveThread();
-        renderConversations();
-      }, delay);
+    // Turn product links and web addresses in replies into real links (text is escaped first).
+    function linkify(escaped) {
+      return escaped
+        .replace(/(https?:\/\/[^\s<]+[^\s<.,!?)])/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="underline font-bold">$1</a>')
+        .replace(/(^|[\s(])(product-detail\.html\?id=[\w-]+)/g, '$1<a href="$2" class="underline font-bold">View product</a>')
+        .replace(/(^|[\s(])(products\.html(?:\?[\w=&;%-]+)?)/g, '$1<a href="$2" class="underline font-bold">Browse the shop</a>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
     }
 
     function generateBotReply(query, channelId) {
       const q = query.toLowerCase();
 
-      // Bakong KHQR & Payment queries
-      if (q.includes('khqr') || q.includes('bakong') || q.includes('pay') || q.includes('qr') || q.includes('aba') || q.includes('transfer')) {
-        return 'For Bakong KHQR payments: Simply scan the universal KHQR code on the checkout page using your ABA Mobile, ACLEDA, or any Bakong member app. You can pay in either USD or KHR (exchange fixed at $1 = 4,100 KHR). Once paid, upload your payment slip screenshot and our team will verify it!';
+      // Payment
+      if (/khqr|bakong|pay|qr|aba|acleda|wing|transfer|slip|cash|cod/.test(q)) {
+        return 'After you place an order, the payment page shows our QR code and account details. Scan it with any Cambodian banking app (ABA, ACLEDA, Wing and others), then upload your transfer slip and we check it. Prefer cash? Choose Cash on Delivery at checkout and pay the courier. Prices are fixed at $1 = 4,100 ៛.';
       }
 
-      // Delivery & Shipping queries
-      if (q.includes('deliver') || q.includes('ship') || q.includes('phnom penh') || q.includes('fee') || q.includes('courier') || q.includes('time') || q.includes('daun penh') || q.includes('bkk')) {
-        return 'We deliver across Phnom Penh within 1-2 hours! Standard express city delivery is $1.00 (4,100 KHR), and all orders over $15.00 receive FREE express delivery. You can also pin your exact gate on our map at checkout.';
+      // Delivery
+      if (/deliver|ship|phnom penh|fee|courier|rider|when/.test(q)) {
+        return 'We deliver within Phnom Penh. Delivery is $1.50, and free on orders of $15 (61,500 ៛) or more. For a specific time, ask from your order page under "Messages with the shop".';
       }
 
-      // Order status queries
-      if (q.includes('order') || q.includes('tracking') || q.includes('status') || q.includes('package') || q.includes('where')) {
-        return 'To track your order status in real time, head to your Buyer Dashboard or the Orders tab! Your order status will update from "Payment Submitted" to "Verified", "Dispatched", and "Completed". If you have an order number (e.g. PSA-XXXXX), feel free to check there or reach out to us on Telegram.';
+      // Order status
+      if (/order|track|status|package|where|psa-/.test(q)) {
+        return 'Open My account, then tap your order to see where it is: payment, preparing, out for delivery, delivered. You can also message the shop about that order from the same page.';
       }
 
-      // Jewelry materials & sizing
-      if (q.includes('silver') || q.includes('chrome') || q.includes('water') || q.includes('tarnish') || q.includes('rust') || q.includes('size') || q.includes('chain') || q.includes('necklace') || q.includes('ring')) {
-        return 'Our cyber Y2K chains, pendants, and rings are crafted with high-grade 316L stainless steel, titanium, and rhodium plating. They are waterproof, sweat-proof, and hypoallergenic. Sizing guides for rings (US 6-11) are detailed on each product drop page!';
+      // Gift ideas
+      if (/gift|present|birthday|cute|friend|girlfriend|boyfriend|budget|cheap|under/.test(q)) {
+        return 'For gifts, try the Gift ideas or Under $10 picks on our home page, or browse charms and gift sets in the shop: products.html?max=10';
       }
 
-      // Sunglasses / Shades
-      if (q.includes('shade') || q.includes('glass') || q.includes('uv') || q.includes('lens') || q.includes('frame')) {
-        return 'All PsaOnline shades feature certified UV400 lenses that block 100% of UVA & UVB radiation. Every pair includes a protective microfiber pouch and polishing cloth.';
+      // Returns
+      if (/return|exchange|refund|broken|damaged|wrong/.test(q)) {
+        return 'Sorry about that! Please message us on Telegram (https://t.me/psaonline_support) or from your order page with your order number and a photo, and we will sort it out with you.';
       }
 
-      // Returns & Exchanges
-      if (q.includes('return') || q.includes('exchange') || q.includes('refund') || q.includes('broken')) {
-        return 'We offer a hassle-free 48-hour exchange window in Phnom Penh if an accessory arrives damaged or does not fit. For real assistance, contact us on Telegram with your order number and photo.';
-      }
-
-      // General fallback (explicitly automatic)
-      return 'This is an automated demo reply. For real-time help from our team with orders, sizing, or inquiries, please contact us on Telegram.';
+      return "I'm the automatic helper, so I can only answer basics about paying, delivery and orders. For anything else, message our team on Telegram: https://t.me/psaonline_support";
     }
 
     function handleHeaderBack() {

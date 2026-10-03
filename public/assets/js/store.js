@@ -52,6 +52,8 @@ async function psaApi(method, url, body) {
     err.errors = data && data.errors ? data.errors : null;
     throw err;
   }
+  // Signing in/out starts a new session with a new CSRF token; keep using the fresh one.
+  if (data && typeof data.csrf === 'string') PSA.csrf = data.csrf;
   return data;
 }
 
@@ -440,8 +442,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 9,
     "priceKHR": 36900,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 126,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Trending ⚡",
     "status": "active",
     "image": "/assets/images/products/oversized-retro-fan-graphic-tee.jpg",
@@ -465,8 +467,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 10,
     "priceKHR": 41000,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 98,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Art Club 🎨",
     "status": "active",
     "image": "/assets/images/products/starry-night-art-print-oversized-tee.jpg",
@@ -490,8 +492,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 9.5,
     "priceKHR": 38950,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 152,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Matcha Core 🍵",
     "status": "active",
     "image": "/assets/images/products/matcha-girl-washed-green-oversized-tee.jpg",
@@ -515,8 +517,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 8,
     "priceKHR": 32800,
     "inStock": true,
-    "rating": 4.7,
-    "reviewsCount": 74,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Self-Care 💗",
     "status": "active",
     "image": "/assets/images/products/pink-hair-care-essentials-set.jpg",
@@ -540,8 +542,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 14,
     "priceKHR": 57400,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 205,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Gift Idea 🎁",
     "status": "active",
     "image": "/assets/images/products/rainbow-body-mist-gift-set-6-pcs.jpg",
@@ -565,8 +567,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 5.5,
     "priceKHR": 22550,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 167,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Coquette 🎀",
     "status": "active",
     "image": "/assets/images/products/pink-cherry-scrunchie-and-flower-clip-set.jpg",
@@ -590,8 +592,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 6,
     "priceKHR": 24600,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 184,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Best Value",
     "status": "active",
     "image": "/assets/images/products/floral-flower-claw-clip-set-5-pcs.jpg",
@@ -615,8 +617,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 2.5,
     "priceKHR": 10250,
     "inStock": true,
-    "rating": 4.7,
-    "reviewsCount": 243,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Hot Pick 🔥",
     "status": "active",
     "image": "/assets/images/products/pink-plumeria-flower-claw-clip.jpg",
@@ -640,8 +642,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 5.5,
     "priceKHR": 22550,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 91,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Cute Find",
     "status": "active",
     "image": "/assets/images/products/floral-quilted-mini-zip-pouch-with-keyring.jpg",
@@ -665,8 +667,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 6,
     "priceKHR": 24600,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 133,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Girly Pick 🎀",
     "status": "active",
     "image": "/assets/images/products/pink-bow-print-phone-case.jpg",
@@ -690,8 +692,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 28,
     "priceKHR": 114800,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 57,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Premium ✨",
     "status": "active",
     "image": "/assets/images/products/rose-gold-green-dial-chronograph-watch.jpg",
@@ -715,8 +717,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 26,
     "priceKHR": 106600,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 64,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Classic",
     "status": "active",
     "image": "/assets/images/products/two-tone-chronograph-bracelet-watch.jpg",
@@ -740,8 +742,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 22,
     "priceKHR": 90200,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 88,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Timeless",
     "status": "active",
     "image": "/assets/images/products/classic-silver-link-bracelet-watch.jpg",
@@ -765,8 +767,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 25,
     "priceKHR": 102500,
     "inStock": true,
-    "rating": 4.7,
-    "reviewsCount": 72,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Men's Pick",
     "status": "active",
     "image": "/assets/images/products/brown-leather-strap-chronograph-watch.jpg",
@@ -790,8 +792,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 14,
     "priceKHR": 57400,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 110,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Fresh Drop",
     "status": "active",
     "image": "/assets/images/products/sage-green-oxford-button-down-shirt.jpg",
@@ -815,8 +817,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 14,
     "priceKHR": 57400,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 95,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Smart Casual",
     "status": "active",
     "image": "/assets/images/products/blue-striped-slim-fit-button-down-shirt.jpg",
@@ -840,8 +842,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 16,
     "priceKHR": 65600,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 81,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Old Money",
     "status": "active",
     "image": "/assets/images/products/ribbed-knit-contrast-collar-polo.jpg",
@@ -865,8 +867,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 15,
     "priceKHR": 61500,
     "inStock": true,
-    "rating": 4.7,
-    "reviewsCount": 69,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Streetwear",
     "status": "active",
     "image": "/assets/images/products/olive-plaid-relaxed-overshirt.jpg",
@@ -890,8 +892,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 15,
     "priceKHR": 61500,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 77,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Gen-Z Fit",
     "status": "active",
     "image": "/assets/images/products/grey-check-oversized-long-sleeve-shirt.jpg",
@@ -915,8 +917,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 5,
     "priceKHR": 20500,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 139,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Cottagecore 🌼",
     "status": "active",
     "image": "/assets/images/products/gingham-and-lace-scrunchie-set-4-pcs.jpg",
@@ -940,8 +942,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 9,
     "priceKHR": 36900,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 118,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Handmade 🍓",
     "status": "active",
     "image": "/assets/images/products/strawberry-beaded-charm-watch-bracelet.jpg",
@@ -965,8 +967,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 4.5,
     "priceKHR": 18450,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 102,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Kawaii 🍓",
     "status": "active",
     "image": "/assets/images/products/strawberry-bow-beaded-bag-charm.jpg",
@@ -990,8 +992,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 5.5,
     "priceKHR": 22550,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 214,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Bestseller",
     "status": "active",
     "image": "/assets/images/products/white-floppy-ear-plush-bag-charm.jpg",
@@ -1015,8 +1017,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 6,
     "priceKHR": 24600,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 190,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Viral 🐰",
     "status": "active",
     "image": "/assets/images/products/kawaii-bunny-plush-bag-charm-duo.jpg",
@@ -1040,8 +1042,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 22,
     "priceKHR": 90200,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 46,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Gift Idea 🎁",
     "status": "active",
     "image": "/assets/images/products/plush-bunny-blue-rose-bouquet-gift-set.jpg",
@@ -1065,8 +1067,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 11,
     "priceKHR": 45100,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 66,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Vintage Vibes",
     "status": "active",
     "image": "/assets/images/products/vintage-floral-ribbon-newsboy-cap.jpg",
@@ -1090,8 +1092,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 4,
     "priceKHR": 16400,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 175,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Coquette 🎀",
     "status": "active",
     "image": "/assets/images/products/embroidered-bow-crew-socks-2-pairs.jpg",
@@ -1115,8 +1117,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 8,
     "priceKHR": 32800,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 138,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Fun Pick",
     "status": "active",
     "image": "/assets/images/products/cartoon-face-crew-socks-set-5-pairs.jpg",
@@ -1140,8 +1142,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 24,
     "priceKHR": 98400,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 121,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Y2K Classic",
     "status": "active",
     "image": "/assets/images/products/glossy-brown-leather-shoulder-bag.jpg",
@@ -1165,8 +1167,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 20,
     "priceKHR": 82000,
     "inStock": true,
-    "rating": 4.8,
-    "reviewsCount": 93,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Trending ⚡",
     "status": "active",
     "image": "/assets/images/products/mini-vintage-brown-crossbody-bag.jpg",
@@ -1190,8 +1192,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 26,
     "priceKHR": 106600,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 84,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Cottagecore 🌼",
     "status": "active",
     "image": "/assets/images/products/brown-leather-shoulder-bag-with-lace-ribbon.jpg",
@@ -1215,8 +1217,8 @@ const ACCESSORIES_PRODUCTS = [
     "priceUSD": 4.5,
     "priceKHR": 18450,
     "inStock": true,
-    "rating": 4.9,
-    "reviewsCount": 160,
+    "rating": 0,
+    "reviewsCount": 0,
     "badge": "Gen-Z Pick",
     "status": "active",
     "image": "/assets/images/products/beaded-bow-phone-charm-strap.jpg",
@@ -1297,9 +1299,15 @@ function addToCart(productId, qty = 1) {
   showToastNotification(product, qty);
 }
 
-function removeFromCart(productId) {
+// Asks before taking an item out of the bag (Remove button, or lowering the quantity below 1).
+function removeFromCart(productId, { confirmFirst = true } = {}) {
   let cart = getCart();
-  cart = cart.filter(item => item.id !== productId);
+  const item = cart.find(i => i.id === productId);
+  if (confirmFirst && item && !confirm(`Remove "${item.title || 'this item'}" from your bag?`)) {
+    if (typeof renderCartPage === 'function') renderCartPage();
+    return false;
+  }
+  cart = cart.filter(i => i.id !== productId);
   saveCart(cart);
   if (typeof renderCartPage === 'function') {
     renderCartPage();
@@ -1665,16 +1673,15 @@ function openQuickView(productId, event) {
                 ${product.titleKhmer}
               </p>
             </div>
-
-            <!-- Ratings -->
+            ${product.reviewsCount > 0 ? `<!-- Ratings -->
             <div class="flex items-center gap-2 text-xs">
               <div class="flex items-center text-amber-500 font-black">
-                <span>★ ★ ★ ★ ★</span>
-                <span class="ml-1 text-[#2B1D1D] dark:text-white font-bold">${product.rating}</span>
+                <span>★</span>
+                <span class="ml-1 text-[#2B1D1D] dark:text-white font-bold">${Number(product.rating).toFixed(1)}</span>
               </div>
               <span class="text-stone-300 dark:text-stone-600">&bull;</span>
-              <span class="text-stone-500 dark:text-stone-300 font-semibold">${product.reviewsCount} verified reviews</span>
-            </div>
+              <span class="text-stone-500 dark:text-stone-300 font-semibold">${product.reviewsCount} ${product.reviewsCount === 1 ? 'review' : 'reviews'} from customers</span>
+            </div>` : `<div class="text-xs font-semibold text-stone-500">No reviews yet</div>`}
 
             <!-- Pricing Box -->
             <div class="p-3 bg-[#FDFBF7] dark:bg-[#16161D] rounded-2xl border border-[#EFE4D6] dark:border-[#2D2D38] flex items-baseline justify-between">
@@ -1739,7 +1746,7 @@ function openQuickView(productId, event) {
                 type="button"
                 data-wishlist-id="${product.id}"
                 onclick="toggleWishlist('${product.id}', event)"
-                class="wishlist-btn p-3 rounded-xl border border-[#EFE4D6] dark:border-[#32323D] bg-[#FDFBF7] dark:bg-[#16161D] hover:bg-rose-50 dark:hover:bg-rose-950/40 text-stone-400 hover:text-rose-500 transition-all flex items-center justify-center shadow-xs cursor-pointer ${isInWishlist(product.id) ? 'active-wishlist text-rose-500' : ''}"
+                class="wishlist-btn p-3 rounded-xl border border-[#EFE4D6] dark:border-[#32323D] bg-[#FDFBF7] dark:bg-[#16161D] hover:bg-rose-50 dark:hover:bg-rose-950/40 text-[#4A3333] hover:text-rose-600 transition-all flex items-center justify-center shadow-xs cursor-pointer ${isInWishlist(product.id) ? 'active-wishlist text-rose-500' : ''}"
                 title="${isInWishlist(product.id) ? 'Remove from Wishlist' : 'Save to Wishlist'}"
                 aria-label="Save to Wishlist"
               >
@@ -2171,7 +2178,7 @@ function showWishlistToast(productTitle, isAdded) {
 
   toast.innerHTML = `
     <div class="bg-white dark:bg-[#1E1E26] border-2 ${isAdded ? 'border-rose-400 shadow-[0_10px_25px_-5px_rgba(244,63,94,0.35)]' : 'border-[#EFE4D6] dark:border-[#32323D]'} rounded-2xl p-3.5 max-w-sm flex items-center gap-3 pointer-events-auto">
-      <div class="w-10 h-10 rounded-xl ${isAdded ? 'bg-rose-50 text-rose-500 dark:bg-rose-950/60 dark:text-rose-400' : 'bg-stone-100 text-stone-500 dark:bg-stone-800 dark:text-stone-400'} flex items-center justify-center shrink-0">
+      <div class="w-10 h-10 rounded-xl ${isAdded ? 'bg-rose-50 text-rose-500 dark:bg-rose-950/60 dark:text-rose-400' : 'bg-[#F9F3EA] text-[#4A3333] dark:bg-stone-800 dark:text-stone-400'} flex items-center justify-center shrink-0">
         <svg class="w-5 h-5 ${isAdded ? 'animate-bounce' : ''}" fill="${isAdded ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
       </div>
       <div class="flex-1 min-w-0 text-xs">
@@ -2350,7 +2357,7 @@ function renderWishlistDrawer() {
                   <button
                     type="button"
                     onclick="removeWishlistItem('${item.id}', event)"
-                    class="p-2 rounded-xl bg-white dark:bg-[#20202A] hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-[#EFE4D6] dark:border-[#32323D] text-stone-400 hover:text-rose-500 transition-all cursor-pointer"
+                    class="p-2 rounded-xl bg-white dark:bg-[#20202A] hover:bg-rose-50 dark:hover:bg-rose-950/40 border border-[#EFE4D6] dark:border-[#32323D] text-[#4A3333] hover:text-rose-600 transition-all cursor-pointer"
                     title="Remove from Wishlist"
                   >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>

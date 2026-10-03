@@ -89,6 +89,7 @@ class Storefront
             'role' => $role,
             'avatar' => self::initials($u->name),
             'avatarUrl' => $u->avatar,
+            'bannerUrl' => $u->banner,
             'address' => $u->address,
             'status' => $u->status ?: 'Active',
             'created' => optional($u->created_at)->format('d M Y'),
@@ -128,13 +129,27 @@ class Storefront
             'totalUSD' => number_format((float) $o->total_usd, 2, '.', ''),
             'totalKHR' => number_format((int) $o->total_khr),
             'status' => self::statusLabel($o),
-            'paymentMethod' => self::PAYMENT_LABELS[$o->payment_method] ?? $o->payment_method,
+            'paymentMethod' => self::paymentName($o->payment_method),
             'paymentCode' => $o->payment_method,
             'paymentStatus' => $o->payment_status,
             'orderStatus' => $o->order_status,
             'slipUploaded' => (bool) $o->payment_slip_url,
             'slipImage' => $o->payment_slip_url,
+            'reviewed' => (bool) ($o->reviews_count ?? $o->reviews()->exists()),
+            'messageCount' => (int) ($o->messages_count ?? $o->messages()->count()),
         ];
+    }
+
+    /** Display name for a payment code: built-in label, else the admin-created method's name. */
+    public static function paymentName(?string $code): ?string
+    {
+        static $names = null;
+        if (isset(self::PAYMENT_LABELS[$code])) {
+            return self::PAYMENT_LABELS[$code];
+        }
+        $names ??= PaymentMethod::pluck('name', 'code')->all();
+
+        return $names[$code] ?? $code;
     }
 
     public static function paymentMethod(PaymentMethod $m): array
@@ -179,11 +194,11 @@ class Storefront
         return mb_strtoupper($first.$last) ?: '?';
     }
 
-    /** Validation rule: an uploaded image (data URL) or an http(s) link. */
+    /** Validation rule: an uploaded image (data URL), an http(s) link, or one of the site's own images (/assets/...). */
     public static function imageRule(): \Closure
     {
         return function (string $attribute, mixed $value, \Closure $fail) {
-            if ($value !== null && ! preg_match('#^(data:image/(png|jpe?g|gif|webp);base64,|https?://)#i', $value)) {
+            if ($value !== null && ! preg_match('#^(data:image/(png|jpe?g|gif|webp);base64,|https?://|/assets/[\w./-]+$)#i', $value)) {
                 $fail('The image must be an uploaded picture or an http(s) link.');
             }
         };

@@ -1,135 +1,266 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Admin Review Payment: Order #PSA-902184 — PsaOnline</title>
-  <meta name="description" content="Admin order payment slip verification for PsaOnline." />
+  <title>Order | PsaOnline Staff</title>
+  <meta name="description" content="Staff view of one order: payment slip, status actions and messages with the customer." />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { sorbet: '#FFA552', 'sorbet-ink': '#A3520F', cotton: '#F9F3EA', espresso: '#2B1D1D' } } }
+    };
+  </script>
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-<body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+<body class="bg-stone-50 dark:bg-[#121215] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased">
 
-  <!-- Header -->
-  <header class="bg-[#FDFBF7] border-b border-[#EFE4D6] sticky top-0 z-40 transition-all duration-300">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
-      <a href="dashboard-admin.html" class="flex items-center gap-2.5 sm:gap-3 group">
-        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-[#2B1D1D] via-[#3D2929] to-[#FFA552] flex items-center justify-center text-white font-black text-base shadow-xs group-hover:scale-105 transition-transform duration-300 border border-[#FFA552]/40">
-          P
-        </div>
-        <div class="flex flex-col">
-          <span class="text-base sm:text-lg font-black text-[#2B1D1D] leading-none">Psa<span class="text-[#FFA552]">Online</span></span>
-          <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">Admin Slip Review</span>
-        </div>
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#16161C]/95 backdrop-blur border-b border-stone-200 dark:border-[#272732]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <a href="dashboard-admin.html" class="flex items-center gap-2" aria-label="Staff dashboard">
+        <img src="assets/images/psa-accessories-online-logo.svg" alt="" class="h-9 w-auto" />
+        <span class="text-lg font-black text-[#2B1D1D]">Psa<span class="text-sorbet-ink dark:text-sorbet">Online</span> <span class="text-sm font-bold text-stone-500">Staff</span></span>
       </a>
-
-      <div class="flex items-center gap-2 sm:gap-3 text-xs">
-        <a href="admin-orders.html" class="px-3.5 py-1.5 rounded-full bg-white hover:bg-[#F9F3EA] border border-[#EFE4D6] text-[#2B1D1D] font-bold transition flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-          <span>Back to Orders</span>
-        </a>
-        <a href="dashboard-admin.html" class="hidden sm:inline-flex px-3.5 py-1.5 rounded-full bg-white hover:bg-[#F9F3EA] border border-[#EFE4D6] text-[#FFA552] font-bold transition">
-          Exit to Report
-        </a>
-        <a href="login.html?logout=1" class="px-3 py-1.5 rounded-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold transition">
-          Log Out
-        </a>
-      </div>
+      <a href="admin-orders.html" class="h-11 px-4 inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-[#32323D] bg-white dark:bg-[#1E1E26] text-sm font-bold text-[#2B1D1D] hover:bg-stone-100">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        All orders
+      </a>
     </div>
   </header>
 
-  <!-- Main Container -->
-  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-1 w-full space-y-6">
-
-    <!-- Top Alert -->
-    <div class="reveal-init bg-white p-6 sm:p-8 rounded-3xl border border-[#EFE4D6] shadow-sm space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F9F3EA] pb-4">
-        <div>
-          <div class="flex items-center gap-2.5 flex-wrap">
-            <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D]">Order #PSA-902184</h1>
-            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-              Payment Slip Uploaded &bull; Needs Verification
-            </span>
-          </div>
-          <p class="text-xs text-stone-500 mt-1">Submitted by Sophea Chhum (012 345 678) &bull; Bakong KHQR</p>
-        </div>
-
-        <div class="text-right">
-          <div class="text-2xl font-black text-[#2B1D1D]">$18.50</div>
-          <div class="text-xs text-[#FFA552] font-black khmer-font">75,850 ៛ (KHR)</div>
-        </div>
-      </div>
-
-      <!-- Slip Image & Comparison Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 items-start">
-        
-        <!-- Uploaded Slip Preview -->
-        <div class="space-y-3">
-          <div class="text-xs font-black text-[#2B1D1D] uppercase tracking-wider">Uploaded Screenshot</div>
-          <div class="aspect-[3/4] bg-white border-2 border-[#EFE4D6] rounded-2xl overflow-hidden p-2 flex items-center justify-center">
-            <img
-              src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80"
-              alt="Bank Transfer Slip"
-              class="w-full h-full object-cover rounded-xl"
-            />
-          </div>
-          <div class="text-[11px] text-stone-500">
-            Transaction Ref: <strong>FT2409301829381</strong> &bull; Match: 100%
-          </div>
-        </div>
-
-        <!-- Order Verification Actions -->
-        <div class="space-y-4">
-          <div class="text-xs font-black text-[#2B1D1D] uppercase tracking-wider">Verification Controls</div>
-          <div class="p-4 rounded-2xl bg-[#F9F3EA] border border-[#EFE4D6] space-y-2 text-xs">
-            <div class="flex justify-between"><span class="text-stone-500">Merchant Account:</span> <span class="font-bold text-[#2B1D1D]">psaonline@aclb</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Account Name:</span> <span class="font-bold text-[#2B1D1D]">PSA ONLINE ACCESSORIES</span></div>
-            <div class="flex justify-between"><span class="text-stone-500">Amount Received:</span> <span class="font-black text-[#FFA552]">$18.50 (75,850 ៛)</span></div>
-          </div>
-
-          <div class="space-y-2.5 pt-2">
-            <button
-              onclick="verifyOrder()"
-              class="btn-press w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition-all flex items-center justify-center gap-2"
-            >
-              <span>✓ Approve & Assign Courier</span>
-            </button>
-            <button
-              onclick="history.back()"
-              class="w-full py-2.5 rounded-2xl border border-red-300 text-red-600 hover:bg-red-50 text-xs font-bold transition"
-            >
-              Reject Slip (Invalid Amount or Image)
-            </button>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-
+  <main id="staffOrder" class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-5" aria-live="polite">
+    <p class="text-sm text-stone-600">Loading order…</p>
   </main>
 
-  <!-- Admin Portal Footer -->
-  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-xs text-stone-500 dark:text-stone-400 no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline Operations Portal &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
+  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-sm text-stone-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>&copy; 2026 PsaOnline Operations Portal</div>
+      <div class="flex items-center gap-5">
+        <a href="about.html" class="py-2 hover:text-sorbet-ink">About us</a>
+        <a href="privacy.html" class="py-2 hover:text-sorbet-ink">Privacy</a>
+        <a href="terms.html" class="py-2 hover:text-sorbet-ink">Terms</a>
       </div>
     </div>
   </footer>
 
   <script src="assets/js/store.js"></script>
+  <script src="assets/js/rbac.js"></script>
   <script>
-    function verifyOrder() {
-      alert("Payment verified successfully! Rider assigned for Phnom Penh delivery.");
-      window.location.href = "admin-orders.html";
+    const orderId = new URLSearchParams(window.location.search).get('order') || '';
+    const page = document.getElementById('staffOrder');
+    const card = 'rounded-2xl bg-white dark:bg-[#1A1A22] border border-stone-200 dark:border-[#2D2D38] p-5';
+    let order = null;
+    let messagesTimer = null;
+
+    const money = usd => `$${Number(usd || 0).toFixed(2)}`;
+    const isAdmin = () => PSA.user && PSA.user.role === 'Admin';
+
+    function statusTone(o) {
+      if (o.orderStatus === 'cancelled' || o.paymentStatus === 'failed') return 'bg-rose-50 text-rose-800 border-rose-200';
+      if (o.orderStatus === 'delivered') return 'bg-emerald-50 text-emerald-800 border-emerald-200';
+      if (o.orderStatus === 'out_for_delivery') return 'bg-sky-50 text-sky-800 border-sky-200';
+      if (o.orderStatus === 'processing') return 'bg-violet-50 text-violet-800 border-violet-200';
+      return 'bg-amber-50 text-amber-800 border-amber-200';
     }
+
+    // The next steps a staff member can take from where the order is now (the server enforces the same rules).
+    function availableActions(o) {
+      if (o.orderStatus === 'cancelled') return [];
+      const list = [];
+      const cod = o.paymentCode === 'cod';
+      if (o.orderStatus === 'pending_payment') {
+        if (cod) list.push({ action: 'verify', label: 'Confirm order', tone: 'primary', help: 'Cash on delivery: start preparing it.' });
+        else {
+          list.push({ action: 'verify', label: o.slipUploaded ? 'Approve payment' : 'Mark as paid', tone: 'primary', help: o.slipUploaded ? 'The slip matches the amount.' : 'Only if you received the money another way.' });
+          if (o.slipUploaded && o.paymentStatus !== 'failed') list.push({ action: 'reject', label: 'Reject slip', tone: 'warn', help: 'The customer is asked to upload a new one.' });
+        }
+      }
+      if (o.orderStatus === 'processing') list.push({ action: 'dispatch', label: 'Mark out for delivery', tone: 'primary', help: 'Handed to the courier.' });
+      if (o.orderStatus === 'out_for_delivery') list.push({ action: 'deliver', label: 'Mark delivered', tone: 'primary', help: cod ? 'Cash collected and parcel handed over.' : 'Parcel handed over.' });
+      if (isAdmin() && o.orderStatus !== 'delivered') list.push({ action: 'cancel', label: 'Cancel order', tone: 'danger', help: 'Puts the items back in stock.' });
+      return list;
+    }
+
+    function render() {
+      if (!order) {
+        page.innerHTML = `<section class="${card}"><h1 class="text-xl font-black">Order not found</h1><p class="mt-1 text-base text-stone-600">It may have been removed, or the link is wrong.</p><a href="admin-orders.html" class="mt-4 inline-flex h-11 px-5 items-center rounded-xl bg-espresso text-cotton font-bold">Back to orders</a></section>`;
+        return;
+      }
+      const items = Array.isArray(order.items) ? order.items : [];
+      const slip = typeof order.slipImage === 'string' && /^(data:image\/|https?:\/\/)/.test(order.slipImage) ? order.slipImage : null;
+      const actions = availableActions(order);
+      const toneClass = { primary: 'bg-espresso text-cotton hover:bg-black dark:bg-sorbet dark:text-espresso', warn: 'bg-amber-100 text-amber-900 hover:bg-amber-200', danger: 'bg-white text-rose-700 border border-rose-300 hover:bg-rose-50' };
+      const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((order.address || '') + ', Phnom Penh')}`;
+      const tel = String(order.phone || '').replace(/[^\d+]/g, '');
+
+      page.innerHTML = `
+        <section class="${card}">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h1 class="text-2xl font-black tracking-tight">Order ${psaEsc(order.id)}</h1>
+                <span class="inline-flex items-center rounded-lg border px-2.5 py-1 text-sm font-bold ${statusTone(order)}">${psaEsc(order.status)}</span>
+              </div>
+              <p class="mt-1 text-base text-stone-600">Placed ${psaEsc(order.date || '')} &middot; ${psaEsc(order.paymentMethod || '')}</p>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-black tabular-nums">${money(order.totalUSD)}</div>
+              <div class="text-sm font-semibold text-stone-600 tabular-nums">${psaEsc(order.totalKHR)} ៛</div>
+            </div>
+          </div>
+          ${actions.length ? `
+          <div class="mt-5 pt-5 border-t border-stone-200 dark:border-[#2D2D38] grid gap-3 sm:grid-cols-2 lg:grid-cols-4" id="actionBar">
+            ${actions.map(a => `
+              <div>
+                <button type="button" data-action="${a.action}" class="w-full h-12 px-4 rounded-xl font-black text-base cursor-pointer ${toneClass[a.tone]}">${a.label}</button>
+                <p class="mt-1 text-sm text-stone-600">${a.help}</p>
+              </div>`).join('')}
+          </div>` : ''}
+          <p id="actionError" class="hidden mt-3 text-sm font-bold text-rose-700" role="alert"></p>
+        </section>
+
+        <div class="grid gap-5 lg:grid-cols-3">
+          <section class="${card} lg:col-span-1" aria-labelledby="slipTitle">
+            <h2 id="slipTitle" class="text-lg font-black">Payment slip</h2>
+            ${order.paymentCode === 'cod' ? '<p class="mt-2 text-base text-stone-600">Cash on delivery, so there is no slip. Collect the total in cash.</p>'
+              : slip ? `<a href="${psaEsc(slip)}" target="_blank" rel="noopener" class="mt-3 block"><img src="${psaEsc(slip)}" alt="Customer's payment slip" class="w-full max-h-[28rem] object-contain rounded-xl border border-stone-200 bg-stone-50" /><span class="mt-2 inline-block text-sm font-bold text-sorbet-ink dark:text-sorbet underline">Open full size</span></a>
+                <p class="mt-2 text-sm text-stone-600">Check the amount is <strong class="text-[#2B1D1D]">${money(order.totalUSD)}</strong> (${psaEsc(order.totalKHR)} ៛) and the receiver is our account.</p>`
+              : order.slipUploaded ? '<p class="mt-2 text-base text-stone-600">The customer confirmed payment without attaching a picture. Check your bank app before approving.</p>'
+              : '<p class="mt-2 text-base text-stone-600">No slip yet. The customer has not paid or uploaded a screenshot.</p>'}
+          </section>
+
+          <section class="${card} lg:col-span-1" aria-labelledby="customerTitle">
+            <h2 id="customerTitle" class="text-lg font-black">Customer &amp; delivery</h2>
+            <p class="mt-2 text-base font-bold">${psaEsc(order.customerName || '')}</p>
+            <div class="mt-2 flex flex-wrap gap-2">
+              ${tel ? `<a href="tel:${psaEsc(tel)}" class="h-10 px-3 inline-flex items-center rounded-lg bg-stone-100 dark:bg-[#252530] text-sm font-bold text-[#2B1D1D]">Call ${psaEsc(order.phone)}</a>` : ''}
+              <a href="#messages" class="h-10 px-3 inline-flex items-center rounded-lg bg-stone-100 dark:bg-[#252530] text-sm font-bold text-[#2B1D1D]">Message</a>
+            </div>
+            <p class="mt-3 text-base text-stone-600 whitespace-pre-line">${psaEsc(order.address || '')}</p>
+            <a href="${mapHref}" target="_blank" rel="noopener noreferrer" class="mt-1 inline-block text-sm font-bold text-sorbet-ink dark:text-sorbet underline">Open in Google Maps</a>
+            ${order.notes ? `<p class="mt-3 text-sm text-stone-600"><span class="font-bold text-[#2B1D1D]">Customer note:</span> ${psaEsc(order.notes)}</p>` : ''}
+          </section>
+
+          <section class="${card} lg:col-span-1" aria-labelledby="itemsTitle">
+            <h2 id="itemsTitle" class="text-lg font-black">Items to pack</h2>
+            <ul class="mt-2 divide-y divide-stone-100 dark:divide-[#2D2D38]">
+              ${items.map(it => `
+                <li class="py-2.5 flex items-center gap-3">
+                  <img src="${psaEsc(it.image || '')}" alt="" class="w-12 h-12 rounded-lg object-cover bg-stone-100 shrink-0" />
+                  <div class="min-w-0 flex-1">
+                    <div class="text-sm font-bold leading-snug">${psaEsc(it.title)}</div>
+                    <div class="text-sm text-stone-600">${psaEsc(it.id || '')} &middot; Qty ${Number(it.quantity) || 1}</div>
+                  </div>
+                  <div class="text-sm font-black tabular-nums">${money(Number(it.priceUSD) * Number(it.quantity))}</div>
+                </li>`).join('')}
+            </ul>
+            <dl class="mt-2 pt-2 border-t border-stone-200 dark:border-[#2D2D38] text-sm space-y-1">
+              <div class="flex justify-between"><dt class="text-stone-600">Subtotal</dt><dd class="font-bold tabular-nums">${money(order.subtotalUSD)}</dd></div>
+              <div class="flex justify-between"><dt class="text-stone-600">Delivery</dt><dd class="font-bold tabular-nums">${Number(order.deliveryUSD) ? money(order.deliveryUSD) : 'Free'}</dd></div>
+              <div class="flex justify-between text-base"><dt class="font-black">Total</dt><dd class="font-black tabular-nums">${money(order.totalUSD)}</dd></div>
+            </dl>
+          </section>
+        </div>
+
+        <section id="messages" class="${card} scroll-mt-24" aria-labelledby="messagesTitle">
+          <h2 id="messagesTitle" class="text-lg font-black">Messages with ${psaEsc(order.customerName || 'the customer')}</h2>
+          <p class="text-sm text-stone-600">The customer sees these on their order page. Replies show as "PsaOnline".</p>
+          <div id="messageList" class="mt-4 space-y-3 max-h-[28rem] overflow-y-auto" aria-live="polite"><p class="text-sm text-stone-600">Loading messages…</p></div>
+          <form id="messageForm" class="mt-4 flex flex-col sm:flex-row gap-2">
+            <label for="messageInput" class="sr-only">Reply to the customer</label>
+            <textarea id="messageInput" rows="2" maxlength="2000" required placeholder="Write to the customer…" class="flex-1 min-h-[3rem] rounded-xl border border-stone-300 dark:border-[#32323D] bg-white dark:bg-[#1E1E26] px-4 py-3 text-base text-[#2B1D1D] focus:outline-none focus:border-sorbet focus:ring-2 focus:ring-sorbet/30"></textarea>
+            <button type="submit" id="messageSendBtn" class="h-12 sm:self-end px-6 rounded-xl bg-espresso text-cotton dark:bg-sorbet dark:text-espresso font-black cursor-pointer">Send</button>
+          </form>
+          <p id="messageError" class="hidden mt-2 text-sm font-bold text-rose-700" role="alert"></p>
+        </section>`;
+
+      document.getElementById('actionBar')?.addEventListener('click', e => {
+        const btn = e.target.closest('[data-action]');
+        if (btn) runAction(btn.dataset.action, btn);
+      });
+      document.getElementById('messageForm').addEventListener('submit', sendMessage);
+      loadMessages();
+    }
+
+    async function runAction(action, btn) {
+      if (action === 'cancel' && !confirm(`Cancel order ${order.id}? The items go back into stock. This can't be undone.`)) return;
+      if (action === 'reject' && !confirm('Reject this slip? The customer will be asked to upload a new one.')) return;
+      const errorEl = document.getElementById('actionError');
+      errorEl.classList.add('hidden');
+      psaSetButtonLoading(btn, true, 'Saving…');
+      try {
+        const res = await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(order.id)}`, { action });
+        order = { ...order, ...res.order };
+        PSA.orders = PSA.orders.map(o => (o.id === order.id ? order : o));
+        render();
+        showRBACToast(`Order ${order.id}: ${order.status}`, 'success');
+      } catch (err) {
+        psaSetButtonLoading(btn, false);
+        errorEl.textContent = err.message;
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    function renderMessages(list) {
+      const box = document.getElementById('messageList');
+      if (!box) return;
+      if (!list.length) {
+        box.innerHTML = '<p class="text-sm text-stone-600">No messages yet. Send the customer a note about delivery or their payment.</p>';
+        return;
+      }
+      box.innerHTML = list.map(m => {
+        const ours = m.fromStaff;
+        const when = m.createdAt ? new Date(m.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
+        const who = ours ? `PsaOnline${m.staffName ? ' (' + m.staffName + ')' : ''}` : (m.author || 'Customer');
+        return `
+          <div class="flex ${ours ? 'justify-end' : 'justify-start'}">
+            <div class="max-w-[85%] rounded-2xl px-4 py-2.5 ${ours ? 'bg-espresso text-cotton rounded-br-md' : 'bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] rounded-bl-md'}">
+              <div class="text-xs font-bold ${ours ? 'text-cotton/80' : 'text-stone-600'}">${psaEsc(who)} &middot; ${psaEsc(when)}</div>
+              <p class="mt-0.5 text-base whitespace-pre-line break-words">${psaEsc(m.body)}</p>
+            </div>
+          </div>`;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function loadMessages(quiet) {
+      try {
+        const { messages } = await psaApi('GET', `/api/orders/${encodeURIComponent(order.id)}/messages`);
+        renderMessages(messages);
+      } catch (err) {
+        if (!quiet) document.getElementById('messageList').innerHTML = `<p class="text-sm font-bold text-rose-700">${psaEsc(err.message)}</p>`;
+      }
+    }
+
+    async function sendMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('messageInput');
+      const errorEl = document.getElementById('messageError');
+      const body = input.value.trim();
+      errorEl.classList.add('hidden');
+      if (!body) return;
+      const btn = document.getElementById('messageSendBtn');
+      psaSetButtonLoading(btn, true, 'Sending…');
+      try {
+        const { messages } = await psaApi('POST', `/api/orders/${encodeURIComponent(order.id)}/messages`, { body });
+        input.value = '';
+        renderMessages(messages);
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove('hidden');
+      } finally {
+        psaSetButtonLoading(btn, false);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!enforcePageRBAC('canVerifyOrders')) return;
+      order = (PSA.orders || []).find(o => o.id === orderId) || null;
+      if (order) document.title = `Order ${order.id} | PsaOnline Staff`;
+      render();
+      if (order) messagesTimer = setInterval(() => { if (!document.hidden) loadMessages(true); }, 20000);
+    });
   </script>
 </body>
 </html>

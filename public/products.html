@@ -432,7 +432,7 @@
             <div>
               <div class="flex items-center justify-between text-[11px] text-[#FFA552] font-bold">
                 <span>${item.categoryLabel}</span>
-                <span class="text-amber-500">★ ${item.rating}</span>
+                ${item.reviewsCount > 0 ? `<span class="text-amber-700">★ ${Number(item.rating).toFixed(1)} (${item.reviewsCount})</span>` : ''}
               </div>
               <h3 class="text-xs sm:text-sm font-extrabold text-[#2B1D1D] dark:text-white line-clamp-1 mt-1 hover:text-[#FFA552] transition-colors">
                 <a href="product-detail.html?id=${item.id}">${item.title}</a>

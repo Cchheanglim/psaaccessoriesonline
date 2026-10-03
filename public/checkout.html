@@ -401,7 +401,7 @@
         acleda: ['Generate ACLEDA KHQR', 'Your ACLEDA KHQR will be generated immediately. Demo only; live bank verification is not connected.'],
         visa: ['Continue to 3D Secure', 'You will be redirected to 3D Secure verification. Demo card approval only.'],
         cod: ['Place Order', 'Pay the courier in cash when your parcel is delivered.']
-      }[radio.value];
+      }[radio.value] || ['Confirm Order & Pay', "Next you'll see the shop's QR code and account details, then upload your transfer slip."];
       document.getElementById('placeOrderLabel').textContent = copy[0];
       document.getElementById('paymentMicrocopy').textContent = copy[1];
     }
@@ -610,7 +610,9 @@
         psaSetButtonLoading(btn, false);
         return;
       }
-      window.location.replace(`order-detail--buyer-pending.html?order=${encodeURIComponent(order.id)}&usd=${order.totalUSD}&khr=${encodeURIComponent(order.totalKHR)}&method=${method}`);
+      window.location.replace(method === 'cod'
+        ? `order-detail.html?order=${encodeURIComponent(order.id)}`
+        : `order-detail--buyer-pending.html?order=${encodeURIComponent(order.id)}`);
     }
 
     function validateDemoCard() {
@@ -752,10 +754,31 @@
       if (id === 'acledaPaymentDialog') clearInterval(acledaTimer);
     }
 
+    // Payment methods an admin added in the portal (with their own QR) show up next to the built-in ones.
+    function addAdminPaymentMethods(builtInCodes) {
+      const template = document.querySelector('input[name="payment_method"][value="cod"]')?.closest('label')
+        || document.querySelector('.payment-method-card');
+      if (!template) return;
+      PSA.paymentMethods
+        .filter(m => m.isActive && !builtInCodes.includes(m.code))
+        .forEach(m => {
+          const option = template.cloneNode(true);
+          const radio = option.querySelector('input');
+          radio.value = m.code;
+          radio.checked = false;
+          option.querySelector('.payment-title').textContent = m.name;
+          option.querySelector('.payment-subtitle').textContent = m.description || (m.qrData ? "Scan the shop's QR with your banking app" : 'Bank transfer');
+          const tag = option.querySelector('div > span:last-child');
+          if (tag) tag.textContent = 'Scan & pay';
+          template.parentElement.appendChild(option);
+        });
+    }
+
     // Hide payment options an admin has turned off, and pre-fill the signed-in buyer's details.
     function applyLiveCheckoutSettings() {
       if (!PSA.online) return;
       const codes = { khqr: 'bakong_khqr', aba: 'aba_pay', acleda: 'acleda_khqr', visa: 'visa_card', cod: 'cod' };
+      addAdminPaymentMethods(Object.values(codes));
       document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
         const method = PSA.paymentMethods.find(m => m.code === codes[radio.value]);
         if (method && !method.isActive) {

@@ -85,7 +85,7 @@
       return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]}</svg>`;
     }
     const chev = svgIcon('chevronRight', 18);
-    const TITLES = { profile:'Edit Profile', password:'Change Password', addresses:'Shipping Addresses', address:'Address', general:'General', notifications:'Notifications', privacy:'Privacy', about:'About PsaOnline' };
+    const TITLES = { profile:'My Info', password:'Change Password', addresses:'Shipping Addresses', address:'Address', general:'General', notifications:'Notifications', privacy:'Privacy', about:'About PsaOnline' };
     let editingAddr = null;
 
     function readStoredValue(key, fallback) {
@@ -192,7 +192,7 @@
         const p = getProfile(), a = getAddresses();
         return `
         <div class="${card}">
-          ${row('user', 'Edit profile', esc(p.name) || 'Add your details', 'profile')}
+          ${row('user', 'My info', 'Name, phone &amp; email', 'profile')}
           ${row('lock', 'Change password', '', 'password')}
           ${row('mapPin', 'Shipping addresses', a.length ? a.length + ' saved' : 'None yet', 'addresses')}
         </div>

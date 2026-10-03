@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Product;
+use App\Models\ProductReview;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -45,8 +46,9 @@ class CatalogSeeder extends Seeder
                 'image' => $item['image'] ?? null,
                 'gallery' => $item['gallery'] ?? [],
                 'badge' => $item['badge'] ?? null,
-                'rating' => $item['rating'] ?? 5,
-                'review_count' => $item['reviewsCount'] ?? 0,
+                // Ratings come only from real customer reviews, never from the catalog file.
+                'rating' => round((float) ProductReview::where('product_sku', $item['id'])->avg('rating'), 1),
+                'review_count' => ProductReview::where('product_sku', $item['id'])->count(),
                 'description' => $item['description'] ?? null,
                 'specifications' => $item['specifications'] ?? [],
             ])->save();
