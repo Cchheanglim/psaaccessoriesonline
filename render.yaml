@@ -55,3 +55,11 @@ services:
         value: sync
       - key: MAIL_MAILER
         value: log
+
+      # Gemini (Google AI Studio) for the Psa Bunny chat assistant. Set the key in the Render dashboard.
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-flash-lite-latest
+      - key: GEMINI_FALLBACK_MODEL
+        value: gemini-flash-latest
