@@ -49,7 +49,7 @@ class StoreApiTest extends TestCase
         $this->getJson('/api/bootstrap')
             ->assertOk()
             ->assertJsonPath('user', null)
-            ->assertJsonCount(32, 'products')
+            ->assertJsonCount(71, 'products')
             ->assertJsonPath('products.0.id', 'genz-01')
             ->assertJsonPath('users', []);
     }

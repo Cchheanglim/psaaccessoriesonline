@@ -296,7 +296,7 @@ function enforcePageRBAC(requiredPermission = 'canAccessAdminPortal') {
 }
 
 function updateRBACUI() {
-  const user = getCurrentUser();
+  const user = getCurrentUser() || RBAC_GUEST; // some pages define their own getCurrentUser() that returns null for guests
 
   // Update current user name / role across DOM
   document.querySelectorAll('.rbac-current-name').forEach(el => el.textContent = user.name);
