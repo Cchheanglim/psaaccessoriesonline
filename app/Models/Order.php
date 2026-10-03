@@ -12,6 +12,7 @@ class Order extends Model
     protected $fillable = [
         'order_number',
         'user_id',
+        'handled_by', // staff member who approved it; the customer chats with them
         'customer_name',
         'customer_phone',
         'delivery_address',
@@ -49,6 +50,11 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function handler()
+    {
+        return $this->belongsTo(User::class, 'handled_by');
     }
 
     public function messages()

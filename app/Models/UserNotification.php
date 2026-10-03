@@ -4,25 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OrderMessage extends Model
+class UserNotification extends Model
 {
     protected $fillable = [
-        'order_id',
         'user_id',
-        'from_staff',
+        'order_id',
+        'type',  // order_placed, slip_uploaded, message, order_status
+        'title',
         'body',
+        'link',
         'read_at',
     ];
 
     protected $casts = [
-        'from_staff' => 'boolean',
         'read_at' => 'datetime',
     ];
-
-    public function order()
-    {
-        return $this->belongsTo(Order::class);
-    }
 
     public function user()
     {

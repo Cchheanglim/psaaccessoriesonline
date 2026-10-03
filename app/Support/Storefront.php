@@ -137,6 +137,10 @@ class Storefront
             'slipImage' => $o->payment_slip_url,
             'reviewed' => (bool) ($o->reviews_count ?? $o->reviews()->exists()),
             'messageCount' => (int) ($o->messages_count ?? $o->messages()->count()),
+            // Staff replies the customer hasn't opened yet
+            'unreadReplies' => (int) ($o->unread_replies_count ?? $o->messages()->where('from_staff', true)->whereNull('read_at')->count()),
+            'handledBy' => $o->handler?->name,
+            'handledById' => $o->handled_by ? (string) $o->handled_by : null,
         ];
     }
 

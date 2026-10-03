@@ -639,3 +639,60 @@ a.hero-sticker:hover { transform: translateY(-4px) rotate(0deg); }
     animation: none !important;
   }
 }
+
+
+/* ==========================================================================
+   Phones: lighter headers and stacked staff tables
+   ========================================================================== */
+@media (max-width: 639px) {
+  /* Theme and currency live in Settings on phones (prices already show both currencies) */
+  header .theme-toggle-btn,
+  header div:has(> .currency-toggle-btn),
+  [data-hide-mobile] {
+    display: none !important;
+  }
+}
+
+/* Staff tables become one card per row on small screens (labels come from the table head) */
+@media (max-width: 767px) {
+  .psa-stack-table thead { display: none; }
+  .psa-stack-table, .psa-stack-table tbody { display: block; width: 100%; }
+  .psa-stack-table tr {
+    display: block;
+    margin: 0 0 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--c-border);
+    border-radius: 16px;
+    background: #fff;
+  }
+  html.dark .psa-stack-table tr { background: #1A1A22; border-color: #2D2D38; }
+  .psa-stack-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 6px 0 !important;
+    border: 0 !important;
+    text-align: right;
+    font-size: 14px;
+  }
+  .psa-stack-table td > * { text-align: right; }
+  .psa-stack-table td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 38%;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6b5d5d;
+  }
+  html.dark .psa-stack-table td[data-label]::before { color: #b9aeae; }
+  .psa-stack-table td:first-child { text-align: left; }
+  .psa-stack-table td:first-child::before { display: none; }
+  .psa-stack-table td:first-child > * { text-align: left; }
+  /* Undo horizontal-scroll wrappers around stacked tables */
+  .overflow-x-auto:has(> .psa-stack-table) { overflow: visible; }
+  .psa-stack-table [class*="min-w-"] { min-width: 0 !important; }
+  .psa-stack-table .truncate { white-space: normal; }
+}

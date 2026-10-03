@@ -130,9 +130,9 @@
           <div>
             <div class="flex items-center gap-1.5">
               <span class="text-base font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">Psa<span class="text-[#FFA552]">Online</span></span>
-              <span class="text-[9px] uppercase tracking-wider text-stone-600 dark:text-stone-300 font-bold px-1.5 py-0.5 rounded bg-stone-100 dark:bg-[#252530] border border-stone-200 dark:border-[#32323D]">Admin</span>
+              <span data-hide-mobile class="text-[9px] uppercase tracking-wider text-stone-600 dark:text-stone-300 font-bold px-1.5 py-0.5 rounded bg-stone-100 dark:bg-[#252530] border border-stone-200 dark:border-[#32323D]">Admin</span>
             </div>
-            <div class="text-[10px] text-stone-500 dark:text-stone-400 font-medium mt-0.5">Operations &amp; Finance</div>
+            <div data-hide-mobile class="text-[10px] text-stone-500 dark:text-stone-400 font-medium mt-0.5">Operations &amp; Finance</div>
           </div>
         </a>
 
@@ -140,6 +140,7 @@
         <nav class="hidden lg:flex items-center gap-1 text-xs font-semibold text-stone-600 dark:text-stone-300">
           <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-lg bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D] font-bold">Financial Report</a>
           <a href="admin-orders.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition">Orders &amp; Slips</a>
+          <a href="admin-messages.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition">Messages <span class="psa-inbox-count hidden ml-1 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-rose-600 text-white text-xs font-black"></span></a>
           <a href="admin-products.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition">Catalog &amp; Stock</a>
           <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition rbac-admin-only">KHQR Gateways</a>
           <a href="admin-users.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition rbac-admin-only">Staff &amp; RBAC</a>
@@ -150,7 +151,7 @@
       <div class="flex items-center gap-2">
         
         <!-- Back / Exit to Storefront Button -->
-        <a href="home.html" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-stone-200 dark:border-[#32323D] bg-stone-50 dark:bg-[#1E1E26] hover:bg-stone-100 dark:hover:bg-[#272732] text-xs text-[#2B1D1D] dark:text-stone-200 font-bold transition" title="Exit Admin & Return to Storefront">
+        <a data-hide-mobile href="home.html" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-stone-200 dark:border-[#32323D] bg-stone-50 dark:bg-[#1E1E26] hover:bg-stone-100 dark:hover:bg-[#272732] text-xs text-[#2B1D1D] dark:text-stone-200 font-bold transition" title="Exit Admin & Return to Storefront">
           <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
           <span class="hidden sm:inline">Exit to Store</span>
         </a>
@@ -189,7 +190,7 @@
             <div class="hidden sm:block text-left text-xs leading-tight">
               <div class="font-bold text-[#2B1D1D] dark:text-white rbac-current-name">Sokha Ouk</div>
               <div class="flex items-center gap-1 mt-0.5">
-                <span class="rbac-role-badge">Admin</span>
+                <span data-hide-mobile class="rbac-role-badge">Admin</span>
                 <svg class="w-3 h-3 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
               </div>
             </div>
@@ -392,7 +393,7 @@
         </div>
         <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-3 pt-2.5 border-t border-stone-100 dark:border-[#252530] tabular-nums">
           <span>Awaiting Review: <strong class="text-amber-600 dark:text-amber-400" id="kpiPendingCount">3</strong></span>
-          <span>Refunded: <strong class="text-[#2B1D1D] dark:text-white" id="kpiRefundCount">1</strong></span>
+          <span>Cancelled: <strong class="text-[#2B1D1D] dark:text-white" id="kpiRefundCount">1</strong></span>
         </div>
       </div>
 
@@ -486,7 +487,7 @@
               <div class="font-bold text-emerald-700 dark:text-emerald-400 mt-0.5" id="reconShipping">+$126.00</div>
             </div>
             <div>
-              <div class="text-[11px] text-stone-500">Discounts &amp; Refunds</div>
+              <div class="text-[11px] text-stone-500">Discounts</div>
               <div class="font-bold text-red-600 dark:text-red-400 mt-0.5" id="reconDiscounts">-$48.50</div>
             </div>
             <div class="border-l border-stone-200 dark:border-[#272732] pl-3">
@@ -966,7 +967,7 @@
             <div class="text-[9.5px] font-bold uppercase text-stone-500">Completed Orders</div>
             <div class="text-base font-black text-stone-900 mt-0.5 tabular-nums" id="printKpiOrders">84 Orders</div>
             <div class="text-[10px] text-stone-700 font-semibold" id="printKpiFulfilled">94.6% Fulfilled</div>
-            <div class="text-[9.5px] text-stone-600 mt-1">Pending Audit: <strong id="printKpiPending">2</strong> &bull; Refund: <strong id="printKpiRefund">1</strong></div>
+            <div class="text-[9.5px] text-stone-600 mt-1">Pending Audit: <strong id="printKpiPending">2</strong> &bull; Cancelled: <strong id="printKpiRefund">1</strong></div>
           </div>
 
           <div class="border border-stone-300 rounded p-2.5 bg-stone-50/60">
@@ -1004,7 +1005,7 @@
                 <td class="text-right font-mono text-stone-700" id="printReconShipKHR">+516,600 ៛</td>
               </tr>
               <tr>
-                <td class="font-semibold text-stone-800">(&ndash;) Promotional Discounts &amp; Refunds</td>
+                <td class="font-semibold text-stone-800">(&ndash;) Promotional Discounts</td>
                 <td class="text-right font-semibold text-red-700" id="printReconDiscUSD">-$48.50</td>
                 <td class="text-right font-mono text-stone-700" id="printReconDiscKHR">-198,850 ៛</td>
               </tr>
@@ -1802,7 +1803,7 @@
           ['SUMMARY METRIC', 'USD Value', 'KHR Equivalent'],
           ['Gross Merchandise Value', ds.grossUSD.toFixed(2), Math.round(ds.grossUSD * RATE_KHR)],
           ['Courier Fees Collected', ds.shippingUSD.toFixed(2), Math.round(ds.shippingUSD * RATE_KHR)],
-          ['Discounts & Refunds', (-ds.discountsUSD).toFixed(2), -Math.round(ds.discountsUSD * RATE_KHR)],
+          ['Discounts', (-ds.discountsUSD).toFixed(2), -Math.round(ds.discountsUSD * RATE_KHR)],
           ['Net Settled Revenue', (ds.grossUSD + ds.shippingUSD - ds.discountsUSD).toFixed(2), Math.round((ds.grossUSD + ds.shippingUSD - ds.discountsUSD) * RATE_KHR)]
         ];
         const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');

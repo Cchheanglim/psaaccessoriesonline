@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Messages | PsaOnline Staff</title>
+  <meta name="description" content="Chats with customers about their orders." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { sorbet: '#FFA552', 'sorbet-ink': '#A3520F', cotton: '#F9F3EA', espresso: '#2B1D1D' } } }
+    };
+  </script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="bg-stone-50 dark:bg-[#121215] text-[#2B1D1D] font-sans h-screen flex flex-col antialiased overflow-hidden">
+
+  <header class="shrink-0 bg-white/95 dark:bg-[#16161C]/95 backdrop-blur border-b border-stone-200 dark:border-[#272732]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <a href="dashboard-admin.html" class="flex items-center gap-2 min-w-0" aria-label="Staff dashboard">
+        <img src="assets/images/psa-accessories-online-logo.svg" alt="" class="h-9 w-auto" />
+        <span class="text-lg font-black text-[#2B1D1D] truncate">Messages</span>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="admin-orders.html" class="h-11 px-4 inline-flex items-center rounded-xl border border-stone-200 dark:border-[#32323D] bg-white dark:bg-[#1E1E26] text-sm font-bold text-[#2B1D1D] hover:bg-stone-100">Orders</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 min-h-0 w-full max-w-6xl mx-auto sm:px-6 sm:py-5 flex">
+    <div class="flex-1 min-h-0 flex sm:rounded-2xl overflow-hidden bg-white dark:bg-[#1A1A22] sm:border border-stone-200 dark:border-[#2D2D38]">
+
+      <!-- Conversation list -->
+      <section id="listPane" class="w-full md:w-80 lg:w-96 shrink-0 flex flex-col md:border-r border-stone-200 dark:border-[#2D2D38]" aria-labelledby="listTitle">
+        <div class="p-3 border-b border-stone-200 dark:border-[#2D2D38]">
+          <h1 id="listTitle" class="sr-only">Conversations</h1>
+          <div class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-stone-100 dark:bg-[#252530]" role="tablist" aria-label="Filter conversations">
+            <button type="button" role="tab" data-filter="mine" class="h-10 rounded-lg text-sm font-bold cursor-pointer">Mine</button>
+            <button type="button" role="tab" data-filter="open" class="h-10 rounded-lg text-sm font-bold cursor-pointer">Not assigned</button>
+            <button type="button" role="tab" data-filter="all" class="h-10 rounded-lg text-sm font-bold cursor-pointer">All</button>
+          </div>
+        </div>
+        <ul id="convList" class="flex-1 overflow-y-auto divide-y divide-stone-100 dark:divide-[#2D2D38]" aria-live="polite">
+          <li class="p-4 text-sm text-stone-600">Loading…</li>
+        </ul>
+      </section>
+
+      <!-- Thread -->
+      <section id="threadPane" class="hidden md:flex flex-1 min-w-0 flex-col" aria-labelledby="threadTitle">
+        <div class="shrink-0 flex items-center gap-2 px-3 sm:px-4 h-16 border-b border-stone-200 dark:border-[#2D2D38]">
+          <button type="button" id="backToList" class="md:hidden w-11 h-11 -ml-1 rounded-xl flex items-center justify-center hover:bg-stone-100 dark:hover:bg-[#252530] cursor-pointer" aria-label="Back to conversations">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <div class="min-w-0 flex-1">
+            <h2 id="threadTitle" class="text-xl font-black truncate">Choose a conversation</h2>
+            <p id="threadMeta" class="text-sm text-stone-600 truncate"></p>
+          </div>
+          <a id="threadOrderLink" href="#" class="hidden h-10 px-3 inline-flex items-center rounded-lg bg-stone-100 dark:bg-[#252530] text-sm font-bold text-[#2B1D1D] shrink-0">Open order</a>
+        </div>
+        <div id="threadList" class="flex-1 overflow-y-auto p-4 space-y-3" aria-live="polite">
+          <p class="text-sm text-stone-600">Pick a conversation on the left to read and reply.</p>
+        </div>
+        <form id="threadForm" class="hidden shrink-0 p-3 border-t border-stone-200 dark:border-[#2D2D38] flex gap-2">
+          <label for="threadInput" class="sr-only">Reply to the customer</label>
+          <textarea id="threadInput" rows="1" maxlength="2000" required placeholder="Write a reply…" class="flex-1 min-h-[3rem] max-h-40 rounded-xl border border-stone-300 dark:border-[#32323D] bg-white dark:bg-[#1E1E26] px-4 py-3 text-base text-[#2B1D1D] focus:outline-none focus:border-sorbet focus:ring-2 focus:ring-sorbet/30"></textarea>
+          <button type="submit" id="threadSend" class="h-12 self-end px-5 rounded-xl bg-espresso text-cotton dark:bg-sorbet dark:text-espresso font-black cursor-pointer">Send</button>
+        </form>
+        <p id="threadError" class="hidden px-4 pb-3 text-sm font-bold text-rose-700" role="alert"></p>
+      </section>
+    </div>
+  </main>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/rbac.js"></script>
+  <script>
+    let conversations = [];
+    let filter = 'mine';
+    let current = null;
+    const params = new URLSearchParams(location.search);
+
+    const isMobile = () => !window.matchMedia('(min-width: 768px)').matches;
+    function showThreadPane(show) {
+      document.getElementById('threadPane').classList.toggle('hidden', !show && isMobile());
+      document.getElementById('threadPane').classList.toggle('flex', show || !isMobile());
+      document.getElementById('listPane').classList.toggle('hidden', show && isMobile());
+    }
+
+    function setFilter(next) {
+      filter = next;
+      document.querySelectorAll('[data-filter]').forEach(b => {
+        const on = b.dataset.filter === filter;
+        b.setAttribute('aria-selected', String(on));
+        b.classList.toggle('bg-white', on);
+        b.classList.toggle('dark:bg-[#1A1A22]', on);
+        b.classList.toggle('shadow', on);
+        b.classList.toggle('text-stone-600', !on);
+      });
+      renderList();
+    }
+
+    function visible() {
+      if (filter === 'mine') return conversations.filter(c => c.mine);
+      if (filter === 'open') return conversations.filter(c => !c.handledBy);
+      return conversations;
+    }
+
+    function renderList() {
+      const list = document.getElementById('convList');
+      const items = visible();
+      const counts = { mine: conversations.filter(c => c.mine && c.unread).length, open: conversations.filter(c => !c.handledBy && c.unread).length };
+      document.querySelectorAll('[data-filter]').forEach(b => {
+        const base = { mine: 'Mine', open: 'Not assigned', all: 'All' }[b.dataset.filter];
+        const n = counts[b.dataset.filter];
+        b.textContent = n ? `${base} (${n})` : base;
+      });
+      if (!items.length) {
+        list.innerHTML = `<li class="p-6 text-sm text-stone-600">${filter === 'mine' ? 'No chats on orders you approved yet. Orders you approve show up here.' : filter === 'open' ? 'No messages waiting on unassigned orders.' : 'No customer messages yet.'}</li>`;
+        return;
+      }
+      list.innerHTML = items.map(c => `
+        <li>
+          <button type="button" data-open="${psaEsc(c.orderId)}" class="w-full text-left px-4 py-3 flex gap-3 hover:bg-stone-50 dark:hover:bg-[#20202A] cursor-pointer ${current && current.orderId === c.orderId ? 'bg-[#FFF6EC] dark:bg-[#231E1A]' : ''}">
+            <span class="w-10 h-10 rounded-full bg-espresso text-cotton flex items-center justify-center text-sm font-black shrink-0">${psaEsc(initialsOf(c.customerName))}</span>
+            <span class="min-w-0 flex-1">
+              <span class="flex items-baseline justify-between gap-2">
+                <span class="text-sm ${c.unread ? 'font-black' : 'font-bold'} truncate">${psaEsc(c.customerName)}</span>
+                <span class="text-xs text-stone-500 shrink-0">${c.lastAt ? psaEsc(psaTimeAgo(c.lastAt)) : ''}</span>
+              </span>
+              <span class="block text-xs text-stone-600 truncate">${psaEsc(c.orderId)} &middot; ${psaEsc(c.status)}${c.handledBy ? ' &middot; ' + psaEsc(c.mine ? 'you' : c.handledBy) : ''}</span>
+              <span class="flex items-center justify-between gap-2 mt-0.5">
+                <span class="text-sm ${c.unread ? 'text-[#2B1D1D] font-semibold' : 'text-stone-600'} truncate">${c.lastFromStaff ? 'You: ' : ''}${psaEsc(c.lastMessage)}</span>
+                ${c.unread ? `<span class="min-w-5 h-5 px-1 rounded-full bg-rose-600 text-white text-xs font-black flex items-center justify-center shrink-0" aria-label="${c.unread} unread">${c.unread}</span>` : ''}
+              </span>
+            </span>
+          </button>
+        </li>`).join('');
+    }
+
+    function initialsOf(name) {
+      return String(name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    }
+
+    async function loadConversations() {
+      try {
+        ({ conversations } = await psaApi('GET', '/api/admin/conversations'));
+        renderList();
+      } catch (err) {
+        document.getElementById('convList').innerHTML = `<li class="p-4 text-sm font-bold text-rose-700">${psaEsc(err.message)}</li>`;
+      }
+    }
+
+    async function openConversation(orderId) {
+      current = conversations.find(c => c.orderId === orderId) || { orderId, customerName: 'Customer', status: '' };
+      document.getElementById('threadTitle').textContent = current.customerName;
+      document.getElementById('threadMeta').textContent = `${current.orderId}${current.status ? ' · ' + current.status : ''}${current.handledBy ? ' · handled by ' + (current.mine ? 'you' : current.handledBy) : ' · not assigned yet'}`;
+      const link = document.getElementById('threadOrderLink');
+      link.href = `order-detail--admin-payment-submitted.html?order=${encodeURIComponent(current.orderId)}`;
+      link.classList.remove('hidden');
+      document.getElementById('threadForm').classList.remove('hidden');
+      showThreadPane(true);
+      renderList();
+      await loadThread();
+      current.unread = 0;
+      renderList();
+      psaLoadNotifications();
+    }
+
+    function renderThread(messages) {
+      const box = document.getElementById('threadList');
+      box.innerHTML = messages.length ? messages.map(m => {
+        const ours = m.fromStaff;
+        const when = m.createdAt ? new Date(m.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
+        const who = ours ? (m.staffName ? m.staffName : 'PsaOnline') : (m.author || 'Customer');
+        return `
+          <div class="flex ${ours ? 'justify-end' : 'justify-start'}">
+            <div class="max-w-[85%] rounded-2xl px-4 py-2.5 ${ours ? 'bg-espresso text-cotton rounded-br-md' : 'bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] rounded-bl-md'}">
+              <div class="text-xs font-bold ${ours ? 'text-cotton/80' : 'text-stone-600'}">${psaEsc(who)} &middot; ${psaEsc(when)}</div>
+              <p class="mt-0.5 text-base whitespace-pre-line break-words">${psaEsc(m.body)}</p>
+            </div>
+          </div>`;
+      }).join('') : '<p class="text-sm text-stone-600">No messages yet.</p>';
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function loadThread() {
+      if (!current) return;
+      try {
+        const { messages } = await psaApi('GET', `/api/orders/${encodeURIComponent(current.orderId)}/messages`);
+        renderThread(messages);
+      } catch (err) {
+        document.getElementById('threadList').innerHTML = `<p class="text-sm font-bold text-rose-700">${psaEsc(err.message)}</p>`;
+      }
+    }
+
+    async function sendReply(e) {
+      e.preventDefault();
+      const input = document.getElementById('threadInput');
+      const errorEl = document.getElementById('threadError');
+      const body = input.value.trim();
+      errorEl.classList.add('hidden');
+      if (!body || !current) return;
+      const btn = document.getElementById('threadSend');
+      psaSetButtonLoading(btn, true, 'Sending…');
+      try {
+        const { messages } = await psaApi('POST', `/api/orders/${encodeURIComponent(current.orderId)}/messages`, { body });
+        input.value = '';
+        renderThread(messages);
+        loadConversations();
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.classList.remove('hidden');
+      } finally {
+        psaSetButtonLoading(btn, false);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!enforcePageRBAC('canVerifyOrders')) return;
+      document.querySelectorAll('[data-filter]').forEach(b => b.addEventListener('click', () => setFilter(b.dataset.filter)));
+      document.getElementById('convList').addEventListener('click', e => {
+        const btn = e.target.closest('[data-open]');
+        if (btn) openConversation(btn.dataset.open);
+      });
+      document.getElementById('backToList').addEventListener('click', () => { showThreadPane(false); });
+      document.getElementById('threadForm').addEventListener('submit', sendReply);
+      document.getElementById('threadInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey && !isMobile()) { e.preventDefault(); document.getElementById('threadForm').requestSubmit(); }
+      });
+
+      await loadConversations();
+      // Start on the tab that has something waiting
+      setFilter(conversations.some(c => c.mine) ? 'mine' : conversations.some(c => !c.handledBy) ? 'open' : 'all');
+      if (params.get('order')) openConversation(params.get('order'));
+      else showThreadPane(false);
+
+      setInterval(() => {
+        if (document.hidden) return;
+        loadConversations();
+        loadThread();
+      }, 20000);
+    });
+  </script>
+</body>
+</html>

@@ -23,9 +23,7 @@
           <div class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">
             Psa<span class="text-[#FFA552]">Online</span>
           </div>
-          <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">
-            Accessories &bull; Studio
-          </span>
+          <span data-hide-mobile class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">Accessories &bull; Studio</span>
         </div>
       </a>
 
@@ -72,13 +70,13 @@
           <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
           <span>Back to Catalog</span>
         </a>
-        <a href="home.html" class="hover:text-[#FFA552] transition-colors">Home</a>
+        <span data-hide-mobile class="contents"><a href="home.html" class="hover:text-[#FFA552] transition-colors">Home</a>
         <span>/</span>
         <a href="products.html" class="hover:text-[#FFA552] transition-colors">Catalog</a>
-        <span>/</span>
+        <span>/</span></span>
         <span id="breadcrumbCategory" class="text-[#FFA552] font-black">Y2K Jewelry</span>
       </div>
-      <a href="home.html" class="text-xs font-bold text-stone-500 hover:text-[#FFA552] transition-colors">&larr; Exit to Storefront</a>
+      <a data-hide-mobile href="home.html" class="text-xs font-bold text-stone-500 hover:text-[#FFA552] transition-colors">&larr; Exit to Storefront</a>
     </div>
 
     <!-- Main Grid: Gallery (Pure White Container) & Product Info -->
@@ -145,26 +143,26 @@
           <div class="flex items-center gap-4">
             <span class="text-xs font-extrabold text-[#2B1D1D]">Quantity:</span>
             <div class="flex items-center border border-[#EFE4D6] rounded-xl bg-white p-1">
-              <button onclick="adjustDetailQty(-1)" class="w-8 h-8 rounded-lg text-stone-600 hover:bg-[#F9F3EA] font-black text-sm flex items-center justify-center transition-colors">&minus;</button>
+              <button onclick="adjustDetailQty(-1)" aria-label="Fewer" class="w-11 h-11 rounded-lg text-stone-600 hover:bg-[#F9F3EA] font-black text-sm flex items-center justify-center transition-colors">&minus;</button>
               <span id="detailQty" class="w-10 text-center font-black text-sm text-[#2B1D1D]">1</span>
-              <button onclick="adjustDetailQty(1)" class="w-8 h-8 rounded-lg text-stone-600 hover:bg-[#F9F3EA] font-black text-sm flex items-center justify-center transition-colors">&plus;</button>
+              <button onclick="adjustDetailQty(1)" aria-label="More" class="w-11 h-11 rounded-lg text-stone-600 hover:bg-[#F9F3EA] font-black text-sm flex items-center justify-center transition-colors">&plus;</button>
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <button
               onclick="addCurrentToCart()"
-              class="btn-press py-4 rounded-2xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+              class="btn-press h-14 rounded-2xl bg-[#FFA552] hover:bg-[#E88C35] text-[#2B1D1D] font-black text-base shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
             >
-              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-              <span>Add to Shopping Bag</span>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+              <span>Add to bag</span>
             </button>
 
             <button
               onclick="buyNowDirect()"
-              class="btn-press py-4 rounded-2xl bg-[#2B1D1D] hover:bg-[#3D2929] text-white font-black text-xs shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
+              class="btn-press h-14 rounded-2xl bg-[#2B1D1D] hover:bg-[#3D2929] text-white font-black text-base shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
             >
-              <span>Buy with Bakong KHQR &rarr;</span>
+              <span>Buy now &rarr;</span>
             </button>
           </div>
         </div>
