@@ -88,23 +88,32 @@ class StoreApiTest extends TestCase
         $this->postJson("/api/orders/{$number}/slip")->assertOk()->assertJsonPath('order.status', 'Slip Uploaded');
     }
 
-    public function test_guest_can_order_and_only_see_their_own_orders(): void
+    public function test_guests_cannot_order(): void
     {
-        $this->getJson('/api/bootstrap')->assertJsonCount(0, 'orders');
+        $this->postJson('/api/orders', $this->orderPayload())->assertStatus(401);
+    }
 
-        $number = $this->postJson('/api/orders', $this->orderPayload())->assertCreated()->json('order.id');
+    public function test_buyers_only_see_their_own_orders(): void
+    {
+        $buyer = $this->makeUser();
+        $other = $this->makeUser();
 
-        $this->getJson('/api/bootstrap')->assertJsonCount(1, 'orders')->assertJsonPath('orders.0.id', $number);
+        $number = $this->actingAs($buyer)->postJson('/api/orders', $this->orderPayload())->assertCreated()->json('order.id');
+
+        $this->actingAs($buyer)->getJson('/api/bootstrap')->assertJsonCount(1, 'orders')->assertJsonPath('orders.0.id', $number);
+        $this->actingAs($other)->getJson('/api/bootstrap')->assertJsonCount(0, 'orders');
     }
 
     public function test_out_of_stock_and_disabled_payment_are_rejected(): void
     {
+        $buyer = $this->makeUser();
+
         Product::where('sku', 'genz-02')->update(['stock' => 1]);
-        $this->postJson('/api/orders', $this->orderPayload(['items' => [['id' => 'genz-02', 'quantity' => 3]]]))
+        $this->actingAs($buyer)->postJson('/api/orders', $this->orderPayload(['items' => [['id' => 'genz-02', 'quantity' => 3]]]))
             ->assertStatus(422);
 
         \App\Models\PaymentMethod::where('code', 'cod')->update(['is_active' => false]);
-        $this->postJson('/api/orders', $this->orderPayload(['paymentMethod' => 'cod']))->assertStatus(422);
+        $this->actingAs($buyer)->postJson('/api/orders', $this->orderPayload(['paymentMethod' => 'cod']))->assertStatus(422);
     }
 
     public function test_admin_endpoints_enforce_roles(): void
@@ -131,7 +140,7 @@ class StoreApiTest extends TestCase
     {
         $staff = $this->makeUser(['role' => 'staff']);
         $admin = $this->makeUser(['role' => 'admin']);
-        $number = $this->postJson('/api/orders', $this->orderPayload())->json('order.id');
+        $number = $this->actingAs($this->makeUser())->postJson('/api/orders', $this->orderPayload())->json('order.id');
         $stock = Product::where('sku', 'genz-01')->value('stock');
 
         $this->actingAs($staff)->patchJson("/api/admin/orders/{$number}", ['action' => 'verify'])
