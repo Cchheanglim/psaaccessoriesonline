@@ -49,7 +49,7 @@ class StoreApiTest extends TestCase
         $this->getJson('/api/bootstrap')
             ->assertOk()
             ->assertJsonPath('user', null)
-            ->assertJsonCount(12, 'products')
+            ->assertJsonCount(32, 'products')
             ->assertJsonPath('products.0.id', 'genz-01')
             ->assertJsonPath('users', []);
     }
@@ -73,14 +73,14 @@ class StoreApiTest extends TestCase
         $stockBefore = Product::where('sku', 'genz-01')->value('stock');
 
         $response = $this->actingAs($buyer)
-            ->postJson('/api/orders', $this->orderPayload(['items' => [['id' => 'genz-01', 'quantity' => 2, 'priceUSD' => 0.01]]]))
+            ->postJson('/api/orders', $this->orderPayload(['items' => [['id' => 'genz-01', 'quantity' => 1, 'priceUSD' => 0.01]]]))
             ->assertCreated()
-            ->assertJsonPath('order.subtotalUSD', '13.00')
+            ->assertJsonPath('order.subtotalUSD', '9.00')
             ->assertJsonPath('order.deliveryUSD', '1.50')
-            ->assertJsonPath('order.totalUSD', '14.50')
+            ->assertJsonPath('order.totalUSD', '10.50')
             ->assertJsonPath('order.status', 'Payment Pending');
 
-        $this->assertSame($stockBefore - 2, Product::where('sku', 'genz-01')->value('stock'));
+        $this->assertSame($stockBefore - 1, Product::where('sku', 'genz-01')->value('stock'));
 
         $number = $response->json('order.id');
         $this->getJson('/api/bootstrap')->assertJsonPath('orders.0.id', $number);

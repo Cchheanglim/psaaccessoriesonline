@@ -14,20 +14,15 @@ use Illuminate\Support\Str;
  */
 class CatalogSeeder extends Seeder
 {
-    private const LEGACY_SLUGS = [
-        'genz-01' => 'silver-chrome-star-pendant-necklace',
-        'genz-02' => 'chunky-cyber-y2k-silver-ring-set-4pcs',
-        'genz-03' => 'vintage-90s-tinted-oval-sunglasses',
-        'genz-04' => 'futuristic-rimless-wrap-around-shades',
-        'genz-05' => 'puffy-cloud-dumpling-nylon-shoulder-bag',
-        'genz-06' => 'mini-boxy-y2k-metallic-crossbody-bag',
-        'genz-07' => 'pastel-matte-french-hair-claw-clip-set-3pcs',
-        'genz-09' => 'handmade-beaded-phone-charm-wristlet',
-    ];
+    private const LEGACY_SLUGS = [];
 
     public function run(): void
     {
-        $catalog = json_decode(file_get_contents(database_path('data/catalog.json')), true);
+        // catalog.json = genz-01..12; catalog-photos.json = genz-13..32 (images in /assets/images/products/)
+        $catalog = [];
+        foreach (['catalog.json', 'catalog-photos.json'] as $file) {
+            $catalog = array_merge($catalog, json_decode(file_get_contents(database_path('data/'.$file)), true) ?? []);
+        }
 
         foreach ($catalog as $item) {
             $product = Product::where('sku', $item['id'])->first();
@@ -36,7 +31,7 @@ class CatalogSeeder extends Seeder
                 $product = Product::where('slug', self::LEGACY_SLUGS[$item['id']])->first();
             }
 
-            $product ??= new Product(['stock' => $item['inStock'] ? 50 : 0, 'status' => 'active']);
+            $product ??= new Product(['stock' => ($item['inStock'] ?? true) ? 50 : 0, 'status' => $item['status'] ?? 'active']);
 
             $product->fill([
                 'sku' => $item['id'],

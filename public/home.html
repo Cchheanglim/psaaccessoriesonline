@@ -100,9 +100,9 @@
         <!-- Category Quick Links (Desktop) -->
         <nav class="hidden md:flex items-center gap-1 text-xs font-extrabold text-[#2B1D1D] dark:text-white">
           <a href="products.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">All Drops</a>
-          <a href="products.html?category=jewelry" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">Y2K Jewelry</a>
-          <a href="products.html?category=eyewear" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">Shades</a>
-          <a href="products.html?category=bags" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">Cloud Bags</a>
+          <a href="products.html?category=apparel" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">Tees & Shirts</a>
+          <a href="products.html?category=watches" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">Watches</a>
+          <a href="products.html?category=bags" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">Bags</a>
           <a href="products.html?category=hair" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#FFA552] transition-colors">Hair & Clips</a>
         </nav>
 
@@ -198,8 +198,8 @@
               <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             </a>
             
-            <a href="products.html?category=jewelry" class="btn-press px-6 py-3.5 rounded-2xl bg-white hover:bg-[#F9F3EA] text-[#2B1D1D] font-bold text-sm border-2 border-[#FFA552]/40 transition-all shadow-xs">
-              Explore Y2K Silver &rarr;
+            <a href="products.html?category=apparel" class="btn-press px-6 py-3.5 rounded-2xl bg-white hover:bg-[#F9F3EA] text-[#2B1D1D] font-bold text-sm border-2 border-[#FFA552]/40 transition-all shadow-xs">
+              Explore Tees & Shirts &rarr;
             </a>
           </div>
 
@@ -410,22 +410,25 @@
       <!-- Category Filter Pills in Cotton Beige and Sorbet Orange -->
       <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-bold">
         <button onclick="filterHomeProducts('all', this)" class="category-chip px-4 py-2 rounded-full bg-[#2B1D1D] text-white shadow-xs shrink-0">
-          All (12)
+          All (<span id="homeAllCount">0</span>)
         </button>
-        <button onclick="filterHomeProducts('jewelry', this)" class="category-chip px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-          Y2K Jewelry
+        <button onclick="filterHomeProducts('apparel', this)" class="category-chip px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
+          Tees & Shirts
         </button>
-        <button onclick="filterHomeProducts('eyewear', this)" class="category-chip px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-          Shades
+        <button onclick="filterHomeProducts('watches', this)" class="category-chip px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
+          Watches
         </button>
         <button onclick="filterHomeProducts('bags', this)" class="category-chip px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-          Cloud Bags
+          Bags
         </button>
         <button onclick="filterHomeProducts('hair', this)" class="category-chip px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-          Clips & Pins
+          Hair & Clips
         </button>
         <button onclick="filterHomeProducts('charms', this)" class="category-chip px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-          Phone Charms
+          Charms
+        </button>
+        <button onclick="filterHomeProducts('socks', this)" class="category-chip px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
+          Socks
         </button>
       </div>
     </div>
@@ -654,11 +657,11 @@
         <div class="space-y-2">
           <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Shop Categories</div>
           <ul class="text-xs space-y-1.5 text-stone-600 dark:text-stone-300 font-medium">
-            <li><a href="products.html?category=jewelry" class="hover:text-[#FFA552]">Y2K & Cyber Jewelry</a></li>
-            <li><a href="products.html?category=eyewear" class="hover:text-[#FFA552]">Shades & Eyewear</a></li>
-            <li><a href="products.html?category=bags" class="hover:text-[#FFA552]">Puffy Cloud Bags</a></li>
-            <li><a href="products.html?category=hair" class="hover:text-[#FFA552]">Claw Clips & Pins</a></li>
-            <li><a href="products.html?category=charms" class="hover:text-[#FFA552]">Phone Charms</a></li>
+            <li><a href="products.html?category=apparel" class="hover:text-[#FFA552]">Tees & Shirts</a></li>
+            <li><a href="products.html?category=watches" class="hover:text-[#FFA552]">Watches</a></li>
+            <li><a href="products.html?category=bags" class="hover:text-[#FFA552]">Bags</a></li>
+            <li><a href="products.html?category=hair" class="hover:text-[#FFA552]">Hair & Clips</a></li>
+            <li><a href="products.html?category=charms" class="hover:text-[#FFA552]">Charms</a></li>
           </ul>
         </div>
 
@@ -899,6 +902,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('homeAllCount').textContent = ACCESSORIES_PRODUCTS.length;
       renderHomeProducts('all');
     });
   </script>

@@ -511,10 +511,10 @@
           </div>
 
           <div class="space-y-3.5 pt-0.5" id="categoryBreakdownList">
-            <!-- Category 1: Y2K Jewelry -->
+            <!-- Category 1: Apparel -->
             <div class="space-y-1.5">
               <div class="flex items-center justify-between text-xs tabular-nums">
-                <span class="font-bold text-[#2B1D1D] dark:text-white">Y2K Chrome Jewelry</span>
+                <span class="font-bold text-[#2B1D1D] dark:text-white">Tees, Shirts &amp; Polos</span>
                 <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catJewelryVal">42% &bull; $773.85</span>
               </div>
               <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
@@ -526,10 +526,10 @@
               </div>
             </div>
 
-            <!-- Category 2: Shades & Eyewear -->
+            <!-- Category 2: Watches & Jewelry -->
             <div class="space-y-1.5">
               <div class="flex items-center justify-between text-xs tabular-nums">
-                <span class="font-bold text-[#2B1D1D] dark:text-white">90s Tinted Eyewear</span>
+                <span class="font-bold text-[#2B1D1D] dark:text-white">Watches &amp; Jewelry</span>
                 <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catShadesVal">26% &bull; $479.05</span>
               </div>
               <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
@@ -541,10 +541,10 @@
               </div>
             </div>
 
-            <!-- Category 3: Puffy Cloud Bags -->
+            <!-- Category 3: Bags -->
             <div class="space-y-1.5">
               <div class="flex items-center justify-between text-xs tabular-nums">
-                <span class="font-bold text-[#2B1D1D] dark:text-white">Puffy Cloud Bags</span>
+                <span class="font-bold text-[#2B1D1D] dark:text-white">Bags &amp; Pouches</span>
                 <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catBagsVal">20% &bull; $368.50</span>
               </div>
               <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
@@ -556,10 +556,10 @@
               </div>
             </div>
 
-            <!-- Category 4: Claw Clips & Phone Charms -->
+            <!-- Category 4: Hair, Charms & More -->
             <div class="space-y-1.5">
               <div class="flex items-center justify-between text-xs tabular-nums">
-                <span class="font-bold text-[#2B1D1D] dark:text-white">Clips &amp; Artisan Charms</span>
+                <span class="font-bold text-[#2B1D1D] dark:text-white">Hair, Charms &amp; More</span>
                 <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catClipsVal">12% &bull; $221.10</span>
               </div>
               <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
@@ -1540,10 +1540,10 @@
 
       // Section III-B: Category Breakdown Table
       const catNames = {
-        Jewelry: 'Y2K Chrome Jewelry',
-        Shades: '90s Tinted Eyewear',
-        Bags: 'Puffy Cloud Bags',
-        Clips: 'Clips & Artisan Charms'
+        Jewelry: 'Tees, Shirts & Polos',
+        Shades: 'Watches & Jewelry',
+        Bags: 'Bags & Pouches',
+        Clips: 'Hair, Charms & More'
       };
       const catBody = document.getElementById('printCategoryTableBody');
       if (catBody) {
@@ -1839,8 +1839,9 @@
       const DAY = 86400000;
       const liveOrders = () => PSA.orders.filter(o => o.orderStatus !== 'cancelled' && o.createdAt);
       const fmtDay = d => d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
-      // Map product categories onto the four category rows of the report
-      const CATEGORY_ROW = { jewelry: 'Jewelry', eyewear: 'Shades', bags: 'Bags', hair: 'Clips', charms: 'Clips' };
+      // Map product categories onto the four category rows of the report (row keys are the element ids:
+      // Jewelry = apparel, Shades = watches & jewelry, Bags = bags, Clips = everything else)
+      const CATEGORY_ROW = { apparel: 'Jewelry', watches: 'Shades', jewelry: 'Shades', eyewear: 'Shades', bags: 'Bags' };
 
       function rangeStart(key) {
         const now = new Date();

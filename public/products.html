@@ -139,22 +139,25 @@
     <!-- Category Filters Scrollable Bar -->
     <div class="reveal-init delay-100 flex items-center gap-2 overflow-x-auto pb-2 text-xs font-bold">
       <button onclick="setCategoryFilter('all', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-[#2B1D1D] text-white shadow-xs shrink-0">
-        All Pieces (<span id="totalCountBadge">12</span>)
+        All Pieces (<span id="totalCountBadge">0</span>)
       </button>
-      <button onclick="setCategoryFilter('jewelry', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-        Y2K & Cyber Jewelry
+      <button onclick="setCategoryFilter('apparel', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
+        Tees & Shirts
       </button>
-      <button onclick="setCategoryFilter('eyewear', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-        Shades & Eyewear
+      <button onclick="setCategoryFilter('watches', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
+        Watches
       </button>
       <button onclick="setCategoryFilter('bags', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-        Puffy Cloud Bags
+        Bags
       </button>
       <button onclick="setCategoryFilter('hair', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-        Claw Clips & Pins
+        Hair & Clips
       </button>
       <button onclick="setCategoryFilter('charms', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-        Phone Charms
+        Charms
+      </button>
+      <button onclick="setCategoryFilter('socks', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
+        Socks
       </button>
     </div>
 
@@ -197,10 +200,10 @@
         <div class="space-y-2">
           <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Categories</div>
           <ul class="text-xs space-y-1.5 text-stone-600 dark:text-stone-300 font-medium">
-            <li><a href="products.html?category=jewelry" class="hover:text-[#FFA552]">Y2K & Cyber Jewelry</a></li>
-            <li><a href="products.html?category=eyewear" class="hover:text-[#FFA552]">Shades & Eyewear</a></li>
-            <li><a href="products.html?category=bags" class="hover:text-[#FFA552]">Puffy Cloud Bags</a></li>
-            <li><a href="products.html?category=hair" class="hover:text-[#FFA552]">Claw Clips & Pins</a></li>
+            <li><a href="products.html?category=apparel" class="hover:text-[#FFA552]">Tees & Shirts</a></li>
+            <li><a href="products.html?category=watches" class="hover:text-[#FFA552]">Watches</a></li>
+            <li><a href="products.html?category=bags" class="hover:text-[#FFA552]">Bags</a></li>
+            <li><a href="products.html?category=hair" class="hover:text-[#FFA552]">Hair & Clips</a></li>
           </ul>
         </div>
 
@@ -315,6 +318,7 @@
       const empty = document.getElementById('emptyCatalog');
       if (!grid) return;
 
+      document.getElementById('totalCountBadge').textContent = ACCESSORIES_PRODUCTS.length;
       let list = [...ACCESSORIES_PRODUCTS];
 
       if (currentCategory !== 'all') {

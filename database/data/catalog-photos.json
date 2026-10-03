@@ -1,0 +1,502 @@
+[
+  {
+    "id": "genz-13",
+    "title": "Classic Silver Link Bracelet Watch",
+    "titleKhmer": "នាឡិកាសង្វាក់ប្រាក់ បែបបុរាណ",
+    "category": "watches",
+    "categoryLabel": "Everyday Watches",
+    "priceUSD": 22.0,
+    "priceKHR": 90200,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 88,
+    "badge": "Timeless",
+    "status": "active",
+    "image": "/assets/images/products/classic-silver-link-bracelet-watch.jpg",
+    "gallery": [
+      "/assets/images/products/classic-silver-link-bracelet-watch.jpg"
+    ],
+    "description": "Brushed silver bracelet watch with a pale dial and fluted bezel. Clean enough for the office, stylish enough for the weekend.",
+    "specifications": {
+      "Case Material": "Stainless steel",
+      "Dial": "Silver-white",
+      "Strap": "Jubilee-style link bracelet",
+      "Clasp": "Folding"
+    }
+  },
+  {
+    "id": "genz-14",
+    "title": "Brown Leather Strap Chronograph Watch",
+    "titleKhmer": "នាឡិកាក្រូណូក្រាហ្វ ខ្សែស្បែកពណ៌ត្នោត",
+    "category": "watches",
+    "categoryLabel": "Everyday Watches",
+    "priceUSD": 25.0,
+    "priceKHR": 102500,
+    "inStock": true,
+    "rating": 4.7,
+    "reviewsCount": 72,
+    "badge": "Men's Pick",
+    "status": "active",
+    "image": "/assets/images/products/brown-leather-strap-chronograph-watch.jpg",
+    "gallery": [
+      "/assets/images/products/brown-leather-strap-chronograph-watch.jpg"
+    ],
+    "description": "Black dial with roman numerals and three subdials, set in a bronze case on a brown leather strap. Presented in a gift tin.",
+    "specifications": {
+      "Case Material": "Bronze-tone alloy",
+      "Dial": "Black, Roman numerals",
+      "Strap": "Genuine leather",
+      "Packaging": "Gift tin"
+    }
+  },
+  {
+    "id": "genz-15",
+    "title": "Sage Green Oxford Button-Down Shirt",
+    "titleKhmer": "អាវដៃវែង Oxford ពណ៌បៃតងស្រាល",
+    "category": "apparel",
+    "categoryLabel": "Men's Shirts",
+    "priceUSD": 14.0,
+    "priceKHR": 57400,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 110,
+    "badge": "Fresh Drop",
+    "status": "active",
+    "image": "/assets/images/products/sage-green-oxford-button-down-shirt.jpg",
+    "gallery": [
+      "/assets/images/products/sage-green-oxford-button-down-shirt.jpg"
+    ],
+    "description": "Soft sage green Oxford shirt with button-down collar. Wear it tucked in with white trousers or open over a tee.",
+    "specifications": {
+      "Material": "Cotton Oxford",
+      "Fit": "Regular",
+      "Collar": "Button-down",
+      "Colour": "Sage Green"
+    }
+  },
+  {
+    "id": "genz-16",
+    "title": "Blue Striped Slim-Fit Button-Down Shirt",
+    "titleKhmer": "អាវដៃវែងឆ្នូតខៀវ ទម្រង់ Slim",
+    "category": "apparel",
+    "categoryLabel": "Men's Shirts",
+    "priceUSD": 14.0,
+    "priceKHR": 57400,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 95,
+    "badge": "Smart Casual",
+    "status": "active",
+    "image": "/assets/images/products/blue-striped-slim-fit-button-down-shirt.jpg",
+    "gallery": [
+      "/assets/images/products/blue-striped-slim-fit-button-down-shirt.jpg"
+    ],
+    "description": "Crisp blue-and-white striped shirt with a slim, tailored cut. Roll up the sleeves for easy smart-casual style.",
+    "specifications": {
+      "Material": "Cotton poplin",
+      "Fit": "Slim",
+      "Collar": "Button-down",
+      "Pattern": "Blue and white stripe"
+    }
+  },
+  {
+    "id": "genz-17",
+    "title": "Ribbed Knit Contrast Collar Polo",
+    "titleKhmer": "អាវពូឡូ ក្រណាត់ត្បាញ ក និងបំពង់ដៃពណ៌ផ្ទុយ",
+    "category": "apparel",
+    "categoryLabel": "Polos",
+    "priceUSD": 16.0,
+    "priceKHR": 65600,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 81,
+    "badge": "Old Money",
+    "status": "active",
+    "image": "/assets/images/products/ribbed-knit-contrast-collar-polo.jpg",
+    "gallery": [
+      "/assets/images/products/ribbed-knit-contrast-collar-polo.jpg"
+    ],
+    "description": "Cream ribbed knit polo with navy contrast trim on the collar and sleeves. Dressed-up and easy to wear.",
+    "specifications": {
+      "Material": "Cotton-blend rib knit",
+      "Fit": "Regular",
+      "Detail": "Navy contrast collar and cuffs",
+      "Colour": "Cream"
+    }
+  },
+  {
+    "id": "genz-18",
+    "title": "Olive Plaid Relaxed Overshirt",
+    "titleKhmer": "អាវដៃវែងឆ្នូតការ៉ូ ពណ៌អូលីវ ទ្រង់ធំ",
+    "category": "apparel",
+    "categoryLabel": "Men's Shirts",
+    "priceUSD": 15.0,
+    "priceKHR": 61500,
+    "inStock": true,
+    "rating": 4.7,
+    "reviewsCount": 69,
+    "badge": "Streetwear",
+    "status": "active",
+    "image": "/assets/images/products/olive-plaid-relaxed-overshirt.jpg",
+    "gallery": [
+      "/assets/images/products/olive-plaid-relaxed-overshirt.jpg"
+    ],
+    "description": "Relaxed olive and cream plaid shirt with a casual drape. Wear it open as an overshirt or buttoned up.",
+    "specifications": {
+      "Material": "Cotton blend",
+      "Fit": "Relaxed",
+      "Pattern": "Olive plaid",
+      "Colour": "Olive and Cream"
+    }
+  },
+  {
+    "id": "genz-19",
+    "title": "Grey Check Oversized Long-Sleeve Shirt",
+    "titleKhmer": "អាវដៃវែងការ៉ូប្រផេះ ទ្រង់ធំ",
+    "category": "apparel",
+    "categoryLabel": "Men's Shirts",
+    "priceUSD": 15.0,
+    "priceKHR": 61500,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 77,
+    "badge": "Gen-Z Fit",
+    "status": "active",
+    "image": "/assets/images/products/grey-check-oversized-long-sleeve-shirt.jpg",
+    "gallery": [
+      "/assets/images/products/grey-check-oversized-long-sleeve-shirt.jpg"
+    ],
+    "description": "Lightweight grey checkered shirt with a chest pocket and an oversized cut. Soft, airy and made for layering.",
+    "specifications": {
+      "Material": "Textured cotton blend",
+      "Fit": "Oversized",
+      "Pocket": "Chest patch pocket",
+      "Colour": "Grey and White"
+    }
+  },
+  {
+    "id": "genz-20",
+    "title": "Gingham and Lace Scrunchie Set (4 Pcs)",
+    "titleKhmer": "ឈុតខ្សែចងសក់ Gingham និង Lace (៤ ខ្សែ)",
+    "category": "hair",
+    "categoryLabel": "Scrunchies and Clips",
+    "priceUSD": 5.0,
+    "priceKHR": 20500,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 139,
+    "badge": "Cottagecore 🌼",
+    "status": "active",
+    "image": "/assets/images/products/gingham-and-lace-scrunchie-set-4-pcs.jpg",
+    "gallery": [
+      "/assets/images/products/gingham-and-lace-scrunchie-set-4-pcs.jpg"
+    ],
+    "description": "Four oversized scrunchies in red gingham, blue check, cream knit and floral with lace trim. Gentle hold with no creases.",
+    "specifications": {
+      "Pack Quantity": "4 scrunchies",
+      "Material": "Cotton and lace",
+      "Colours": "Red, Blue, Cream, Floral",
+      "Hold": "Soft elastic"
+    }
+  },
+  {
+    "id": "genz-21",
+    "title": "Strawberry Beaded Charm Watch Bracelet",
+    "titleKhmer": "កងដៃនាឡិកាអង្កាំ Strawberry",
+    "category": "jewelry",
+    "categoryLabel": "Charm Jewelry",
+    "priceUSD": 9.0,
+    "priceKHR": 36900,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 118,
+    "badge": "Handmade 🍓",
+    "status": "active",
+    "image": "/assets/images/products/strawberry-beaded-charm-watch-bracelet.jpg",
+    "gallery": [
+      "/assets/images/products/strawberry-beaded-charm-watch-bracelet.jpg"
+    ],
+    "description": "Handmade beaded bracelet with a tiny watch face, glass strawberry, hearts and flowers. Part jewellery, part tiny accessory.",
+    "specifications": {
+      "Material": "Glass beads and alloy",
+      "Closure": "Lobster clasp + extender",
+      "Charms": "Strawberry, hearts, flowers",
+      "Style": "Cottagecore / Kawaii"
+    }
+  },
+  {
+    "id": "genz-22",
+    "title": "Strawberry Bow Beaded Bag Charm",
+    "titleKhmer": "គ្រឿងលម្អកាបូប អង្កាំ Strawberry រ៉ូប៉ូ",
+    "category": "charms",
+    "categoryLabel": "Bag Charms",
+    "priceUSD": 4.5,
+    "priceKHR": 18450,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 102,
+    "badge": "Kawaii 🍓",
+    "status": "active",
+    "image": "/assets/images/products/strawberry-bow-beaded-bag-charm.jpg",
+    "gallery": [
+      "/assets/images/products/strawberry-bow-beaded-bag-charm.jpg"
+    ],
+    "description": "Dangling bag charm with a ribbon bow, pearl heart, strawberry and a tiny critter figure. Clips on to bags, keys or lip balm.",
+    "specifications": {
+      "Charms": "Bow, heart, strawberry, mini figure",
+      "Attachment": "Swivel clip + ball chain",
+      "Material": "Resin and acrylic",
+      "Length": "Approx. 14cm"
+    }
+  },
+  {
+    "id": "genz-23",
+    "title": "White Floppy-Ear Plush Bag Charm",
+    "titleKhmer": "គ្រឿងលម្អកាបូប តុក្កតាឆ្កែត្រចៀកធ្លាក់ ពណ៌ស",
+    "category": "charms",
+    "categoryLabel": "Plush Charms",
+    "priceUSD": 5.5,
+    "priceKHR": 22550,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 214,
+    "badge": "Bestseller",
+    "status": "active",
+    "image": "/assets/images/products/white-floppy-ear-plush-bag-charm.jpg",
+    "gallery": [
+      "/assets/images/products/white-floppy-ear-plush-bag-charm.jpg"
+    ],
+    "description": "Soft white plush with long floppy ears, paired with a heart carabiner, star and 8-ball charm. Clip it on a bag zipper or backpack.",
+    "specifications": {
+      "Material": "Plush and metal",
+      "Attachment": "Heart carabiner + key ring",
+      "Extras": "Star and 8-ball charm",
+      "Height": "Approx. 12cm"
+    }
+  },
+  {
+    "id": "genz-24",
+    "title": "Kawaii Bunny Plush Bag Charm Duo",
+    "titleKhmer": "គ្រឿងលម្អកាបូប តុក្កតាទន្សាយ (២ ក្បាល)",
+    "category": "charms",
+    "categoryLabel": "Plush Charms",
+    "priceUSD": 6.0,
+    "priceKHR": 24600,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 190,
+    "badge": "Viral 🐰",
+    "status": "active",
+    "image": "/assets/images/products/kawaii-bunny-plush-bag-charm-duo.jpg",
+    "gallery": [
+      "/assets/images/products/kawaii-bunny-plush-bag-charm-duo.jpg"
+    ],
+    "description": "Two squishy bunny plush charms with blushing cheeks on ball chains. Hang them on a handbag, tote or backpack.",
+    "specifications": {
+      "Pack Quantity": "2 plush charms",
+      "Material": "Plush and PP cotton",
+      "Attachment": "Ball chain",
+      "Height": "Approx. 10cm"
+    }
+  },
+  {
+    "id": "genz-25",
+    "title": "Plush Bunny Blue Rose Bouquet Gift Set",
+    "titleKhmer": "ឈុតកាដូ ផ្កាកុលាបខៀវ និងតុក្កតាទន្សាយ",
+    "category": "gifts",
+    "categoryLabel": "Gift Sets",
+    "priceUSD": 22.0,
+    "priceKHR": 90200,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 46,
+    "badge": "Gift Idea 🎁",
+    "status": "active",
+    "image": "/assets/images/products/plush-bunny-blue-rose-bouquet-gift-set.jpg",
+    "gallery": [
+      "/assets/images/products/plush-bunny-blue-rose-bouquet-gift-set.jpg"
+    ],
+    "description": "Gift bouquet with a plush bunny nested in blue and white blooms, wrapped in light blue paper and ribbon. Ideal for birthdays and graduations.",
+    "specifications": {
+      "Includes": "Plush bunny, flowers, wrapping",
+      "Colour Theme": "Blue and White",
+      "Wrapping": "Paper and satin ribbon",
+      "Occasion": "Birthday, graduation, anniversary"
+    }
+  },
+  {
+    "id": "genz-26",
+    "title": "Vintage Floral Ribbon Newsboy Cap",
+    "titleKhmer": "មួក Newsboy បែបវីនធេច ជាប់ខ្សែរ៉ូប៉ូផ្កា",
+    "category": "hats",
+    "categoryLabel": "Caps and Hats",
+    "priceUSD": 11.0,
+    "priceKHR": 45100,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 66,
+    "badge": "Vintage Vibes",
+    "status": "active",
+    "image": "/assets/images/products/vintage-floral-ribbon-newsboy-cap.jpg",
+    "gallery": [
+      "/assets/images/products/vintage-floral-ribbon-newsboy-cap.jpg"
+    ],
+    "description": "Soft olive-brown newsboy cap with a floral ribbon band and a short peak. A relaxed vintage finish for any outfit.",
+    "specifications": {
+      "Material": "Cotton twill",
+      "Style": "Newsboy / Baker boy",
+      "Detail": "Floral ribbon band",
+      "Fit": "Adjustable inner band"
+    }
+  },
+  {
+    "id": "genz-27",
+    "title": "Embroidered Bow Crew Socks (2 Pairs)",
+    "titleKhmer": "ស្រោមជើងកវែង ប៉ាក់រ៉ូប៉ូ (២ គូរ)",
+    "category": "socks",
+    "categoryLabel": "Socks",
+    "priceUSD": 4.0,
+    "priceKHR": 16400,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 175,
+    "badge": "Coquette 🎀",
+    "status": "active",
+    "image": "/assets/images/products/embroidered-bow-crew-socks-2-pairs.jpg",
+    "gallery": [
+      "/assets/images/products/embroidered-bow-crew-socks-2-pairs.jpg"
+    ],
+    "description": "Cream and burgundy ribbed crew socks with a tiny embroidered bow. Soft, stretchy and made for loafers and sneakers.",
+    "specifications": {
+      "Pack Quantity": "2 pairs",
+      "Material": "Cotton blend",
+      "Length": "Crew",
+      "Colours": "Cream and Burgundy"
+    }
+  },
+  {
+    "id": "genz-28",
+    "title": "Cartoon Face Crew Socks Set (5 Pairs)",
+    "titleKhmer": "ឈុតស្រោមជើងមុខតុក្កតា (៥ គូរ)",
+    "category": "socks",
+    "categoryLabel": "Socks",
+    "priceUSD": 8.0,
+    "priceKHR": 32800,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 138,
+    "badge": "Fun Pick",
+    "status": "active",
+    "image": "/assets/images/products/cartoon-face-crew-socks-set-5-pairs.jpg",
+    "gallery": [
+      "/assets/images/products/cartoon-face-crew-socks-set-5-pairs.jpg"
+    ],
+    "description": "Five bold crew socks in pastel colours, each with a goofy cartoon face. A fun gift for friends.",
+    "specifications": {
+      "Pack Quantity": "5 pairs",
+      "Material": "Cotton blend",
+      "Length": "Crew",
+      "Colours": "Purple, Mint, Orange, Lime, Yellow"
+    }
+  },
+  {
+    "id": "genz-29",
+    "title": "Glossy Brown Leather Shoulder Bag",
+    "titleKhmer": "កាបូបស្ពាយស្បែកពណ៌ត្នោតភ្លឺ",
+    "category": "bags",
+    "categoryLabel": "Shoulder Bags",
+    "priceUSD": 24.0,
+    "priceKHR": 98400,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 121,
+    "badge": "Y2K Classic",
+    "status": "active",
+    "image": "/assets/images/products/glossy-brown-leather-shoulder-bag.jpg",
+    "gallery": [
+      "/assets/images/products/glossy-brown-leather-shoulder-bag.jpg"
+    ],
+    "description": "Rich glossy brown shoulder bag with double top handles and a roomy interior. A true Y2K silhouette for your bag charms.",
+    "specifications": {
+      "Material": "Glossy PU leather",
+      "Handles": "Double top handle",
+      "Closure": "Zip",
+      "Colour": "Chocolate Brown"
+    }
+  },
+  {
+    "id": "genz-30",
+    "title": "Mini Vintage Brown Crossbody Bag",
+    "titleKhmer": "កាបូបស្ពាយឆៀងតូច ពណ៌ត្នោតបែបវីនធេច",
+    "category": "bags",
+    "categoryLabel": "Crossbody Bags",
+    "priceUSD": 20.0,
+    "priceKHR": 82000,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 93,
+    "badge": "Trending ⚡",
+    "status": "active",
+    "image": "/assets/images/products/mini-vintage-brown-crossbody-bag.jpg",
+    "gallery": [
+      "/assets/images/products/mini-vintage-brown-crossbody-bag.jpg"
+    ],
+    "description": "Compact brown crossbody with a curved flap and adjustable strap. It fits phone, wallet and earbuds, and looks great with a clip on the strap.",
+    "specifications": {
+      "Material": "PU leather",
+      "Strap": "Adjustable crossbody",
+      "Closure": "Magnetic flap",
+      "Colour": "Brown"
+    }
+  },
+  {
+    "id": "genz-31",
+    "title": "Brown Leather Shoulder Bag with Lace Ribbon",
+    "titleKhmer": "កាបូបស្ពាយស្បែកពណ៌ត្នោត ជាប់ខ្សែរបាំង",
+    "category": "bags",
+    "categoryLabel": "Shoulder Bags",
+    "priceUSD": 26.0,
+    "priceKHR": 106600,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 84,
+    "badge": "Cottagecore 🌼",
+    "status": "active",
+    "image": "/assets/images/products/brown-leather-shoulder-bag-with-lace-ribbon.jpg",
+    "gallery": [
+      "/assets/images/products/brown-leather-shoulder-bag-with-lace-ribbon.jpg"
+    ],
+    "description": "Structured brown shoulder bag with buckle detail, tied with a lace ribbon on the strap. Pair with a plush charm to finish the look.",
+    "specifications": {
+      "Material": "PU leather",
+      "Details": "Buckle front, lace ribbon",
+      "Closure": "Zip",
+      "Colour": "Cognac Brown"
+    }
+  },
+  {
+    "id": "genz-32",
+    "title": "Beaded Bow Phone Charm Strap",
+    "titleKhmer": "ខ្សែអង្កាំទូរស័ព្ទ រាងរ៉ូប៉ូ",
+    "category": "charms",
+    "categoryLabel": "Phone Charms",
+    "priceUSD": 4.5,
+    "priceKHR": 18450,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 160,
+    "badge": "Gen-Z Pick",
+    "status": "active",
+    "image": "/assets/images/products/beaded-bow-phone-charm-strap.jpg",
+    "gallery": [
+      "/assets/images/products/beaded-bow-phone-charm-strap.jpg"
+    ],
+    "description": "Pastel beaded phone strap tied into a bow, with pearl and heart beads. Also works on tumblers, keys and bags.",
+    "specifications": {
+      "Material": "Acrylic and glass beads",
+      "Attachment": "Phone lanyard loop",
+      "Style": "Pastel / Coquette",
+      "Length": "Approx. 18cm"
+    }
+  }
+]
