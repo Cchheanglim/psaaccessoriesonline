@@ -9,6 +9,7 @@ use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\ProductReview;
 use App\Models\User;
+use App\Support\Notifier;
 use App\Support\Storefront;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -43,7 +44,8 @@ class StoreApiController extends Controller
         // The catalog is the same for every visitor, so keep it briefly (Supabase round trips are slow).
         $catalog = Storefront::catalog($isStaff);
 
-        $orders = (! $isStaff && ! $user && ! $guestOrders) ? collect() : Order::with('items')->withCount(['messages', 'reviews'])
+        $orders = (! $isStaff && ! $user && ! $guestOrders) ? collect() : Order::with(['items', 'handler:id,name'])
+            ->withCount(['messages', 'reviews', 'messages as unread_replies_count' => fn ($q) => $q->where('from_staff', true)->whereNull('read_at')])
             ->when(! $isStaff, function ($q) use ($user, $guestOrders) {
                 $q->where(function ($q) use ($user, $guestOrders) {
                     $q->whereIn('order_number', $guestOrders);
@@ -298,6 +300,9 @@ class StoreApiController extends Controller
 
         Storefront::forgetCatalog(); // stock changed
 
+        Notifier::toStaff($order, 'order_placed', "New order {$order->order_number}",
+            sprintf('%s ordered %d item(s), $%s by %s.', $order->customer_name, $order->items->sum('quantity'), number_format((float) $order->total_usd, 2), Storefront::paymentName($order->payment_method)));
+
         return response()->json(['order' => Storefront::order($order->load('items'))], 201);
     }
 
@@ -316,6 +321,9 @@ class StoreApiController extends Controller
             'payment_slip_url' => $data['slip'] ?? $order->payment_slip_url ?? 'submitted-without-image',
             'payment_status' => 'slip_uploaded',
         ]);
+
+        Notifier::toStaff($order, 'slip_uploaded', "Payment slip for {$order->order_number}",
+            "{$order->customer_name} uploaded a slip for $".number_format((float) $order->total_usd, 2).'. Check it and approve.');
 
         return response()->json(['order' => Storefront::order($order->load('items'))]);
     }
@@ -393,6 +401,7 @@ class StoreApiController extends Controller
     public function orderMessages(Request $request, string $orderNumber): JsonResponse
     {
         $order = $this->ownOrder($request, $orderNumber);
+        $this->markThreadRead($request, $order);
 
         return response()->json(['messages' => $this->messageList($order)]);
     }
@@ -409,13 +418,38 @@ class StoreApiController extends Controller
             'body.max' => 'Messages can be up to 2,000 characters.',
         ]);
 
+        $fromStaff = $user->isStaff() && $order->user_id !== $user->id;
+        $body = trim($data['body']);
+
         $order->messages()->create([
             'user_id' => $user->id,
-            'from_staff' => $user->isStaff() && $order->user_id !== $user->id,
-            'body' => trim($data['body']),
+            'from_staff' => $fromStaff,
+            'body' => $body,
         ]);
+        $this->markThreadRead($request, $order);
+
+        $preview = mb_strimwidth($body, 0, 140, '…');
+        if ($fromStaff) {
+            Notifier::toCustomer($order, 'message', "New message about order {$order->order_number}", $preview,
+                'order-detail.html?order='.rawurlencode($order->order_number).'#messages');
+        } else {
+            Notifier::toStaff($order, 'message', "{$order->customer_name} sent a message ({$order->order_number})", $preview, $user->id);
+        }
 
         return response()->json(['messages' => $this->messageList($order)], 201);
+    }
+
+    /** Opening a thread marks the other side's messages, and this order's message notices, as read. */
+    private function markThreadRead(Request $request, Order $order): void
+    {
+        $user = $request->user();
+        if (! $user) {
+            return;
+        }
+        $viewerIsStaff = $user->isStaff() && $order->user_id !== $user->id;
+        $order->messages()->where('from_staff', ! $viewerIsStaff)->whereNull('read_at')->update(['read_at' => now()]);
+        \App\Models\UserNotification::where('user_id', $user->id)->where('order_id', $order->id)
+            ->where('type', 'message')->whereNull('read_at')->update(['read_at' => now()]);
     }
 
     private function messageList(Order $order): array

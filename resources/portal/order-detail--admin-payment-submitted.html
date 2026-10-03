@@ -102,7 +102,7 @@
                 <h1 class="text-2xl font-black tracking-tight">Order ${psaEsc(order.id)}</h1>
                 <span class="inline-flex items-center rounded-lg border px-2.5 py-1 text-sm font-bold ${statusTone(order)}">${psaEsc(order.status)}</span>
               </div>
-              <p class="mt-1 text-base text-stone-600">Placed ${psaEsc(order.date || '')} &middot; ${psaEsc(order.paymentMethod || '')}</p>
+              <p class="mt-1 text-base text-stone-600">Placed ${psaEsc(order.date || '')} &middot; ${psaEsc(order.paymentMethod || '')} &middot; ${order.handledBy ? 'Handled by <strong class="text-[#2B1D1D]">' + psaEsc(order.handledById === (PSA.user && PSA.user.id) ? 'you' : order.handledBy) + '</strong>' : 'Not assigned yet: whoever approves it becomes the customer\x27s contact'}</p>
             </div>
             <div class="text-right">
               <div class="text-2xl font-black tabular-nums">${money(order.totalUSD)}</div>

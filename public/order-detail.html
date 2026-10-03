@@ -217,6 +217,11 @@
     }
 
     /* ---------- Messages ---------- */
+    // First name of the staff member who approved the order: the customer's contact for it.
+    function contactName() {
+      return order && order.handledBy ? String(order.handledBy).trim().split(/\s+/)[0] : '';
+    }
+
     function renderMessagesShell() {
       const box = document.getElementById('messages');
       if (!PSA.online || !PSA.user) {
@@ -225,8 +230,8 @@
         return;
       }
       box.innerHTML = `
-        <h2 id="messagesTitle" class="text-lg font-black">Messages with the shop</h2>
-        <p class="text-sm text-stone-600">Ask about delivery times, changes or anything else about this order.</p>
+        <h2 id="messagesTitle" class="text-lg font-black">${contactName() ? `Chat with ${psaEsc(contactName())}` : 'Messages with the shop'}</h2>
+        <p class="text-sm text-stone-600">${contactName() ? `${psaEsc(contactName())} from PsaOnline approved your order and replies here. Ask about delivery times, changes or anything else.` : 'Ask about delivery times, changes or anything else about this order. Whoever approves your order will reply here.'}</p>
         <div id="messageList" class="mt-4 space-y-3 max-h-[28rem] overflow-y-auto" aria-live="polite"><p class="text-sm text-stone-600">Loading messages…</p></div>
         <form id="messageForm" class="mt-4 flex flex-col sm:flex-row gap-2">
           <label for="messageInput" class="sr-only">Your message</label>
@@ -253,7 +258,7 @@
         return `
           <div class="flex ${mine ? 'justify-end' : 'justify-start'}">
             <div class="max-w-[85%] rounded-2xl px-4 py-2.5 ${mine ? 'bg-espresso text-cotton rounded-br-md' : 'bg-cotton dark:bg-[#252530] text-[#2B1D1D] rounded-bl-md'}">
-              <div class="text-xs font-bold ${mine ? 'text-cotton/80' : 'text-stone-600'}">${mine ? 'You' : 'PsaOnline'} &middot; ${psaEsc(when)}</div>
+              <div class="text-xs font-bold ${mine ? 'text-cotton/80' : 'text-stone-600'}">${mine ? 'You' : psaEsc(m.staffName ? m.staffName.split(' ')[0] + ' · PsaOnline' : 'PsaOnline')} &middot; ${psaEsc(when)}</div>
               <p class="mt-0.5 text-base whitespace-pre-line break-words">${psaEsc(m.body)}</p>
             </div>
           </div>`;

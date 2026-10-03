@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\User;
+use App\Support\Notifier;
 use App\Support\Storefront;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -74,9 +75,10 @@ class AdminApiController extends Controller
             abort(422, 'This order was already cancelled.');
         }
 
-        DB::transaction(function () use ($order, $data) {
+        DB::transaction(function () use ($order, $data, $user) {
             match ($data['action']) {
-                'verify' => $order->update(['payment_status' => 'verified', 'order_status' => 'processing', 'paid_at' => now()]),
+                // Whoever approves the order becomes the customer's contact for it.
+                'verify' => $order->update(['payment_status' => 'verified', 'order_status' => 'processing', 'paid_at' => now(), 'handled_by' => $order->handled_by ?? $user->id]),
                 'reject' => $order->update(['payment_status' => 'failed']),
                 'dispatch' => $order->update(['order_status' => 'out_for_delivery']),
                 'deliver' => $order->update(array_filter([
@@ -90,7 +92,19 @@ class AdminApiController extends Controller
 
         Storefront::forgetCatalog();
 
-        return response()->json(['order' => Storefront::order($order->refresh()->load('items'))]);
+        $order->refresh();
+        $contact = $order->handler ? explode(' ', trim($order->handler->name))[0] : 'our team';
+        [$title, $body] = match ($data['action']) {
+            'verify' => [$order->payment_method === 'cod' ? 'Order confirmed' : 'Payment confirmed', "{$contact} approved order {$order->order_number} and it's being prepared. You can message {$contact} from your order page."],
+            'reject' => ['Please send a new payment slip', "We couldn't verify the slip for {$order->order_number}. Check the amount and upload the correct screenshot."],
+            'dispatch' => ['Out for delivery', "Order {$order->order_number} is on its way to you."],
+            'deliver' => ['Delivered', "Order {$order->order_number} was delivered. Enjoy! You can review your items now."],
+            'cancel' => ['Order cancelled', "Order {$order->order_number} was cancelled. Message us if you have questions."],
+        };
+        Notifier::toCustomer($order, 'order_status', $title, $body,
+            'order-detail.html?order='.rawurlencode($order->order_number).($data['action'] === 'deliver' ? '#review' : ''));
+
+        return response()->json(['order' => Storefront::order($order->load('items'))]);
     }
 
     private function cancelOrder(Order $order): void

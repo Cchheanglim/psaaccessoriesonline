@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\AdminPaymentMethodController;
 use App\Http\Controllers\Api\StoreApiController;
 use App\Http\Controllers\Api\AdminApiController;
 use App\Http\Controllers\Api\ChatAssistantController;
+use App\Http\Controllers\Api\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +39,7 @@ Route::redirect('/home', '/home.html');
 Route::get('/{page}.html', fn (string $page) => response()->file(resource_path("portal/{$page}.html"), [
     'Cache-Control' => 'no-store, private',
 ]))->whereIn('page', [
-    'dashboard-admin', 'admin-orders', 'admin-products', 'admin-users', 'admin-payment-methods',
+    'dashboard-admin', 'admin-orders', 'admin-products', 'admin-users', 'admin-payment-methods', 'admin-messages',
     'order-detail--admin-payment-submitted', 'order-detail--staff-payment-submitted',
     'payment-method-form', 'product-detail--staff', 'product-form', 'user-form',
 ])->middleware('staff');
@@ -68,6 +69,11 @@ Route::prefix('api')->group(function () {
 
     // AI shopping assistant (Gemini) for chat.html
     Route::post('/chat/assistant', [ChatAssistantController::class, 'reply'])->middleware('throttle:10,1');
+
+    // Notification bell + staff Messages inbox
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/read', [NotificationController::class, 'markRead']);
+    Route::get('/admin/conversations', [NotificationController::class, 'conversations']);
     Route::get('/chat/messages', [StoreApiController::class, 'getChatMessages']);
     Route::post('/chat/messages', [StoreApiController::class, 'sendChatMessage'])->middleware('throttle:30,1');
 

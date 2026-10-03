@@ -2179,7 +2179,7 @@ function showWishlistToast(productTitle, isAdded) {
   toast.innerHTML = `
     <div class="bg-white dark:bg-[#1E1E26] border-2 ${isAdded ? 'border-rose-400 shadow-[0_10px_25px_-5px_rgba(244,63,94,0.35)]' : 'border-[#EFE4D6] dark:border-[#32323D]'} rounded-2xl p-3.5 max-w-sm flex items-center gap-3 pointer-events-auto">
       <div class="w-10 h-10 rounded-xl ${isAdded ? 'bg-rose-50 text-rose-500 dark:bg-rose-950/60 dark:text-rose-400' : 'bg-[#F9F3EA] text-[#4A3333] dark:bg-stone-800 dark:text-stone-400'} flex items-center justify-center shrink-0">
-        <svg class="w-5 h-5 ${isAdded ? 'animate-bounce' : ''}" fill="${isAdded ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <svg class="w-5 h-5" fill="${isAdded ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
       </div>
       <div class="flex-1 min-w-0 text-xs">
         <div class="font-black text-[#2B1D1D] dark:text-white truncate">${productTitle}</div>
@@ -2400,3 +2400,154 @@ function renderWishlistDrawer() {
     </div>
   `;
 }
+
+/* ==========================================================================
+   NOTIFICATION BELL (signed-in customers, staff and admins)
+   Customers: order updates and replies from the shop.
+   Staff: new orders, payment slips and customer messages (+ a link to the Messages inbox).
+   ========================================================================== */
+const PSA_BELL_ICON = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+let psaBellState = { unread: 0, unreadMessages: 0, items: [] };
+
+function psaTimeAgo(iso) {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return 'just now';
+  if (s < 3600) return `${Math.floor(s / 60)} min ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)} h ago`;
+  return new Date(iso).toLocaleDateString([], { day: 'numeric', month: 'short' });
+}
+
+// Where the bell goes: next to the account or bag link, else at the start of the header's right-hand group.
+function psaBellHost() {
+  const header = document.querySelector('header');
+  if (!header) return null;
+  const anchor = header.querySelector('a[href="dashboard-buyer.html"], a[href="cart.html"]');
+  if (anchor && anchor.parentElement) return { parent: anchor.parentElement, before: anchor };
+  const groups = [...header.querySelectorAll('div')].filter(d =>
+    d.querySelector(':scope > a, :scope > button') && getComputedStyle(d).display.includes('flex'));
+  // Otherwise go at the far right of the header's main row
+  const row = [...header.children].find(d => d.tagName === 'DIV' && d.offsetParent !== null && d.querySelector('a, img') && getComputedStyle(d).display.includes('flex'))
+    || [...header.querySelectorAll(':scope > div > div')].find(d => d.offsetParent !== null && d.querySelector('a, img') && getComputedStyle(d).display.includes('flex'));
+  if (row) return { parent: row, before: null };
+  const group = groups[groups.length - 1];
+  return group ? { parent: group, before: null } : null;
+}
+
+function psaRenderBell() {
+  const total = psaBellState.unread;
+  document.querySelectorAll('.psa-bell-badge').forEach(b => {
+    b.textContent = total > 9 ? '9+' : String(total);
+    b.classList.toggle('hidden', total === 0);
+  });
+  document.querySelectorAll('.psa-bell-btn').forEach(b => b.setAttribute('aria-label', total ? `Notifications, ${total} unread` : 'Notifications'));
+  document.querySelectorAll('.psa-inbox-count').forEach(b => {
+    b.textContent = psaBellState.unreadMessages;
+    b.classList.toggle('hidden', !psaBellState.unreadMessages);
+  });
+
+  const panel = document.getElementById('psaBellPanel');
+  if (!panel || panel.hidden) return;
+  const isStaff = PSA.user && PSA.user.role !== 'Buyer';
+  const items = psaBellState.items || [];
+  panel.innerHTML = `
+    <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-[#EFE4D6] dark:border-[#2D2D38]">
+      <h2 class="text-base font-black text-[#2B1D1D]">Notifications</h2>
+      ${total ? '<button type="button" data-bell-readall class="h-9 px-2 text-sm font-bold text-[#A3520F] dark:text-[#FFA552] hover:underline cursor-pointer">Mark all read</button>' : ''}
+    </div>
+    ${isStaff ? `<a href="admin-messages.html" class="flex items-center justify-between gap-3 px-4 py-3 border-b border-[#EFE4D6] dark:border-[#2D2D38] hover:bg-[#F9F3EA] dark:hover:bg-[#20202A]">
+      <span class="text-sm font-black text-[#2B1D1D]">Messages inbox</span>
+      <span class="text-sm font-bold ${psaBellState.unreadMessages ? 'text-rose-700' : 'text-stone-600'}">${psaBellState.unreadMessages ? psaBellState.unreadMessages + ' unread' : 'Open'}</span>
+    </a>` : ''}
+    <ul class="max-h-[60vh] overflow-y-auto divide-y divide-[#F3EAD9] dark:divide-[#2D2D38]">
+      ${items.length ? items.map(n => `
+        <li>
+          <a href="${psaEsc(n.link || '#')}" data-bell-item="${Number(n.id)}" class="flex gap-3 px-4 py-3 hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] ${n.read ? '' : 'bg-[#FFF6EC] dark:bg-[#231E1A]'}">
+            <span class="mt-1.5 w-2 h-2 rounded-full shrink-0 ${n.read ? 'bg-transparent' : 'bg-[#E88C35]'}" aria-hidden="true"></span>
+            <span class="min-w-0">
+              <span class="block text-sm ${n.read ? 'font-semibold' : 'font-black'} text-[#2B1D1D]">${psaEsc(n.title)}${n.read ? '' : '<span class="sr-only"> (unread)</span>'}</span>
+              ${n.body ? `<span class="block text-sm text-stone-600 line-clamp-2">${psaEsc(n.body)}</span>` : ''}
+              <span class="block mt-0.5 text-xs text-stone-500">${psaEsc(psaTimeAgo(n.createdAt))}</span>
+            </span>
+          </a>
+        </li>`).join('') : '<li class="px-4 py-8 text-center text-sm text-stone-600">Nothing new yet. Order updates and replies show up here.</li>'}
+    </ul>`;
+}
+
+async function psaLoadNotifications() {
+  if (!PSA.online || !PSA.user) return;
+  try {
+    psaBellState = await psaApi('GET', '/api/notifications');
+    psaRenderBell();
+  } catch (e) { /* keep the last known state */ }
+}
+
+function psaToggleBellPanel(force) {
+  const panel = document.getElementById('psaBellPanel');
+  const btn = document.querySelector('.psa-bell-btn');
+  if (!panel || !btn) return;
+  const open = typeof force === 'boolean' ? force : panel.hidden;
+  if (open === !panel.hidden) return;
+  panel.hidden = !open;
+  btn.setAttribute('aria-expanded', String(open));
+  if (open) {
+    psaRenderBell();
+    psaLoadNotifications();
+  }
+}
+
+function psaInitNotifications() {
+  if (!PSA.online || !PSA.user || document.querySelector('.psa-bell-btn')) return;
+  const host = psaBellHost();
+  if (!host) return;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'relative shrink-0';
+  wrap.innerHTML = `
+    <button type="button" class="psa-bell-btn relative w-11 h-11 rounded-full flex items-center justify-center text-[#2B1D1D] dark:text-white bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#32323D] hover:bg-[#F9F3EA] cursor-pointer" aria-haspopup="true" aria-expanded="false" aria-controls="psaBellPanel" aria-label="Notifications">
+      ${PSA_BELL_ICON}
+      <span class="psa-bell-badge hidden absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-rose-600 text-white text-xs font-black flex items-center justify-center ring-2 ring-white dark:ring-[#1E1E26]"></span>
+    </button>
+    <div id="psaBellPanel" hidden class="fixed sm:absolute left-2 right-2 sm:left-auto sm:right-0 top-16 sm:top-12 sm:w-96 z-[60] rounded-2xl bg-white dark:bg-[#1A1A22] border border-[#EFE4D6] dark:border-[#2D2D38] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.3)] overflow-hidden text-left" role="region" aria-label="Notifications"></div>`;
+  host.parent.insertBefore(wrap, host.before || null);
+
+  wrap.querySelector('.psa-bell-btn').addEventListener('click', e => { e.stopPropagation(); psaToggleBellPanel(); });
+  wrap.querySelector('#psaBellPanel').addEventListener('click', async e => {
+    e.stopPropagation();
+    if (e.target.closest('[data-bell-readall]')) {
+      await psaApi('POST', '/api/notifications/read').catch(() => null);
+      (psaBellState.items || []).forEach(n => { n.read = true; });
+      psaBellState.unread = 0;
+      psaRenderBell();
+      return;
+    }
+    const item = e.target.closest('[data-bell-item]');
+    if (item) {
+      e.preventDefault();
+      await psaApi('POST', '/api/notifications/read', { id: Number(item.dataset.bellItem) }).catch(() => null);
+      window.location.href = item.getAttribute('href');
+    }
+  });
+  document.addEventListener('click', () => psaToggleBellPanel(false));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') psaToggleBellPanel(false); });
+
+  psaLoadNotifications();
+  setInterval(() => { if (!document.hidden) psaLoadNotifications(); }, 30000);
+}
+
+document.addEventListener('DOMContentLoaded', psaInitNotifications);
+
+
+// Stacked tables on phones: copy each column heading onto its cells as data-label (rows are rendered by page scripts).
+function psaLabelStackTables(root = document) {
+  root.querySelectorAll('table.psa-stack-table').forEach(table => {
+    const heads = [...table.querySelectorAll('thead th')].map(th => th.textContent.replace(/\s+/g, ' ').trim());
+    table.querySelectorAll('tbody tr').forEach(tr => {
+      [...tr.children].forEach((td, i) => { if (heads[i] && !td.hasAttribute('data-label')) td.setAttribute('data-label', heads[i]); });
+    });
+  });
+}
+document.addEventListener('DOMContentLoaded', () => {
+  if (!document.querySelector('table.psa-stack-table')) return;
+  psaLabelStackTables();
+  new MutationObserver(() => psaLabelStackTables()).observe(document.body, { childList: true, subtree: true });
+});
