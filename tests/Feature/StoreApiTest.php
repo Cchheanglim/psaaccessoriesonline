@@ -49,7 +49,7 @@ class StoreApiTest extends TestCase
         $this->getJson('/api/bootstrap')
             ->assertOk()
             ->assertJsonPath('user', null)
-            ->assertJsonCount(12, 'products')
+            ->assertJsonCount(32, 'products')
             ->assertJsonPath('products.0.id', 'genz-01')
             ->assertJsonPath('users', []);
     }
@@ -73,14 +73,14 @@ class StoreApiTest extends TestCase
         $stockBefore = Product::where('sku', 'genz-01')->value('stock');
 
         $response = $this->actingAs($buyer)
-            ->postJson('/api/orders', $this->orderPayload(['items' => [['id' => 'genz-01', 'quantity' => 2, 'priceUSD' => 0.01]]]))
+            ->postJson('/api/orders', $this->orderPayload(['items' => [['id' => 'genz-01', 'quantity' => 1, 'priceUSD' => 0.01]]]))
             ->assertCreated()
-            ->assertJsonPath('order.subtotalUSD', '13.00')
+            ->assertJsonPath('order.subtotalUSD', '9.00')
             ->assertJsonPath('order.deliveryUSD', '1.50')
-            ->assertJsonPath('order.totalUSD', '14.50')
+            ->assertJsonPath('order.totalUSD', '10.50')
             ->assertJsonPath('order.status', 'Payment Pending');
 
-        $this->assertSame($stockBefore - 2, Product::where('sku', 'genz-01')->value('stock'));
+        $this->assertSame($stockBefore - 1, Product::where('sku', 'genz-01')->value('stock'));
 
         $number = $response->json('order.id');
         $this->getJson('/api/bootstrap')->assertJsonPath('orders.0.id', $number);
@@ -88,23 +88,32 @@ class StoreApiTest extends TestCase
         $this->postJson("/api/orders/{$number}/slip")->assertOk()->assertJsonPath('order.status', 'Slip Uploaded');
     }
 
-    public function test_guest_can_order_and_only_see_their_own_orders(): void
+    public function test_guests_cannot_order(): void
     {
-        $this->getJson('/api/bootstrap')->assertJsonCount(0, 'orders');
+        $this->postJson('/api/orders', $this->orderPayload())->assertStatus(401);
+    }
 
-        $number = $this->postJson('/api/orders', $this->orderPayload())->assertCreated()->json('order.id');
+    public function test_buyers_only_see_their_own_orders(): void
+    {
+        $buyer = $this->makeUser();
+        $other = $this->makeUser();
 
-        $this->getJson('/api/bootstrap')->assertJsonCount(1, 'orders')->assertJsonPath('orders.0.id', $number);
+        $number = $this->actingAs($buyer)->postJson('/api/orders', $this->orderPayload())->assertCreated()->json('order.id');
+
+        $this->actingAs($buyer)->getJson('/api/bootstrap')->assertJsonCount(1, 'orders')->assertJsonPath('orders.0.id', $number);
+        $this->actingAs($other)->getJson('/api/bootstrap')->assertJsonCount(0, 'orders');
     }
 
     public function test_out_of_stock_and_disabled_payment_are_rejected(): void
     {
+        $buyer = $this->makeUser();
+
         Product::where('sku', 'genz-02')->update(['stock' => 1]);
-        $this->postJson('/api/orders', $this->orderPayload(['items' => [['id' => 'genz-02', 'quantity' => 3]]]))
+        $this->actingAs($buyer)->postJson('/api/orders', $this->orderPayload(['items' => [['id' => 'genz-02', 'quantity' => 3]]]))
             ->assertStatus(422);
 
         \App\Models\PaymentMethod::where('code', 'cod')->update(['is_active' => false]);
-        $this->postJson('/api/orders', $this->orderPayload(['paymentMethod' => 'cod']))->assertStatus(422);
+        $this->actingAs($buyer)->postJson('/api/orders', $this->orderPayload(['paymentMethod' => 'cod']))->assertStatus(422);
     }
 
     public function test_admin_endpoints_enforce_roles(): void
@@ -131,7 +140,7 @@ class StoreApiTest extends TestCase
     {
         $staff = $this->makeUser(['role' => 'staff']);
         $admin = $this->makeUser(['role' => 'admin']);
-        $number = $this->postJson('/api/orders', $this->orderPayload())->json('order.id');
+        $number = $this->actingAs($this->makeUser())->postJson('/api/orders', $this->orderPayload())->json('order.id');
         $stock = Product::where('sku', 'genz-01')->value('stock');
 
         $this->actingAs($staff)->patchJson("/api/admin/orders/{$number}", ['action' => 'verify'])
@@ -148,5 +157,48 @@ class StoreApiTest extends TestCase
         $this->makeUser(['email' => 'banned@example.com', 'password' => 'secret123', 'status' => 'Suspended']);
 
         $this->postJson('/api/auth/login', ['login' => 'banned@example.com', 'password' => 'secret123'])->assertStatus(422);
+    }
+
+    public function test_profile_photo_can_be_saved_on_its_own(): void
+    {
+        $user = $this->makeUser();
+        $photo = 'data:image/png;base64,iVBORw0KGgo=';
+
+        // dashboard-buyer.html sends only the photo, so no other field may be required.
+        $this->actingAs($user)->patchJson('/api/me', ['photo' => $photo])
+            ->assertOk()
+            ->assertJsonPath('user.avatarUrl', $photo);
+    }
+
+    public function test_profile_and_payment_method_text_fits_the_database(): void
+    {
+        $user = $this->makeUser();
+        $this->actingAs($user)->patchJson('/api/me', ['address' => str_repeat('a', 256)])
+            ->assertStatus(422)->assertJsonValidationErrors('address');
+        $this->actingAs($user)->patchJson('/api/me', ['phone' => '@telegram_name'])
+            ->assertStatus(422)->assertJsonValidationErrors('phone');
+
+        $admin = $this->makeUser(['role' => 'admin']);
+        $this->actingAs($admin)->postJson('/api/admin/payment-methods', ['name' => 'Wing', 'description' => str_repeat('a', 256)])
+            ->assertStatus(422)->assertJsonValidationErrors('description');
+    }
+
+    public function test_admin_can_edit_a_user_without_changing_their_password(): void
+    {
+        $admin = $this->makeUser(['role' => 'admin']);
+        $buyer = $this->makeUser();
+
+        $this->actingAs($admin)->patchJson("/api/admin/users/{$buyer->id}", ['role' => 'Staff', 'password' => null])
+            ->assertOk();
+        $this->assertSame('staff', $buyer->fresh()->role);
+        $this->postJson('/api/auth/logout');
+        $this->postJson('/api/auth/login', ['login' => $buyer->email, 'password' => 'secret123'])->assertOk();
+    }
+
+    public function test_legal_pages_redirect_to_their_html_files(): void
+    {
+        $this->get('/about')->assertRedirect('/about.html');
+        $this->get('/privacy')->assertRedirect('/privacy.html');
+        $this->get('/terms')->assertRedirect('/terms.html');
     }
 }

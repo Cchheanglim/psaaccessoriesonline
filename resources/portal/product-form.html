@@ -89,11 +89,18 @@
           <div class="space-y-1.5">
             <label for="categorySelect" class="text-xs font-bold text-gray-700">Category <span class="text-red-500">*</span></label>
             <select id="categorySelect" name="category" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="jewelry" selected>Y2K Jewelry</option>
-              <option value="eyewear">Shades & Eyewear</option>
-              <option value="bags">Bags & Totes</option>
-              <option value="hair">Hair & Streetwear</option>
-              <option value="charms">Tech Charms</option>
+              <option value="apparel" selected>Tees &amp; Shirts</option>
+              <option value="watches">Watches</option>
+              <option value="bags">Bags &amp; Pouches</option>
+              <option value="hair">Hair &amp; Clips</option>
+              <option value="charms">Bag &amp; Phone Charms</option>
+              <option value="socks">Socks</option>
+              <option value="hats">Caps &amp; Hats</option>
+              <option value="jewelry">Jewelry</option>
+              <option value="beauty">Beauty</option>
+              <option value="accessories">Phone Accessories</option>
+              <option value="gifts">Gift Sets</option>
+              <option value="eyewear">Shades &amp; Eyewear</option>
             </select>
           </div>
 
@@ -236,6 +243,20 @@
 
   </main>
 
+  <!-- Admin Portal Footer -->
+  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-xs text-stone-500 dark:text-stone-400 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+      <div>&copy; 2026 PsaOnline Operations Portal &bull; All rights reserved.</div>
+      <div class="flex items-center justify-center gap-4 text-[11px]">
+        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
+        <span>&bull;</span>
+        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
+        <span>&bull;</span>
+        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
   <!-- Interactive JavaScript -->
@@ -305,7 +326,7 @@
 
     // ---------- Load & save (database) ----------
     const editingId = new URLSearchParams(location.search).get('id');
-    const categoryLabels = { jewelry: 'Y2K Jewelry', eyewear: 'Shades & Eyewear', bags: 'Bags & Totes', hair: 'Hair & Streetwear', charms: 'Tech Charms' };
+    const categoryLabels = { apparel: 'Tees & Shirts', watches: 'Watches', bags: 'Bags & Pouches', hair: 'Hair & Clips', charms: 'Bag & Phone Charms', socks: 'Socks', hats: 'Caps & Hats', jewelry: 'Jewelry', beauty: 'Beauty', accessories: 'Phone Accessories', gifts: 'Gift Sets', eyewear: 'Shades & Eyewear' };
     let editingProduct = null;
 
     function fillForm(p) {
@@ -315,7 +336,7 @@
       if (p.category && ![...select.options].some(o => o.value === p.category)) {
         select.add(new Option(p.categoryLabel || p.category, p.category));
       }
-      select.value = p.category || 'jewelry';
+      select.value = p.category || 'apparel';
       document.getElementById('stallLocation').value = p.badge || '';
       document.getElementById('productDescription').value = p.description || '';
       priceInput.value = Number(p.priceUSD || 0).toFixed(2);
@@ -335,11 +356,31 @@
       if (radio) radio.checked = true;
     }
 
+    // Same limits as AdminApiController::validateProduct.
+    function validateProductForm(form) {
+      psaClearAllFieldErrors(form);
+      let hasError = false;
+      const check = (id, message) => { if (message) { psaShowFieldError(id, message); hasError = true; } };
+
+      check('productName', psaValidateMinLength(document.getElementById('productName').value, 2, 'Product title'));
+      check('categorySelect', psaValidateRequired(document.getElementById('categorySelect').value, 'Category'));
+
+      const price = priceInput.value.trim();
+      check('priceUSD', !price ? 'Price is required.' : Number(price) > 0 ? null : 'Price must be greater than $0.00.');
+
+      const stock = document.getElementById('stockQuantity').value.trim();
+      check('stockQuantity', !stock ? 'Stock quantity is required.'
+        : !Number.isInteger(Number(stock)) || Number(stock) < 0 ? 'Stock must be a whole number, 0 or more.' : null);
+
+      return !hasError;
+    }
+
     async function saveProduct(e) {
       e.preventDefault();
       const errorEl = document.getElementById('productFormError');
       const btn = document.getElementById('productSaveBtn');
       errorEl.classList.add('hidden');
+      if (!validateProductForm(e.target)) return;
 
       const specifications = {};
       document.querySelectorAll('.spec-row').forEach(row => {
@@ -362,7 +403,7 @@
         status: document.querySelector('input[name="visibility"]:checked').value
       };
 
-      btn.disabled = true;
+      psaSetButtonLoading(btn, true, 'Saving...');
       try {
         if (editingId) {
           await psaApi('PATCH', `/api/admin/products/${encodeURIComponent(editingId)}`, payload);
@@ -371,14 +412,22 @@
         }
         window.location.replace('admin-products.html');
       } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.classList.remove('hidden');
-        btn.disabled = false;
+        psaSetButtonLoading(btn, false);
+        if (err.errors) {
+          psaApplyServerErrors(e.target, err.errors);
+        } else {
+          errorEl.textContent = err.message;
+          errorEl.classList.remove('hidden');
+        }
       }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       if (!enforcePageRBAC('canManageProducts')) return;
+      ['productName', 'categorySelect', 'priceUSD', 'stockQuantity'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => psaClearFieldError(el));
+      });
       if (editingId) {
         editingProduct = (PSA.online ? PSA.products : ACCESSORIES_PRODUCTS).find(p => p.id === editingId);
         if (!editingProduct) {

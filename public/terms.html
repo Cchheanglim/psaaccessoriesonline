@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Terms of Service — PsaOnline</title>
+  <meta name="description" content="Read the terms and conditions for ordering accessories, delivery in Phnom Penh, and Bakong KHQR payments at PsaOnline." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sorbet: '#FFA552',
+            cotton: '#F9F3EA',
+            espresso: '#2B1D1D'
+          }
+        }
+      }
+    };
+  </script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/mobile.css" />
+</head>
+<body class="bg-[#FDFBF7] dark:bg-[#111115] text-[#2B1D1D] dark:text-[#F4F4F6] font-sans min-h-screen flex flex-col antialiased selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-[#FDFBF7]/90 dark:bg-[#111115]/90 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#272732] transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+      <a href="home.html" class="flex items-center gap-2.5 sm:gap-3 group" title="Psa Accessories Online">
+        <img 
+          src="assets/images/psa-accessories-online-logo.svg" 
+          alt="Psa Accessories Online Logo" 
+          class="h-10 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
+        />
+        <div class="flex flex-col">
+          <div class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">
+            Psa<span class="text-[#FFA552]">Online</span>
+          </div>
+          <span class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">
+            Accessories &bull; Studio
+          </span>
+        </div>
+      </a>
+
+      <!-- Quick Nav Links -->
+      <nav class="hidden md:flex items-center gap-6 text-xs font-bold text-[#2B1D1D] dark:text-white">
+        <a href="home.html" class="hover:text-[#FFA552] transition-colors">Store</a>
+        <a href="products.html" class="hover:text-[#FFA552] transition-colors">Catalog</a>
+        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
+      </nav>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Theme Toggle -->
+        <button 
+          type="button" 
+          onclick="toggleTheme()" 
+          class="theme-toggle-btn px-2.5 py-1 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all flex items-center gap-1.5 text-xs font-black shadow-xs cursor-pointer" 
+          title="Toggle Dark Theme"
+          aria-label="Toggle Dark Theme"
+        >
+          <svg class="w-4 h-4 text-stone-700 dark:text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+          <span class="hidden sm:inline font-bold">Dark</span>
+        </button>
+
+        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
+          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD</button>
+          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-white">KHR</button>
+        </div>
+
+        <a href="cart.html" class="relative p-2.5 rounded-full bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white transition-transform hover:scale-105" title="Bag">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+          <span class="cart-count-badge absolute -top-1 -right-1 bg-[#FFA552] text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center ring-2 ring-white dark:ring-[#1E1E26] shadow-sm hidden">0</span>
+        </a>
+
+        <a href="dashboard-buyer.html" class="p-1 rounded-full hover:ring-2 hover:ring-[#FFA552] transition flex items-center gap-1.5 text-xs font-bold text-[#2B1D1D]">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FFA552] to-[#2B1D1D] text-white font-black flex items-center justify-center text-xs shadow-xs">
+            SC
+          </div>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Terms Container -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14 flex-1 w-full">
+    <!-- Breadcrumb & Header -->
+    <div class="mb-8">
+      <div class="text-xs font-extrabold text-[#FFA552] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <a href="home.html" class="hover:underline">Home</a>
+        <span>/</span>
+        <span>Legal</span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-[#2B1D1D] dark:text-white tracking-tight">Terms of Service</h1>
+      <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-2">Last updated: 3 October 2026</p>
+      <p class="text-sm sm:text-base text-stone-600 dark:text-stone-300 mt-4 leading-relaxed">
+        These terms govern your use of the PsaOnline storefront, account creation, and every accessories order you place with us.
+      </p>
+    </div>
+
+    <!-- Table of Contents -->
+    <nav class="p-5 sm:p-6 bg-[#F9F3EA] dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#30303E] rounded-2xl mb-10 shadow-xs" aria-label="Table of Contents">
+      <p class="text-xs font-black uppercase tracking-wider text-[#2B1D1D] dark:text-white mb-3">Contents</p>
+      <ol class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm font-semibold text-stone-700 dark:text-stone-300 list-decimal pl-5">
+        <li><a href="#about-terms" class="hover:text-[#FFA552] underline underline-offset-2">About these terms</a></li>
+        <li><a href="#user-account" class="hover:text-[#FFA552] underline underline-offset-2">Your account &amp; security</a></li>
+        <li><a href="#products-pricing" class="hover:text-[#FFA552] underline underline-offset-2">Products &amp; dual currency</a></li>
+        <li><a href="#placing-orders" class="hover:text-[#FFA552] underline underline-offset-2">Placing an order</a></li>
+        <li><a href="#payments-khqr" class="hover:text-[#FFA552] underline underline-offset-2">Payment methods &amp; KHQR</a></li>
+        <li><a href="#delivery-phnom-penh" class="hover:text-[#FFA552] underline underline-offset-2">Phnom Penh delivery</a></li>
+        <li><a href="#returns-refunds" class="hover:text-[#FFA552] underline underline-offset-2">Returns, refunds &amp; cancellations</a></li>
+        <li><a href="#acceptable-use" class="hover:text-[#FFA552] underline underline-offset-2">Acceptable platform use</a></li>
+        <li><a href="#intellectual-property" class="hover:text-[#FFA552] underline underline-offset-2">Intellectual property</a></li>
+        <li><a href="#limitation-liability" class="hover:text-[#FFA552] underline underline-offset-2">Limitation of liability</a></li>
+        <li><a href="#governing-law" class="hover:text-[#FFA552] underline underline-offset-2">Governing law (Cambodia)</a></li>
+        <li><a href="#changes-terms" class="hover:text-[#FFA552] underline underline-offset-2">Changes to these terms</a></li>
+        <li><a href="#contact" class="hover:text-[#FFA552] underline underline-offset-2">Contact support</a></li>
+      </ol>
+    </nav>
+
+    <!-- Sections -->
+    <div class="space-y-10 text-sm sm:text-base leading-relaxed text-stone-700 dark:text-stone-300">
+      
+      <section id="about-terms" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">1. About these terms</h2>
+        <p>
+          These Terms of Service ("Terms") apply to your access to and use of PsaOnline (also referred to as Psa Accessories Online, "we", "us", or "our"), hosted on Render with databases on Supabase (PostgreSQL), and to every accessory purchase you make through our platform.
+        </p>
+        <p>
+          By creating an account, checking the agreement box at registration, or completing a checkout, you agree to be bound by these Terms and our <a href="privacy.html" class="font-bold text-[#FFA552] underline underline-offset-2">Privacy Policy</a>.
+        </p>
+      </section>
+
+      <section id="user-account" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">2. Your account &amp; security</h2>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>You must provide accurate, current, and truthful details during registration and checkout (full name, email, phone number, delivery address).</li>
+          <li>You are solely responsible for maintaining the confidentiality of your account password and for all activities that occur under your credentials.</li>
+          <li>Notify our support team immediately if you suspect unauthorized access to your account.</li>
+          <li>We reserve the right to suspend or terminate accounts that engage in fraudulent behavior, counterfeit bank slip uploads, or platform abuse.</li>
+        </ul>
+      </section>
+
+      <section id="products-pricing" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">3. Products &amp; dual currency</h2>
+        <ul class="list-disc pl-5 space-y-2">
+          <li><strong>Dual currency pricing:</strong> All item prices, subtotal calculations, and shipping charges are displayed in both United States Dollars (USD) and Cambodian Riel (KHR) calculated at the fixed store exchange rate of <strong>1 USD = 4,100 KHR</strong>.</li>
+          <li><strong>Product descriptions &amp; photos:</strong> We make every effort to display true product designs, metal finishes, and colors. However, variations may occur depending on screen displays, ambient lighting, and handmade assembly batches.</li>
+          <li><strong>Stock availability:</strong> Products are subject to limited drop quantities. If an ordered item is out of stock or priced in error, we will notify you and promptly refund any paid amounts.</li>
+        </ul>
+      </section>
+
+      <section id="placing-orders" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">4. Placing an order</h2>
+        <p>
+          When you submit an order, you extend an offer to purchase the specified accessories. An order is formally accepted and binding once:
+        </p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>For Bakong KHQR / ABA: An authentic bank payment slip is uploaded and verified by our fulfillment staff.</li>
+          <li>For Cash on Delivery: Our team confirms your delivery address and phone contact in Phnom Penh.</li>
+        </ul>
+        <p>
+          We reserve the right to decline or cancel orders for invalid delivery addresses, unverified payment slips, or pricing technical glitches.
+        </p>
+      </section>
+
+      <section id="payments-khqr" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">5. Payment methods &amp; KHQR</h2>
+        <p>We accept the following payment options:</p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li><strong>Bakong Universal KHQR:</strong> Scan the dynamic QR code using any compatible Cambodian mobile banking application (ABA, ACLEDA, Canadia, Wing, Sathapana, etc.). You must upload a screenshot of your successful transaction slip on the order confirmation screen so staff can verify the payment.</li>
+          <li><strong>ABA Pay:</strong> Direct scan or transfer to our designated ABA account, followed by slip verification.</li>
+          <li><strong>Cash on Delivery (Phnom Penh only):</strong> Pay the exact order amount directly to the courier upon parcel delivery.</li>
+        </ul>
+        <p class="font-bold text-[#FFA552]">
+          Note: We never ask for or store payment card numbers, CVVs, or bank account PINs.
+        </p>
+      </section>
+
+      <section id="delivery-phnom-penh" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">6. Phnom Penh delivery</h2>
+        <ul class="list-disc pl-5 space-y-2">
+          <li><strong>Delivery coverage:</strong> Standard delivery is available exclusively within Phnom Penh municipality.</li>
+          <li><strong>Delivery fee:</strong> Flat rate of <strong>$1.50 (6,150 ៛)</strong> per order. Orders with an accessories subtotal of <strong>$15.00 or more qualify for FREE delivery</strong>.</li>
+          <li><strong>Delivery timelines:</strong> Orders are typically dispatched within 24 to 48 hours following payment verification. Traffic conditions, heavy rain, or courier volume may occasionally cause delivery adjustments.</li>
+          <li><strong>Recipient availability:</strong> Please ensure your phone number is active and reachable by local couriers. If a courier cannot reach you after multiple attempts, redelivery fees may apply.</li>
+        </ul>
+      </section>
+
+      <section id="returns-refunds" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">7. Returns, refunds &amp; cancellations</h2>
+        <div class="space-y-3">
+          <h3 class="text-base font-bold text-[#2B1D1D] dark:text-white">Defective or damaged items</h3>
+          <p>
+            If your accessories arrive broken, defective, or do not match your order invoice, please contact support via Telegram within <strong>[REFUND PERIOD — TO CONFIRM]</strong> (e.g., 48 hours) of delivery with your order ID and clear photos or unboxing video. We will promptly arrange a replacement or full refund.
+          </p>
+          <h3 class="text-base font-bold text-[#2B1D1D] dark:text-white">Hygiene &amp; non-returnable items</h3>
+          <p>
+            For personal hygiene and sanitary safety, earrings, ear cuffs, pierced jewelry, and worn hair accessories cannot be returned for change of mind once unpacked.
+          </p>
+          <h3 class="text-base font-bold text-[#2B1D1D] dark:text-white">Order cancellation</h3>
+          <p>
+            Orders may be cancelled free of charge prior to parcel dispatch by messaging support on Telegram. Once an order is with the courier, cancellation is not possible.
+          </p>
+        </div>
+      </section>
+
+      <section id="acceptable-use" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">8. Acceptable platform use</h2>
+        <p>When accessing PsaOnline, you agree that you will not:</p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Submit falsified, altered, or duplicate bank transaction slips.</li>
+          <li>Impersonate another user, staff member, or entity.</li>
+          <li>Interfere with or compromise the security or integrity of our application, API endpoints, or database.</li>
+          <li>Scrape catalog data or images for commercial competition without express written consent.</li>
+        </ul>
+      </section>
+
+      <section id="intellectual-property" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">9. Intellectual property</h2>
+        <p>
+          The PsaOnline brand, logos, user interface designs, custom graphics, and product compilations are the property of Psa Accessories Online and protected under applicable trademark and intellectual property legislation.
+        </p>
+      </section>
+
+      <section id="limitation-liability" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">10. Limitation of liability</h2>
+        <p>
+          To the maximum extent permitted by Cambodian consumer protection laws, PsaOnline shall not be liable for indirect, incidental, or consequential damages resulting from courier transit delays, banking service outages, or temporary site downtime. Our total liability for any claim shall not exceed the total amount paid by you for the specific order.
+        </p>
+      </section>
+
+      <section id="governing-law" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">11. Governing law (Cambodia)</h2>
+        <p>
+          These Terms of Service are governed by and construed in accordance with the laws of the Kingdom of Cambodia. Any legal dispute that cannot be resolved amicably will be submitted to the exclusive jurisdiction of the competent courts in Cambodia.
+        </p>
+      </section>
+
+      <section id="changes-terms" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">12. Changes to these terms</h2>
+        <p>
+          We reserve the right to revise these Terms periodically. Updates take effect immediately upon posting to this page with an updated revision date. Your continued use of the website represents acceptance of the updated terms.
+        </p>
+      </section>
+
+      <section id="contact" class="scroll-mt-24 space-y-3">
+        <h2 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white border-b border-[#EFE4D6] dark:border-[#272732] pb-2">13. Contact support</h2>
+        <p>Have questions regarding these terms, orders, or return policies? Contact us directly:</p>
+        <div class="p-4 bg-[#F9F3EA] dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#30303E] rounded-xl flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-[#FFA552] text-white flex items-center justify-center font-black">TG</div>
+          <div>
+            <div class="text-xs text-stone-500 dark:text-stone-400 font-bold uppercase">Customer Support</div>
+            <a href="https://t.me/psaonline_support" target="_blank" rel="noopener noreferrer" class="font-bold text-[#FFA552] hover:underline text-sm sm:text-base">
+              @psaonline_support on Telegram
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-12 pt-8 border-t border-[#EFE4D6] dark:border-[#272732] flex items-center justify-between">
+      <a href="home.html" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#FFA552] hover:bg-[#E88C35] text-white font-black text-xs shadow-sm transition-all">
+        &larr; Back to Store
+      </a>
+      <a href="privacy.html" class="text-xs font-bold text-[#FFA552] hover:underline">
+        Read Privacy Policy &rarr;
+      </a>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Col 1: Brand -->
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <img src="assets/images/psa-accessories-online-logo.svg" alt="Logo" class="h-8 w-auto">
+            <span class="text-xl font-black text-[#2B1D1D] dark:text-white">Psa<span class="text-[#FFA552]">Online</span></span>
+          </div>
+          <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-medium">
+            Gen-Z streetwear accessories, cyber Y2K jewelry, and everyday aesthetic essentials based in Phnom Penh.
+          </p>
+        </div>
+
+        <!-- Col 2: Categories -->
+        <div class="space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Categories</div>
+          <ul class="text-xs space-y-1.5 text-stone-600 dark:text-stone-300 font-medium">
+            <li><a href="products.html?category=apparel" class="hover:text-[#FFA552]">Tees &amp; Shirts</a></li>
+            <li><a href="products.html?category=watches" class="hover:text-[#FFA552]">Watches</a></li>
+            <li><a href="products.html?category=bags" class="hover:text-[#FFA552]">Bags</a></li>
+            <li><a href="products.html?category=hair" class="hover:text-[#FFA552]">Hair &amp; Clips</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Visit Us (Socials) -->
+        <div class="space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Visit Us (Socials)</div>
+          <ul class="text-xs space-y-2 font-medium">
+            <li>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">IG</span>
+                <span>Instagram (@psaonline_kh)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">TikTok</span>
+                <span>TikTok (@psaonline)</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">FB</span>
+                <span>Facebook Page</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://t.me/psaonline_support" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
+                <span class="text-[#FFA552] font-black">TG</span>
+                <span>Telegram (@psaonline_support)</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Payments Accepted -->
+        <div class="space-y-2">
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Accepted Payments</div>
+          <div class="p-3 bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#30303E] rounded-xl space-y-1.5 text-xs">
+            <div class="font-bold text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-red-600"></span>
+              Bakong Universal KHQR
+            </div>
+            <p class="text-[11px] text-stone-500 dark:text-stone-400">Scan via ABA, ACLEDA, Canadia, Wing mobile banking.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-[#EFE4D6] dark:border-[#272732] flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 dark:text-stone-400 gap-2">
+        <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
+        <div class="flex items-center gap-4 text-[11px]">
+          <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
+          <span>&bull;</span>
+          <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
+          <span>&bull;</span>
+          <a href="terms.html" class="hover:text-[#FFA552] transition-colors font-bold text-[#FFA552]">Terms of Service</a>
+          <span>&bull;</span>
+          <span>Made for Gen-Z in Cambodia 🇰🇭</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#16161C]/95 backdrop-blur-lg border-t border-[#EFE4D6] dark:border-[#272732] px-4 py-2 flex items-center justify-around text-center select-none shadow-[0_-4px_20px_rgba(43,29,29,0.06)]">
+    <a href="home.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <span>Store</span>
+    </a>
+    <a href="products.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+      <span>Catalog</span>
+    </a>
+    <a href="cart.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <div class="relative">
+        <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <span class="cart-count-badge hidden absolute -top-1.5 -right-2 bg-[#FFA552] text-white text-[9px] font-black rounded-full w-4 h-4 flex items-center justify-center">0</span>
+      </div>
+      <span>Bag</span>
+    </a>
+    <a href="dashboard-buyer.html" class="flex flex-col items-center gap-1 text-stone-500 hover:text-[#2B1D1D] text-[10px]">
+      <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <span>Account</span>
+    </a>
+  </nav>
+
+  <script src="assets/js/store.js"></script>
+</body>
+</html>

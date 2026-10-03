@@ -49,9 +49,236 @@ async function psaApi(method, url, body) {
     const message = (firstError && firstError[0]) || (data && data.message) || `Request failed (${res.status})`;
     const err = new Error(res.status === 419 ? 'Your session expired. Refresh the page and try again.' : message);
     err.status = res.status;
+    err.errors = data && data.errors ? data.errors : null;
     throw err;
   }
   return data;
+}
+
+// =========================================================================
+// SHARED FORM VALIDATION & FEEDBACK HELPERS
+// =========================================================================
+
+function psaValidateEmail(email) {
+  const v = (email || '').trim();
+  if (!v) return 'Email address is required.';
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!re.test(v)) return 'Please enter a valid email address (e.g. name@example.com).';
+  return null;
+}
+
+function psaValidatePhone(phone, required = true) {
+  const v = (phone || '').trim();
+  if (!v) return required ? 'Phone number is required.' : null;
+  const digits = v.replace(/\D/g, '');
+  if (digits.length < 8) return 'Phone number must be at least 8 digits.';
+  if (!/^[+0-9\s\-()]+$/.test(v)) return 'Please enter a valid phone number (digits, spaces, or +).';
+  return null;
+}
+
+function psaValidatePassword(password, minLength = 6, label = 'Password') {
+  const v = password || '';
+  if (!v) return `${label} is required.`;
+  if (v.length < minLength) return `${label} must be at least ${minLength} characters.`;
+  return null;
+}
+
+function psaValidateRequired(value, label = 'This field') {
+  if (value === null || value === undefined) return `${label} is required.`;
+  if (typeof value === 'string' && !value.trim()) return `${label} is required.`;
+  if (Array.isArray(value) && value.length === 0) return `${label} is required.`;
+  return null;
+}
+
+function psaValidateMinLength(value, min, label = 'This field') {
+  const v = (value || '').trim();
+  if (v.length < min) return `${label} must be at least ${min} characters.`;
+  return null;
+}
+
+function psaValidateNumber(value, min = 0, label = 'This field') {
+  const num = Number(value);
+  if (isNaN(num)) return `${label} must be a valid number.`;
+  if (num < min) return `${label} must be at least ${min}.`;
+  return null;
+}
+
+function psaGetInputElement(inputOrId, root = document) {
+  if (!inputOrId) return null;
+  if (typeof inputOrId !== 'string') return inputOrId;
+  return (root.getElementById ? root.getElementById(inputOrId) : null) ||
+         document.getElementById(inputOrId) ||
+         (root.querySelector ? root.querySelector(`[name="${inputOrId}"]`) : null) ||
+         (root.querySelector ? root.querySelector(`#${inputOrId}`) : null);
+}
+
+const PSA_FIELD_BORDERS = ['border-[#EFE4D6]', 'border-stone-200', 'border-gray-200', 'border-gray-300'];
+
+// The message <p> sits right after the input, or right after its wrapper when the input has an icon.
+function psaFindFieldError(el) {
+  const key = el.id || el.name;
+  const parent = el.parentElement;
+  if (key && parent) {
+    const sel = `.field-error[data-for="${CSS.escape(key)}"]`;
+    const next = parent.nextElementSibling;
+    const found = parent.querySelector(sel) || (next && next.matches(sel) ? next : null);
+    if (found) return found;
+  }
+  return el.id ? (document.getElementById(`${el.id}_error`) || document.getElementById(`${el.id}Error`)) : null;
+}
+
+// Put back the field's own border colour (saved by psaShowFieldError).
+function psaRestoreFieldBorder(el) {
+  el.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
+  if (el.dataset.psaBorder) {
+    el.classList.add(...el.dataset.psaBorder.split(' '));
+    delete el.dataset.psaBorder;
+  }
+}
+
+function psaShowFieldError(inputOrId, message, root = document) {
+  const el = psaGetInputElement(inputOrId, root);
+  if (!el) return;
+
+  const borders = PSA_FIELD_BORDERS.filter(c => el.classList.contains(c));
+  if (borders.length) el.dataset.psaBorder = borders.join(' ');
+  el.classList.remove(...PSA_FIELD_BORDERS);
+  el.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
+
+  let errEl = psaFindFieldError(el);
+  if (!errEl) {
+    errEl = document.createElement('p');
+    errEl.className = 'field-error text-[11px] font-bold text-red-600 dark:text-red-400 mt-1';
+    errEl.setAttribute('role', 'alert');
+    if (el.id || el.name) errEl.setAttribute('data-for', el.id || el.name);
+    const parent = el.parentElement;
+    if (parent && (parent.classList.contains('relative') || parent.classList.contains('flex'))) {
+      parent.insertAdjacentElement('afterend', errEl);
+    } else if (parent) {
+      el.insertAdjacentElement('afterend', errEl);
+    }
+  }
+
+  errEl.textContent = message;
+  errEl.classList.remove('hidden');
+}
+
+function psaClearFieldError(inputOrId, root = document) {
+  const el = psaGetInputElement(inputOrId, root);
+  if (!el) return;
+
+  psaRestoreFieldBorder(el);
+
+  const errEl = psaFindFieldError(el);
+  if (errEl) {
+    errEl.textContent = '';
+    errEl.classList.add('hidden');
+  }
+}
+
+function psaClearAllFieldErrors(container = document) {
+  if (!container) return;
+  const errors = container.querySelectorAll ? container.querySelectorAll('.field-error') : [];
+  errors.forEach(err => {
+    err.textContent = '';
+    err.classList.add('hidden');
+  });
+
+  const inputs = container.querySelectorAll ? container.querySelectorAll('.border-red-500') : [];
+  inputs.forEach(psaRestoreFieldBorder);
+}
+
+function psaSetButtonLoading(buttonOrId, isLoading, loadingText = 'Processing...') {
+  const btn = typeof buttonOrId === 'string' ? document.getElementById(buttonOrId) : buttonOrId;
+  if (!btn) return;
+
+  if (isLoading) {
+    btn.disabled = true;
+    if (!btn.dataset.originalHtml) {
+      btn.dataset.originalHtml = btn.innerHTML;
+    }
+    btn.classList.add('opacity-75', 'cursor-not-allowed');
+    btn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>${loadingText}</span>`;
+  } else {
+    btn.disabled = false;
+    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+    if (btn.dataset.originalHtml) {
+      btn.innerHTML = btn.dataset.originalHtml;
+    }
+  }
+}
+
+function psaApplyServerErrors(container, errors) {
+  if (!errors || typeof errors !== 'object') return;
+  const root = container || document;
+  const aliasMap = {
+    title: ['productName', 'title'],
+    titleKhmer: ['khmerName', 'titleKhmer'],
+    category: ['categorySelect', 'category'],
+    badge: ['stallLocation', 'badge'],
+    description: ['productDescription', 'description', 'instructions'],
+    priceUSD: ['priceUSD', 'price'],
+    stock: ['stockQuantity', 'stock'],
+    name: ['userName', 'methodName', 'fName', 'aName', 'name', 'reg_name', 'shipping_name', 'customerName'],
+    customerName: ['shipping_name', 'customerName', 'name'],
+    email: ['userEmail', 'fEmail', 'email', 'reg_email', 'login'],
+    phone: ['userPhone', 'fPhone', 'aPhone', 'shipping_phone', 'phone', 'reg_phone'],
+    address: ['shipping_address', 'aLine', 'address'],
+    role: ['userRole', 'role'],
+    password: ['newPassword', 'pNew', 'reg_password', 'password'],
+    current: ['pOld', 'current'],
+    type: ['methodType', 'type'],
+    accountNumber: ['accountNumber'],
+    accountName: ['accountName'],
+    paymentMethod: ['paymentMethodContainer', 'payment_method'],
+    login: ['email']
+  };
+
+  for (const [field, msgs] of Object.entries(errors)) {
+    const message = Array.isArray(msgs) ? msgs[0] : msgs;
+    const aliases = aliasMap[field] || [];
+    const possibleIds = [
+      ...aliases,
+      field,
+      `reg_${field}`,
+      `shipping_${field}`,
+      `user${field.charAt(0).toUpperCase() + field.slice(1)}`,
+      `product${field.charAt(0).toUpperCase() + field.slice(1)}`,
+      `method${field.charAt(0).toUpperCase() + field.slice(1)}`,
+      field.replace(/([A-Z])/g, '_$1').toLowerCase(),
+      `f${field.charAt(0).toUpperCase() + field.slice(1)}`,
+      `p${field.charAt(0).toUpperCase() + field.slice(1)}`,
+      `a${field.charAt(0).toUpperCase() + field.slice(1)}`
+    ];
+    let matched = false;
+    for (const id of possibleIds) {
+      const el = psaGetInputElement(id, root);
+      if (el) {
+        psaShowFieldError(el, message, root);
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      const alerts = root.querySelectorAll ? root.querySelectorAll('[role="alert"]') : [];
+      let shownInAlert = false;
+      for (const alertEl of alerts) {
+        if (!alertEl.classList.contains('field-error') && alertEl.offsetParent !== null) {
+          alertEl.textContent = message;
+          alertEl.classList.remove('hidden');
+          shownInAlert = true;
+          break;
+        }
+      }
+      if (!shownInAlert) {
+        if (typeof showRBACToast === 'function') {
+          showRBACToast(message, 'error');
+        } else {
+          alert(message);
+        }
+      }
+    }
+  }
 }
 
 // Demo mode (no server) is only for previewing pages on your own computer. On the real site a
@@ -202,311 +429,806 @@ function psaImageToDataUrl(file, maxSize = 900, quality = 0.82) {
   });
 }
 
-// Gen-Z Trendy Accessories Catalog (Affordable, Aesthetic, TikTok & Streetwear Trending)
+// Demo catalog for previews without the server. Same data as database/data/catalog*.json.
 const ACCESSORIES_PRODUCTS = [
   {
-    id: "genz-01",
-    title: "Silver Chrome Star Pendant Necklace",
-    titleKhmer: "ខ្សែកបន្តោងផ្កាយប្រាក់ Y2K",
-    category: "jewelry",
-    categoryLabel: "Y2K Jewelry",
-    priceUSD: 6.50,
-    priceKHR: Math.round(6.50 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 4.9,
-    reviewsCount: 142,
-    badge: "Trending ⚡",
-    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1611591475819-797de2338ec8?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-01",
+    "title": "Oversized Retro Fan Graphic Tee",
+    "titleKhmer": "អាវយឺតទ្រង់ធំ ម៉ូដក្រាហ្វិកកង្ហារ Retro",
+    "category": "apparel",
+    "categoryLabel": "Graphic Tees",
+    "priceUSD": 9,
+    "priceKHR": 36900,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 126,
+    "badge": "Trending ⚡",
+    "status": "active",
+    "image": "/assets/images/products/oversized-retro-fan-graphic-tee.jpg",
+    "gallery": [
+      "/assets/images/products/oversized-retro-fan-graphic-tee.jpg"
     ],
-    description: "Layered stainless steel chain with a chrome Cyber Y2K star motif. Tarnish-free, hypoallergenic, and perfect for streetwear daily fits.",
-    specifications: {
-      "Material": "316L Stainless Steel (Tarnish-free)",
-      "Chain Length": "45cm + 5cm adjustable extension",
-      "Pendant Size": "2.2cm x 2.2cm",
-      "Gender": "Unisex (Streetwear / Gen-Z)"
+    "description": "Boxy white cotton tee printed with a playful collection of retro electric fans. Relaxed drop-shoulder fit that works on its own or layered.",
+    "specifications": {
+      "Material": "100% Combed Cotton",
+      "Fit": "Oversized / Unisex",
+      "Print": "Retro fan collage",
+      "Colour": "White"
     }
   },
   {
-    id: "genz-02",
-    title: "Chunky Cyberpunk Silver Ring Set (4 Pcs)",
-    titleKhmer: "ឈុតចិញ្ចៀនប្រាក់ Cyberpunk (៤ វង់)",
-    category: "jewelry",
-    categoryLabel: "Y2K Jewelry",
-    priceUSD: 4.50,
-    priceKHR: Math.round(4.50 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 4.8,
-    reviewsCount: 98,
-    badge: "Best Value",
-    image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-02",
+    "title": "Starry Night Art Print Oversized Tee",
+    "titleKhmer": "អាវយឺតទ្រង់ធំ បោះពុម្ពគំនូរ Starry Night",
+    "category": "apparel",
+    "categoryLabel": "Graphic Tees",
+    "priceUSD": 10,
+    "priceKHR": 41000,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 98,
+    "badge": "Art Club 🎨",
+    "status": "active",
+    "image": "/assets/images/products/starry-night-art-print-oversized-tee.jpg",
+    "gallery": [
+      "/assets/images/products/starry-night-art-print-oversized-tee.jpg"
     ],
-    description: "4-piece grunge & cyber aesthetic open-stacking rings. Adjustable sizing so they comfortably fit any finger.",
-    specifications: {
-      "Pack Quantity": "4 Unique Stacking Rings",
-      "Sizing": "Adjustable Open Band (US 6-10)",
-      "Finish": "Polished Silver Chrome",
-      "Weight": "Ultra-lightweight alloy"
+    "description": "Cream oversized tee with a Starry Night museum-poster print on the back. A quiet, gallery-core look for everyday fits.",
+    "specifications": {
+      "Material": "Heavyweight Cotton",
+      "Fit": "Oversized / Unisex",
+      "Print": "Back museum-poster graphic",
+      "Colour": "Cream"
     }
   },
   {
-    id: "genz-03",
-    title: "Retro 90s Tinted Oval Sunglasses",
-    titleKhmer: "វ៉ែនតាការពារកម្ដៅថ្ងៃម៉ូដ 90s Retro",
-    category: "eyewear",
-    categoryLabel: "Shades & Eyewear",
-    priceUSD: 7.50,
-    priceKHR: Math.round(7.50 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 4.9,
-    reviewsCount: 215,
-    badge: "TikTok Viral ✨",
-    image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1508296695146-257a814070b4?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-03",
+    "title": "Matcha Girl Washed Green Oversized Tee",
+    "titleKhmer": "អាវយឺតបៃតងលាងស្អាត Matcha Girl",
+    "category": "apparel",
+    "categoryLabel": "Graphic Tees",
+    "priceUSD": 9.5,
+    "priceKHR": 38950,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 152,
+    "badge": "Matcha Core 🍵",
+    "status": "active",
+    "image": "/assets/images/products/matcha-girl-washed-green-oversized-tee.jpg",
+    "gallery": [
+      "/assets/images/products/matcha-girl-washed-green-oversized-tee.jpg"
     ],
-    description: "Aesthetic oval narrow sunglasses with UV400 protective lenses. Lightweight frame suited for café runs, concerts, and sunny Phnom Penh days.",
-    specifications: {
-      "Protection": "UV400 Total Block",
-      "Frame Material": "High-grade acetate",
-      "Lens Tint": "Subtle Dark Olive / Smoke",
-      "Included": "Microfiber pouch & cleaning cloth"
+    "description": "Vintage-washed forest green tee with a Matcha Girl front graphic. Soft, broken-in feel and a slightly cropped boxy cut.",
+    "specifications": {
+      "Material": "Washed Cotton",
+      "Fit": "Oversized / Boxy",
+      "Print": "Matcha cocktail graphic",
+      "Colour": "Forest Green"
     }
   },
   {
-    id: "genz-04",
-    title: "Cyber Rimless Gradient Shield Sunglasses",
-    titleKhmer: "វ៉ែនតាគ្មានគែម Y2K Cyber Shield",
-    category: "eyewear",
-    categoryLabel: "Shades & Eyewear",
-    priceUSD: 8.00,
-    priceKHR: Math.round(8.00 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 4.7,
-    reviewsCount: 76,
-    badge: "New Drop 🔥",
-    image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1509695507497-903c140c43b0?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-04",
+    "title": "Pink Hair Care Essentials Set",
+    "titleKhmer": "ឈុតថែរក្សាសក់ពណ៌ផ្កាឈូក",
+    "category": "hair",
+    "categoryLabel": "Hair Essentials",
+    "priceUSD": 8,
+    "priceKHR": 32800,
+    "inStock": true,
+    "rating": 4.7,
+    "reviewsCount": 74,
+    "badge": "Self-Care 💗",
+    "status": "active",
+    "image": "/assets/images/products/pink-hair-care-essentials-set.jpg",
+    "gallery": [
+      "/assets/images/products/pink-hair-care-essentials-set.jpg"
     ],
-    description: "Frameless one-piece gradient shield shades inspired by early 2000s street fashion. Ultra sleek metallic temples.",
-    specifications: {
-      "Style": "Rimless Y2K Wrap",
-      "Lens": "Polycarbonate Anti-Scratch",
-      "Temple Material": "Alloy Chrome",
-      "Fit": "Medium to Wide Face"
+    "description": "A pastel-pink hair-care flat lay in one set: wide-tooth comb, scalp massager brush and a cream claw clip for your wash-day routine.",
+    "specifications": {
+      "Includes": "Comb, scalp massager, claw clip",
+      "Material": "Acetate and soft silicone",
+      "Colour": "Blush Pink and Cream",
+      "Use": "Wet and dry hair"
     }
   },
   {
-    id: "genz-05",
-    title: "Puffy Cloud Quilted Nylon Shoulder Bag",
-    titleKhmer: "កាបូបស្ពាយសាច់ប៉ោង Puffy Cloud Bag",
-    category: "bags",
-    categoryLabel: "Bags & Totes",
-    priceUSD: 14.50,
-    priceKHR: Math.round(14.50 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 5.0,
-    reviewsCount: 198,
-    badge: "Bestseller ☁️",
-    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-05",
+    "title": "Rainbow Body Mist Gift Set (6 Pcs)",
+    "titleKhmer": "ឈុតទឹកអប់ខ្លួន ឥន្ទធនូ (៦ ដប)",
+    "category": "beauty",
+    "categoryLabel": "Body Mist",
+    "priceUSD": 14,
+    "priceKHR": 57400,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 205,
+    "badge": "Gift Idea 🎁",
+    "status": "active",
+    "image": "/assets/images/products/rainbow-body-mist-gift-set-6-pcs.jpg",
+    "gallery": [
+      "/assets/images/products/rainbow-body-mist-gift-set-6-pcs.jpg"
     ],
-    description: "Ultra soft puffy dumpling silhouette with cloud padding. Roomy interior fits iPad Mini, lip gloss, wallet, and sunglasses.",
-    specifications: {
-      "Material": "Waterproof Padded Nylon",
-      "Closure": "Smooth YKK Zipper",
-      "Pockets": "1 Inner zipper pocket + slip pocket",
-      "Strap": "Comfortable ruched puffy strap"
+    "description": "Six travel-size fragrance mists in a rainbow of colours, each with its own sweet scent. Perfect gifting set and easy to toss in a bag.",
+    "specifications": {
+      "Pack Quantity": "6 mini bottles",
+      "Format": "Fine-mist spray",
+      "Scent Family": "Fruity / Sweet / Floral",
+      "Packaging": "Gift-ready"
     }
   },
   {
-    id: "genz-06",
-    title: "Silver Metallic Mini Crossbody Dumpling",
-    titleKhmer: "កាបូបស្ពាយតូចពណ៍ប្រាក់ Y2K",
-    category: "bags",
-    categoryLabel: "Bags & Totes",
-    priceUSD: 12.00,
-    priceKHR: Math.round(12.00 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 4.8,
-    reviewsCount: 64,
-    badge: "Chrome Edition",
-    image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1591561954557-26941169b49e?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-06",
+    "title": "Pink Cherry Scrunchie and Flower Clip Set",
+    "titleKhmer": "ឈុតខ្សែចងសក់ Cherry និងដង្កៀបផ្កា",
+    "category": "hair",
+    "categoryLabel": "Scrunchies and Clips",
+    "priceUSD": 5.5,
+    "priceKHR": 22550,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 167,
+    "badge": "Coquette 🎀",
+    "status": "active",
+    "image": "/assets/images/products/pink-cherry-scrunchie-and-flower-clip-set.jpg",
+    "gallery": [
+      "/assets/images/products/pink-cherry-scrunchie-and-flower-clip-set.jpg"
     ],
-    description: "Futuristic foil metallic finish with reflective sheen. Lightweight everyday compact bag for night-outs and casual streetwear.",
-    specifications: {
-      "Dimensions": "20cm x 13cm x 7cm",
-      "Material": "High-durability metallic PU",
-      "Weight": "190 grams ultra-light"
+    "description": "Soft pink velvet and cherry-print gingham scrunchies with a pastel flower claw clip. Gentle on hair and very coquette.",
+    "specifications": {
+      "Includes": "3 scrunchies + 1 flower clip",
+      "Material": "Cotton gauze and velvet",
+      "Colour": "Pink and White",
+      "Vibe": "Soft girl / Coquette"
     }
   },
   {
-    id: "genz-07",
-    title: "French Matte Pastel Claw Clip Trio (3 Pcs)",
-    titleKhmer: "ឈុតដង្កៀបសក់ Pastel (៣ ដុំ)",
-    category: "hair",
-    categoryLabel: "Hair Accessories",
-    priceUSD: 3.50,
-    priceKHR: Math.round(3.50 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 4.9,
-    reviewsCount: 312,
-    badge: "Must-Have 🌸",
-    image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-07",
+    "title": "Floral Flower Claw Clip Set (5 Pcs)",
+    "titleKhmer": "ឈុតដង្កៀបសក់រាងផ្កា បោះពុម្ពលម្អ (៥ គ្រឿង)",
+    "category": "hair",
+    "categoryLabel": "Claw Clips",
+    "priceUSD": 6,
+    "priceKHR": 24600,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 184,
+    "badge": "Best Value",
+    "status": "active",
+    "image": "/assets/images/products/floral-flower-claw-clip-set-5-pcs.jpg",
+    "gallery": [
+      "/assets/images/products/floral-flower-claw-clip-set-5-pcs.jpg"
     ],
-    description: "Tough flexible acetate claw clips with strong steel springs and a velvety matte rubberized coating that won't pull hair.",
-    specifications: {
-      "Set Includes": "Cotton Cream, Sorbet Orange, Muted Espresso",
-      "Length": "10.5cm large clip",
-      "Hold Type": "All-day firm grip for thick & fine hair"
+    "description": "Five glossy flower-shaped claw clips hand-painted with cherries, bows and tiny blossoms. Strong spring grip for thick or fine hair.",
+    "specifications": {
+      "Pack Quantity": "5 clips",
+      "Material": "Acetate",
+      "Pattern": "Cherry, bow and floral prints",
+      "Grip": "Non-slip spring"
     }
   },
   {
-    id: "genz-08",
-    title: "Silver Chrome Y2K Star Hair Pins (Set of 6)",
-    titleKhmer: "កូនខ្ទាស់សក់ផ្កាយប្រាក់ Y2K (៦ គ្រាប់)",
-    category: "hair",
-    categoryLabel: "Hair Accessories",
-    priceUSD: 3.00,
-    priceKHR: Math.round(3.00 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 4.9,
-    reviewsCount: 184,
-    badge: "TikTok Trend",
-    image: "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-08",
+    "title": "Pink Plumeria Flower Claw Clip",
+    "titleKhmer": "ដង្កៀបសក់ផ្កាចំប៉ីពណ៌ផ្កាឈូក",
+    "category": "hair",
+    "categoryLabel": "Claw Clips",
+    "priceUSD": 2.5,
+    "priceKHR": 10250,
+    "inStock": true,
+    "rating": 4.7,
+    "reviewsCount": 243,
+    "badge": "Hot Pick 🔥",
+    "status": "active",
+    "image": "/assets/images/products/pink-plumeria-flower-claw-clip.jpg",
+    "gallery": [
+      "/assets/images/products/pink-plumeria-flower-claw-clip.jpg"
     ],
-    description: "Six mini silver cyber stars to snap onto braids, bangs, and buns. Instant aesthetic upgrade for effortless street style.",
-    specifications: {
-      "Pack": "6 Stainless Star Snap Pins",
-      "Finish": "Chrome Polish",
-      "Grip": "Snag-free steel snap clip"
+    "description": "Translucent pink plumeria claw clip with a deep magenta centre. A fast way to dress up a messy bun.",
+    "specifications": {
+      "Style": "Plumeria flower",
+      "Material": "Acetate",
+      "Colour": "Pink and Magenta",
+      "Size": "Approx. 8cm"
     }
   },
   {
-    id: "genz-09",
-    title: "Iridescent Butterfly Beaded Phone Lanyard",
-    titleKhmer: "ខ្សែពាក់ទូរស័ព្ទអង្កាំមេអំបៅ Cute Charm",
-    category: "charms",
-    categoryLabel: "Tech Charms",
-    priceUSD: 4.00,
-    priceKHR: Math.round(4.00 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 4.9,
-    reviewsCount: 167,
-    badge: "Hand-Strung 💖",
-    image: "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1582142839970-2b9da1978253?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-09",
+    "title": "Floral Quilted Mini Zip Pouch with Keyring",
+    "titleKhmer": "កាបូបតូចដេរក្រណាត់ផ្កា មានខ្សែសោ",
+    "category": "bags",
+    "categoryLabel": "Mini Pouches",
+    "priceUSD": 5.5,
+    "priceKHR": 22550,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 91,
+    "badge": "Cute Find",
+    "status": "active",
+    "image": "/assets/images/products/floral-quilted-mini-zip-pouch-with-keyring.jpg",
+    "gallery": [
+      "/assets/images/products/floral-quilted-mini-zip-pouch-with-keyring.jpg"
     ],
-    description: "Cute phone wrist lanyard with iridescent beads, glass pearls, and acrylic butterfly accents. Attaches to any phone case loophole.",
-    specifications: {
-      "Loop Length": "22cm wrist loop",
-      "Cord": "Heavy-duty nylon braided tether",
-      "Compatibility": "Universal phone cases & cameras"
+    "description": "Pocket-size quilted pouch in a ditsy pink floral print, with a pink zipper and keyring clip. Holds lip balm, earbuds and cards.",
+    "specifications": {
+      "Material": "Quilted cotton",
+      "Closure": "Zip",
+      "Attachment": "Metal keyring and chain",
+      "Size": "Approx. 12cm x 9cm"
     }
   },
   {
-    id: "genz-10",
-    title: "Silver Chunky Heart Locket Keychain",
-    titleKhmer: "បន្តោងសោររូបបេះដូងប្រាក់ Y2K Locket",
-    category: "charms",
-    categoryLabel: "Tech Charms",
-    priceUSD: 4.50,
-    priceKHR: Math.round(4.50 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 4.7,
-    reviewsCount: 52,
-    badge: "Trending ⚡",
-    image: "https://images.unsplash.com/photo-1582142839970-2b9da1978253?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1582142839970-2b9da1978253?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1611591475819-797de2338ec8?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1508296695146-257a814070b4?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-10",
+    "title": "Pink Bow Print Phone Case",
+    "titleKhmer": "ស្រោមទូរស័ព្ទបោះពុម្ពរាងរ៉ូប៉ូពណ៌ផ្កាឈូក",
+    "category": "accessories",
+    "categoryLabel": "Phone Cases",
+    "priceUSD": 6,
+    "priceKHR": 24600,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 133,
+    "badge": "Girly Pick 🎀",
+    "status": "active",
+    "image": "/assets/images/products/pink-bow-print-phone-case.jpg",
+    "gallery": [
+      "/assets/images/products/pink-bow-print-phone-case.jpg"
     ],
-    description: "Functional photo locket keychain with heavy metallic carabiner clip. Clip it onto your belt loop, backpack, or tote bag.",
-    specifications: {
-      "Function": "Opens to insert mini photo",
-      "Clip": "Quick-release spring carabiner",
-      "Material": "Solid metal alloy"
+    "description": "Glossy translucent pink phone case with an all-over bow pattern and a sparkle camera ring. Slim fit with raised edges for protection.",
+    "specifications": {
+      "Pattern": "Allover bow print",
+      "Material": "TPU + PC",
+      "Protection": "Raised camera and screen edges",
+      "Colour": "Pink"
     }
   },
   {
-    id: "genz-11",
-    title: "Washed Vintage Cotton Streetwear Cap",
-    titleKhmer: "មួកកាតឹប Streetwear បែប Vintage",
-    category: "hair",
-    categoryLabel: "Streetwear Gear",
-    priceUSD: 8.50,
-    priceKHR: Math.round(8.50 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 4.9,
-    reviewsCount: 112,
-    badge: "Street Essential",
-    image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1521369909029-2afed882baee?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1534215754734-18e55d13e346?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-11",
+    "title": "Rose Gold Green Dial Chronograph Watch",
+    "titleKhmer": "នាឡិកាក្រូណូក្រាហ្វ មុខពណ៌បៃតង ស្ពាន់ផ្កាឈូក",
+    "category": "watches",
+    "categoryLabel": "Statement Watches",
+    "priceUSD": 28,
+    "priceKHR": 114800,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 57,
+    "badge": "Premium ✨",
+    "status": "active",
+    "image": "/assets/images/products/rose-gold-green-dial-chronograph-watch.jpg",
+    "gallery": [
+      "/assets/images/products/rose-gold-green-dial-chronograph-watch.jpg"
     ],
-    description: "Low-profile distressed washed cotton dad hat with embroidered minimalist typography. Adjustable metal buckle back.",
-    specifications: {
-      "Material": "100% Washed Vintage Cotton",
-      "Crown": "Unstructured 6-Panel Low Profile",
-      "Strap": "Antique brass buckle adjustment"
+    "description": "Rose-gold case and bracelet with a rich green three-subdial face. A dressy statement watch for gifts and special days.",
+    "specifications": {
+      "Case Material": "Stainless steel, rose-gold tone",
+      "Dial": "Green chronograph",
+      "Strap": "Link bracelet",
+      "Water Resistance": "3 ATM"
     }
   },
   {
-    id: "genz-12",
-    title: "Liquid Metal Abstract Ear Cuff & Huggie Set",
-    titleKhmer: "ក្រវិលប្រាក់ទាន់សម័យ Liquid Metal (២ ដុំ)",
-    category: "jewelry",
-    categoryLabel: "Y2K Jewelry",
-    priceUSD: 5.00,
-    priceKHR: Math.round(5.00 * EXCHANGE_RATE),
-    inStock: true,
-    rating: 4.8,
-    reviewsCount: 88,
-    badge: "No Piercing Needed",
-    image: "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=800&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80",
-      "https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?auto=format&fit=crop&w=800&q=80"
+    "id": "genz-12",
+    "title": "Two-Tone Chronograph Bracelet Watch",
+    "titleKhmer": "នាឡិកាក្រូណូក្រាហ្វ ពណ៌ពីរ សង្វាក់ដៃ",
+    "category": "watches",
+    "categoryLabel": "Statement Watches",
+    "priceUSD": 26,
+    "priceKHR": 106600,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 64,
+    "badge": "Classic",
+    "status": "active",
+    "image": "/assets/images/products/two-tone-chronograph-bracelet-watch.jpg",
+    "gallery": [
+      "/assets/images/products/two-tone-chronograph-bracelet-watch.jpg"
     ],
-    description: "Futuristic molten silver ear cuff that clips onto upper ear cartilage without piercing, paired with a chunky mini hoop.",
-    specifications: {
-      "Pieces": "1 Ear Cuff (No Piercing) + 1 Mini Huggie",
-      "Material": "S925 Sterling Silver Plated",
-      "Hypoallergenic": "Nickel & Lead Free"
+    "description": "Silver and rose-gold two-tone bracelet with a dark multi-dial face. Sharp, polished and easy to wear from desk to dinner.",
+    "specifications": {
+      "Case Material": "Stainless steel",
+      "Dial": "Dark grey chronograph",
+      "Strap": "Two-tone link bracelet",
+      "Water Resistance": "3 ATM"
+    }
+  },
+  {
+    "id": "genz-13",
+    "title": "Classic Silver Link Bracelet Watch",
+    "titleKhmer": "នាឡិកាសង្វាក់ប្រាក់ បែបបុរាណ",
+    "category": "watches",
+    "categoryLabel": "Everyday Watches",
+    "priceUSD": 22,
+    "priceKHR": 90200,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 88,
+    "badge": "Timeless",
+    "status": "active",
+    "image": "/assets/images/products/classic-silver-link-bracelet-watch.jpg",
+    "gallery": [
+      "/assets/images/products/classic-silver-link-bracelet-watch.jpg"
+    ],
+    "description": "Brushed silver bracelet watch with a pale dial and fluted bezel. Clean enough for the office, stylish enough for the weekend.",
+    "specifications": {
+      "Case Material": "Stainless steel",
+      "Dial": "Silver-white",
+      "Strap": "Jubilee-style link bracelet",
+      "Clasp": "Folding"
+    }
+  },
+  {
+    "id": "genz-14",
+    "title": "Brown Leather Strap Chronograph Watch",
+    "titleKhmer": "នាឡិកាក្រូណូក្រាហ្វ ខ្សែស្បែកពណ៌ត្នោត",
+    "category": "watches",
+    "categoryLabel": "Everyday Watches",
+    "priceUSD": 25,
+    "priceKHR": 102500,
+    "inStock": true,
+    "rating": 4.7,
+    "reviewsCount": 72,
+    "badge": "Men's Pick",
+    "status": "active",
+    "image": "/assets/images/products/brown-leather-strap-chronograph-watch.jpg",
+    "gallery": [
+      "/assets/images/products/brown-leather-strap-chronograph-watch.jpg"
+    ],
+    "description": "Black dial with roman numerals and three subdials, set in a bronze case on a brown leather strap. Presented in a gift tin.",
+    "specifications": {
+      "Case Material": "Bronze-tone alloy",
+      "Dial": "Black, Roman numerals",
+      "Strap": "Genuine leather",
+      "Packaging": "Gift tin"
+    }
+  },
+  {
+    "id": "genz-15",
+    "title": "Sage Green Oxford Button-Down Shirt",
+    "titleKhmer": "អាវដៃវែង Oxford ពណ៌បៃតងស្រាល",
+    "category": "apparel",
+    "categoryLabel": "Men's Shirts",
+    "priceUSD": 14,
+    "priceKHR": 57400,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 110,
+    "badge": "Fresh Drop",
+    "status": "active",
+    "image": "/assets/images/products/sage-green-oxford-button-down-shirt.jpg",
+    "gallery": [
+      "/assets/images/products/sage-green-oxford-button-down-shirt.jpg"
+    ],
+    "description": "Soft sage green Oxford shirt with button-down collar. Wear it tucked in with white trousers or open over a tee.",
+    "specifications": {
+      "Material": "Cotton Oxford",
+      "Fit": "Regular",
+      "Collar": "Button-down",
+      "Colour": "Sage Green"
+    }
+  },
+  {
+    "id": "genz-16",
+    "title": "Blue Striped Slim-Fit Button-Down Shirt",
+    "titleKhmer": "អាវដៃវែងឆ្នូតខៀវ ទម្រង់ Slim",
+    "category": "apparel",
+    "categoryLabel": "Men's Shirts",
+    "priceUSD": 14,
+    "priceKHR": 57400,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 95,
+    "badge": "Smart Casual",
+    "status": "active",
+    "image": "/assets/images/products/blue-striped-slim-fit-button-down-shirt.jpg",
+    "gallery": [
+      "/assets/images/products/blue-striped-slim-fit-button-down-shirt.jpg"
+    ],
+    "description": "Crisp blue-and-white striped shirt with a slim, tailored cut. Roll up the sleeves for easy smart-casual style.",
+    "specifications": {
+      "Material": "Cotton poplin",
+      "Fit": "Slim",
+      "Collar": "Button-down",
+      "Pattern": "Blue and white stripe"
+    }
+  },
+  {
+    "id": "genz-17",
+    "title": "Ribbed Knit Contrast Collar Polo",
+    "titleKhmer": "អាវពូឡូ ក្រណាត់ត្បាញ ក និងបំពង់ដៃពណ៌ផ្ទុយ",
+    "category": "apparel",
+    "categoryLabel": "Polos",
+    "priceUSD": 16,
+    "priceKHR": 65600,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 81,
+    "badge": "Old Money",
+    "status": "active",
+    "image": "/assets/images/products/ribbed-knit-contrast-collar-polo.jpg",
+    "gallery": [
+      "/assets/images/products/ribbed-knit-contrast-collar-polo.jpg"
+    ],
+    "description": "Cream ribbed knit polo with navy contrast trim on the collar and sleeves. Dressed-up and easy to wear.",
+    "specifications": {
+      "Material": "Cotton-blend rib knit",
+      "Fit": "Regular",
+      "Detail": "Navy contrast collar and cuffs",
+      "Colour": "Cream"
+    }
+  },
+  {
+    "id": "genz-18",
+    "title": "Olive Plaid Relaxed Overshirt",
+    "titleKhmer": "អាវដៃវែងឆ្នូតការ៉ូ ពណ៌អូលីវ ទ្រង់ធំ",
+    "category": "apparel",
+    "categoryLabel": "Men's Shirts",
+    "priceUSD": 15,
+    "priceKHR": 61500,
+    "inStock": true,
+    "rating": 4.7,
+    "reviewsCount": 69,
+    "badge": "Streetwear",
+    "status": "active",
+    "image": "/assets/images/products/olive-plaid-relaxed-overshirt.jpg",
+    "gallery": [
+      "/assets/images/products/olive-plaid-relaxed-overshirt.jpg"
+    ],
+    "description": "Relaxed olive and cream plaid shirt with a casual drape. Wear it open as an overshirt or buttoned up.",
+    "specifications": {
+      "Material": "Cotton blend",
+      "Fit": "Relaxed",
+      "Pattern": "Olive plaid",
+      "Colour": "Olive and Cream"
+    }
+  },
+  {
+    "id": "genz-19",
+    "title": "Grey Check Oversized Long-Sleeve Shirt",
+    "titleKhmer": "អាវដៃវែងការ៉ូប្រផេះ ទ្រង់ធំ",
+    "category": "apparel",
+    "categoryLabel": "Men's Shirts",
+    "priceUSD": 15,
+    "priceKHR": 61500,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 77,
+    "badge": "Gen-Z Fit",
+    "status": "active",
+    "image": "/assets/images/products/grey-check-oversized-long-sleeve-shirt.jpg",
+    "gallery": [
+      "/assets/images/products/grey-check-oversized-long-sleeve-shirt.jpg"
+    ],
+    "description": "Lightweight grey checkered shirt with a chest pocket and an oversized cut. Soft, airy and made for layering.",
+    "specifications": {
+      "Material": "Textured cotton blend",
+      "Fit": "Oversized",
+      "Pocket": "Chest patch pocket",
+      "Colour": "Grey and White"
+    }
+  },
+  {
+    "id": "genz-20",
+    "title": "Gingham and Lace Scrunchie Set (4 Pcs)",
+    "titleKhmer": "ឈុតខ្សែចងសក់ Gingham និង Lace (៤ ខ្សែ)",
+    "category": "hair",
+    "categoryLabel": "Scrunchies and Clips",
+    "priceUSD": 5,
+    "priceKHR": 20500,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 139,
+    "badge": "Cottagecore 🌼",
+    "status": "active",
+    "image": "/assets/images/products/gingham-and-lace-scrunchie-set-4-pcs.jpg",
+    "gallery": [
+      "/assets/images/products/gingham-and-lace-scrunchie-set-4-pcs.jpg"
+    ],
+    "description": "Four oversized scrunchies in red gingham, blue check, cream knit and floral with lace trim. Gentle hold with no creases.",
+    "specifications": {
+      "Pack Quantity": "4 scrunchies",
+      "Material": "Cotton and lace",
+      "Colours": "Red, Blue, Cream, Floral",
+      "Hold": "Soft elastic"
+    }
+  },
+  {
+    "id": "genz-21",
+    "title": "Strawberry Beaded Charm Watch Bracelet",
+    "titleKhmer": "កងដៃនាឡិកាអង្កាំ Strawberry",
+    "category": "jewelry",
+    "categoryLabel": "Charm Jewelry",
+    "priceUSD": 9,
+    "priceKHR": 36900,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 118,
+    "badge": "Handmade 🍓",
+    "status": "active",
+    "image": "/assets/images/products/strawberry-beaded-charm-watch-bracelet.jpg",
+    "gallery": [
+      "/assets/images/products/strawberry-beaded-charm-watch-bracelet.jpg"
+    ],
+    "description": "Handmade beaded bracelet with a tiny watch face, glass strawberry, hearts and flowers. Part jewellery, part tiny accessory.",
+    "specifications": {
+      "Material": "Glass beads and alloy",
+      "Closure": "Lobster clasp + extender",
+      "Charms": "Strawberry, hearts, flowers",
+      "Style": "Cottagecore / Kawaii"
+    }
+  },
+  {
+    "id": "genz-22",
+    "title": "Strawberry Bow Beaded Bag Charm",
+    "titleKhmer": "គ្រឿងលម្អកាបូប អង្កាំ Strawberry រ៉ូប៉ូ",
+    "category": "charms",
+    "categoryLabel": "Bag Charms",
+    "priceUSD": 4.5,
+    "priceKHR": 18450,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 102,
+    "badge": "Kawaii 🍓",
+    "status": "active",
+    "image": "/assets/images/products/strawberry-bow-beaded-bag-charm.jpg",
+    "gallery": [
+      "/assets/images/products/strawberry-bow-beaded-bag-charm.jpg"
+    ],
+    "description": "Dangling bag charm with a ribbon bow, pearl heart, strawberry and a tiny critter figure. Clips on to bags, keys or lip balm.",
+    "specifications": {
+      "Charms": "Bow, heart, strawberry, mini figure",
+      "Attachment": "Swivel clip + ball chain",
+      "Material": "Resin and acrylic",
+      "Length": "Approx. 14cm"
+    }
+  },
+  {
+    "id": "genz-23",
+    "title": "White Floppy-Ear Plush Bag Charm",
+    "titleKhmer": "គ្រឿងលម្អកាបូប តុក្កតាឆ្កែត្រចៀកធ្លាក់ ពណ៌ស",
+    "category": "charms",
+    "categoryLabel": "Plush Charms",
+    "priceUSD": 5.5,
+    "priceKHR": 22550,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 214,
+    "badge": "Bestseller",
+    "status": "active",
+    "image": "/assets/images/products/white-floppy-ear-plush-bag-charm.jpg",
+    "gallery": [
+      "/assets/images/products/white-floppy-ear-plush-bag-charm.jpg"
+    ],
+    "description": "Soft white plush with long floppy ears, paired with a heart carabiner, star and 8-ball charm. Clip it on a bag zipper or backpack.",
+    "specifications": {
+      "Material": "Plush and metal",
+      "Attachment": "Heart carabiner + key ring",
+      "Extras": "Star and 8-ball charm",
+      "Height": "Approx. 12cm"
+    }
+  },
+  {
+    "id": "genz-24",
+    "title": "Kawaii Bunny Plush Bag Charm Duo",
+    "titleKhmer": "គ្រឿងលម្អកាបូប តុក្កតាទន្សាយ (២ ក្បាល)",
+    "category": "charms",
+    "categoryLabel": "Plush Charms",
+    "priceUSD": 6,
+    "priceKHR": 24600,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 190,
+    "badge": "Viral 🐰",
+    "status": "active",
+    "image": "/assets/images/products/kawaii-bunny-plush-bag-charm-duo.jpg",
+    "gallery": [
+      "/assets/images/products/kawaii-bunny-plush-bag-charm-duo.jpg"
+    ],
+    "description": "Two squishy bunny plush charms with blushing cheeks on ball chains. Hang them on a handbag, tote or backpack.",
+    "specifications": {
+      "Pack Quantity": "2 plush charms",
+      "Material": "Plush and PP cotton",
+      "Attachment": "Ball chain",
+      "Height": "Approx. 10cm"
+    }
+  },
+  {
+    "id": "genz-25",
+    "title": "Plush Bunny Blue Rose Bouquet Gift Set",
+    "titleKhmer": "ឈុតកាដូ ផ្កាកុលាបខៀវ និងតុក្កតាទន្សាយ",
+    "category": "gifts",
+    "categoryLabel": "Gift Sets",
+    "priceUSD": 22,
+    "priceKHR": 90200,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 46,
+    "badge": "Gift Idea 🎁",
+    "status": "active",
+    "image": "/assets/images/products/plush-bunny-blue-rose-bouquet-gift-set.jpg",
+    "gallery": [
+      "/assets/images/products/plush-bunny-blue-rose-bouquet-gift-set.jpg"
+    ],
+    "description": "Gift bouquet with a plush bunny nested in blue and white blooms, wrapped in light blue paper and ribbon. Ideal for birthdays and graduations.",
+    "specifications": {
+      "Includes": "Plush bunny, flowers, wrapping",
+      "Colour Theme": "Blue and White",
+      "Wrapping": "Paper and satin ribbon",
+      "Occasion": "Birthday, graduation, anniversary"
+    }
+  },
+  {
+    "id": "genz-26",
+    "title": "Vintage Floral Ribbon Newsboy Cap",
+    "titleKhmer": "មួក Newsboy បែបវីនធេច ជាប់ខ្សែរ៉ូប៉ូផ្កា",
+    "category": "hats",
+    "categoryLabel": "Caps and Hats",
+    "priceUSD": 11,
+    "priceKHR": 45100,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 66,
+    "badge": "Vintage Vibes",
+    "status": "active",
+    "image": "/assets/images/products/vintage-floral-ribbon-newsboy-cap.jpg",
+    "gallery": [
+      "/assets/images/products/vintage-floral-ribbon-newsboy-cap.jpg"
+    ],
+    "description": "Soft olive-brown newsboy cap with a floral ribbon band and a short peak. A relaxed vintage finish for any outfit.",
+    "specifications": {
+      "Material": "Cotton twill",
+      "Style": "Newsboy / Baker boy",
+      "Detail": "Floral ribbon band",
+      "Fit": "Adjustable inner band"
+    }
+  },
+  {
+    "id": "genz-27",
+    "title": "Embroidered Bow Crew Socks (2 Pairs)",
+    "titleKhmer": "ស្រោមជើងកវែង ប៉ាក់រ៉ូប៉ូ (២ គូរ)",
+    "category": "socks",
+    "categoryLabel": "Socks",
+    "priceUSD": 4,
+    "priceKHR": 16400,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 175,
+    "badge": "Coquette 🎀",
+    "status": "active",
+    "image": "/assets/images/products/embroidered-bow-crew-socks-2-pairs.jpg",
+    "gallery": [
+      "/assets/images/products/embroidered-bow-crew-socks-2-pairs.jpg"
+    ],
+    "description": "Cream and burgundy ribbed crew socks with a tiny embroidered bow. Soft, stretchy and made for loafers and sneakers.",
+    "specifications": {
+      "Pack Quantity": "2 pairs",
+      "Material": "Cotton blend",
+      "Length": "Crew",
+      "Colours": "Cream and Burgundy"
+    }
+  },
+  {
+    "id": "genz-28",
+    "title": "Cartoon Face Crew Socks Set (5 Pairs)",
+    "titleKhmer": "ឈុតស្រោមជើងមុខតុក្កតា (៥ គូរ)",
+    "category": "socks",
+    "categoryLabel": "Socks",
+    "priceUSD": 8,
+    "priceKHR": 32800,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 138,
+    "badge": "Fun Pick",
+    "status": "active",
+    "image": "/assets/images/products/cartoon-face-crew-socks-set-5-pairs.jpg",
+    "gallery": [
+      "/assets/images/products/cartoon-face-crew-socks-set-5-pairs.jpg"
+    ],
+    "description": "Five bold crew socks in pastel colours, each with a goofy cartoon face. A fun gift for friends.",
+    "specifications": {
+      "Pack Quantity": "5 pairs",
+      "Material": "Cotton blend",
+      "Length": "Crew",
+      "Colours": "Purple, Mint, Orange, Lime, Yellow"
+    }
+  },
+  {
+    "id": "genz-29",
+    "title": "Glossy Brown Leather Shoulder Bag",
+    "titleKhmer": "កាបូបស្ពាយស្បែកពណ៌ត្នោតភ្លឺ",
+    "category": "bags",
+    "categoryLabel": "Shoulder Bags",
+    "priceUSD": 24,
+    "priceKHR": 98400,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 121,
+    "badge": "Y2K Classic",
+    "status": "active",
+    "image": "/assets/images/products/glossy-brown-leather-shoulder-bag.jpg",
+    "gallery": [
+      "/assets/images/products/glossy-brown-leather-shoulder-bag.jpg"
+    ],
+    "description": "Rich glossy brown shoulder bag with double top handles and a roomy interior. A true Y2K silhouette for your bag charms.",
+    "specifications": {
+      "Material": "Glossy PU leather",
+      "Handles": "Double top handle",
+      "Closure": "Zip",
+      "Colour": "Chocolate Brown"
+    }
+  },
+  {
+    "id": "genz-30",
+    "title": "Mini Vintage Brown Crossbody Bag",
+    "titleKhmer": "កាបូបស្ពាយឆៀងតូច ពណ៌ត្នោតបែបវីនធេច",
+    "category": "bags",
+    "categoryLabel": "Crossbody Bags",
+    "priceUSD": 20,
+    "priceKHR": 82000,
+    "inStock": true,
+    "rating": 4.8,
+    "reviewsCount": 93,
+    "badge": "Trending ⚡",
+    "status": "active",
+    "image": "/assets/images/products/mini-vintage-brown-crossbody-bag.jpg",
+    "gallery": [
+      "/assets/images/products/mini-vintage-brown-crossbody-bag.jpg"
+    ],
+    "description": "Compact brown crossbody with a curved flap and adjustable strap. It fits phone, wallet and earbuds, and looks great with a clip on the strap.",
+    "specifications": {
+      "Material": "PU leather",
+      "Strap": "Adjustable crossbody",
+      "Closure": "Magnetic flap",
+      "Colour": "Brown"
+    }
+  },
+  {
+    "id": "genz-31",
+    "title": "Brown Leather Shoulder Bag with Lace Ribbon",
+    "titleKhmer": "កាបូបស្ពាយស្បែកពណ៌ត្នោត ជាប់ខ្សែរបាំង",
+    "category": "bags",
+    "categoryLabel": "Shoulder Bags",
+    "priceUSD": 26,
+    "priceKHR": 106600,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 84,
+    "badge": "Cottagecore 🌼",
+    "status": "active",
+    "image": "/assets/images/products/brown-leather-shoulder-bag-with-lace-ribbon.jpg",
+    "gallery": [
+      "/assets/images/products/brown-leather-shoulder-bag-with-lace-ribbon.jpg"
+    ],
+    "description": "Structured brown shoulder bag with buckle detail, tied with a lace ribbon on the strap. Pair with a plush charm to finish the look.",
+    "specifications": {
+      "Material": "PU leather",
+      "Details": "Buckle front, lace ribbon",
+      "Closure": "Zip",
+      "Colour": "Cognac Brown"
+    }
+  },
+  {
+    "id": "genz-32",
+    "title": "Beaded Bow Phone Charm Strap",
+    "titleKhmer": "ខ្សែអង្កាំទូរស័ព្ទ រាងរ៉ូប៉ូ",
+    "category": "charms",
+    "categoryLabel": "Phone Charms",
+    "priceUSD": 4.5,
+    "priceKHR": 18450,
+    "inStock": true,
+    "rating": 4.9,
+    "reviewsCount": 160,
+    "badge": "Gen-Z Pick",
+    "status": "active",
+    "image": "/assets/images/products/beaded-bow-phone-charm-strap.jpg",
+    "gallery": [
+      "/assets/images/products/beaded-bow-phone-charm-strap.jpg"
+    ],
+    "description": "Pastel beaded phone strap tied into a bow, with pearl and heart beads. Also works on tumblers, keys and bags.",
+    "specifications": {
+      "Material": "Acrylic and glass beads",
+      "Attachment": "Phone lanyard loop",
+      "Style": "Pastel / Coquette",
+      "Length": "Approx. 18cm"
     }
   }
 ];

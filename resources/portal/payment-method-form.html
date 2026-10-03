@@ -139,6 +139,20 @@
 
   </main>
 
+  <!-- Admin Portal Footer -->
+  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-xs text-stone-500 dark:text-stone-400 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+      <div>&copy; 2026 PsaOnline Operations Portal &bull; All rights reserved.</div>
+      <div class="flex items-center justify-center gap-4 text-[11px]">
+        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
+        <span>&bull;</span>
+        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
+        <span>&bull;</span>
+        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
   <script>
@@ -162,11 +176,27 @@
       }
     }
 
+    // Same limits as AdminApiController::validatePaymentMethod.
+    function validateMethodForm(form) {
+      psaClearAllFieldErrors(form);
+      let hasError = false;
+      const check = (id, message) => { if (message) { psaShowFieldError(id, message); hasError = true; } };
+      const tooLong = (id, max, label) => document.getElementById(id).value.trim().length > max ? `${label} must be ${max} characters or fewer.` : null;
+
+      check('methodName', psaValidateMinLength(document.getElementById('methodName').value, 2, 'Name') || tooLong('methodName', 100, 'Name'));
+      check('methodType', psaValidateRequired(document.getElementById('methodType').value, 'Type'));
+      check('accountNumber', tooLong('accountNumber', 50, 'Account number'));
+      check('instructions', tooLong('instructions', 255, 'Instructions'));
+
+      return !hasError;
+    }
+
     async function saveMethod(e) {
       e.preventDefault();
       const errorEl = document.getElementById('methodFormError');
       const btn = document.getElementById('methodSaveBtn');
       errorEl.classList.add('hidden');
+      if (!validateMethodForm(e.target)) return;
       const payload = {
         name: document.getElementById('methodName').value.trim(),
         type: document.getElementById('methodType').value,
@@ -175,7 +205,7 @@
         qrData,
         isActive: document.getElementById('methodEnabled').checked
       };
-      btn.disabled = true;
+      psaSetButtonLoading(btn, true, 'Saving...');
       try {
         if (editingMethodId) {
           await psaApi('PATCH', `/api/admin/payment-methods/${encodeURIComponent(editingMethodId)}`, payload);
@@ -184,14 +214,22 @@
         }
         window.location.replace('admin-payment-methods.html');
       } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.classList.remove('hidden');
-        btn.disabled = false;
+        psaSetButtonLoading(btn, false);
+        if (err.errors) {
+          psaApplyServerErrors(e.target, err.errors);
+        } else {
+          errorEl.textContent = err.message;
+          errorEl.classList.remove('hidden');
+        }
       }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       if (!enforcePageRBAC('canManagePaymentGateways')) return;
+      ['methodName', 'methodType', 'accountNumber', 'instructions'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => psaClearFieldError(el));
+      });
       if (!editingMethodId) return;
       const m = PSA.paymentMethods.find(x => String(x.id) === editingMethodId);
       if (!m) {

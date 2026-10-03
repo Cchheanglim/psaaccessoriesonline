@@ -145,6 +145,20 @@
     </div>
   </main>
 
+  <!-- Footer -->
+  <footer class="bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto py-6 text-xs text-stone-500 dark:text-stone-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+      <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
+      <div class="flex items-center justify-center gap-4 text-[11px]">
+        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
+        <span>&bull;</span>
+        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
+        <span>&bull;</span>
+        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
   <script>
@@ -175,12 +189,46 @@
       }
     }
 
+    // Real-time error clearing
+    ['email', 'password'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => psaClearFieldError(el));
+    });
+
+    function validateLoginForm() {
+      psaClearAllFieldErrors(document.querySelector('form'));
+      let hasError = false;
+
+      const loginVal = (document.getElementById('email')?.value || '').trim();
+      const passVal = document.getElementById('password')?.value || '';
+
+      if (!loginVal) {
+        psaShowFieldError('email', 'Email address or phone number is required.');
+        hasError = true;
+      } else if (loginVal.length < 3) {
+        psaShowFieldError('email', 'Please enter a valid email address or phone number.');
+        hasError = true;
+      }
+
+      if (!passVal) {
+        psaShowFieldError('password', 'Password is required.');
+        hasError = true;
+      }
+
+      return !hasError;
+    }
+
     async function handleLogin(e) {
       e.preventDefault();
       const loginVal = document.getElementById('email')?.value.trim();
+      const passVal = document.getElementById('password')?.value;
       const errorEl = document.getElementById('loginError');
       const btn = document.getElementById('loginSubmitBtn');
       errorEl.classList.add('hidden');
+
+      if (!validateLoginForm()) {
+        return;
+      }
 
       if (!PSA.online && !psaIsLocalPreview()) {
         errorEl.textContent = PSA_OFFLINE_MESSAGE;
@@ -189,6 +237,7 @@
       }
       // Demo mode (previewing without the server): keep the old role-based preview login
       if (!PSA.online) {
+        psaSetButtonLoading(btn, true, 'Signing In...');
         const emailVal = loginVal.toLowerCase();
         const users = getRBACUsers();
         let matchedUser = users.find(u => u.email.toLowerCase() === emailVal);
@@ -207,18 +256,22 @@
         return;
       }
 
-      btn.disabled = true;
+      psaSetButtonLoading(btn, true, 'Signing In...');
       try {
         const { user } = await psaApi('POST', '/api/auth/login', {
           login: loginVal,
-          password: document.getElementById('password').value
+          password: passVal
         });
         showRBACToast(`Welcome back, ${user.name}!`, 'success');
         setTimeout(() => goAfterLogin(user), 300);
       } catch (err) {
-        errorEl.textContent = err.message;
-        errorEl.classList.remove('hidden');
-        btn.disabled = false;
+        psaSetButtonLoading(btn, false);
+        if (err.errors) {
+          psaApplyServerErrors(document.querySelector('form'), err.errors);
+        } else {
+          errorEl.textContent = err.message;
+          errorEl.classList.remove('hidden');
+        }
       }
     }
 

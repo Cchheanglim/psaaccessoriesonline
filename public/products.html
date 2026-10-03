@@ -51,7 +51,7 @@
             type="text"
             id="searchInput"
             oninput="handleSearch(this.value)"
-            placeholder="Search rings, chains, sunglasses, claw clips..."
+            placeholder="Search charms, clips, socks, tees…"
             class="w-full pl-10 pr-4 py-2 bg-white hover:bg-white focus:bg-white text-xs border border-[#EFE4D6] focus:border-[#FFA552] rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFA552]/20 transition-all text-[#2B1D1D] placeholder-stone-400"
           />
           <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#FFA552]">
@@ -117,7 +117,7 @@
           <span>Accessories Catalog</span>
         </div>
         <h1 class="text-2xl sm:text-4xl font-black text-[#2B1D1D] tracking-tight">The Gen-Z Edit</h1>
-        <p class="text-xs sm:text-sm text-stone-500 mt-1">Trendy streetwear essentials, cyber silver chains, 90s shades & aesthetic hair pins.</p>
+        <p class="text-xs sm:text-sm text-stone-500 mt-1">Cute gifts, bag charms, claw clips, socks, tees, bags and watches. Delivered in Phnom Penh.</p>
       </div>
 
       <!-- Quick Sort -->
@@ -139,24 +139,37 @@
     <!-- Category Filters Scrollable Bar -->
     <div class="reveal-init delay-100 flex items-center gap-2 overflow-x-auto pb-2 text-xs font-bold">
       <button onclick="setCategoryFilter('all', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-[#2B1D1D] text-white shadow-xs shrink-0">
-        All Pieces (<span id="totalCountBadge">12</span>)
+        All Pieces (<span id="totalCountBadge">0</span>)
       </button>
-      <button onclick="setCategoryFilter('jewelry', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-        Y2K & Cyber Jewelry
+      <button onclick="setCategoryFilter('apparel', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
+        Tees & Shirts
       </button>
-      <button onclick="setCategoryFilter('eyewear', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-        Shades & Eyewear
+      <button onclick="setCategoryFilter('watches', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
+        Watches
       </button>
       <button onclick="setCategoryFilter('bags', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-        Puffy Cloud Bags
+        Bags
       </button>
       <button onclick="setCategoryFilter('hair', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-        Claw Clips & Pins
+        Hair & Clips
       </button>
       <button onclick="setCategoryFilter('charms', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
-        Phone Charms
+        Charms
+      </button>
+      <button onclick="setCategoryFilter('socks', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0">
+        Socks
       </button>
     </div>
+
+    <!-- Phone search (the header search is hidden on small screens) -->
+    <div class="sm:hidden relative pt-1">
+      <label for="mobileSearchInput" class="sr-only">Search the shop</label>
+      <input type="search" id="mobileSearchInput" oninput="handleSearch(this.value)" placeholder="Search charms, clips, socks, tees…" class="w-full h-12 pl-11 pr-4 bg-white text-base border border-[#EFE4D6] focus:border-[#FFA552] rounded-full focus:outline-none focus:ring-2 focus:ring-[#FFA552]/30 text-[#2B1D1D] placeholder-stone-500" />
+      <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 mt-0.5 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    </div>
+
+    <!-- Active price filter (from links like products.html?max=10) -->
+    <div id="priceFilterPill" class="hidden"></div>
 
     <!-- Products Grid (Clean White Cards) -->
     <div id="catalogGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pt-2">
@@ -197,10 +210,10 @@
         <div class="space-y-2">
           <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Categories</div>
           <ul class="text-xs space-y-1.5 text-stone-600 dark:text-stone-300 font-medium">
-            <li><a href="products.html?category=jewelry" class="hover:text-[#FFA552]">Y2K & Cyber Jewelry</a></li>
-            <li><a href="products.html?category=eyewear" class="hover:text-[#FFA552]">Shades & Eyewear</a></li>
-            <li><a href="products.html?category=bags" class="hover:text-[#FFA552]">Puffy Cloud Bags</a></li>
-            <li><a href="products.html?category=hair" class="hover:text-[#FFA552]">Claw Clips & Pins</a></li>
+            <li><a href="products.html?category=apparel" class="hover:text-[#FFA552]">Tees & Shirts</a></li>
+            <li><a href="products.html?category=watches" class="hover:text-[#FFA552]">Watches</a></li>
+            <li><a href="products.html?category=bags" class="hover:text-[#FFA552]">Bags</a></li>
+            <li><a href="products.html?category=hair" class="hover:text-[#FFA552]">Hair & Clips</a></li>
           </ul>
         </div>
 
@@ -252,6 +265,12 @@
       <div class="mt-8 pt-6 border-t border-[#EFE4D6] dark:border-[#272732] flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 dark:text-stone-400 gap-2">
         <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
         <div class="flex items-center gap-4 text-[11px]">
+          <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
+          <span>&bull;</span>
+          <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
+          <span>&bull;</span>
+          <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
+          <span>&bull;</span>
           <span>Made for Gen-Z in Cambodia 🇰🇭</span>
         </div>
       </div>
@@ -293,15 +312,18 @@
     let currentCategory = 'all';
     let searchQuery = '';
     let sortMode = 'featured';
+    let maxPrice = null;
 
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('category')) {
       currentCategory = urlParams.get('category');
     }
+    if (urlParams.has('max') && Number(urlParams.get('max')) > 0) {
+      maxPrice = Number(urlParams.get('max'));
+    }
     if (urlParams.has('q')) {
       searchQuery = urlParams.get('q');
-      const searchBox = document.getElementById('searchInput');
-      if (searchBox) searchBox.value = searchQuery;
+      ['searchInput', 'mobileSearchInput'].forEach(id => { const box = document.getElementById(id); if (box) box.value = searchQuery; });
     }
 
     function renderCatalog() {
@@ -309,11 +331,17 @@
       const empty = document.getElementById('emptyCatalog');
       if (!grid) return;
 
+      document.getElementById('totalCountBadge').textContent = ACCESSORIES_PRODUCTS.length;
       let list = [...ACCESSORIES_PRODUCTS];
 
       if (currentCategory !== 'all') {
         list = list.filter(p => p.category === currentCategory);
       }
+
+      if (maxPrice) {
+        list = list.filter(p => p.priceUSD <= maxPrice);
+      }
+      renderPriceFilterPill();
 
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
@@ -459,12 +487,27 @@
       renderCatalog();
     }
 
+    function renderPriceFilterPill() {
+      const pill = document.getElementById('priceFilterPill');
+      if (!pill) return;
+      pill.classList.toggle('hidden', !maxPrice);
+      pill.innerHTML = maxPrice ? `<button type="button" onclick="clearPriceFilter()" class="inline-flex items-center gap-2 h-11 px-4 rounded-full bg-[#2B1D1D] text-white text-sm font-black cursor-pointer" aria-label="Remove the under ${maxPrice} filter">Under ${maxPrice} <span aria-hidden="true">&times;</span></button>` : '';
+    }
+
+    function clearPriceFilter() {
+      maxPrice = null;
+      const url = new URL(window.location.href);
+      url.searchParams.delete('max');
+      history.replaceState(null, '', url);
+      renderCatalog();
+    }
+
     function resetFilters() {
+      maxPrice = null;
       currentCategory = 'all';
       searchQuery = '';
       sortMode = 'featured';
-      const searchBox = document.getElementById('searchInput');
-      if (searchBox) searchBox.value = '';
+      ['searchInput', 'mobileSearchInput'].forEach(id => { const box = document.getElementById(id); if (box) box.value = ''; });
       document.getElementById('sortSelect').value = 'featured';
       renderCatalog();
     }
@@ -482,6 +525,11 @@
         });
       }
       renderCatalog();
+      // Opened from the home page search button on a phone
+      if (urlParams.has('search')) {
+        const box = window.matchMedia('(min-width: 640px)').matches ? document.getElementById('searchInput') : document.getElementById('mobileSearchInput');
+        if (box) box.focus();
+      }
     });
   </script>
 </body>

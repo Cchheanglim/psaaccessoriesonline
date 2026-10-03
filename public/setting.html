@@ -49,6 +49,20 @@
 
   <main id="view" class="max-w-2xl mx-auto px-4 py-5 flex-1 w-full space-y-4"></main>
 
+  <!-- Footer -->
+  <footer class="bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto py-6 text-xs text-stone-500 dark:text-stone-400">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+      <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
+      <div class="flex items-center justify-center gap-4 text-[11px]">
+        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
+        <span>&bull;</span>
+        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
+        <span>&bull;</span>
+        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
   <div id="toast" class="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-[#2B1D1D] text-white text-xs font-bold shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 z-50"></div>
 
   <script src="assets/js/store.js"></script>
@@ -101,7 +115,11 @@
         toast(okMessage);
         return true;
       } catch (err) {
-        toast(err.message);
+        if (err.errors) {
+          psaApplyServerErrors(document.getElementById('view'), err.errors);
+        } else {
+          toast(err.message);
+        }
         return false;
       }
     }
@@ -198,20 +216,32 @@
             <div id="avatarPrev" class="w-16 h-16 rounded-full bg-gradient-to-br from-[#2B1D1D] to-[#FFA552] text-white font-black text-xl flex items-center justify-center shrink-0" style="${p.avatar ? `background:url(${p.avatar}) center/cover` : ''}">${p.avatar ? '' : initials}</div>
             <label class="px-3.5 py-2 rounded-xl border border-[#EFE4D6] dark:border-[#32323D] text-xs font-black cursor-pointer">Change photo<input type="file" accept="image/*" class="hidden" onchange="pickAvatar(this)" /></label>
           </div>
-          <label class="block text-xs font-bold">Full name<input id="fName" class="field mt-1" value="${esc(p.name)}" autocomplete="name" /></label>
-          <label class="block text-xs font-bold">Phone<input id="fPhone" class="field mt-1" value="${esc(p.phone)}" inputmode="tel" autocomplete="tel" /></label>
-          <label class="block text-xs font-bold">Email<input id="fEmail" type="email" class="field mt-1" value="${esc(p.email)}" autocomplete="email" /></label>
-          <button type="button" onclick="saveProfile()" class="w-full py-2.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-sm font-black cursor-pointer">Save changes</button>
+          <div>
+            <label class="block text-xs font-bold">Full name<input id="fName" class="field mt-1" value="${esc(p.name)}" autocomplete="name" oninput="psaClearFieldError('fName')" /></label>
+          </div>
+          <div>
+            <label class="block text-xs font-bold">Phone<input id="fPhone" class="field mt-1" value="${esc(p.phone)}" inputmode="tel" autocomplete="tel" oninput="psaClearFieldError('fPhone')" /></label>
+          </div>
+          <div>
+            <label class="block text-xs font-bold">Email<input id="fEmail" type="email" class="field mt-1" value="${esc(p.email)}" autocomplete="email" oninput="psaClearFieldError('fEmail')" /></label>
+          </div>
+          <button type="button" id="saveProfileBtn" onclick="saveProfile()" class="w-full py-2.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-sm font-black cursor-pointer transition-colors">Save changes</button>
         </div>`;
       },
       password() {
         return `
         <div class="${card} p-5 space-y-4">
-          <label class="block text-xs font-bold">Current password<input id="pOld" type="password" class="field mt-1" autocomplete="current-password" /></label>
-          <label class="block text-xs font-bold">New password<input id="pNew" type="password" class="field mt-1" autocomplete="new-password" /><span class="text-[11px] text-stone-400 font-normal">At least 8 characters</span></label>
-          <label class="block text-xs font-bold">Confirm new password<input id="pCon" type="password" class="field mt-1" autocomplete="new-password" /></label>
-          <div id="pErr" class="text-xs text-red-500 font-bold hidden"></div>
-          <button type="button" onclick="savePassword()" class="w-full py-2.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-sm font-black cursor-pointer">Update password</button>
+          <div>
+            <label class="block text-xs font-bold">Current password<input id="pOld" type="password" class="field mt-1" autocomplete="current-password" oninput="psaClearFieldError('pOld')" /></label>
+          </div>
+          <div>
+            <label class="block text-xs font-bold">New password<input id="pNew" type="password" class="field mt-1" autocomplete="new-password" oninput="psaClearFieldError('pNew')" /><span class="text-[11px] text-stone-400 font-normal">At least 6 characters</span></label>
+          </div>
+          <div>
+            <label class="block text-xs font-bold">Confirm new password<input id="pCon" type="password" class="field mt-1" autocomplete="new-password" oninput="psaClearFieldError('pCon')" /></label>
+          </div>
+          <div id="pErr" class="text-xs text-red-500 font-bold hidden" role="alert"></div>
+          <button type="button" id="savePasswordBtn" onclick="savePassword()" class="w-full py-2.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-sm font-black cursor-pointer transition-colors">Update password</button>
         </div>`;
       },
       addresses() {
@@ -237,12 +267,18 @@
         const a = getAddresses().find(x => x.id === editingAddr) || {};
         return `
         <div class="${card} p-5 space-y-4">
-          <label class="block text-xs font-bold">Recipient name<input id="aName" class="field mt-1" value="${esc(a.name)}" /></label>
-          <label class="block text-xs font-bold">Phone<input id="aPhone" class="field mt-1" value="${esc(a.phone)}" inputmode="tel" /></label>
-          <label class="block text-xs font-bold">Address<textarea id="aLine" rows="3" class="field mt-1" placeholder="House, street, district, Phnom Penh">${esc(a.line)}</textarea></label>
+          <div>
+            <label class="block text-xs font-bold">Recipient name<input id="aName" class="field mt-1" value="${esc(a.name)}" oninput="psaClearFieldError('aName')" /></label>
+          </div>
+          <div>
+            <label class="block text-xs font-bold">Phone<input id="aPhone" class="field mt-1" value="${esc(a.phone)}" inputmode="tel" oninput="psaClearFieldError('aPhone')" /></label>
+          </div>
+          <div>
+            <label class="block text-xs font-bold">Address<textarea id="aLine" rows="3" class="field mt-1" placeholder="House, street, district, Phnom Penh" oninput="psaClearFieldError('aLine')">${esc(a.line)}</textarea></label>
+          </div>
           <label class="flex items-center gap-2 text-xs font-bold cursor-pointer"><input id="aDef" type="checkbox" class="w-4 h-4 accent-[#FFA552]" ${a.isDefault ? 'checked' : ''} /> Set as default address</label>
-          <div id="aErr" class="text-xs text-red-500 font-bold hidden"></div>
-          <button type="button" onclick="saveAddress()" class="w-full py-2.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-sm font-black cursor-pointer">Save address</button>
+          <div id="aErr" class="text-xs text-red-500 font-bold hidden" role="alert"></div>
+          <button type="button" id="saveAddressBtn" onclick="saveAddress()" class="w-full py-2.5 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white text-sm font-black cursor-pointer transition-colors">Save address</button>
         </div>`;
       },
       general() {
@@ -266,6 +302,7 @@
       privacy() {
         const n = getViewed().length;
         return `<div class="${card}">
+          <a href="privacy.html" class="row"><span class="text-sm font-bold">Privacy Policy</span><span class="flex items-center gap-2 text-xs text-stone-400">${chev}</span></a>
           <button type="button" class="row" onclick="clearViewedHistory()"><span class="text-sm font-bold">Clear viewed history<span class="block text-[11px] text-stone-400 font-normal">${n} item${n === 1 ? '' : 's'} saved</span></span>${chev}</button>
           <button type="button" class="row" onclick="clearSearch()"><span class="text-sm font-bold">Clear search history</span>${chev}</button>
         </div>`;
@@ -275,6 +312,13 @@
           <div class="font-black text-base">Psa<span class="text-[#FFA552]">Online</span></div>
           <p class="text-xs text-stone-500">Gen-Z streetwear and aesthetic accessories, delivered in Phnom Penh. Pay with Bakong KHQR, ABA Mobile or cash on delivery.</p>
           <div class="text-xs text-stone-400">Version 1.0 &bull; 1 USD = 4,100 ៛</div>
+          <div class="pt-2 flex flex-wrap items-center gap-3 text-xs border-t border-[#EFE4D6] dark:border-[#2b2e37]">
+            <a href="about.html" class="font-bold text-[#FFA552] hover:underline">About Us</a>
+            <span>&bull;</span>
+            <a href="privacy.html" class="text-stone-400 hover:text-[#FFA552]">Privacy Policy</a>
+            <span>&bull;</span>
+            <a href="terms.html" class="text-stone-400 hover:text-[#FFA552]">Terms of Service</a>
+          </div>
         </div>`;
       }
     };
@@ -294,45 +338,178 @@
       }; img.src = r.result; };
       r.readAsDataURL(f);
     }
-    function saveProfile() {
+    function validateProfileForm() {
+      psaClearAllFieldErrors(document.getElementById('view'));
+      let hasError = false;
+      const nameVal = (document.getElementById('fName')?.value || '').trim();
+      const phoneVal = (document.getElementById('fPhone')?.value || '').trim();
+      const emailVal = (document.getElementById('fEmail')?.value || '').trim();
+
+      const nameErr = psaValidateMinLength(nameVal, 2, 'Full name');
+      if (nameErr) {
+        psaShowFieldError('fName', nameErr);
+        hasError = true;
+      }
+      if (emailVal) {
+        const emailErr = psaValidateEmail(emailVal);
+        if (emailErr) {
+          psaShowFieldError('fEmail', emailErr);
+          hasError = true;
+        }
+      }
+      if (phoneVal) {
+        const phoneErr = psaValidatePhone(phoneVal, false);
+        if (phoneErr) {
+          psaShowFieldError('fPhone', phoneErr);
+          hasError = true;
+        }
+      }
+      return !hasError;
+    }
+
+    async function saveProfile() {
+      if (!validateProfileForm()) return;
       const name = document.getElementById('fName').value.trim();
-      if (!name) return toast('Enter your name');
+      const phone = document.getElementById('fPhone').value.trim();
+      const email = document.getElementById('fEmail').value.trim();
+      const btn = document.getElementById('saveProfileBtn');
+
+      psaSetButtonLoading(btn, true, 'Saving...');
       if (PSA.online) {
-        saveLiveProfile({ name, phone: document.getElementById('fPhone').value.trim(), email: document.getElementById('fEmail').value.trim() }, 'Profile saved')
-          .then(ok => { if (ok) goBack(); });
+        try {
+          const ok = await saveLiveProfile({ name, phone, email }, 'Profile saved');
+          psaSetButtonLoading(btn, false);
+          if (ok) goBack();
+        } catch (err) {
+          psaSetButtonLoading(btn, false);
+          if (err.errors) {
+            psaApplyServerErrors(document.getElementById('view'), err.errors);
+          } else {
+            toast(err.message || 'Failed to update profile');
+          }
+        }
         return;
       }
-      localStorage.setItem('psa_profile', JSON.stringify(Object.assign(getProfile(), {
-        name, phone: document.getElementById('fPhone').value.trim(), email: document.getElementById('fEmail').value.trim() })));
-      toast('Profile saved'); goBack();
+      localStorage.setItem('psa_profile', JSON.stringify(Object.assign(getProfile(), { name, phone, email })));
+      psaSetButtonLoading(btn, false);
+      toast('Profile saved');
+      goBack();
     }
-    function savePassword() {
-      const o = pOld.value, n = pNew.value, c = pCon.value, e = document.getElementById('pErr');
-      const msg = !o ? 'Enter your current password.' : n.length < 8 ? 'New password must be at least 8 characters.' : n !== c ? 'Passwords do not match.' : '';
-      e.textContent = msg; e.classList.toggle('hidden', !msg);
-      if (msg) return;
+
+    function validatePasswordForm() {
+      psaClearAllFieldErrors(document.getElementById('view'));
+      let hasError = false;
+      const o = document.getElementById('pOld')?.value || '';
+      const n = document.getElementById('pNew')?.value || '';
+      const c = document.getElementById('pCon')?.value || '';
+
+      if (!o) {
+        psaShowFieldError('pOld', 'Current password is required.');
+        hasError = true;
+      }
+      if (!n) {
+        psaShowFieldError('pNew', 'New password is required.');
+        hasError = true;
+      } else if (n.length < 6) {
+        psaShowFieldError('pNew', 'New password must be at least 6 characters.');
+        hasError = true;
+      } else if (o && n === o) {
+        psaShowFieldError('pNew', 'New password must be different from current password.');
+        hasError = true;
+      }
+
+      if (!c) {
+        psaShowFieldError('pCon', 'Please confirm your new password.');
+        hasError = true;
+      } else if (n && n !== c) {
+        psaShowFieldError('pCon', 'Passwords do not match.');
+        hasError = true;
+      }
+
+      return !hasError;
+    }
+
+    async function savePassword() {
+      if (!validatePasswordForm()) return;
+      const o = document.getElementById('pOld').value;
+      const n = document.getElementById('pNew').value;
+      const btn = document.getElementById('savePasswordBtn');
+      const e = document.getElementById('pErr');
+      if (e) { e.textContent = ''; e.classList.add('hidden'); }
+
+      psaSetButtonLoading(btn, true, 'Updating...');
       if (PSA.online) {
-        psaApi('PUT', '/api/me/password', { current: o, password: n })
-          .then(() => { toast('Password updated'); goBack(); })
-          .catch(err => { e.textContent = err.message; e.classList.remove('hidden'); });
+        try {
+          await psaApi('PUT', '/api/me/password', { current: o, password: n });
+          psaSetButtonLoading(btn, false);
+          toast('Password updated');
+          goBack();
+        } catch (err) {
+          psaSetButtonLoading(btn, false);
+          if (err.errors) {
+            psaApplyServerErrors(document.getElementById('view'), err.errors);
+          } else {
+            if (e) {
+              e.textContent = err.message;
+              e.classList.remove('hidden');
+            } else {
+              toast(err.message);
+            }
+          }
+        }
         return;
       }
-      toast('Password updated'); goBack();
+      psaSetButtonLoading(btn, false);
+      toast('Password updated');
+      goBack();
     }
+
     function openAddress(id) { editingAddr = id; nav('address'); }
+
+    function validateAddressForm() {
+      psaClearAllFieldErrors(document.getElementById('view'));
+      let hasError = false;
+      const name = (document.getElementById('aName')?.value || '').trim();
+      const phone = (document.getElementById('aPhone')?.value || '').trim();
+      const line = (document.getElementById('aLine')?.value || '').trim();
+
+      const nameErr = psaValidateMinLength(name, 2, 'Recipient name');
+      if (nameErr) {
+        psaShowFieldError('aName', nameErr);
+        hasError = true;
+      }
+      const phoneErr = psaValidatePhone(phone, true);
+      if (phoneErr) {
+        psaShowFieldError('aPhone', phoneErr);
+        hasError = true;
+      }
+      const lineErr = psaValidateMinLength(line, 5, 'Delivery address');
+      if (lineErr) {
+        psaShowFieldError('aLine', lineErr);
+        hasError = true;
+      }
+      return !hasError;
+    }
+
     function saveAddress() {
-      const name = aName.value.trim(), phone = aPhone.value.trim(), line = aLine.value.trim(), e = document.getElementById('aErr');
-      const msg = !name || !phone || !line ? 'Fill in name, phone and address.' : '';
-      e.textContent = msg; e.classList.toggle('hidden', !msg);
-      if (msg) return;
+      if (!validateAddressForm()) return;
+      const name = document.getElementById('aName').value.trim();
+      const phone = document.getElementById('aPhone').value.trim();
+      const line = document.getElementById('aLine').value.trim();
+      const aDef = document.getElementById('aDef');
+      const btn = document.getElementById('saveAddressBtn');
+
+      psaSetButtonLoading(btn, true, 'Saving...');
       let list = getAddresses();
-      const makeDef = aDef.checked || list.length === 0;
+      const makeDef = (aDef && aDef.checked) || list.length === 0;
       if (makeDef) list.forEach(a => a.isDefault = false);
       const ex = list.find(a => a.id === editingAddr);
       if (ex) Object.assign(ex, { name, phone, line, isDefault: makeDef || ex.isDefault });
       else list.push({ id: 'addr-' + Date.now(), name, phone, line, isDefault: makeDef });
       localStorage.setItem('psa_addresses', JSON.stringify(list));
-      toast('Address saved'); goBack();
+      psaSetButtonLoading(btn, false);
+      toast('Address saved');
+      goBack();
     }
     function setDefault(id) {
       const list = getAddresses(); list.forEach(a => a.isDefault = a.id === id);
