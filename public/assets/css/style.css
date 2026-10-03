@@ -574,3 +574,75 @@ html.dark #psaQuickViewModal .text-\[\#4A3333\] {
   }
 }
 
+
+/* ==========================================================================
+   Home page (gifts & cute finds) + shared accessibility floor
+   ========================================================================== */
+
+/* Some pages use .khmer-font; keep it pointing at the Khmer face too */
+.khmer-font {
+  font-family: var(--font-khmer);
+}
+
+/* Theme the browser surfaces from the palette */
+:root {
+  accent-color: var(--c-sorbet);
+  caret-color: var(--c-espresso);
+}
+::selection {
+  background: var(--c-sorbet);
+  color: var(--c-espresso);
+}
+:focus-visible {
+  outline: 3px solid var(--c-espresso);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+html.dark :focus-visible {
+  outline-color: var(--c-sorbet);
+}
+html.dark {
+  caret-color: var(--c-sorbet);
+}
+
+/* Solid highlighter stroke behind one phrase of the hero headline */
+.hero-marker {
+  background: linear-gradient(transparent 58%, var(--c-sorbet) 58%, var(--c-sorbet) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  padding: 0 0.08em;
+}
+html.dark .hero-marker {
+  background: linear-gradient(transparent 58%, rgba(255, 165, 82, 0.55) 58%, rgba(255, 165, 82, 0.55) 92%, transparent 92%);
+}
+
+/* The one authored motion moment: hero product stickers settle into place.
+   They start visible (only transform animates), so nothing waits on JS timing. */
+@keyframes stickerSettle {
+  from { transform: translateY(14px) rotate(var(--settle-from, 0deg)) scale(0.97); }
+}
+.hero-sticker {
+  animation: stickerSettle 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hero-sticker--left { --settle-from: -12deg; animation-delay: 0.05s; }
+.hero-sticker--right { --settle-from: 12deg; animation-delay: 0.12s; }
+.hero-sticker--main { --settle-from: -4deg; z-index: 2; }
+a.hero-sticker:hover { transform: translateY(-4px) rotate(0deg); }
+
+/* Respect reduced-motion everywhere: no loops, no entrances, content always visible */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal-init {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .animate-marquee {
+    animation: none !important;
+  }
+}
