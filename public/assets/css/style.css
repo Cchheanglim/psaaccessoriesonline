@@ -696,3 +696,164 @@ a.hero-sticker:hover { transform: translateY(-4px) rotate(0deg); }
   .psa-stack-table [class*="min-w-"] { min-width: 0 !important; }
   .psa-stack-table .truncate { white-space: normal; }
 }
+
+
+/* ==========================================================================
+   Psa Bunny: floating chat mascot (public/assets/js/mascot-chat.js)
+   ========================================================================== */
+.psa-bunny-root {
+  --bunny-bottom: 24px;
+  position: fixed;
+  right: 20px;
+  bottom: var(--bunny-bottom);
+  z-index: 45;
+  font-family: var(--font-sans);
+}
+/* Phones: sit just above the bottom navigation bar */
+@media (max-width: 767px) {
+  .psa-bunny-root { right: 12px; --bunny-bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+}
+
+.psa-bunny-btn {
+  position: relative;
+  display: block;
+  width: 64px;
+  height: 64px;
+  border: 0;
+  padding: 0;
+  border-radius: 9999px;
+  background: var(--c-sorbet);
+  box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.psa-bunny-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -8px rgba(0, 0, 0, 0.4); }
+.psa-bunny-btn:focus-visible { outline: 3px solid var(--c-espresso); outline-offset: 3px; }
+html.dark .psa-bunny-btn:focus-visible { outline-color: #fff; }
+/* The bunny peeks up from the bottom of the circle */
+.psa-bunny-btn .psa-bunny {
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  width: 64px;
+  height: 64px;
+  transform: translateX(-50%);
+}
+
+.psa-bunny__body, .psa-bunny__ear, .psa-bunny__eyes { transform-box: fill-box; }
+.psa-bunny__body { transform-origin: 50% 100%; }
+.psa-bunny__ear { transform-origin: 50% 100%; }
+.psa-bunny__eyes { transform-origin: 50% 50%; }
+
+/* Idle: an occasional ear twitch */
+@keyframes psaEarTwitch { 0%, 90%, 100% { transform: rotate(0); } 93% { transform: rotate(-10deg); } 96% { transform: rotate(4deg); } }
+.psa-bunny-btn .psa-bunny__ear--r { animation: psaEarTwitch 7s ease-in-out infinite; }
+
+/* Hover / focus: ears wiggle, eyes blink, a little hop */
+@keyframes psaEarWiggleL { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-16deg); } 50% { transform: rotate(6deg); } 75% { transform: rotate(-8deg); } }
+@keyframes psaEarWiggleR { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(16deg); } 50% { transform: rotate(-6deg); } 75% { transform: rotate(8deg); } }
+@keyframes psaBlink { 0%, 40%, 60%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.12); } }
+@keyframes psaHop { 0%, 100% { transform: translateY(0) scale(1, 1); } 30% { transform: translateY(-9px) scale(0.96, 1.04); } 60% { transform: translateY(0) scale(1.05, 0.95); } 80% { transform: translateY(-2px) scale(1, 1); } }
+.psa-bunny-btn:hover .psa-bunny__ear--l, .psa-bunny-btn:focus-visible .psa-bunny__ear--l { animation: psaEarWiggleL 0.7s ease-in-out; }
+.psa-bunny-btn:hover .psa-bunny__ear--r, .psa-bunny-btn:focus-visible .psa-bunny__ear--r { animation: psaEarWiggleR 0.7s ease-in-out; }
+.psa-bunny-btn:hover .psa-bunny__eyes, .psa-bunny-btn:focus-visible .psa-bunny__eyes { animation: psaBlink 0.5s ease-in-out 0.15s; }
+.psa-bunny-btn:hover .psa-bunny__body, .psa-bunny-btn:focus-visible .psa-bunny__body { animation: psaHop 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Tap / new reply: a hop, a blink and an ear wiggle */
+.psa-bunny-btn.is-talking .psa-bunny__body { animation: psaHop 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.psa-bunny-btn.is-talking .psa-bunny__eyes { animation: psaBlink 0.45s ease-in-out 0.1s; }
+.psa-bunny-btn.is-talking .psa-bunny__ear--l { animation: psaEarWiggleL 0.6s ease-in-out; }
+.psa-bunny-btn.is-talking .psa-bunny__ear--r { animation: psaEarWiggleR 0.6s ease-in-out; }
+
+/* While the chat is open the bunny tilts its head, listening */
+.psa-bunny-btn.is-open .psa-bunny__body { transform: rotate(-8deg); transition: transform 0.3s ease; }
+
+/* One-time greeting bubble */
+@keyframes psaGreetIn { from { transform: translateY(6px) scale(0.96); } }
+.psa-bunny-greet {
+  position: absolute;
+  right: 4px;
+  bottom: 76px;
+  width: max-content;
+  max-width: 220px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 16px 16px 4px 16px;
+  background: var(--c-espresso);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.35;
+  text-align: left;
+  box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  animation: psaGreetIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.psa-bunny-greet strong { color: var(--c-sorbet); }
+
+/* Mini chat panel */
+.psa-bunny-panel {
+  position: absolute;
+  right: 0;
+  bottom: 76px;
+  width: min(380px, calc(100vw - 24px));
+  height: min(560px, calc(100dvh - var(--bunny-bottom) - 110px));
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--c-border);
+  border-radius: 24px;
+  box-shadow: 0 24px 56px -16px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+.psa-bunny-panel[hidden] { display: none; }
+html.dark .psa-bunny-panel { background: #1A1A22; border-color: #2D2D38; }
+
+.psa-bunny-panel__head { display: flex; align-items: center; gap: 10px; padding: 10px 10px 10px 12px; background: var(--c-espresso); color: #fff; }
+.psa-bunny-panel__avatar { width: 40px; height: 40px; border-radius: 9999px; background: var(--c-sorbet); overflow: hidden; position: relative; flex: none; }
+.psa-bunny-panel__avatar .psa-bunny { position: absolute; left: 50%; bottom: -9px; width: 40px; height: 40px; transform: translateX(-50%); }
+.psa-bunny-panel__title { min-width: 0; flex: 1; }
+.psa-bunny-panel__title h2 { margin: 0; font-size: 16px; font-weight: 900; color: #fff; }
+.psa-bunny-panel__title p { margin: 0; font-size: 12px; color: rgba(255, 255, 255, 0.78); }
+.psa-bunny-panel__link { font-size: 13px; font-weight: 800; color: var(--c-sorbet); padding: 10px 6px; text-decoration: underline; text-underline-offset: 3px; }
+.psa-bunny-panel__close { width: 40px; height: 40px; border: 0; border-radius: 12px; background: transparent; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.psa-bunny-panel__close:hover { background: rgba(255, 255, 255, 0.12); }
+
+.psa-bunny-panel__messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--c-cotton-light); }
+html.dark .psa-bunny-panel__messages { background: #15151B; }
+.psa-bunny-msg { display: flex; }
+.psa-bunny-msg.is-user { justify-content: flex-end; }
+.psa-bunny-bubble { max-width: 85%; padding: 10px 13px; border-radius: 16px; font-size: 15px; line-height: 1.45; white-space: pre-line; overflow-wrap: anywhere; }
+.psa-bunny-msg.is-bot .psa-bunny-bubble { background: #fff; color: var(--c-espresso); border: 1px solid var(--c-border); border-bottom-left-radius: 4px; }
+.psa-bunny-msg.is-user .psa-bunny-bubble { background: var(--c-espresso); color: #fff; border-bottom-right-radius: 4px; }
+html.dark .psa-bunny-msg.is-bot .psa-bunny-bubble { background: #22222C; color: #f4f1ee; border-color: #2D2D38; }
+.psa-bunny-bubble a { font-weight: 800; text-decoration: underline; text-underline-offset: 2px; }
+.psa-bunny-msg.is-bot .psa-bunny-bubble a { color: #A3520F; }
+html.dark .psa-bunny-msg.is-bot .psa-bunny-bubble a { color: var(--c-sorbet); }
+
+.psa-bunny-typing { font-style: italic; color: #6b5d5d; }
+html.dark .psa-bunny-typing { color: #b9aeae; }
+
+.psa-bunny-panel__chips { display: flex; gap: 8px; padding: 10px 12px 0; overflow-x: auto; background: var(--c-cotton-light); }
+html.dark .psa-bunny-panel__chips { background: #15151B; }
+.psa-bunny-panel__chips[hidden] { display: none; }
+.psa-bunny-panel__chips button { flex: none; min-height: 40px; padding: 8px 12px; border: 1px solid var(--c-border); border-radius: 9999px; background: #fff; color: var(--c-espresso); font-size: 14px; font-weight: 700; cursor: pointer; }
+.psa-bunny-panel__chips button:hover { border-color: var(--c-sorbet); }
+html.dark .psa-bunny-panel__chips button { background: #22222C; color: #f4f1ee; border-color: #2D2D38; }
+
+.psa-bunny-panel__form { display: flex; gap: 8px; padding: 10px 12px 12px; border-top: 1px solid var(--c-border); background: #fff; }
+html.dark .psa-bunny-panel__form { background: #1A1A22; border-color: #2D2D38; }
+.psa-bunny-panel__form input { flex: 1; min-width: 0; height: 46px; padding: 0 14px; border: 1px solid var(--c-border); border-radius: 14px; font-size: 16px; color: var(--c-espresso); background: #fff; }
+.psa-bunny-panel__form input:focus { outline: none; border-color: var(--c-sorbet); box-shadow: 0 0 0 3px rgba(255, 165, 82, 0.3); }
+html.dark .psa-bunny-panel__form input { background: #22222C; color: #f4f1ee; border-color: #32323D; }
+.psa-bunny-panel__form button { width: 46px; height: 46px; border: 0; border-radius: 14px; background: var(--c-espresso); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+html.dark .psa-bunny-panel__form button { background: var(--c-sorbet); color: var(--c-espresso); }
+
+/* Phones: the panel spans the screen width above the bunny */
+@media (max-width: 480px) {
+  .psa-bunny-panel { position: fixed; left: 8px; right: 8px; width: auto; bottom: calc(var(--bunny-bottom) + 72px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .psa-bunny-btn *, .psa-bunny-greet { animation: none !important; }
+}

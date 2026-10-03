@@ -19,9 +19,9 @@ class CatalogSeeder extends Seeder
 
     public function run(): void
     {
-        // catalog.json = genz-01..12; catalog-photos.json = genz-13..32 (images in /assets/images/products/)
+        // catalog.json = genz-01..12, catalog-photos.json = genz-13..32, catalog-more.json = genz-33..71 (images in /assets/images/products/)
         $catalog = [];
-        foreach (['catalog.json', 'catalog-photos.json'] as $file) {
+        foreach (['catalog.json', 'catalog-photos.json', 'catalog-more.json'] as $file) {
             $catalog = array_merge($catalog, json_decode(file_get_contents(database_path('data/'.$file)), true) ?? []);
         }
 

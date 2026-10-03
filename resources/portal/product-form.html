@@ -95,6 +95,8 @@
               <option value="bags">Bags &amp; Pouches</option>
               <option value="hair">Hair &amp; Clips</option>
               <option value="charms">Bag &amp; Phone Charms</option>
+              <option value="shoes">Shoes</option>
+              <option value="plush">Plush &amp; Crochet</option>
               <option value="socks">Socks</option>
               <option value="hats">Caps &amp; Hats</option>
               <option value="jewelry">Jewelry</option>
@@ -327,7 +329,7 @@
 
     // ---------- Load & save (database) ----------
     const editingId = new URLSearchParams(location.search).get('id');
-    const categoryLabels = { apparel: 'Tees & Shirts', watches: 'Watches', bags: 'Bags & Pouches', hair: 'Hair & Clips', charms: 'Bag & Phone Charms', socks: 'Socks', hats: 'Caps & Hats', jewelry: 'Jewelry', beauty: 'Beauty', accessories: 'Phone Accessories', gifts: 'Gift Sets', eyewear: 'Shades & Eyewear' };
+    const categoryLabels = { apparel: 'Tees & Shirts', watches: 'Watches', bags: 'Bags & Pouches', hair: 'Hair & Clips', charms: 'Bag & Phone Charms', shoes: 'Shoes', plush: 'Plush & Crochet', socks: 'Socks', hats: 'Caps & Hats', jewelry: 'Jewelry', beauty: 'Beauty', accessories: 'Phone Accessories', gifts: 'Gift Sets', eyewear: 'Shades & Eyewear' };
     let editingProduct = null;
 
     function fillForm(p) {

@@ -1,0 +1,938 @@
+[
+  {
+    "id": "genz-33",
+    "title": "Crochet Strawberry Hat Bunny Plush",
+    "titleKhmer": "តុក្កតាទន្សាយក្រូសេពាក់មួកស្ត្របឺរី",
+    "category": "plush",
+    "categoryLabel": "Plush & Crochet",
+    "priceUSD": 12,
+    "priceKHR": 49200,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Crochet Cutie",
+    "status": "active",
+    "image": "/assets/images/products/crochet-strawberry-hat-bunny-plush.jpg",
+    "gallery": [
+      "/assets/images/products/crochet-strawberry-hat-bunny-plush.jpg"
+    ],
+    "description": "A floppy-eared crochet bunny in pink overalls and a little strawberry hat. Soft, squishy and made to be hugged.",
+    "specifications": {
+      "Material": "Soft chenille yarn",
+      "Size": "About 25 cm",
+      "Colour": "Cream & pink"
+    }
+  },
+  {
+    "id": "genz-34",
+    "title": "Strawberry Ear Bunny Plush with Berry Friend",
+    "titleKhmer": "តុក្កតាទន្សាយត្រចៀកស្ត្របឺរី",
+    "category": "plush",
+    "categoryLabel": "Plush & Crochet",
+    "priceUSD": 15,
+    "priceKHR": 61500,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Gift Idea 🎁",
+    "status": "active",
+    "image": "/assets/images/products/strawberry-ear-bunny-plush.jpg",
+    "gallery": [
+      "/assets/images/products/strawberry-ear-bunny-plush.jpg"
+    ],
+    "description": "A fluffy white bunny with strawberry-print ears and feet, plus a tiny strawberry plush buddy. A sweet birthday surprise.",
+    "specifications": {
+      "Material": "Super-soft plush",
+      "Size": "About 30 cm",
+      "Includes": "Bunny + strawberry plush"
+    }
+  },
+  {
+    "id": "genz-35",
+    "title": "Pink Tulip Bunny Bouquet",
+    "titleKhmer": "ភួងផ្កាទុយលីបនិងទន្សាយពណ៌ផ្កាឈូក",
+    "category": "gifts",
+    "categoryLabel": "Gift Sets",
+    "priceUSD": 25,
+    "priceKHR": 102500,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Gift Idea 🎁",
+    "status": "active",
+    "image": "/assets/images/products/pink-tulip-bunny-bouquet.jpg",
+    "gallery": [
+      "/assets/images/products/pink-tulip-bunny-bouquet.jpg"
+    ],
+    "description": "Pink tulips and baby's breath tucked around little bunny figures, wrapped in soft pink paper with a satin bow.",
+    "specifications": {
+      "Flowers": "Tulips & baby's breath",
+      "Wrap": "Pink paper, satin bow",
+      "Occasion": "Birthdays, anniversaries"
+    }
+  },
+  {
+    "id": "genz-36",
+    "title": "Fawn & Roses Garden Bouquet",
+    "titleKhmer": "ភួងផ្កាកុលាបនិងកូនក្តាន់",
+    "category": "gifts",
+    "categoryLabel": "Gift Sets",
+    "priceUSD": 25,
+    "priceKHR": 102500,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Cottagecore 🌼",
+    "status": "active",
+    "image": "/assets/images/products/fawn-and-roses-garden-bouquet.jpg",
+    "gallery": [
+      "/assets/images/products/fawn-and-roses-garden-bouquet.jpg"
+    ],
+    "description": "Cream roses and fresh greenery with tiny fawn figures peeking out, wrapped in striped pink paper.",
+    "specifications": {
+      "Flowers": "Roses & mixed greens",
+      "Wrap": "Striped pink paper",
+      "Occasion": "Any sweet surprise"
+    }
+  },
+  {
+    "id": "genz-37",
+    "title": "Pink Floral Digital Camera with Charm Strap",
+    "titleKhmer": "កាមេរ៉ាឌីជីថលពណ៌ផ្កាឈូកជាមួយខ្សែអង្កាំ",
+    "category": "accessories",
+    "categoryLabel": "Phone & Tech",
+    "priceUSD": 45,
+    "priceKHR": 184500,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Y2K Classic",
+    "status": "active",
+    "image": "/assets/images/products/pink-floral-digital-camera-with-charm-strap.jpg",
+    "gallery": [
+      "/assets/images/products/pink-floral-digital-camera-with-charm-strap.jpg"
+    ],
+    "description": "A compact pink digital camera decorated with flower stickers and a beaded charm strap, for dreamy Y2K-style photos.",
+    "specifications": {
+      "Type": "Compact digital camera",
+      "Includes": "Beaded wrist strap",
+      "Colour": "Pink"
+    }
+  },
+  {
+    "id": "genz-38",
+    "title": "Bunny & Swiss Roll Bag Charm Set",
+    "titleKhmer": "ឈុតព្យួរកាបូបទន្សាយនិងនំរមូរ",
+    "category": "charms",
+    "categoryLabel": "Bag & Phone Charms",
+    "priceUSD": 7,
+    "priceKHR": 28700,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Kawaii 🍓",
+    "status": "active",
+    "image": "/assets/images/products/bunny-and-swiss-roll-bag-charm-set.jpg",
+    "gallery": [
+      "/assets/images/products/bunny-and-swiss-roll-bag-charm-set.jpg"
+    ],
+    "description": "A cluster of bag charms: two little bunnies, a crochet Swiss roll, pearls and a cream ribbon bow.",
+    "specifications": {
+      "Includes": "2 bunnies, cake roll, bead strands",
+      "Clip": "Lobster clasp",
+      "Length": "About 15 cm"
+    }
+  },
+  {
+    "id": "genz-39",
+    "title": "Strawberry Pound Cake Body Mist Trio",
+    "titleKhmer": "ឈុតទឹកអប់ខ្លួនក្លិនស្ត្របឺរី (៣ ដប)",
+    "category": "beauty",
+    "categoryLabel": "Beauty",
+    "priceUSD": 16,
+    "priceKHR": 65600,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Sweet Treat",
+    "status": "active",
+    "image": "/assets/images/products/strawberry-pound-cake-body-mist-trio.jpg",
+    "gallery": [
+      "/assets/images/products/strawberry-pound-cake-body-mist-trio.jpg"
+    ],
+    "description": "Three sweet strawberry-and-vanilla scents: a body mist, a mini hand gel and a candy-striped spray.",
+    "specifications": {
+      "Scent": "Strawberry pound cake",
+      "Includes": "3 pieces",
+      "Size": "Full-size mist + minis"
+    }
+  },
+  {
+    "id": "genz-40",
+    "title": "Burgundy Patent Bow Ballet Flats",
+    "titleKhmer": "ស្បែកជើងបាឡេពណ៌ក្រហមចាស់មានបូ",
+    "category": "shoes",
+    "categoryLabel": "Shoes",
+    "priceUSD": 18,
+    "priceKHR": 73800,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Coquette 🎀",
+    "status": "active",
+    "image": "/assets/images/products/burgundy-patent-bow-ballet-flats.jpg",
+    "gallery": [
+      "/assets/images/products/burgundy-patent-bow-ballet-flats.jpg"
+    ],
+    "description": "Glossy burgundy ballet flats with a tiny bow on the toe. Easy to dress up or wear every day.",
+    "specifications": {
+      "Material": "Patent faux leather",
+      "Sizes": "35–40",
+      "Colour": "Burgundy"
+    }
+  },
+  {
+    "id": "genz-41",
+    "title": "Clay Heart & Flower Phone Straps",
+    "titleKhmer": "ខ្សែព្យួរទូរស័ព្ទអង្កាំដីឥដ្ឋបេះដូងនិងផ្កា",
+    "category": "charms",
+    "categoryLabel": "Bag & Phone Charms",
+    "priceUSD": 5,
+    "priceKHR": 20500,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Gen-Z Pick",
+    "status": "active",
+    "image": "/assets/images/products/clay-heart-and-flower-phone-straps.jpg",
+    "gallery": [
+      "/assets/images/products/clay-heart-and-flower-phone-straps.jpg"
+    ],
+    "description": "Pink cord phone straps strung with chunky clay hearts, flowers and beads. Pick your favourite style.",
+    "specifications": {
+      "Material": "Polymer clay beads, cord",
+      "Length": "About 18 cm",
+      "Styles": "Assorted"
+    }
+  },
+  {
+    "id": "genz-42",
+    "title": "Brown Suede Shoulder Bag with Bunny Charm",
+    "titleKhmer": "កាបូបស្ពាយស្មាពណ៌ត្នោតជាមួយទន្សាយ",
+    "category": "bags",
+    "categoryLabel": "Shoulder Bags",
+    "priceUSD": 26,
+    "priceKHR": 106600,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Cottagecore 🌼",
+    "status": "active",
+    "image": "/assets/images/products/brown-suede-shoulder-bag-with-bunny-charm.jpg",
+    "gallery": [
+      "/assets/images/products/brown-suede-shoulder-bag-with-bunny-charm.jpg"
+    ],
+    "description": "A roomy brown suede-look shoulder bag, styled with a fluffy bunny charm, chains and a pink ribbon.",
+    "specifications": {
+      "Material": "Faux suede",
+      "Size": "About 38 × 26 cm",
+      "Includes": "Bunny charm"
+    }
+  },
+  {
+    "id": "genz-43",
+    "title": "NIVEA MEN Maximum Hydration Face Wash",
+    "titleKhmer": "ជែលលាងមុខបុរស NIVEA MEN",
+    "category": "beauty",
+    "categoryLabel": "Beauty",
+    "priceUSD": 5,
+    "priceKHR": 20500,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Self-Care 💗",
+    "status": "active",
+    "image": "/assets/images/products/nivea-men-maximum-hydration-face-wash.jpg",
+    "gallery": [
+      "/assets/images/products/nivea-men-maximum-hydration-face-wash.jpg"
+    ],
+    "description": "A refreshing daily face wash with aloe vera that cleans without drying your skin.",
+    "specifications": {
+      "Size": "150 ml",
+      "Key": "Aloe vera",
+      "Skin": "All skin types"
+    }
+  },
+  {
+    "id": "genz-44",
+    "title": "Versace Eros Eau de Toilette",
+    "titleKhmer": "ទឹកអប់បុរស Versace Eros",
+    "category": "beauty",
+    "categoryLabel": "Beauty",
+    "priceUSD": 78,
+    "priceKHR": 319800,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Premium ✨",
+    "status": "active",
+    "image": "/assets/images/products/versace-eros-eau-de-toilette.jpg",
+    "gallery": [
+      "/assets/images/products/versace-eros-eau-de-toilette.jpg"
+    ],
+    "description": "A fresh, sweet men's fragrance with mint, green apple and vanilla notes in the iconic blue bottle.",
+    "specifications": {
+      "Size": "100 ml",
+      "Type": "Eau de Toilette",
+      "Notes": "Mint, apple, vanilla"
+    }
+  },
+  {
+    "id": "genz-45",
+    "title": "Les Desserts Strawberry Graphic Tee",
+    "titleKhmer": "អាវយឺតបោះពុម្ពស្ត្របឺរី Les Desserts",
+    "category": "apparel",
+    "categoryLabel": "Graphic Tees",
+    "priceUSD": 10,
+    "priceKHR": 41000,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Matcha Core 🍵",
+    "status": "active",
+    "image": "/assets/images/products/les-desserts-strawberry-graphic-tee.jpg",
+    "gallery": [
+      "/assets/images/products/les-desserts-strawberry-graphic-tee.jpg"
+    ],
+    "description": "A soft grey tee printed with a bear, strawberries and \"Les Desserts\" lettering. Cute with jeans or a skirt.",
+    "specifications": {
+      "Material": "Cotton blend",
+      "Fit": "Relaxed",
+      "Colour": "Heather grey"
+    }
+  },
+  {
+    "id": "genz-46",
+    "title": "Pastel Pink Two-Piece Suit",
+    "titleKhmer": "ឈុតអាវធំពណ៌ផ្កាឈូក",
+    "category": "apparel",
+    "categoryLabel": "Suits",
+    "priceUSD": 48,
+    "priceKHR": 196800,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Statement Fit",
+    "status": "active",
+    "image": "/assets/images/products/pastel-pink-two-piece-suit.jpg",
+    "gallery": [
+      "/assets/images/products/pastel-pink-two-piece-suit.jpg"
+    ],
+    "description": "A bold pastel pink blazer and trousers set for parties, weddings and anyone who loves to stand out.",
+    "specifications": {
+      "Includes": "Blazer + trousers",
+      "Fit": "Regular",
+      "Colour": "Pastel pink"
+    }
+  },
+  {
+    "id": "genz-47",
+    "title": "Grey Striped Relaxed Shirt",
+    "titleKhmer": "អាវឆ្នូតដៃខ្លី",
+    "category": "apparel",
+    "categoryLabel": "Men's Shirts",
+    "priceUSD": 14,
+    "priceKHR": 57400,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Streetwear",
+    "status": "active",
+    "image": "/assets/images/products/grey-striped-relaxed-shirt.jpg",
+    "gallery": [
+      "/assets/images/products/grey-striped-relaxed-shirt.jpg"
+    ],
+    "description": "An easy short-sleeve shirt in grey and white stripes. Wear it open over a tee or buttoned with wide trousers.",
+    "specifications": {
+      "Material": "Cotton blend",
+      "Fit": "Relaxed",
+      "Colour": "Grey & white"
+    }
+  },
+  {
+    "id": "genz-48",
+    "title": "Spider Hero Knit Balaclava Beanie",
+    "titleKhmer": "មួកក្រណាត់ Spider-Man",
+    "category": "hats",
+    "categoryLabel": "Caps & Hats",
+    "priceUSD": 9,
+    "priceKHR": 36900,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Spidey Fan",
+    "status": "active",
+    "image": "/assets/images/products/spider-hero-knit-balaclava-beanie.jpg",
+    "gallery": [
+      "/assets/images/products/spider-hero-knit-balaclava-beanie.jpg"
+    ],
+    "description": "A warm red knit beanie with the classic spider-hero eyes. Fun for fans and chilly nights.",
+    "specifications": {
+      "Material": "Acrylic knit",
+      "Size": "One size",
+      "Colour": "Red"
+    }
+  },
+  {
+    "id": "genz-49",
+    "title": "LEGO Marvel Spider-Verse Keychain Duo",
+    "titleKhmer": "ខ្សែសោ LEGO Marvel (២)",
+    "category": "charms",
+    "categoryLabel": "Bag & Phone Charms",
+    "priceUSD": 12,
+    "priceKHR": 49200,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Spidey Fan",
+    "status": "active",
+    "image": "/assets/images/products/lego-marvel-spider-verse-keychain-duo.jpg",
+    "gallery": [
+      "/assets/images/products/lego-marvel-spider-verse-keychain-duo.jpg"
+    ],
+    "description": "Two minifigure keychains: Ghost-Spider and Miles Morales. Clip them on your keys or bag.",
+    "specifications": {
+      "Includes": "2 keychains",
+      "Ages": "6+",
+      "Material": "Plastic, metal ring"
+    }
+  },
+  {
+    "id": "genz-50",
+    "title": "Navy Canvas Backpack with Spidey Patches",
+    "titleKhmer": "កាបូបស្ពាយក្រោយពណ៌ខៀវចាស់",
+    "category": "bags",
+    "categoryLabel": "Backpacks",
+    "priceUSD": 28,
+    "priceKHR": 114800,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Spidey Fan",
+    "status": "active",
+    "image": "/assets/images/products/navy-canvas-backpack-with-spidey-patches.jpg",
+    "gallery": [
+      "/assets/images/products/navy-canvas-backpack-with-spidey-patches.jpg"
+    ],
+    "description": "A sturdy navy backpack with tan straps, decorated with spider-hero patches and pins. Fits a laptop and books.",
+    "specifications": {
+      "Material": "Canvas",
+      "Fits": "15-inch laptop",
+      "Colour": "Navy & tan"
+    }
+  },
+  {
+    "id": "genz-51",
+    "title": "Spider & Ghost-Spider Couple Necklace Set",
+    "titleKhmer": "ខ្សែកគូស្នេហ៍ Spider",
+    "category": "jewelry",
+    "categoryLabel": "Charm Jewelry",
+    "priceUSD": 8,
+    "priceKHR": 32800,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Couple Pick 💞",
+    "status": "active",
+    "image": "/assets/images/products/spider-couple-necklace-set.jpg",
+    "gallery": [
+      "/assets/images/products/spider-couple-necklace-set.jpg"
+    ],
+    "description": "Two silver-tone chain necklaces with red and white spider-hero pendants: one for you, one for your person.",
+    "specifications": {
+      "Includes": "2 necklaces",
+      "Chain": "About 45 cm",
+      "Material": "Alloy"
+    }
+  },
+  {
+    "id": "genz-52",
+    "title": "Spider Hero Beaded Couple Bracelets",
+    "titleKhmer": "ខ្សែដៃអង្កាំគូស្នេហ៍ Spider",
+    "category": "jewelry",
+    "categoryLabel": "Charm Jewelry",
+    "priceUSD": 6,
+    "priceKHR": 24600,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Couple Pick 💞",
+    "status": "active",
+    "image": "/assets/images/products/spider-hero-beaded-couple-bracelets.jpg",
+    "gallery": [
+      "/assets/images/products/spider-hero-beaded-couple-bracelets.jpg"
+    ],
+    "description": "A matching pair of stretchy bead bracelets in red-black and pink-white with spider-hero charms.",
+    "specifications": {
+      "Includes": "2 bracelets",
+      "Fit": "Stretch, one size",
+      "Material": "Glass beads"
+    }
+  },
+  {
+    "id": "genz-53",
+    "title": "Spider-Man Mask AirPods Case",
+    "titleKhmer": "ស្រោម AirPods Spider-Man",
+    "category": "accessories",
+    "categoryLabel": "Phone & Tech",
+    "priceUSD": 7,
+    "priceKHR": 28700,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Spidey Fan",
+    "status": "active",
+    "image": "/assets/images/products/spider-man-mask-airpods-case.jpg",
+    "gallery": [
+      "/assets/images/products/spider-man-mask-airpods-case.jpg"
+    ],
+    "description": "A glossy red AirPods case shaped like the spider-hero mask, with a keyring loop.",
+    "specifications": {
+      "Fits": "AirPods 3 / Pro",
+      "Material": "Hard shell",
+      "Colour": "Red"
+    }
+  },
+  {
+    "id": "genz-54",
+    "title": "Washed Red Spider Web Baseball Cap",
+    "titleKhmer": "មួកបេស្បលពណ៌ក្រហមលាងសាប៊ូ",
+    "category": "hats",
+    "categoryLabel": "Caps and Hats",
+    "priceUSD": 11,
+    "priceKHR": 45100,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Vintage Vibes",
+    "status": "active",
+    "image": "/assets/images/products/washed-red-spider-web-baseball-cap.jpg",
+    "gallery": [
+      "/assets/images/products/washed-red-spider-web-baseball-cap.jpg"
+    ],
+    "description": "A faded red cap with a stitched spider web, an embroidered spider and a worn-in vintage look.",
+    "specifications": {
+      "Material": "Washed cotton",
+      "Fit": "Adjustable strap",
+      "Colour": "Washed red"
+    }
+  },
+  {
+    "id": "genz-55",
+    "title": "Spider-Man Racing Bomber Jacket",
+    "titleKhmer": "អាវក្រៅប្រណាំង Spider-Man",
+    "category": "apparel",
+    "categoryLabel": "Jackets",
+    "priceUSD": 35,
+    "priceKHR": 143500,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Streetwear",
+    "status": "active",
+    "image": "/assets/images/products/spider-man-racing-bomber-jacket.jpg",
+    "gallery": [
+      "/assets/images/products/spider-man-racing-bomber-jacket.jpg"
+    ],
+    "description": "A navy and red racing-style jacket covered in spider-hero patches and checkered stripes.",
+    "specifications": {
+      "Material": "Polyester shell",
+      "Fit": "Oversized",
+      "Colour": "Navy & red"
+    }
+  },
+  {
+    "id": "genz-56",
+    "title": "Crochet Ghost-Spider Eyes Beanie",
+    "titleKhmer": "មួកក្រូសេភ្នែក Ghost-Spider",
+    "category": "hats",
+    "categoryLabel": "Caps & Hats",
+    "priceUSD": 13,
+    "priceKHR": 53300,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Crochet Cutie",
+    "status": "active",
+    "image": "/assets/images/products/crochet-ghost-spider-eyes-beanie.jpg",
+    "gallery": [
+      "/assets/images/products/crochet-ghost-spider-eyes-beanie.jpg"
+    ],
+    "description": "A chunky cream crochet beanie with pink Ghost-Spider eyes. Cosy and cute.",
+    "specifications": {
+      "Material": "Acrylic yarn",
+      "Size": "One size",
+      "Colour": "Cream & pink"
+    }
+  },
+  {
+    "id": "genz-57",
+    "title": "Crochet Spider-Verse Doll Duo",
+    "titleKhmer": "តុក្កតាក្រូសេ Spider-Verse (២)",
+    "category": "plush",
+    "categoryLabel": "Plush & Crochet",
+    "priceUSD": 18,
+    "priceKHR": 73800,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Spidey Fan",
+    "status": "active",
+    "image": "/assets/images/products/crochet-spider-verse-doll-duo.jpg",
+    "gallery": [
+      "/assets/images/products/crochet-spider-verse-doll-duo.jpg"
+    ],
+    "description": "Two little crochet dolls: Ghost-Spider in white and pink, and Miles Morales in black and red.",
+    "specifications": {
+      "Includes": "2 dolls",
+      "Size": "About 15 cm each",
+      "Material": "Cotton yarn"
+    }
+  },
+  {
+    "id": "genz-58",
+    "title": "Crochet Bow Bunny Holding a Heart",
+    "titleKhmer": "តុក្កតាទន្សាយក្រូសេកាន់បេះដូង",
+    "category": "plush",
+    "categoryLabel": "Plush & Crochet",
+    "priceUSD": 12,
+    "priceKHR": 49200,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Gift Idea 🎁",
+    "status": "active",
+    "image": "/assets/images/products/crochet-bow-bunny-holding-a-heart.jpg",
+    "gallery": [
+      "/assets/images/products/crochet-bow-bunny-holding-a-heart.jpg"
+    ],
+    "description": "A cream crochet bunny with pink bows on its ears, hugging a little pink heart. Made for saying \"I love you\".",
+    "specifications": {
+      "Material": "Soft yarn",
+      "Size": "About 20 cm",
+      "Colour": "Cream & pink"
+    }
+  },
+  {
+    "id": "genz-59",
+    "title": "Crochet Penguin in Blue Beanie & Scarf",
+    "titleKhmer": "តុក្កតាភេនឃ្វីនក្រូសេពាក់មួក",
+    "category": "plush",
+    "categoryLabel": "Plush & Crochet",
+    "priceUSD": 11,
+    "priceKHR": 45100,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Crochet Cutie",
+    "status": "active",
+    "image": "/assets/images/products/crochet-penguin-in-blue-beanie.jpg",
+    "gallery": [
+      "/assets/images/products/crochet-penguin-in-blue-beanie.jpg"
+    ],
+    "description": "A chubby crochet penguin bundled up in a blue beanie and scarf, with rosy cheeks.",
+    "specifications": {
+      "Material": "Cotton yarn",
+      "Size": "About 12 cm",
+      "Colour": "Grey, white & blue"
+    }
+  },
+  {
+    "id": "genz-60",
+    "title": "Cherry Red Patent Platform Mary Janes",
+    "titleKhmer": "ស្បែកជើងកែងក្រាស់ពណ៌ក្រហមភ្លឺ",
+    "category": "shoes",
+    "categoryLabel": "Shoes",
+    "priceUSD": 28,
+    "priceKHR": 114800,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Y2K Classic",
+    "status": "active",
+    "image": "/assets/images/products/cherry-red-patent-platform-mary-janes.jpg",
+    "gallery": [
+      "/assets/images/products/cherry-red-patent-platform-mary-janes.jpg"
+    ],
+    "description": "Shiny cherry-red Mary Janes on a chunky platform with a buckle strap. A bold, retro statement.",
+    "specifications": {
+      "Material": "Patent faux leather",
+      "Heel": "About 8 cm platform",
+      "Sizes": "35–40"
+    }
+  },
+  {
+    "id": "genz-61",
+    "title": "Brown Faux-Leather Slouch Boots",
+    "titleKhmer": "ស្បែកជើងកវែងពណ៌ត្នោត",
+    "category": "shoes",
+    "categoryLabel": "Shoes",
+    "priceUSD": 32,
+    "priceKHR": 131200,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Vintage Vibes",
+    "status": "active",
+    "image": "/assets/images/products/brown-faux-leather-slouch-boots.jpg",
+    "gallery": [
+      "/assets/images/products/brown-faux-leather-slouch-boots.jpg"
+    ],
+    "description": "Knee-high slouchy boots in rich brown faux leather with buckle details. Great with skirts or jeans.",
+    "specifications": {
+      "Material": "Faux leather",
+      "Height": "Knee-high",
+      "Sizes": "35–40"
+    }
+  },
+  {
+    "id": "genz-62",
+    "title": "Cream Bow Block-Heel Pumps",
+    "titleKhmer": "ស្បែកជើងកែងពណ៌ក្រែមមានបូ",
+    "category": "shoes",
+    "categoryLabel": "Shoes",
+    "priceUSD": 22,
+    "priceKHR": 90200,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Coquette 🎀",
+    "status": "active",
+    "image": "/assets/images/products/cream-bow-block-heel-pumps.jpg",
+    "gallery": [
+      "/assets/images/products/cream-bow-block-heel-pumps.jpg"
+    ],
+    "description": "Soft cream pumps with a low block heel and a delicate bow. Comfortable and elegant.",
+    "specifications": {
+      "Material": "Faux leather",
+      "Heel": "About 4 cm block",
+      "Sizes": "35–40"
+    }
+  },
+  {
+    "id": "genz-63",
+    "title": "Pastel Star & Snap Hair Clip Set",
+    "titleKhmer": "ឈុតដង្កៀបសក់ផ្កាយ",
+    "category": "hair",
+    "categoryLabel": "Scrunchies and Clips",
+    "priceUSD": 5,
+    "priceKHR": 20500,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Gen-Z Pick",
+    "status": "active",
+    "image": "/assets/images/products/pastel-star-and-snap-hair-clip-set.jpg",
+    "gallery": [
+      "/assets/images/products/pastel-star-and-snap-hair-clip-set.jpg"
+    ],
+    "description": "A playful mix of pastel snap clips, pink star clips and a silver star barrette.",
+    "specifications": {
+      "Includes": "8 clips",
+      "Material": "Acrylic & metal",
+      "Colours": "Pink, lilac, silver"
+    }
+  },
+  {
+    "id": "genz-64",
+    "title": "Crochet Puppy with Flower Bouquet",
+    "titleKhmer": "តុក្កតាកូនឆ្កែក្រូសេកាន់ផ្កា",
+    "category": "plush",
+    "categoryLabel": "Plush & Crochet",
+    "priceUSD": 12,
+    "priceKHR": 49200,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Gift Idea 🎁",
+    "status": "active",
+    "image": "/assets/images/products/crochet-puppy-with-flower-bouquet.jpg",
+    "gallery": [
+      "/assets/images/products/crochet-puppy-with-flower-bouquet.jpg"
+    ],
+    "description": "A cream crochet puppy with floppy black ears, holding a tiny bouquet of crochet flowers.",
+    "specifications": {
+      "Material": "Soft yarn",
+      "Size": "About 18 cm",
+      "Colour": "Cream & black"
+    }
+  },
+  {
+    "id": "genz-65",
+    "title": "Brown & White Striped Long-Sleeve Tee",
+    "titleKhmer": "អាវដៃវែងឆ្នូតត្នោតសរ",
+    "category": "apparel",
+    "categoryLabel": "Tees & Tops",
+    "priceUSD": 12,
+    "priceKHR": 49200,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Fresh Drop",
+    "status": "active",
+    "image": "/assets/images/products/brown-and-white-striped-long-sleeve-tee.jpg",
+    "gallery": [
+      "/assets/images/products/brown-and-white-striped-long-sleeve-tee.jpg"
+    ],
+    "description": "A relaxed long-sleeve tee in brown and white stripes with a ribbed brown collar.",
+    "specifications": {
+      "Material": "Cotton",
+      "Fit": "Relaxed",
+      "Colour": "Brown & white"
+    }
+  },
+  {
+    "id": "genz-66",
+    "title": "Red Gingham Puff-Sleeve Blouse",
+    "titleKhmer": "អាវក្រឡាក្រហមដៃប៉ោង",
+    "category": "apparel",
+    "categoryLabel": "Tees & Tops",
+    "priceUSD": 13,
+    "priceKHR": 53300,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Coquette 🎀",
+    "status": "active",
+    "image": "/assets/images/products/red-gingham-puff-sleeve-blouse.jpg",
+    "gallery": [
+      "/assets/images/products/red-gingham-puff-sleeve-blouse.jpg"
+    ],
+    "description": "A fitted red gingham blouse with puff sleeves and a pointed collar. Sweet and summery.",
+    "specifications": {
+      "Material": "Cotton blend",
+      "Fit": "Fitted",
+      "Colour": "Red & white check"
+    }
+  },
+  {
+    "id": "genz-67",
+    "title": "Red Gingham Cropped Button Top",
+    "titleKhmer": "អាវក្រឡាក្រហមខ្លី",
+    "category": "apparel",
+    "categoryLabel": "Tees & Tops",
+    "priceUSD": 13,
+    "priceKHR": 53300,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Cottagecore 🌼",
+    "status": "active",
+    "image": "/assets/images/products/red-gingham-cropped-button-top.jpg",
+    "gallery": [
+      "/assets/images/products/red-gingham-cropped-button-top.jpg"
+    ],
+    "description": "A short-sleeve red gingham button top, shown styled with khaki shorts, a red bag and black flats.",
+    "specifications": {
+      "Material": "Cotton blend",
+      "Fit": "Cropped",
+      "Colour": "Red & white check"
+    }
+  },
+  {
+    "id": "genz-68",
+    "title": "White Polka Dot Collared Blouse",
+    "titleKhmer": "អាវសចំណុចខ្មៅមានក",
+    "category": "apparel",
+    "categoryLabel": "Tees & Tops",
+    "priceUSD": 14,
+    "priceKHR": 57400,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Vintage Vibes",
+    "status": "active",
+    "image": "/assets/images/products/white-polka-dot-collared-blouse.jpg",
+    "gallery": [
+      "/assets/images/products/white-polka-dot-collared-blouse.jpg"
+    ],
+    "description": "A floaty white blouse with tiny black polka dots, a wide collar and a cinched waist.",
+    "specifications": {
+      "Material": "Light chiffon",
+      "Fit": "Relaxed",
+      "Colour": "White & black dots"
+    }
+  },
+  {
+    "id": "genz-69",
+    "title": "Embroidered Flare Jeans",
+    "titleKhmer": "ខោខូវប៊យប៉ាក់លំនាំ",
+    "category": "apparel",
+    "categoryLabel": "Jeans",
+    "priceUSD": 24,
+    "priceKHR": 98400,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Y2K Classic",
+    "status": "active",
+    "image": "/assets/images/products/embroidered-flare-jeans.jpg",
+    "gallery": [
+      "/assets/images/products/embroidered-flare-jeans.jpg"
+    ],
+    "description": "Washed blue flare jeans with swirling red and white embroidery down the legs. Very Y2K.",
+    "specifications": {
+      "Material": "Denim",
+      "Fit": "Low-rise flare",
+      "Sizes": "S–L"
+    }
+  },
+  {
+    "id": "genz-70",
+    "title": "Olive Square Optical Frames",
+    "titleKhmer": "ស៊ុមវ៉ែនតាការ៉េពណ៌បៃតងអូលីវ",
+    "category": "eyewear",
+    "categoryLabel": "Eyewear",
+    "priceUSD": 9,
+    "priceKHR": 36900,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Fresh Drop",
+    "status": "active",
+    "image": "/assets/images/products/olive-square-optical-frames.jpg",
+    "gallery": [
+      "/assets/images/products/olive-square-optical-frames.jpg"
+    ],
+    "description": "Lightweight square frames in a soft olive green. Add your own lenses or wear them as a style piece.",
+    "specifications": {
+      "Material": "Acetate-look frame",
+      "Lenses": "Clear (non-prescription)",
+      "Colour": "Olive green"
+    }
+  },
+  {
+    "id": "genz-71",
+    "title": "Fluffy Monkey House Slippers",
+    "titleKhmer": "ស្បែកជើងផ្ទះស្វារោមទន់",
+    "category": "shoes",
+    "categoryLabel": "Slippers",
+    "priceUSD": 9,
+    "priceKHR": 36900,
+    "inStock": true,
+    "rating": 0,
+    "reviewsCount": 0,
+    "badge": "Kawaii 🍓",
+    "status": "active",
+    "image": "/assets/images/products/fluffy-monkey-house-slippers.jpg",
+    "gallery": [
+      "/assets/images/products/fluffy-monkey-house-slippers.jpg"
+    ],
+    "description": "Super-soft plush slippers with smiling monkey faces. Cosy, silly and a guaranteed laugh as a gift.",
+    "specifications": {
+      "Material": "Plush, soft sole",
+      "Sizes": "One size (36–40)",
+      "Colour": "Beige & brown"
+    }
+  }
+]
