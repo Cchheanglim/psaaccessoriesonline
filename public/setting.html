@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <script src="assets/js/drop-pin.js"></script>
   <style>
     .row { display:flex; align-items:center; justify-content:space-between; gap:.75rem; padding:.95rem 1rem; width:100%; text-align:left; cursor:pointer; transition:background-color .15s ease, color .15s ease; }
     .row:hover { background-color:#f4f4f5; }
@@ -252,6 +253,7 @@
               <div class="min-w-0">
                 <div class="text-sm font-black">${esc(a.name)} <span class="text-xs font-bold text-stone-400 ml-1">${esc(a.phone)}</span></div>
                 <div class="text-xs text-stone-500 mt-1">${esc(a.line)}</div>
+                ${a.lat != null ? '<div class="text-xs font-bold text-emerald-700 dark:text-emerald-400 mt-1">Delivery pin saved</div>' : ''}
               </div>
               ${a.isDefault ? '<span class="px-2 py-0.5 rounded-full bg-[#F9F3EA] dark:bg-[#2A2A34] text-[#FFA552] text-[10px] font-black shrink-0">Default</span>' : ''}
             </div>
@@ -275,6 +277,11 @@
           </div>
           <div>
             <label class="block text-xs font-bold">Address<textarea id="aLine" rows="3" class="field mt-1" placeholder="House, street, district, Phnom Penh" oninput="psaClearFieldError('aLine')">${esc(a.line)}</textarea></label>
+          </div>
+          <div>
+            <div class="text-xs font-bold">Delivery pin</div>
+            <p class="text-xs text-stone-500 mt-0.5 mb-2">Drag the map so the pin sits on your gate or door. Checkout uses this spot for the rider.</p>
+            <div id="addressPin"></div>
           </div>
           <label class="flex items-center gap-2 text-xs font-bold cursor-pointer"><input id="aDef" type="checkbox" class="w-4 h-4 accent-[#FFA552]" ${a.isDefault ? 'checked' : ''} /> Set as default address</label>
           <div id="aErr" class="text-xs text-red-500 font-bold hidden" role="alert"></div>
@@ -504,13 +511,34 @@
       const makeDef = (aDef && aDef.checked) || list.length === 0;
       if (makeDef) list.forEach(a => a.isDefault = false);
       const ex = list.find(a => a.id === editingAddr);
-      if (ex) Object.assign(ex, { name, phone, line, isDefault: makeDef || ex.isDefault });
-      else list.push({ id: 'addr-' + Date.now(), name, phone, line, isDefault: makeDef });
+      const spot = addressPin ? addressPin.getLatLng() : null;
+      const coords = spot ? { lat: Number(spot.lat.toFixed(6)), lng: Number(spot.lng.toFixed(6)) } : {};
+      if (ex) Object.assign(ex, { name, phone, line, isDefault: makeDef || ex.isDefault }, coords);
+      else list.push({ id: 'addr-' + Date.now(), name, phone, line, isDefault: makeDef, ...coords });
       localStorage.setItem('psa_addresses', JSON.stringify(list));
       psaSetButtonLoading(btn, false);
       toast('Address saved');
       goBack();
     }
+    // Map on the address form: starts at the saved pin, or finds the customer's live location.
+    let addressPin = null;
+    async function mountAddressPin() {
+      addressPin = null;
+      const host = document.getElementById('addressPin');
+      if (!host || typeof psaDropPin !== 'function') return;
+      const a = getAddresses().find(x => x.id === editingAddr) || {};
+      addressPin = await psaDropPin(host, {
+        start: a.lat != null ? { lat: a.lat, lng: a.lng } : null,
+        onUseAddress: text => {
+          const field = document.getElementById('aLine');
+          if (field.value.trim() && !confirm('Replace the address you typed with: ' + text + '?')) return;
+          field.value = text;
+          psaClearFieldError('aLine');
+          field.focus();
+        },
+      });
+    }
+
     function setDefault(id) {
       const list = getAddresses(); list.forEach(a => a.isDefault = a.id === id);
       localStorage.setItem('psa_addresses', JSON.stringify(list)); render();
@@ -535,6 +563,7 @@
       document.getElementById('pageTitle').textContent = TITLES[key] || 'Settings';
       document.getElementById('view').innerHTML = views[key]();
       window.scrollTo(0, 0);
+      if (key === 'address') mountAddressPin();
     }
     window.addEventListener('popstate', render);
     window.addEventListener('hashchange', render);

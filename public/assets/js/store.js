@@ -3504,8 +3504,8 @@ document.addEventListener('DOMContentLoaded', () => {
   new MutationObserver(() => psaLabelStackTables()).observe(document.body, { childList: true, subtree: true });
 });
 
-// Psa Bunny chat mascot on shopper pages (not on chat itself, checkout, sign-in or staff pages).
-const PSA_MASCOT_PAGES = ['', 'home.html', 'index.html', 'products.html', 'product-detail.html', 'cart.html', 'wishlist.html', 'viewed.html', 'dashboard-buyer.html', 'order-detail.html', 'order-detail--buyer-pending.html', 'setting.html', 'about.html', 'privacy.html', 'terms.html'];
+// Psa Bunny chat mascot on shopper pages (not on chat itself, checkout, settings, sign-in or staff pages).
+const PSA_MASCOT_PAGES = ['', 'home.html', 'index.html', 'products.html', 'product-detail.html', 'cart.html', 'wishlist.html', 'viewed.html', 'dashboard-buyer.html', 'order-detail.html', 'order-detail--buyer-pending.html', 'about.html', 'privacy.html', 'terms.html'];
 document.addEventListener('DOMContentLoaded', () => {
   const page = psaPageName();
   if (!PSA_MASCOT_PAGES.includes(page) && !(page === 'home.html' && PSA_MASCOT_PAGES.includes(''))) return;
