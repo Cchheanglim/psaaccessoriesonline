@@ -80,7 +80,7 @@ Supabase PostgreSQL  (products, users, orders, messages, reviews, notifications)
 | Backend | PHP 8.2+, **Laravel 12** (JSON API, Eloquent, validation, rate limiting) |
 | Database | **Supabase PostgreSQL** (production), SQLite (tests / local) |
 | Frontend | HTML, **Tailwind CSS** (CDN), vanilla JavaScript, Leaflet maps |
-| AI | **Google Gemini** API (Google AI Studio) |
+| AI | **Claude Code Security Testing** API Key for Chatbot(Google AI Studio) |
 | Maps | Leaflet + OpenStreetMap tiles, Nominatim reverse geocoding |
 | Hosting | **Render** (Docker, Apache), auto-deploy from `main` |
 | Tests | PHPUnit (Laravel feature tests) |
@@ -273,6 +273,5 @@ All endpoints are under `/api`, use the session cookie, and require the CSRF tok
 ## Credits
 
 - Maps © **OpenStreetMap** contributors, via **Leaflet**; address suggestions from OpenStreetMap **Nominatim**.
-- AI replies by **Google Gemini** (Google AI Studio).
 - Product photos are sample images collected for this class project (many from Pinterest) and belong to their owners; brand names shown belong to their owners. They are used for demonstration only.
 - Built with Laravel, Tailwind CSS and PHPUnit.
