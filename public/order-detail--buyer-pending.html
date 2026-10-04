@@ -74,7 +74,7 @@
           <section class="${card} text-center space-y-4">
             <h1 class="text-2xl font-black">We couldn't find that order</h1>
             <p class="text-base text-stone-600">${PSA.online && !PSA.user ? 'Sign in with the account you ordered with.' : 'Open it from your orders list.'}</p>
-            <a href="${PSA.online && !PSA.user ? 'login.html?next=' + encodeURIComponent(location.pathname.split('/').pop() + location.search) : 'dashboard-buyer.html'}" class="h-12 px-6 inline-flex items-center rounded-2xl bg-espresso text-cotton font-black">${PSA.online && !PSA.user ? 'Sign in' : 'My orders'}</a>
+            <a href="${PSA.online && !PSA.user ? 'login.html?next=' + encodeURIComponent(psaPageName() + location.search) : 'dashboard-buyer.html'}" class="h-12 px-6 inline-flex items-center rounded-2xl bg-espresso text-cotton font-black">${PSA.online && !PSA.user ? 'Sign in' : 'My orders'}</a>
           </section>`;
         return;
       }

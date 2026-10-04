@@ -266,10 +266,15 @@ class StoreApiTest extends TestCase
         $this->assertEquals(4.0, (float) Product::where('sku', 'genz-01')->value('rating'));
     }
 
-    public function test_legal_pages_redirect_to_their_html_files(): void
+    public function test_pages_answer_at_clean_addresses(): void
     {
-        $this->get('/about')->assertRedirect('/about.html');
-        $this->get('/privacy')->assertRedirect('/privacy.html');
-        $this->get('/terms')->assertRedirect('/terms.html');
+        foreach (['/about', '/privacy', '/terms', '/home', '/products', '/cart', '/login'] as $url) {
+            $this->get($url)->assertOk();
+        }
+        $this->get('/no-such-page')->assertNotFound();
+
+        // Staff pages keep their login check at the clean address
+        $this->get('/dashboard-admin')->assertRedirect();
+        $this->actingAs($this->makeUser(['role' => 'staff']))->get('/admin-orders')->assertOk();
     }
 }

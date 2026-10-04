@@ -239,7 +239,7 @@
                 class="px-4 py-3 h-12 bg-[#FFA552] hover:bg-[#E88C35] text-[#2B1D1D] font-black text-sm rounded-xl sm:rounded-2xl shadow-sm hover:shadow transition flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <span>Send</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
               </button>
             </div>
 
@@ -273,6 +273,8 @@
   </footer>
 
   <script src="assets/js/store.js"></script>
+  <script>window.PSA_BUNNY_NO_LAUNCHER = true; // this page is the chat itself</script>
+  <script src="assets/js/mascot-chat.js"></script>
   <script src="assets/js/rbac.js"></script>
   <script>
     // =========================================================================
@@ -282,19 +284,19 @@
     const CHANNELS = [
       {
         id: 'support',
-        name: 'PsaOnline Care & Support',
+        name: 'Psa Bunny',
         category: 'Official Helpdesk',
-        subtitle: 'Orders, KHQR & dispatch (automated)',
+        subtitle: 'AI shopping helper · can make mistakes',
         avatarBg: 'bg-[#FFA552]',
         avatarLetter: 'P',
         verified: true,
-        onlineStatus: 'Online (Bot)',
+        onlineStatus: 'Online',
         initialMessages: [
           {
             id: 'm1',
             sender: 'PsaOnline Bot (Automated)',
             isMe: false,
-            text: 'ជំរាបសួរ! Welcome to PsaOnline automated assistance. How can we help you with your order, Bakong KHQR payment, or delivery today?',
+            text: 'ជំរាបសួរ! Hi, I\'m Psa Bunny 🐰 I can help you find a cute gift, check prices and delivery, or explain how to pay. What are you looking for?',
             time: '09:00 AM'
           },
           {
@@ -419,8 +421,7 @@
             }"
           >
             <div class="relative shrink-0">
-              <div class="w-10 h-10 rounded-full ${ch.avatarBg} text-white flex items-center justify-center font-black text-sm shadow-xs">
-                ${ch.avatarLetter}
+              <div class="psa-bunny-avatar w-10 h-10 shadow-xs">${window.PSA_BUNNY_SVG || ch.avatarLetter}
               </div>
               <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full ${ch.onlineStatus === 'Online' ? 'bg-emerald-500' : 'bg-stone-400'} ring-2 ring-white dark:ring-[#13131A]"></span>
             </div>
@@ -480,8 +481,8 @@
 
       threadTitle.textContent = ch.name;
       threadSubtitle.textContent = `${ch.subtitle} • ${ch.onlineStatus}`;
-      threadAvatar.className = `w-10 h-10 rounded-full ${ch.avatarBg} flex items-center justify-center font-black text-sm border border-[#EFE4D6] dark:border-[#272732] shadow-xs text-white`;
-      threadAvatar.textContent = ch.avatarLetter;
+      threadAvatar.className = 'psa-bunny-avatar w-10 h-10 border border-[#EFE4D6] dark:border-[#272732] shadow-xs';
+      threadAvatar.innerHTML = window.PSA_BUNNY_SVG || ch.avatarLetter;
       threadBadge.classList.toggle('hidden', !ch.verified);
 
       // Render messages
@@ -509,8 +510,7 @@
         } else {
           return `
             <div class="flex items-start gap-2.5 max-w-md sm:max-w-lg">
-              <div class="w-8 h-8 rounded-full ${ch.avatarBg} text-white font-black text-xs flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-                ${ch.avatarLetter}
+              <div class="psa-bunny-avatar w-8 h-8 shrink-0 mt-0.5 shadow-2xs">${window.PSA_BUNNY_SVG || ch.avatarLetter}
               </div>
               <div>
                 <div class="p-3 sm:p-3.5 rounded-2xl rounded-tl-xs bg-[#F9F3EA] dark:bg-[#20202C] text-[#2B1D1D] dark:text-stone-100 text-sm leading-relaxed whitespace-pre-line shadow-2xs border border-[#EFE4D6]/50 dark:border-[#2C2C3A] break-words">${linkify(escapeHtml(msg.text))}</div>
@@ -659,6 +659,12 @@
 
     // Turn product links and web addresses in replies into real links (text is escaped first).
     function linkify(escaped) {
+      // Same friendly links as the Psa Bunny bubble (the text arrives already escaped, so unescape first)
+      if (window.psaFriendlyLinkify) {
+        const t = document.createElement('textarea');
+        t.innerHTML = escaped;
+        return window.psaFriendlyLinkify(t.value);
+      }
       return escaped
         .replace(/(https?:\/\/[^\s<]+[^\s<.,!?)])/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="underline font-bold">$1</a>')
         .replace(/(^|[\s(])(product-detail\.html\?id=[\w-]+)/g, '$1<a href="$2" class="underline font-bold">View product</a>')
