@@ -116,6 +116,8 @@ class Storefront
             'phone' => $o->customer_phone,
             'address' => $o->delivery_address,
             'notes' => $o->delivery_notes,
+            'latitude' => $o->latitude !== null ? (float) $o->latitude : null,
+            'longitude' => $o->longitude !== null ? (float) $o->longitude : null,
             'items' => $o->items->map(fn ($i) => [
                 'id' => $i->product_id,
                 'title' => $i->product_title,

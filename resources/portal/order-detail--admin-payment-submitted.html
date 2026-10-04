@@ -91,7 +91,11 @@
       const slip = typeof order.slipImage === 'string' && /^(data:image\/|https?:\/\/)/.test(order.slipImage) ? order.slipImage : null;
       const actions = availableActions(order);
       const toneClass = { primary: 'bg-espresso text-cotton hover:bg-black dark:bg-sorbet dark:text-espresso', warn: 'bg-amber-100 text-amber-900 hover:bg-amber-200', danger: 'bg-white text-rose-700 border border-rose-300 hover:bg-rose-50' };
-      const mapHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((order.address || '') + ', Phnom Penh')}`;
+      const pinned = order.latitude != null && order.longitude != null;
+      // The customer's dropped pin is more exact than the typed address
+      const mapHref = pinned
+        ? `https://www.google.com/maps/search/?api=1&query=${order.latitude},${order.longitude}`
+        : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((order.address || '') + ', Phnom Penh')}`;
       const tel = String(order.phone || '').replace(/[^\d+]/g, '');
 
       page.innerHTML = `
@@ -138,7 +142,7 @@
               <a href="#messages" class="h-10 px-3 inline-flex items-center rounded-lg bg-stone-100 dark:bg-[#252530] text-sm font-bold text-[#2B1D1D]">Message</a>
             </div>
             <p class="mt-3 text-base text-stone-600 whitespace-pre-line">${psaEsc(order.address || '')}</p>
-            <a href="${mapHref}" target="_blank" rel="noopener noreferrer" class="mt-1 inline-block text-sm font-bold text-sorbet-ink dark:text-sorbet underline">Open in Google Maps</a>
+            <a href="${mapHref}" target="_blank" rel="noopener noreferrer" class="mt-1 inline-block text-sm font-bold text-sorbet-ink dark:text-sorbet underline">${pinned ? 'Open the pinned location in Google Maps' : 'Open in Google Maps'}</a>
             ${order.notes ? `<p class="mt-3 text-sm text-stone-600"><span class="font-bold text-[#2B1D1D]">Customer note:</span> ${psaEsc(order.notes)}</p>` : ''}
           </section>
 
