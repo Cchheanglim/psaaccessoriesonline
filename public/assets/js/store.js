@@ -5,6 +5,22 @@
 
 const EXCHANGE_RATE = 4100; // 1 USD = 4,100 KHR
 
+// Show clean addresses (/products instead of /products.html, / for the home page) without reloading.
+// The server answers both forms, so old .html links and bookmarks keep working.
+(function psaCleanAddress() {
+  if (location.port === '3000') return; // the Vite dev server only knows the .html files
+  const m = location.pathname.match(/^(.*\/)([a-z0-9-]+)\.html$/i);
+  if (!m) return;
+  const clean = m[2] === 'home' || m[2] === 'index' ? m[1] : m[1] + m[2];
+  try { history.replaceState(history.state, '', clean + location.search + location.hash); } catch (e) { /* ignore */ }
+})();
+
+// This page's file name (products.html), whether the address shows /products or /products.html.
+function psaPageName() {
+  const last = location.pathname.split('/').pop();
+  return last ? (/\.html$/i.test(last) ? last : last + '.html') : 'home.html';
+}
+
 // Live data from the Laravel API (Supabase database). Loaded synchronously on purpose:
 // every page script reads the catalog / user / orders as soon as it runs.
 // When the API is unreachable (e.g. `npm run dev` without `php artisan serve`),
@@ -301,7 +317,7 @@ async function psaLogout(redirectTo = 'login.html') {
 // history. Otherwise the browser's Back button returns to it and it redirects again (a loop).
 
 function psaCurrentPage() {
-  return (location.pathname.replace(/^\//, '') || 'home.html') + location.search;
+  return psaPageName() + location.search;
 }
 
 // Guests are sent to the login page and come back here after signing in.
@@ -349,7 +365,7 @@ const PSA_BACK_FALLBACKS = {
 };
 
 function psaAddHeaderBackButton() {
-  const fallback = PSA_BACK_FALLBACKS[location.pathname.split('/').pop()];
+  const fallback = PSA_BACK_FALLBACKS[psaPageName()];
   const logo = document.querySelector('header a');
   if (!fallback || !logo || document.getElementById('psaBackBtn')) return;
   const btn = document.createElement('button');
@@ -3491,8 +3507,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // Psa Bunny chat mascot on shopper pages (not on chat itself, checkout, sign-in or staff pages).
 const PSA_MASCOT_PAGES = ['', 'home.html', 'index.html', 'products.html', 'product-detail.html', 'cart.html', 'wishlist.html', 'viewed.html', 'dashboard-buyer.html', 'order-detail.html', 'order-detail--buyer-pending.html', 'setting.html', 'about.html', 'privacy.html', 'terms.html'];
 document.addEventListener('DOMContentLoaded', () => {
-  const page = location.pathname.split('/').pop();
-  if (!PSA_MASCOT_PAGES.includes(page)) return;
+  const page = psaPageName();
+  if (!PSA_MASCOT_PAGES.includes(page) && !(page === 'home.html' && PSA_MASCOT_PAGES.includes(''))) return;
   const s = document.createElement('script');
   s.src = 'assets/js/mascot-chat.js';
   s.defer = true;

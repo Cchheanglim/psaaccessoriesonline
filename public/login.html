@@ -180,7 +180,7 @@
     function goAfterLogin(user) {
       const next = new URLSearchParams(location.search).get('next');
       // only follow same-site relative links
-      if (next && /^[a-z0-9._-]+\.html(\?.*)?$/i.test(next)) {
+      if (next && /^[a-z0-9_-]+(\.html)?([?#].*)?$/i.test(next)) {
         window.location.replace(next);
       } else if (user.role === 'Admin' || user.role === 'Staff') {
         window.location.replace('dashboard-admin.html');

@@ -50,12 +50,20 @@
   function esc(s) { return typeof psaEsc === 'function' ? psaEsc(s) : String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
   // Links in replies (product pages, the shop, web links) become tappable.
+  // Page addresses the assistant mentions (dashboard-buyer.html, products.html?max=10 ...) become friendly links.
+  const PAGE_LABELS = {
+    'product-detail': 'View product', 'products': 'Browse the shop', 'dashboard-buyer': 'My account',
+    'order-detail': 'Open your order', 'cart': 'Your bag', 'checkout': 'Checkout', 'wishlist': 'Saved items',
+    'setting': 'Settings', 'chat': 'Full chat', 'home': 'Home', 'about': 'About us',
+  };
   function linkify(text) {
     return esc(text)
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/(https?:\/\/[^\s<]+[^\s<.,!?)])/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
-      .replace(/(^|[\s(|])(product-detail\.html\?id=[\w-]+)/g, '$1<a href="$2">View product</a>')
-      .replace(/(^|[\s(|])(products\.html(?:\?[\w=&;%-]+)?)/g, '$1<a href="$2">Browse the shop</a>');
+      .replace(/\(?(?<![\w\/.=-])((product-detail|products|dashboard-buyer|order-detail|cart|checkout|wishlist|setting|chat|home|about)\.html(?:[?#][\w=&;%#.-]*[\w=%-])?)\)?/g,
+        (m, href, page) => `<a href="${href}">${PAGE_LABELS[page]}</a>`)
+      // "My account <a>My account</a>" reads twice: keep just the link
+      .replace(/(?:&quot;)?\b([A-Za-z][A-Za-z ]{1,28}?)(?:&quot;)?\s+(<a href="[^"]+">)\1<\/a>/gi, (m, words, open) => `${open}${words}</a>`);
   }
 
   function render() {
@@ -130,7 +138,7 @@
   }
 
   function mount() {
-    if (document.getElementById('psaBunny')) return;
+    if (window.PSA_BUNNY_NO_LAUNCHER || document.getElementById('psaBunny')) return;
     load();
     const root = document.createElement('div');
     root.id = 'psaBunny';
@@ -198,6 +206,10 @@
       }, 3500);
     }
   }
+
+  // Shared with the full chat page (chat.html), which shows the same bunny and links without the floating button.
+  window.PSA_BUNNY_SVG = BUNNY_SVG;
+  window.psaFriendlyLinkify = linkify;
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
   else mount();

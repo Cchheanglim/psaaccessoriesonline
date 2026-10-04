@@ -857,3 +857,7 @@ html.dark .psa-bunny-panel__form button { background: var(--c-sorbet); color: va
 @media (prefers-reduced-motion: reduce) {
   .psa-bunny-btn *, .psa-bunny-greet { animation: none !important; }
 }
+
+/* Psa Bunny as a round avatar (full chat page) */
+.psa-bunny-avatar { position: relative; display: block; flex: none; border-radius: 9999px; background: var(--c-sorbet); overflow: hidden; }
+.psa-bunny-avatar .psa-bunny { position: absolute; left: 50%; bottom: -22%; width: 100%; height: 100%; transform: translateX(-50%); }
