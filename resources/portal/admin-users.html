@@ -3,437 +3,414 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Staff & User Access — PsaOnline Admin</title>
+  <title>Staff & roles — PsaOnline Staff</title>
   <link rel="icon" href="/favicon.ico" sizes="32x32" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="description" content="Accounts, the role each person has, and what each role may do." />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            sorbet: '#FFA552',
-            cotton: '#F9F3EA',
-            espresso: '#2B1D1D'
-          }
-        }
-      }
-    };
-  </script>
+  <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { sorbet: '#FFA552', cotton: '#F9F3EA', espresso: '#2B1D1D' } } } };</script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
+  <style>
+    .role-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: 0; border-radius: 12px; background: transparent; text-align: left; cursor: pointer; font: inherit; color: var(--pt-ink); }
+    .role-item:hover { background: var(--pt-sunken); }
+    .role-item[aria-current="true"] { background: var(--pt-accent-soft); }
+    .role-item b { display: block; font-size: 14px; font-weight: 700; }
+    .role-item small { display: block; font-size: 12px; color: var(--pt-ink-2); margin-top: 1px; }
+    .role-item .pt-badge { margin-left: auto; }
+    .perm-group + .perm-group { margin-top: 18px; }
+    .perm-group h3 { font-size: 13px; font-weight: 800; color: var(--pt-ink-2); margin: 0 0 4px 12px; }
+    .perm-grid { display: grid; gap: 2px; }
+    @media (min-width: 720px) { .perm-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
 </head>
-<body class="bg-gray-50 dark:bg-[#121215] text-gray-900 dark:text-[#F4F4F6] font-sans min-h-screen flex flex-col">
-
-  <!-- Admin Top Navigation Bar with RBAC Role Switcher -->
-  <header class="bg-white dark:bg-[#121215] border-b border-gray-200 dark:border-[#2D2D38] sticky top-0 z-40 transition-all duration-300">
-    
-    <!-- Staff Read-Only Banner -->
-    <div id="staffUsersBanner" class="hidden bg-blue-50 dark:bg-blue-950/60 border-b border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200 text-xs px-4 sm:px-8 py-2 font-bold flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="px-2 py-0.5 rounded-full bg-blue-200 dark:bg-blue-900 text-blue-900 dark:text-blue-100 text-[10px] font-black uppercase">Staff Read-Only</span>
-        <span>User creation, role reassignments, and account suspensions require Admin (Studio Lead) authority.</span>
+<body class="pt" data-portal="users">
+  <div class="pt-frame">
+    <main class="pt-main">
+      <div class="pt-head">
+        <div class="pt-head__text">
+          <h1>Staff &amp; roles</h1>
+          <p>Everyone with an account, the role each person has, and what each role is allowed to do in this portal.</p>
+        </div>
+        <div class="pt-head__actions">
+          <a href="user-form.html" class="pt-btn pt-btn--primary" id="addUserBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add account
+          </a>
+        </div>
       </div>
-      <button onclick="switchUserRole('Admin')" class="text-blue-600 dark:text-blue-400 underline font-black cursor-pointer">
-        👑 Switch to Admin
-      </button>
-    </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-4 sm:gap-6">
-        
-        <!-- Logo -->
-        <a href="dashboard-admin.html" class="flex items-center gap-2.5 sm:gap-3 group" title="PsaOnline Studio Operations">
-          <img 
-            src="assets/images/psa-accessories-online-logo.svg" 
-            alt="Psa Accessories Online" 
-            class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
-          />
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight leading-none">Psa<span class="text-orange-500">Online</span></span>
-              <span data-hide-mobile class="text-[9px] uppercase tracking-widest text-orange-600 font-black px-1.5 py-0.5 rounded bg-orange-50 dark:bg-orange-950/60 border border-orange-200 dark:border-orange-800">Admin Ops</span>
-            </div>
-            <div class="text-[10px] text-gray-500 dark:text-gray-400 font-bold mt-0.5">Staff & Access Control Management</div>
+      <div class="pt-tabs" role="tablist" aria-label="Staff and roles">
+        <button type="button" role="tab" id="tab-people" aria-controls="panel-people" aria-selected="true" data-tab="people">People</button>
+        <button type="button" role="tab" id="tab-roles" aria-controls="panel-roles" aria-selected="false" data-tab="roles" hidden>Roles &amp; permissions</button>
+      </div>
+
+      <!-- People -->
+      <section id="panel-people" role="tabpanel" aria-labelledby="tab-people" class="pt-panel">
+        <div class="pt-toolbar">
+          <div class="pt-seg" id="peopleFilter" aria-label="Show">
+            <button type="button" data-who="team" aria-pressed="true">Team</button>
+            <button type="button" data-who="customers" aria-pressed="false">Customers</button>
+            <button type="button" data-who="all" aria-pressed="false">Everyone</button>
           </div>
-        </a>
-
-        <!-- Desktop Nav Items -->
-        <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-gray-600 dark:text-gray-300">
-          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Reports & KPIs</a>
-          <a href="admin-orders.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Orders & Slips</a>
-          <a href="admin-messages.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Messages <span class="psa-inbox-count hidden ml-1 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-rose-600 text-white text-xs font-black"></span></a>
-          <a href="admin-products.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Drops & Stock</a>
-          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition rbac-admin-only">KHQR Gateways</a>
-          <a href="admin-users.html" class="px-3 py-1.5 rounded-full bg-slate-900 text-white dark:bg-orange-500 dark:text-slate-900 shadow-xs">Staff & RBAC</a>
-        </nav>
-      </div>
-
-      <!-- Action Items: RBAC Switcher, Theme & Storefront -->
-      <div class="flex items-center gap-2 sm:gap-3">
-        
-        <a href="home.html" target="_blank" class="hidden sm:inline-flex items-center gap-1 text-xs text-orange-600 font-black hover:underline transition">
-          <span>Storefront</span>
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-        </a>
-
-        <!-- Dark / Light Theme Toggle -->
-        <button 
-          type="button" 
-          onclick="toggleTheme()" 
-          class="theme-toggle-btn p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-white transition-all shadow-xs cursor-pointer" 
-          title="Toggle Theme"
-        >
-          <svg class="w-4 h-4 text-stone-700 dark:text-stone-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-        </button>
-
-        <div class="h-6 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
-
-        <!-- RBAC Interactive Role Switcher Pill -->
-        <div class="relative group rbac-dropdown-container">
-          <button 
-            type="button" 
-            id="rbacRoleSelectorBtn"
-            onclick="toggleRbacDropdown(event)"
-            class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-orange-500 transition shadow-xs cursor-pointer"
-          >
-            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-orange-500 to-slate-900 text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
-              SO
-            </div>
-            <div class="hidden sm:block text-left text-xs leading-tight">
-              <div class="font-extrabold text-gray-900 dark:text-white rbac-current-name">Sokha Ouk</div>
-              <div class="flex items-center gap-1 mt-0.5">
-                <span data-hide-mobile class="rbac-role-badge">Admin</span>
-                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-              </div>
-            </div>
-          </button>
-
-          <!-- Dropdown Menu to test and switch roles with 1 click -->
-          <div class="rbac-dropdown-menu absolute right-0 top-full w-72 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl p-2 hidden group-hover:block transition-all z-50">
-            <div class="px-3 py-2 border-b border-gray-100 dark:border-gray-800">
-              <div class="text-[10px] font-black uppercase text-orange-500 tracking-wider flex items-center justify-between">
-                <span>RBAC Role Switcher</span>
-                <span class="text-[9px] text-gray-400 font-mono">Live Session</span>
-              </div>
-              <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Switch role to test access boundaries:</div>
-            </div>
-            <div class="py-1 space-y-1">
-              <button type="button" onclick="switchUserRole('Admin')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs flex items-center justify-between transition cursor-pointer">
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-md bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[11px]">A</span>
-                  <div>
-                    <div class="font-bold text-gray-900 dark:text-white">Admin (Studio Lead)</div>
-                    <div class="text-[10px] text-gray-400">Full control over roles &amp; users</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-purple-600">Select</span>
-              </button>
-              <button type="button" onclick="switchUserRole('Staff')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-blue-50 dark:hover:bg-blue-950/40 text-xs flex items-center justify-between transition cursor-pointer">
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[11px]">S</span>
-                  <div>
-                    <div class="font-bold text-gray-900 dark:text-white">Staff (Dispatch Team)</div>
-                    <div class="text-[10px] text-gray-400">Test read-only restriction</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-blue-600">Select</span>
-              </button>
-              <button type="button" onclick="switchUserRole('Buyer')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs flex items-center justify-between transition cursor-pointer">
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[11px]">B</span>
-                  <div>
-                    <div class="font-bold text-gray-900 dark:text-white">Buyer (Customer)</div>
-                    <div class="text-[10px] text-gray-400">Test 403 access restriction</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-emerald-600">Select</span>
-              </button>
-            </div>
-            <div class="pt-2 border-t border-gray-100 dark:border-gray-800 px-3 py-1.5 flex items-center justify-between text-[10px]">
-              <a href="admin-users.html" class="text-orange-500 font-bold hover:underline">Manage All Roles &rarr;</a>
-              <button onclick="openRBACMatrixModal()" class="text-gray-400 hover:text-orange-500 underline cursor-pointer">Security Matrix</button>
-            </div>
-            <div class="pt-2 mt-1 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2 px-2 pb-1">
-              <a data-hide-mobile href="home.html" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 flex items-center justify-center gap-1.5 transition">
-                <span>Exit to Store</span>
-              </a>
-              <button type="button" data-rbac-logout onclick="logoutSession()" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200/70 flex items-center justify-center gap-1.5 transition cursor-pointer">
-                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                <span>Log Out</span>
-              </button>
-            </div>
+          <div class="pt-toolbar__end">
+            <label class="pt-search" style="width:260px;max-width:100%">
+              <span class="sr-only">Search people</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              <input id="peopleSearch" type="search" class="pt-input" placeholder="Name, email or phone" autocomplete="off" />
+            </label>
+            <label><span class="sr-only">Account status</span>
+              <select id="statusFilter" class="pt-select" style="width:auto">
+                <option value="all">Any status</option>
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+            </label>
           </div>
         </div>
-
-      </div>
-    </div>
-  </header>
-
-  <!-- Page Body -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
-
-    <!-- Header & Action -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div>
-        <div class="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1.5">
-          <a href="dashboard-admin.html" class="text-orange-600 font-bold hover:underline">&larr; Back to Executive Report</a>
-          <span>/</span>
-          <span class="text-gray-900 dark:text-white font-medium">Access Management</span>
+        <div class="pt-table-wrap">
+          <table class="pt-table pt-table--stack">
+            <thead>
+              <tr>
+                <th scope="col">Person</th>
+                <th scope="col">Role</th>
+                <th scope="col">Status</th>
+                <th scope="col">Joined</th>
+                <th scope="col" class="is-end"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="peopleBody"></tbody>
+          </table>
         </div>
-        <h1 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">Staff &amp; User Management</h1>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Configure user roles, reassign permissions dynamically, and oversee customer accounts.</p>
-      </div>
+      </section>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <a href="dashboard-admin.html" class="px-3.5 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-white text-xs font-bold transition">
-          &larr; Back to Report
-        </a>
-        <button 
-          type="button" 
-          onclick="openRBACMatrixModal()" 
-          class="px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer"
-        >
-          <span>View Permission Matrix</span>
-        </button>
+      <!-- Roles & permissions (admins only) -->
+      <section id="panel-roles" role="tabpanel" aria-labelledby="tab-roles" hidden>
+        <div class="pt-grid pt-grid--side-main">
+          <div class="pt-panel">
+            <div class="pt-panel__head">
+              <div>
+                <h2 class="pt-section-title">Roles</h2>
+                <p class="pt-section-sub">Pick one to see what it can do.</p>
+              </div>
+              <button type="button" class="pt-btn pt-btn--secondary pt-btn--sm" id="newRoleBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                New role
+              </button>
+            </div>
+            <div style="padding:8px" id="roleList"><span class="pt-skel" style="margin:12px"></span></div>
+          </div>
 
-        <a 
-          href="user-form.html" 
-          id="addUserBtn"
-          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-sm transition-all"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
-          Add Staff or User
-        </a>
-      </div>
-    </div>
-
-    <!-- Filters & Search -->
-    <div class="bg-white dark:bg-[#1A1A22] p-4 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
-      
-      <div class="w-full sm:w-80 relative">
-        <input
-          type="text"
-          id="userSearchInput"
-          placeholder="Search by name, email, or role..."
-          class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-        />
-        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-      </div>
-
-      <div class="w-full sm:w-auto flex items-center gap-3">
-        <select id="roleFilterSelect" class="w-full sm:w-auto px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
-          <option value="all">All Roles</option>
-          <option value="Admin">Admin (Studio Lead)</option>
-          <option value="Staff">Staff / Operations</option>
-          <option value="Buyer">Buyer</option>
-        </select>
-
-        <select id="statusFilterSelect" class="w-full sm:w-auto px-3 py-2 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
-          <option value="all">All Account Statuses</option>
-          <option value="Active">Active</option>
-          <option value="Suspended">Suspended</option>
-        </select>
-      </div>
-
-    </div>
-
-    <!-- Users Table Card with Dynamic RBAC Role Changing -->
-    <div class="bg-white dark:bg-[#1A1A22] rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="psa-stack-table w-full text-left text-sm text-gray-600 dark:text-gray-300">
-          <thead class="bg-gray-50 dark:bg-gray-800/60 text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-            <tr>
-              <th class="px-5 py-3 font-semibold">User</th>
-              <th class="px-5 py-3 font-semibold">Department & Scope</th>
-              <th class="px-5 py-3 font-semibold">Current Role (Live Reassign)</th>
-              <th class="px-5 py-3 font-semibold">Status</th>
-              <th class="px-5 py-3 font-semibold text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="usersTableBody" class="divide-y divide-gray-100 dark:divide-gray-800">
-            <!-- Dynamically populated via renderUsersTable() -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- Admin Portal Footer -->
-  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-xs text-stone-500 dark:text-stone-400 no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline Operations Portal &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
+          <form class="pt-panel" id="roleForm" novalidate>
+            <div class="pt-panel__head">
+              <div>
+                <h2 class="pt-section-title" id="roleTitle">Role</h2>
+                <p class="pt-section-sub" id="roleSub"></p>
+              </div>
+            </div>
+            <div class="pt-panel__body">
+              <div class="pt-row pt-row--2">
+                <div class="pt-field">
+                  <label class="pt-label" for="roleName">Role name</label>
+                  <input id="roleName" class="pt-input" maxlength="40" placeholder="For example: Delivery rider" />
+                  <span class="pt-error" id="roleNameError" hidden></span>
+                </div>
+                <div class="pt-field">
+                  <label class="pt-label" for="roleDescription">What this role is for <span class="pt-faint">(optional)</span></label>
+                  <input id="roleDescription" class="pt-input" maxlength="160" placeholder="Takes orders to customers" />
+                </div>
+              </div>
+              <div id="roleNote" class="pt-note" style="margin-top:18px" hidden></div>
+              <div style="margin-top:22px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px">
+                  <h3 class="pt-section-title" style="font-size:15px">Permissions</h3>
+                  <span class="pt-faint" id="permCount" style="font-size:13px;font-weight:600"></span>
+                </div>
+                <div id="permList"></div>
+              </div>
+              <span class="pt-error" id="roleError" hidden></span>
+            </div>
+            <div class="pt-panel__foot">
+              <button type="button" class="pt-btn pt-btn--danger" id="deleteRoleBtn" style="margin-right:auto" hidden>Delete role</button>
+              <button type="submit" class="pt-btn pt-btn--primary" id="saveRoleBtn">Save role</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
+  <script src="assets/js/portal-shell.js"></script>
   <script>
-    const search = document.getElementById('userSearchInput');
-    const roleFilter = document.getElementById('roleFilterSelect');
-    const statusFilter = document.getElementById('statusFilterSelect');
+    const me = getCurrentUser();
+    const isAdmin = me.role === 'Admin';
+    let who = 'team';
+    let roleData = { roles: [], permissions: [] };
+    let selectedRole = null; // role id, or 'new'
 
-    function renderUsersTable() {
-      const tbody = document.getElementById('usersTableBody');
-      if (!tbody) return;
+    const people = () => getRBACUsers() || [];
+    const roleNames = () => (PSA.roles && PSA.roles.length ? PSA.roles.map(r => r.name) : ['Admin', 'Staff', 'Buyer']);
+    const initials = n => String(n || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+    const ROLE_TONE = { Admin: 'violet', Staff: 'sky', Buyer: 'grey' };
 
-      const users = getRBACUsers();
-      const q = (search.value || '').toLowerCase().trim();
-      const r = roleFilter.value;
-      const s = statusFilter.value;
-      const currentUser = getCurrentUser();
-      const isAdmin = currentUser.role === 'Admin';
+    /* ---------- People ---------- */
 
-      const filtered = users.filter(u => {
-        const matchQ = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.role.toLowerCase().includes(q);
-        const matchRole = r === 'all' || u.role === r;
-        const matchStatus = s === 'all' || u.status === s;
-        return matchQ && matchRole && matchStatus;
-      });
-
-      tbody.innerHTML = filtered.map(u => {
-        const isCurrent = u.id === currentUser.id;
-        const roleBadgeClass = u.role === 'Admin'
-          ? 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800'
-          : (u.role === 'Staff'
-            ? 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800'
-            : 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800');
-
+    function renderPeople() {
+      const q = document.getElementById('peopleSearch').value.trim().toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const rows = people().filter(u => (who === 'all' || (who === 'team' ? u.role !== 'Buyer' : u.role === 'Buyer'))
+        && (status === 'all' || (u.status || 'Active') === status)
+        && (!q || [u.name, u.email, u.phone].some(v => String(v || '').toLowerCase().includes(q))));
+      const body = document.getElementById('peopleBody');
+      if (!rows.length) {
+        body.innerHTML = `<tr><td colspan="5"><div class="pt-empty"><h3>No one matches</h3><p>${who === 'team' && !q ? 'Add an account and give it a staff role to bring someone onto the team.' : 'Try another name, or switch between Team and Customers.'}</p></div></td></tr>`;
+        return;
+      }
+      body.innerHTML = rows.map(u => {
+        const self = String(u.id) === String(me.id);
+        const lockedAdmin = u.role === 'Admin' && !isAdmin;
+        const canChange = PSA.online && !self && !lockedAdmin;
+        const options = roleNames().filter(n => isAdmin || n !== 'Admin');
+        const roleCell = canChange
+          ? `<label><span class="sr-only">Role for ${psaEsc(u.name)}</span><select class="pt-select" data-role-for="${psaEsc(u.id)}" style="height:34px;width:auto;min-width:140px;font-size:13px">
+              ${options.map(n => `<option value="${psaEsc(n)}" ${n === u.role ? 'selected' : ''}>${psaEsc(n)}</option>`).join('')}
+            </select></label>`
+          : `<span class="pt-badge pt-badge--${ROLE_TONE[u.role] || 'accent'} pt-badge--plain">${psaEsc(u.role)}</span>`;
         return `
-          <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-800/40 transition-colors">
-            <td class="px-5 py-4">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full ${u.role === 'Admin' ? 'bg-slate-900 ring-2 ring-orange-500/30' : (u.role === 'Staff' ? 'bg-blue-600' : 'bg-emerald-600')} text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-xs">
-                  ${psaEsc(u.avatar)}
-                </div>
-                <div>
-                  <div class="text-xs font-bold text-gray-900 dark:text-white flex items-center gap-1.5">
-                    <span>${psaEsc(u.name)}</span>
-                    ${isCurrent ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-orange-100 text-orange-800 font-extrabold">You</span>' : ''}
-                  </div>
-                  <div class="text-[11px] text-gray-400 font-mono">${psaEsc(u.email)}</div>
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:12px">
+                <span class="pt-avatar" aria-hidden="true">${u.avatarUrl ? `<img src="${psaEsc(u.avatarUrl)}" alt="">` : psaEsc(initials(u.name))}</span>
+                <div style="min-width:0">
+                  <span class="pt-strong">${psaEsc(u.name)}</span>${self ? ' <span class="pt-badge pt-badge--accent pt-badge--plain" style="height:20px;margin-left:4px">You</span>' : ''}
+                  <span class="pt-sub">${psaEsc(u.email)}${u.phone ? ' · ' + psaEsc(u.phone) : ''}</span>
                 </div>
               </div>
             </td>
-
-            <td class="px-5 py-4 text-xs">
-              <div class="font-bold text-gray-800 dark:text-gray-200">${psaEsc(u.department || 'Studio Ops')}</div>
-              <div class="text-[10px] text-gray-400">${psaEsc(u.description || 'PsaOnline team member')}</div>
-            </td>
-
-            <td class="px-5 py-4">
-              <div class="flex items-center gap-2">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold border ${roleBadgeClass}">
-                  ${u.role}
-                </span>
-
-                <!-- Quick Role Reassign Dropdown for Admin -->
-                ${isAdmin ? `
-                  <select 
-                    onchange="changeUserRole('${u.id}', this.value)" 
-                    class="text-[11px] font-bold px-2 py-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-white focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer"
-                    title="Change user's system role"
-                  >
-                    <option value="Admin" ${u.role === 'Admin' ? 'selected' : ''}>Admin (Full Ops)</option>
-                    <option value="Staff" ${u.role === 'Staff' ? 'selected' : ''}>Staff (Fulfillment)</option>
-                    <option value="Buyer" ${u.role === 'Buyer' ? 'selected' : ''}>Buyer (Customer)</option>
-                  </select>
-                ` : `
-                  <span class="text-[10px] text-gray-400 italic">Locked</span>
-                `}
-              </div>
-            </td>
-
-            <td class="px-5 py-4">
-              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold ${u.status === 'Active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/60 dark:text-red-300'}">
-                <span class="w-1.5 h-1.5 rounded-full ${u.status === 'Active' ? 'bg-emerald-500' : 'bg-red-500'}"></span>
-                ${u.status}
-              </span>
-            </td>
-
-            <td class="px-5 py-4 text-right">
-              <div class="flex items-center justify-end gap-1.5">
-                ${isAdmin ? `
-                  ${PSA.online ? '' : `<button 
-                    type="button" 
-                    onclick="switchUserRole('${u.role}')" 
-                    class="px-2 py-1 rounded bg-stone-100 hover:bg-stone-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-[10px] font-bold transition cursor-pointer"
-                    title="Login as this role to test"
-                  >
-                    Simulate
-                  </button>`}
-                  <a href="user-form.html?id=${encodeURIComponent(u.id)}" class="p-1.5 text-gray-500 hover:text-orange-600 rounded inline-block" title="Edit Full Account">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                  </a>
-                ` : `
-                  <span class="text-[11px] text-gray-400">View Only</span>
-                `}
-              </div>
-            </td>
-          </tr>
-        `;
+            <td data-label="Role">${roleCell}</td>
+            <td data-label="Status"><span class="pt-badge pt-badge--${(u.status || 'Active') === 'Active' ? 'green' : 'red'}">${psaEsc(u.status || 'Active')}</span></td>
+            <td data-label="Joined"><span class="pt-muted">${psaEsc(u.created || '—')}</span></td>
+            <td class="is-end"><div class="pt-actions">${lockedAdmin ? '' : `<a class="pt-btn pt-btn--secondary pt-btn--sm" href="user-form.html?id=${encodeURIComponent(u.id)}">Edit</a>`}</div></td>
+          </tr>`;
       }).join('');
     }
 
-    function changeUserRole(userId, newRole) {
-      if (!hasPermission('canEditRoles')) {
-        showRBACToast('Permission Denied: Only Admin (Studio Lead) can reassign roles.', 'danger');
-        return;
-      }
-
-      if (PSA.online) {
-        psaApi('PATCH', `/api/admin/users/${encodeURIComponent(userId)}`, { role: newRole })
-          .then(({ user }) => {
-            PSA.users = PSA.users.map(u => (u.id === user.id ? user : u));
-            showRBACToast(`Role for ${psaEsc(user.name)} changed to ${newRole.toUpperCase()}.`, 'success');
-            renderUsersTable();
-          })
-          .catch(err => {
-            showRBACToast(psaEsc(err.message), 'danger');
-            renderUsersTable();
-          });
-        return;
-      }
-
-      let users = getRBACUsers();
-      const user = users.find(u => u.id === userId);
-      if (user) {
-        user.role = newRole;
-        saveRBACUsers(users);
-        showRBACToast(`Role for ${user.name} changed to ${newRole.toUpperCase()}.`, 'success');
-        renderUsersTable();
+    async function changeRole(select) {
+      const id = select.dataset.roleFor;
+      const before = people().find(u => String(u.id) === id);
+      select.disabled = true;
+      try {
+        const { user } = await psaApi('PATCH', `/api/admin/users/${encodeURIComponent(id)}`, { role: select.value });
+        PSA.users = PSA.users.map(u => (String(u.id) === String(user.id) ? user : u));
+        showRBACToast(`${psaEsc(user.name)} is now ${psaEsc(user.role)}.`, 'success');
+        if (roleData.roles.length) loadRoles();
+      } catch (err) {
+        showRBACToast(psaEsc(err.message), 'danger');
+        select.value = before ? before.role : select.value;
+      } finally {
+        select.disabled = false;
+        renderPeople();
       }
     }
 
-    search.addEventListener('input', renderUsersTable);
-    roleFilter.addEventListener('change', renderUsersTable);
-    statusFilter.addEventListener('change', renderUsersTable);
+    /* ---------- Roles & permissions ---------- */
+
+    async function loadRoles(selectId) {
+      try {
+        roleData = await psaApi('GET', '/api/admin/roles');
+        PSA.roles = roleData.roles.map(r => ({ name: r.name, description: r.description, portal: r.portal }));
+        if (selectId !== undefined) selectedRole = selectId;
+        if (selectedRole !== 'new' && !roleData.roles.some(r => r.id === selectedRole)) selectedRole = (roleData.roles.find(r => r.name === 'Staff') || roleData.roles[0]).id;
+        renderRoleList();
+        renderRoleForm();
+        renderPeople();
+      } catch (err) {
+        document.getElementById('roleList').innerHTML = `<p class="pt-error" style="margin:12px">${psaEsc(err.message)}</p>`;
+      }
+    }
+
+    function renderRoleList() {
+      document.getElementById('roleList').innerHTML = roleData.roles.map(r => `
+        <button type="button" class="role-item" data-role="${r.id}" aria-current="${r.id === selectedRole}">
+          <span style="min-width:0">
+            <b>${psaEsc(r.name)}</b>
+            <small>${r.users} ${r.users === 1 ? 'person' : 'people'}${r.name === 'Buyer' ? ' · shop only' : ` · ${r.permissions.length} of ${roleData.permissions.length} permissions`}</small>
+          </span>
+          ${r.builtIn ? '' : '<span class="pt-badge pt-badge--accent pt-badge--plain">Custom</span>'}
+        </button>`).join('') + (selectedRole === 'new' ? `
+        <button type="button" class="role-item" aria-current="true"><span><b>New role</b><small>Not saved yet</small></span></button>` : '');
+    }
+
+    function renderRoleForm() {
+      const role = selectedRole === 'new'
+        ? { id: null, name: '', description: '', builtIn: false, locked: false, users: 0, permissions: [] }
+        : roleData.roles.find(r => r.id === selectedRole);
+      if (!role) return;
+      const isNew = role.id === null;
+      const fixedName = role.builtIn;
+      document.getElementById('roleTitle').textContent = isNew ? 'New role' : role.name;
+      document.getElementById('roleSub').textContent = isNew
+        ? 'Name it, tick what it may do, then give it to people from the People tab.'
+        : `${role.users} ${role.users === 1 ? 'person has' : 'people have'} this role.`;
+      const name = document.getElementById('roleName');
+      name.value = role.name;
+      name.disabled = fixedName;
+      const desc = document.getElementById('roleDescription');
+      desc.value = role.description || '';
+      desc.disabled = role.locked;
+      hideErrors();
+
+      const note = document.getElementById('roleNote');
+      const notes = {
+        Admin: 'Admin always has every permission, so there is always someone who can fix things. Admin is also the only role that can change roles.',
+        Buyer: 'Buyers are customers. They shop, order and review, and never see this portal.',
+        Staff: 'The Staff role comes with the website, so it can\'t be renamed or deleted. Its permissions are yours to choose.'
+      };
+      note.hidden = !notes[role.name] || isNew;
+      note.innerHTML = notes[role.name] ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>${notes[role.name]}</span>` : '';
+
+      const groups = [];
+      roleData.permissions.forEach(p => {
+        let g = groups.find(x => x.name === p.group);
+        if (!g) groups.push(g = { name: p.group, items: [] });
+        g.items.push(p);
+      });
+      document.getElementById('permList').innerHTML = role.name === 'Buyer'
+        ? '<p class="pt-muted" style="margin:0 12px">No portal permissions.</p>'
+        : groups.map(g => `
+          <div class="perm-group">
+            <h3>${psaEsc(g.name)}</h3>
+            <div class="perm-grid">${g.items.map(p => `
+              <label class="pt-check ${role.locked ? 'is-disabled' : ''}">
+                <input type="checkbox" name="perm" value="${psaEsc(p.name)}" ${role.permissions.includes(p.name) ? 'checked' : ''} ${role.locked ? 'disabled' : ''}>
+                <span><b>${psaEsc(p.label)}</b><small>${psaEsc(p.description || '')}</small></span>
+              </label>`).join('')}
+            </div>
+          </div>`).join('');
+      updatePermCount();
+
+      document.getElementById('saveRoleBtn').hidden = role.locked;
+      document.getElementById('saveRoleBtn').textContent = isNew ? 'Create role' : 'Save changes';
+      const del = document.getElementById('deleteRoleBtn');
+      del.hidden = isNew || role.builtIn;
+      del.disabled = role.users > 0;
+      del.title = role.users > 0 ? 'Move its people to another role first' : '';
+    }
+
+    function updatePermCount() {
+      const boxes = [...document.querySelectorAll('#permList input[name="perm"]')];
+      document.getElementById('permCount').textContent = boxes.length ? `${boxes.filter(b => b.checked).length} of ${boxes.length} ticked` : '';
+    }
+
+    function hideErrors() {
+      ['roleNameError', 'roleError'].forEach(id => { const el = document.getElementById(id); el.hidden = true; el.textContent = ''; });
+      document.getElementById('roleName').removeAttribute('aria-invalid');
+    }
+
+    function showError(err) {
+      const field = err.errors && err.errors.name ? 'roleNameError' : 'roleError';
+      const el = document.getElementById(field);
+      const own = err.errors && err.errors.name;
+      el.textContent = own ? [].concat(own)[0] : err.message;
+      el.hidden = false;
+      if (field === 'roleNameError') { document.getElementById('roleName').setAttribute('aria-invalid', 'true'); document.getElementById('roleName').focus(); }
+    }
+
+    async function saveRole(e) {
+      e.preventDefault();
+      hideErrors();
+      const isNew = selectedRole === 'new';
+      const role = roleData.roles.find(r => r.id === selectedRole);
+      const payload = {
+        permissions: [...document.querySelectorAll('#permList input[name="perm"]:checked')].map(b => b.value),
+        description: document.getElementById('roleDescription').value.trim() || null
+      };
+      if (isNew || (role && !role.builtIn)) payload.name = document.getElementById('roleName').value.trim();
+      if (isNew && !payload.name) { showError({ errors: { name: 'Give the role a name.' } }); return; }
+      const btn = document.getElementById('saveRoleBtn');
+      psaSetButtonLoading(btn, true, 'Saving…');
+      try {
+        const res = isNew
+          ? await psaApi('POST', '/api/admin/roles', payload)
+          : await psaApi('PATCH', `/api/admin/roles/${selectedRole}`, payload);
+        const saved = isNew ? res.roles.find(r => r.name.toLowerCase() === payload.name.toLowerCase()) : null;
+        roleData = res;
+        PSA.roles = res.roles.map(r => ({ name: r.name, description: r.description, portal: r.portal }));
+        if (saved) selectedRole = saved.id;
+        renderRoleList();
+        renderRoleForm();
+        renderPeople();
+        showRBACToast(isNew ? `Role "${psaEsc(payload.name)}" created. Give it to people from the People tab.` : 'Role saved. People with it get the new permissions straight away.', 'success');
+      } catch (err) {
+        showError(err);
+      } finally {
+        psaSetButtonLoading(btn, false);
+      }
+    }
+
+    async function deleteRole() {
+      const role = roleData.roles.find(r => r.id === selectedRole);
+      if (!role || !confirm(`Delete the role "${role.name}"? This can't be undone.`)) return;
+      try {
+        roleData = await psaApi('DELETE', `/api/admin/roles/${role.id}`);
+        PSA.roles = roleData.roles.map(r => ({ name: r.name, description: r.description, portal: r.portal }));
+        selectedRole = (roleData.roles.find(r => r.name === 'Staff') || roleData.roles[0]).id;
+        renderRoleList();
+        renderRoleForm();
+        renderPeople();
+        showRBACToast(`Role "${psaEsc(role.name)}" deleted.`, 'success');
+      } catch (err) {
+        showError(err);
+      }
+    }
+
+    function showTab(tab) {
+      if (tab === 'roles' && !isAdmin) tab = 'people';
+      document.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+      document.getElementById('panel-people').hidden = tab !== 'people';
+      document.getElementById('panel-roles').hidden = tab !== 'roles';
+      document.getElementById('addUserBtn').hidden = tab !== 'people';
+      if (tab === 'roles' && !roleData.roles.length) loadRoles();
+      history.replaceState(null, '', tab === 'roles' ? '#roles' : location.pathname + location.search);
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
-      enforcePageRBAC('canAccessAdminPortal');
-      
-      const user = getCurrentUser();
-      if (!hasPermission('canManageUsers')) {
-        // Staff mode: show banner and disable add button
-        const banner = document.getElementById('staffUsersBanner');
-        if (banner) banner.classList.remove('hidden');
-        const addBtn = document.getElementById('addUserBtn');
-        if (addBtn) {
-          addBtn.classList.add('opacity-50', 'pointer-events-none');
-          addBtn.setAttribute('title', 'Admin Role Required');
-        }
-      }
+      if (ptDenied()) return;
+      if (isAdmin && PSA.online) document.getElementById('tab-roles').hidden = false;
+      renderPeople();
+      showTab(location.hash === '#roles' ? 'roles' : 'people');
 
-      renderUsersTable();
+      document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+      document.getElementById('peopleFilter').addEventListener('click', e => {
+        const b = e.target.closest('[data-who]');
+        if (!b) return;
+        who = b.dataset.who;
+        document.querySelectorAll('[data-who]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        renderPeople();
+      });
+      document.getElementById('peopleSearch').addEventListener('input', renderPeople);
+      document.getElementById('statusFilter').addEventListener('change', renderPeople);
+      document.getElementById('peopleBody').addEventListener('change', e => { if (e.target.matches('[data-role-for]')) changeRole(e.target); });
+
+      document.getElementById('roleList').addEventListener('click', e => {
+        const b = e.target.closest('[data-role]');
+        if (!b) return;
+        selectedRole = Number(b.dataset.role);
+        renderRoleList();
+        renderRoleForm();
+      });
+      document.getElementById('newRoleBtn').addEventListener('click', () => {
+        selectedRole = 'new';
+        renderRoleList();
+        renderRoleForm();
+        document.getElementById('roleName').focus();
+      });
+      document.getElementById('permList').addEventListener('change', updatePermCount);
+      document.getElementById('roleForm').addEventListener('submit', saveRole);
+      document.getElementById('deleteRoleBtn').addEventListener('click', deleteRole);
     });
   </script>
 </body>

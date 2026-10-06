@@ -4,12 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/** Longer product information (1:1 with products). */
+/** The product's description (1:1 with products). Specifications are rows in product_specifications. */
 class ProductDetail extends Model
 {
-    protected $fillable = ['product_id', 'description', 'material', 'color', 'specifications'];
-
-    protected $casts = ['specifications' => 'array'];
+    protected $fillable = ['product_id', 'description'];
 
     public function product()
     {

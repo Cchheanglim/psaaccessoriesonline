@@ -3,287 +3,198 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Product Editor — PsaOnline Admin</title>
+  <title>Product — PsaOnline Staff</title>
   <link rel="icon" href="/favicon.ico" sizes="32x32" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="description" content="Add or edit a product: details, photos, price, sale and stock." />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { sorbet: '#FFA552', cotton: '#F9F3EA', espresso: '#2B1D1D' } } } };</script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
+  <style>
+    .drop { display: block; border: 1.5px dashed var(--pt-line-strong); border-radius: 12px; padding: 22px; text-align: center; cursor: pointer; transition: border-color .15s ease, background-color .15s ease; }
+    .drop:hover, .drop:focus-within { border-color: var(--pt-accent); background: var(--pt-accent-soft); }
+    .drop svg { width: 26px; height: 26px; margin: 0 auto 8px; color: var(--pt-ink-3); }
+    .drop b { display: block; font-size: 14px; }
+    .drop small { display: block; font-size: 12px; color: var(--pt-ink-2); margin-top: 2px; }
+    .gallery { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .gallery-item { position: relative; width: 84px; height: 84px; border-radius: 10px; overflow: hidden; border: 1px solid var(--pt-line); background: var(--pt-sunken); }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-item:first-child::after { content: 'Main'; position: absolute; left: 6px; bottom: 6px; padding: 1px 6px; border-radius: 6px; background: rgba(43,29,29,.8); color: #fff; font-size: 11px; font-weight: 700; }
+    .gallery-item button { position: absolute; top: 4px; right: 4px; width: 26px; height: 26px; border-radius: 999px; border: 0; background: rgba(43,29,29,.8); color: #fff; cursor: pointer; display: grid; place-items: center; }
+    .gallery-item button svg { width: 14px; height: 14px; }
+    .spec-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) 40px; gap: 8px; }
+    .spec-row + .spec-row { margin-top: 8px; }
+    .radio-card { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1px solid var(--pt-line); border-radius: 12px; cursor: pointer; }
+    .radio-card + .radio-card { margin-top: 8px; }
+    .radio-card:has(input:checked) { border-color: var(--pt-accent); background: var(--pt-accent-soft); }
+    .radio-card b { display: block; font-size: 14px; }
+    .radio-card small { display: block; font-size: 12px; color: var(--pt-ink-2); }
+    .sale-preview { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-top: 12px; padding: 12px; border-radius: 10px; background: var(--pt-sunken); }
+    .sale-preview b { font-size: 20px; font-weight: 800; }
+    .sale-preview s { color: var(--pt-ink-3); font-weight: 600; }
+    #productForm .text-red-600, #productForm [id$="Error"] { color: var(--pt-red-ink); }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
-
-  <!-- Admin Top Bar -->
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-6 min-w-0">
-        <a href="dashboard-admin.html" class="flex items-center gap-2.5 shrink-0" title="PsaOnline Studio Operations">
-          <img src="assets/images/psa-accessories-online-logo.svg" alt="PsaOnline" class="h-10 w-auto object-contain" />
-          <span class="flex items-center gap-1.5 whitespace-nowrap">
-            <span class="text-lg font-black text-gray-900 tracking-tight leading-none">Psa<span class="text-orange-500">Online</span></span>
-            <span data-hide-mobile class="hidden sm:inline text-[10px] uppercase tracking-widest text-orange-700 font-black px-1.5 py-0.5 rounded bg-orange-50 border border-orange-200">Admin Ops</span>
-          </span>
-        </a>
-
-        <nav class="hidden xl:flex items-center gap-1 text-sm font-medium text-gray-600 whitespace-nowrap">
-          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Overview</a>
-          <a href="admin-orders.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Orders</a>
-          <a href="admin-messages.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Messages <span class="psa-inbox-count hidden ml-1 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-rose-600 text-white text-xs font-black"></span></a>
-          <a href="admin-products.html" class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 font-semibold">Products</a>
-          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Payment Methods</a>
-          <a href="admin-users.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Staff & Users</a>
-        </nav>
-      </div>
-
-      <div class="flex items-center gap-2 sm:gap-3 shrink-0 whitespace-nowrap">
-        <a href="admin-products.html" class="px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs text-gray-700 font-bold transition">&larr; Back to Products</a>
-        <a href="login.html?logout=1" class="px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-xs text-red-600 font-bold transition">Log Out</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Page Body -->
-  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
-
-    <!-- Header -->
-    <div class="flex items-start justify-between gap-4">
-      <div>
-        <div class="text-xs text-gray-500 mb-1 flex items-center gap-1.5">
-          <a href="admin-products.html" class="hover:text-orange-600">Products</a>
-          <span>/</span>
-          <span class="text-gray-900 font-medium">Create or Edit</span>
+<body class="pt" data-portal="product-form" data-portal-parent="products" data-portal-title="New product">
+  <div class="pt-frame">
+    <main class="pt-main">
+      <a href="admin-products.html" class="pt-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Products &amp; stock</a>
+      <div class="pt-head">
+        <div class="pt-head__text">
+          <h1 id="formTitle">New product</h1>
+          <p id="formSub">Fill in the details customers see, add photos, then set the price and stock.</p>
         </div>
-        <h1 class="text-2xl font-black text-gray-900 tracking-tight">Product Details & Specifications</h1>
       </div>
-      <span class="shrink-0 whitespace-nowrap px-2.5 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
-        <span id="formModeLabel">New Product</span>
-      </span>
-    </div>
 
-    <!-- Product Form -->
-    <form id="productForm" class="space-y-6" onsubmit="saveProduct(event)">
-      
-      <!-- Basic Details Card -->
-      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
-        <h2 class="text-base font-bold text-gray-900 border-b border-gray-100 pb-3">Basic Information</h2>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Title English -->
-          <div class="space-y-1.5 sm:col-span-2">
-            <label for="productName" class="text-xs font-bold text-gray-700">Product Title (English) <span class="text-red-500">*</span></label>
-            <input
-              type="text"
-              id="productName"
-              name="name"
-              required
-              placeholder="e.g. Silver Chrome Star Pendant Necklace"
-              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
-          </div>
-
-          <!-- Khmer Title -->
-          <div class="space-y-1.5 sm:col-span-2">
-            <label for="khmerName" class="text-xs font-bold text-gray-700">Khmer Title (ចំណងជើងខ្មែរ)</label>
-            <input
-              type="text"
-              id="khmerName"
-              name="khmer_name"
-              placeholder="e.g. ខ្សែកបន្តោងផ្កាយប្រាក់"
-              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
-          </div>
-
-          <!-- Category Selection -->
-          <div class="space-y-1.5">
-            <label for="categorySelect" class="text-xs font-bold text-gray-700">Category <span class="text-red-500">*</span></label>
-            <select id="categorySelect" name="category" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500">
-              <option value="apparel" selected>Tees &amp; Shirts</option>
-              <option value="watches">Watches</option>
-              <option value="bags">Bags &amp; Pouches</option>
-              <option value="hair">Hair &amp; Clips</option>
-              <option value="charms">Bag &amp; Phone Charms</option>
-              <option value="shoes">Shoes</option>
-              <option value="plush">Plush &amp; Crochet</option>
-              <option value="socks">Socks</option>
-              <option value="hats">Caps &amp; Hats</option>
-              <option value="jewelry">Jewelry</option>
-              <option value="beauty">Beauty</option>
-              <option value="accessories">Phone Accessories</option>
-              <option value="gifts">Gift Sets</option>
-              <option value="eyewear">Shades &amp; Eyewear</option>
-            </select>
-            <button type="button" id="newCategoryToggle" class="hidden text-xs font-bold text-orange-700 hover:underline cursor-pointer" aria-expanded="false" aria-controls="newCategoryBox">+ New category</button>
-            <div id="newCategoryBox" class="hidden mt-2 p-3 rounded-lg border border-orange-200 bg-orange-50/50 space-y-2">
-              <label for="pfNewCategoryName" class="text-xs font-bold text-gray-700 block">New category name</label>
-              <input id="pfNewCategoryName" type="text" maxlength="60" placeholder="e.g. Back to School" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
-              <label for="pfNewCategoryParent" class="text-xs font-bold text-gray-700 block">Put it inside</label>
-              <select id="pfNewCategoryParent" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"></select>
-              <div class="flex items-center gap-2">
-                <button type="button" id="pfNewCategoryAdd" class="px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold cursor-pointer">Add and select it</button>
-                <span id="pfNewCategoryError" class="text-xs font-bold text-red-600" role="alert"></span>
+      <form id="productForm" novalidate onsubmit="saveProduct(event)">
+        <div class="pt-grid pt-grid--main-side">
+          <div class="pt-stack">
+            <section class="pt-panel">
+              <div class="pt-panel__head"><h2 class="pt-section-title">Details</h2></div>
+              <div class="pt-panel__body">
+                <div class="pt-field">
+                  <label for="productName" class="pt-label">Name</label>
+                  <input type="text" id="productName" name="name" required maxlength="255" placeholder="Silver Chrome Star Pendant Necklace" class="pt-input" />
+                </div>
+                <div class="pt-field">
+                  <label for="khmerName" class="pt-label">Name in Khmer <span class="pt-faint">(optional)</span></label>
+                  <input type="text" id="khmerName" name="khmer_name" maxlength="255" placeholder="ខ្សែកបន្តោងផ្កាយប្រាក់" class="pt-input font-khmer" />
+                </div>
+                <div class="pt-row pt-row--2" style="margin-top:16px">
+                  <div class="pt-field">
+                    <label for="categorySelect" class="pt-label">Category</label>
+                    <select id="categorySelect" name="category" class="pt-select">
+                      <option value="apparel" selected>Tees &amp; Shirts</option>
+                      <option value="watches">Watches</option>
+                      <option value="bags">Bags &amp; Pouches</option>
+                      <option value="hair">Hair &amp; Clips</option>
+                      <option value="charms">Bag &amp; Phone Charms</option>
+                      <option value="shoes">Shoes</option>
+                      <option value="plush">Plush &amp; Crochet</option>
+                      <option value="socks">Socks</option>
+                      <option value="hats">Caps &amp; Hats</option>
+                      <option value="jewelry">Jewelry</option>
+                      <option value="beauty">Beauty</option>
+                      <option value="accessories">Phone Accessories</option>
+                      <option value="gifts">Gift Sets</option>
+                      <option value="eyewear">Shades &amp; Eyewear</option>
+                    </select>
+                    <button type="button" id="newCategoryToggle" class="pt-btn pt-btn--ghost pt-btn--sm hidden" style="margin-top:6px;padding:0 6px" aria-expanded="false" aria-controls="newCategoryBox">+ New category</button>
+                    <div id="newCategoryBox" class="hidden" style="margin-top:8px;padding:12px;border-radius:12px;background:var(--pt-sunken)">
+                      <label for="pfNewCategoryName" class="pt-label">New category name</label>
+                      <input id="pfNewCategoryName" type="text" maxlength="60" placeholder="Back to School" class="pt-input" />
+                      <label for="pfNewCategoryParent" class="pt-label" style="margin-top:10px">Put it inside</label>
+                      <select id="pfNewCategoryParent" class="pt-select"></select>
+                      <div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap">
+                        <button type="button" id="pfNewCategoryAdd" class="pt-btn pt-btn--primary pt-btn--sm">Add and select it</button>
+                        <span id="pfNewCategoryError" class="pt-error" style="margin:0" role="alert"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="pt-field">
+                    <label for="stallLocation" class="pt-label">Badge on the product card <span class="pt-faint">(optional)</span></label>
+                    <input type="text" id="stallLocation" name="badge" maxlength="60" placeholder="Trending" class="pt-input" />
+                  </div>
+                </div>
+                <div class="pt-field" style="margin-top:16px">
+                  <label for="productDescription" class="pt-label">Description</label>
+                  <textarea id="productDescription" name="description" rows="5" placeholder="What it is, what it's made of, its size, and who it makes a good gift for." class="pt-textarea"></textarea>
+                </div>
               </div>
-            </div>
+            </section>
+
+            <section class="pt-panel">
+              <div class="pt-panel__head"><div><h2 class="pt-section-title">Photos</h2><p class="pt-section-sub">The first photo is the one on the product card.</p></div></div>
+              <div class="pt-panel__body">
+                <label class="drop">
+                  <input type="file" id="fileUploadInput" multiple accept="image/*" class="sr-only" onchange="handleFileSelect(event)" />
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>
+                  <b>Choose photos</b>
+                  <small>PNG, JPG or WebP, up to 8 photos.</small>
+                </label>
+                <div id="imageGalleryPreview" class="gallery"></div>
+              </div>
+            </section>
+
+            <section class="pt-panel">
+              <div class="pt-panel__head">
+                <div><h2 class="pt-section-title">Product facts</h2><p class="pt-section-sub">Shown on the product page, like material, size, colour or pack quantity.</p></div>
+                <button type="button" onclick="addSpecRow()" class="pt-btn pt-btn--secondary pt-btn--sm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add fact
+                </button>
+              </div>
+              <div class="pt-panel__body"><div id="specificationsList"></div></div>
+            </section>
           </div>
 
-          <!-- Stall / Market Location -->
-          <div class="space-y-1.5">
-            <label for="stallLocation" class="text-xs font-bold text-gray-700">Badge (shown on the product card)</label>
-            <input
-              type="text"
-              id="stallLocation"
-              name="badge"
-              maxlength="60"
-              placeholder="e.g. Trending ⚡"
-              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            />
-          </div>
+          <div class="pt-stack pt-sticky">
+            <section class="pt-panel">
+              <div class="pt-panel__head"><h2 class="pt-section-title">Price</h2></div>
+              <div class="pt-panel__body">
+                <div class="pt-field">
+                  <label for="priceUSD" class="pt-label">Normal price</label>
+                  <div class="pt-addon"><span>$</span><input type="number" step="0.01" min="0.10" id="priceUSD" name="price" required placeholder="0.00" inputmode="decimal" class="pt-input" /></div>
+                </div>
 
-          <!-- Description Textarea -->
-          <div class="space-y-1.5 sm:col-span-2">
-            <label for="productDescription" class="text-xs font-bold text-gray-700">Product Description <span class="text-red-500">*</span></label>
-            <textarea
-              id="productDescription"
-              name="description"
-              rows="4"
-              required
-              placeholder="What it is, what it's made of, its size, and who it makes a good gift for."
-              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            ></textarea>
-          </div>
-        </div>
-      </div>
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-top:18px;padding-top:16px;border-top:1px solid var(--pt-line)">
+                  <span><b style="display:block;font-size:14px">Put it on sale</b><small class="pt-muted" style="font-size:12px">Customers see the normal price crossed out.</small></span>
+                  <label class="pt-switch"><input type="checkbox" id="saleOn" aria-controls="saleFields" aria-label="Put it on sale"><span></span></label>
+                </div>
+                <div id="saleFields" hidden>
+                  <div class="pt-row pt-row--2" style="margin-top:14px">
+                    <div class="pt-field">
+                      <label for="discountPercent" class="pt-label">Percent off</label>
+                      <div class="pt-addon"><input type="number" id="discountPercent" min="1" max="90" step="1" inputmode="numeric" placeholder="20" class="pt-input" /><span>%</span></div>
+                    </div>
+                    <div class="pt-field">
+                      <label for="discountEndsAt" class="pt-label">Ends after</label>
+                      <input type="date" id="discountEndsAt" class="pt-input" />
+                    </div>
+                  </div>
+                  <span class="pt-hint">Leave the end empty to keep the sale on until you turn it off.</span>
+                  <div class="sale-preview" id="salePreview" aria-live="polite"></div>
+                </div>
+              </div>
+            </section>
 
-      <!-- Pricing & Inventory Card -->
-      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
-        <h2 class="text-base font-bold text-gray-900 border-b border-gray-100 pb-3">Pricing & Inventory</h2>
+            <section class="pt-panel">
+              <div class="pt-panel__head"><h2 class="pt-section-title">Stock</h2></div>
+              <div class="pt-panel__body">
+                <div class="pt-field">
+                  <label for="stockQuantity" class="pt-label">Units in stock</label>
+                  <input type="number" min="0" id="stockQuantity" name="stock" required value="0" class="pt-input" />
+                  <span class="pt-hint" id="stockHint">Shows as low stock at 5 or fewer.</span>
+                </div>
+              </div>
+            </section>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Price USD -->
-          <div class="space-y-1.5">
-            <label for="priceUSD" class="text-xs font-bold text-gray-700">Price in USD ($) <span class="text-red-500">*</span></label>
-            <div class="relative">
-              <span class="absolute left-3 inset-y-0 flex items-center text-gray-500 text-sm font-semibold pointer-events-none" aria-hidden="true">$</span>
-              <input
-                type="number"
-                step="0.01"
-                min="0.10"
-                id="priceUSD"
-                name="price"
-                required
-                placeholder="0.00"
-                inputmode="decimal"
-                class="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold"
-              />
-            </div>
-          </div>
-
-          <!-- Stock Quantity -->
-          <div class="space-y-1.5">
-            <label for="stockQuantity" class="text-xs font-bold text-gray-700">Stock Quantity (Units) <span class="text-red-500">*</span></label>
-            <input
-              type="number"
-              min="0"
-              id="stockQuantity"
-              name="stock"
-              required
-              value="0"
-              class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold"
-            />
-            <div class="text-[11px] text-amber-600 font-medium">Triggers low-stock warning if &le; 5</div>
+            <section class="pt-panel">
+              <div class="pt-panel__head"><h2 class="pt-section-title">Who can see it</h2></div>
+              <div class="pt-panel__body">
+                <label class="radio-card"><input type="radio" name="visibility" value="active" checked /><span><b>In the shop</b><small>Customers can find and buy it.</small></span></label>
+                <label class="radio-card"><input type="radio" name="visibility" value="draft" /><span><b>Hidden draft</b><small>Only staff can see it.</small></span></label>
+              </div>
+              <div class="pt-panel__foot" style="flex-direction:column;align-items:stretch">
+                <span id="productFormError" class="hidden pt-error" style="margin:0 0 4px" role="alert"></span>
+                <button type="submit" id="productSaveBtn" class="pt-btn pt-btn--primary">Save product</button>
+                <a href="admin-products.html" class="pt-btn pt-btn--ghost">Cancel</a>
+              </div>
+            </section>
           </div>
         </div>
-      </div>
-
-      <!-- Product Photography Card -->
-      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
-        <h2 class="text-base font-bold text-gray-900 border-b border-gray-100 pb-3">Product Photos</h2>
-        
-        <!-- Upload Zone -->
-        <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-orange-500 hover:bg-orange-50/20 transition-all cursor-pointer" onclick="document.getElementById('fileUploadInput').click();">
-          <input type="file" id="fileUploadInput" multiple accept="image/*" class="hidden" onchange="handleFileSelect(event)" />
-          <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-          <div class="text-xs font-bold text-gray-700">Click to upload photos or drag and drop</div>
-          <p class="text-[11px] text-gray-400 mt-1">PNG, JPG, WebP up to 5MB each. First photo will be primary thumbnail.</p>
-        </div>
-
-        <!-- Thumbnails Gallery -->
-        <div id="imageGalleryPreview" class="flex flex-wrap gap-3 pt-2">
-        </div>
-      </div>
-
-      <!-- Dynamic Product Specifications (Per Brief Specification) -->
-      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
-        <div class="flex items-start justify-between gap-3 border-b border-gray-100 pb-3">
-          <div>
-            <h2 class="text-base font-bold text-gray-900">Product Details</h2>
-            <p class="text-xs text-gray-500">Extra facts shown on the product page, like material, size, colour or pack quantity.</p>
-          </div>
-          <button type="button" onclick="addSpecRow()" class="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-orange-50 text-orange-700 hover:bg-orange-100 text-xs font-semibold transition-colors cursor-pointer">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            Add detail
-          </button>
-        </div>
-
-        <div id="specificationsList" class="space-y-3">
-        </div>
-      </div>
-
-      <!-- Visibility Card -->
-      <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
-        <h2 class="text-base font-bold text-gray-900 border-b border-gray-100 pb-3">Listing Visibility</h2>
-
-        <div class="flex items-center gap-6">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="visibility" value="active" checked class="text-orange-600 focus:ring-orange-500" />
-            <div>
-              <span class="text-xs font-bold text-gray-900 block">Active & Published</span>
-              <span class="text-[11px] text-gray-500">Visible to all marketplace buyers</span>
-            </div>
-          </label>
-
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="visibility" value="draft" class="text-orange-600 focus:ring-orange-500" />
-            <div>
-              <span class="text-xs font-bold text-gray-900 block">Draft / Hidden</span>
-              <span class="text-[11px] text-gray-500">Visible only to admins and staff</span>
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <!-- Form Action Buttons -->
-      <div class="flex items-center justify-between pt-4">
-        <a href="admin-products.html" class="px-5 py-2.5 rounded-lg border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors">
-          Cancel & Discard
-        </a>
-        <span id="productFormError" class="hidden text-xs font-bold text-red-600" role="alert"></span>
-        <button type="submit" id="productSaveBtn" class="px-6 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold shadow-md transition-all">
-          Save Product Listing
-        </button>
-      </div>
-
-    </form>
-
-  </main>
-
-  <!-- Admin Portal Footer -->
-  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-xs text-stone-500 dark:text-stone-400 no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline Operations Portal &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
+      </form>
+    </main>
+  </div>
 
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
-  <!-- Interactive JavaScript -->
+  <script src="assets/js/portal-shell.js"></script>
   <script>
     const priceInput = document.getElementById('priceUSD');
+    const TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>';
+    const CROSS = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>';
 
     // Categories come from the database (with sub-categories), so new ones show up here.
     // Without the server the built-in list above is used.
@@ -334,46 +245,37 @@
       });
     }
 
-    // Dynamic specification rows
+    // Product facts (name + value rows)
     function addSpecRow() {
-      const container = document.getElementById('specificationsList');
       const div = document.createElement('div');
-      div.className = 'spec-row grid grid-cols-[1fr_auto] sm:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_auto] gap-2 sm:gap-3 items-center';
+      div.className = 'spec-row';
       div.innerHTML = `
-        <input type="text" name="spec_key[]" placeholder="Detail, e.g. Material" aria-label="Detail name" maxlength="60" class="min-w-0 h-10 px-3 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
-        <input type="text" name="spec_val[]" placeholder="Value, e.g. Stainless steel" aria-label="Detail value" maxlength="255" class="min-w-0 h-10 px-3 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 col-start-1 sm:col-start-auto" />
-        <button type="button" onclick="removeSpecRow(this)" class="w-10 h-10 grid place-items-center rounded-lg text-gray-500 hover:text-red-700 hover:bg-red-50 transition-colors row-start-1 col-start-2 sm:row-start-auto sm:col-start-auto cursor-pointer" title="Remove this detail" aria-label="Remove this detail">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-        </button>
-      `;
-      container.appendChild(div);
+        <input type="text" name="spec_key[]" placeholder="Material" aria-label="Fact name" maxlength="60" class="pt-input" />
+        <input type="text" name="spec_val[]" placeholder="Stainless steel" aria-label="Fact value" maxlength="255" class="pt-input" />
+        <button type="button" onclick="removeSpecRow(this)" class="pt-btn pt-btn--ghost pt-btn--icon" aria-label="Remove this fact">${TRASH}</button>`;
+      document.getElementById('specificationsList').appendChild(div);
     }
 
     function removeSpecRow(btn) {
       const row = btn.closest('.spec-row');
-      if (document.querySelectorAll('.spec-row').length > 1) {
-        row.remove();
-      } else {
-        alert('Keep at least one specification row.');
-      }
+      if (document.querySelectorAll('.spec-row').length > 1) row.remove();
+      else row.querySelectorAll('input').forEach(i => { i.value = ''; });
     }
 
-    // Photo preview handling
+    // Photos
     function addGalleryImage(src) {
-      const gallery = document.getElementById('imageGalleryPreview');
       const div = document.createElement('div');
-      div.className = 'gallery-item relative w-20 h-20 rounded-lg border border-gray-200 overflow-hidden group';
+      div.className = 'gallery-item';
       const img = document.createElement('img');
       img.src = src;
-      img.className = 'w-full h-full object-cover';
+      img.alt = '';
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.title = 'Remove';
-      btn.className = 'absolute top-1 right-1 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity';
-      btn.innerHTML = '&times;';
+      btn.setAttribute('aria-label', 'Remove photo');
+      btn.innerHTML = CROSS;
       btn.onclick = () => div.remove();
       div.append(img, btn);
-      gallery.appendChild(div);
+      document.getElementById('imageGalleryPreview').appendChild(div);
     }
 
     async function handleFileSelect(e) {
@@ -381,10 +283,25 @@
         try {
           addGalleryImage(await psaImageToDataUrl(file));
         } catch (err) {
-          alert(err.message);
+          showRBACToast(psaEsc(err.message), 'danger');
         }
       }
       e.target.value = '';
+    }
+
+    // Sale
+    function renderSale() {
+      const on = document.getElementById('saleOn').checked;
+      document.getElementById('saleFields').hidden = !on;
+      const price = Number(priceInput.value) || 0;
+      const pct = Number(document.getElementById('discountPercent').value) || 0;
+      const preview = document.getElementById('salePreview');
+      if (!on || !price || !pct) { preview.innerHTML = '<span class="pt-muted">Enter a price and percent to see what customers pay.</span>'; return; }
+      const sale = Math.round(price * (100 - pct)) / 100;
+      const ends = document.getElementById('discountEndsAt').value;
+      preview.innerHTML = `<span class="pt-muted">Customers pay</span> <b>$${sale.toFixed(2)}</b> <s>$${price.toFixed(2)}</s>
+        <span class="pt-badge pt-badge--accent pt-badge--plain">-${pct}%</span>
+        <span class="pt-muted" style="width:100%;font-size:12px">${ends ? `Until the end of ${new Date(ends + 'T00:00').toLocaleDateString([], { day: 'numeric', month: 'long' })}` : 'Until you turn the sale off'}</span>`;
     }
 
     // ---------- Load & save (database) ----------
@@ -399,15 +316,12 @@
       if (liveCategories && p.categoryId) {
         select.value = String(p.categoryId);
       } else {
-        if (p.category && ![...select.options].some(o => o.value === p.category)) {
-          select.add(new Option(p.categoryLabel || p.category, p.category));
-        }
+        if (p.category && ![...select.options].some(o => o.value === p.category)) select.add(new Option(p.categoryLabel || p.category, p.category));
         select.value = p.category || 'apparel';
       }
       document.getElementById('stallLocation').value = p.badge || '';
       document.getElementById('productDescription').value = p.description || '';
-      priceInput.value = Number(p.priceUSD || 0).toFixed(2);
-      priceInput.dispatchEvent(new Event('input'));
+      priceInput.value = Number(p.basePriceUSD ?? p.priceUSD ?? 0).toFixed(2);
       document.getElementById('stockQuantity').value = p.stock != null ? p.stock : (p.inStock ? 50 : 0);
       (p.gallery && p.gallery.length ? p.gallery : (p.image ? [p.image] : [])).forEach(addGalleryImage);
       const specs = Object.entries(p.specifications || {});
@@ -421,6 +335,14 @@
       });
       const radio = document.querySelector(`input[name="visibility"][value="${p.status === 'active' ? 'active' : 'draft'}"]`);
       if (radio) radio.checked = true;
+      const endsPast = p.discountEndsAt && new Date(p.discountEndsAt) < new Date();
+      document.getElementById('saleOn').checked = !!p.discountPercent && !endsPast;
+      document.getElementById('discountPercent').value = p.discountPercent && !endsPast ? Math.round(p.discountPercent) : '';
+      if (p.discountEndsAt && !endsPast) {
+        const d = new Date(p.discountEndsAt);
+        document.getElementById('discountEndsAt').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      }
+      renderSale();
     }
 
     // Same limits as AdminApiController::validateProduct.
@@ -429,16 +351,17 @@
       let hasError = false;
       const check = (id, message) => { if (message) { psaShowFieldError(id, message); hasError = true; } };
 
-      check('productName', psaValidateMinLength(document.getElementById('productName').value, 2, 'Product title'));
+      check('productName', psaValidateMinLength(document.getElementById('productName').value, 2, 'Product name'));
       check('categorySelect', psaValidateRequired(document.getElementById('categorySelect').value, 'Category'));
-
       const price = priceInput.value.trim();
-      check('priceUSD', !price ? 'Price is required.' : Number(price) > 0 ? null : 'Price must be greater than $0.00.');
-
+      check('priceUSD', !price ? 'Price is required.' : Number(price) > 0 ? null : 'Price must be more than $0.00.');
       const stock = document.getElementById('stockQuantity').value.trim();
-      check('stockQuantity', !stock ? 'Stock quantity is required.'
+      check('stockQuantity', !stock ? 'Stock is required.'
         : !Number.isInteger(Number(stock)) || Number(stock) < 0 ? 'Stock must be a whole number, 0 or more.' : null);
-
+      if (document.getElementById('saleOn').checked) {
+        const pct = Number(document.getElementById('discountPercent').value);
+        check('discountPercent', !pct ? 'How much off? For example 20.' : pct < 1 || pct > 90 ? 'Between 1% and 90%.' : null);
+      }
       return !hasError;
     }
 
@@ -460,6 +383,7 @@
         category,
         categoryLabel: editingProduct && editingProduct.category === category ? editingProduct.categoryLabel : (categoryLabels[category] || category)
       };
+      const saleOn = document.getElementById('saleOn').checked;
       const payload = {
         title: document.getElementById('productName').value.trim(),
         titleKhmer: document.getElementById('khmerName').value.trim() || null,
@@ -467,25 +391,23 @@
         badge: document.getElementById('stallLocation').value.trim() || null,
         description: document.getElementById('productDescription').value.trim(),
         priceUSD: Number(priceInput.value),
+        discountPercent: saleOn ? Number(document.getElementById('discountPercent').value) : null,
+        discountEndsAt: saleOn ? (document.getElementById('discountEndsAt').value || null) : null,
         stock: Number(document.getElementById('stockQuantity').value),
         gallery: [...document.querySelectorAll('#imageGalleryPreview img')].map(img => img.getAttribute('src')),
         specifications,
         status: document.querySelector('input[name="visibility"]:checked').value
       };
 
-      psaSetButtonLoading(btn, true, 'Saving...');
+      psaSetButtonLoading(btn, true, 'Saving…');
       try {
-        if (editingId) {
-          await psaApi('PATCH', `/api/admin/products/${encodeURIComponent(editingId)}`, payload);
-        } else {
-          await psaApi('POST', '/api/admin/products', payload);
-        }
+        if (editingId) await psaApi('PATCH', `/api/admin/products/${encodeURIComponent(editingId)}`, payload);
+        else await psaApi('POST', '/api/admin/products', payload);
         window.location.replace('admin-products.html');
       } catch (err) {
         psaSetButtonLoading(btn, false);
-        if (err.errors) {
-          psaApplyServerErrors(e.target, err.errors);
-        } else {
+        if (err.errors) psaApplyServerErrors(e.target, err.errors);
+        if (!err.errors || !Object.keys(err.errors).some(k => document.getElementById(k))) {
           errorEl.textContent = err.message;
           errorEl.classList.remove('hidden');
         }
@@ -493,25 +415,38 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      if (!enforcePageRBAC('canManageProducts')) return;
-      ['productName', 'categorySelect', 'priceUSD', 'stockQuantity'].forEach(id => {
+      if (ptDenied()) return;
+      ['productName', 'categorySelect', 'priceUSD', 'stockQuantity', 'discountPercent'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => psaClearFieldError(el));
       });
+      ['saleOn', 'discountPercent', 'discountEndsAt', 'priceUSD'].forEach(id => document.getElementById(id).addEventListener('input', renderSale));
+      document.getElementById('saleOn').addEventListener('change', () => { renderSale(); if (document.getElementById('saleOn').checked) document.getElementById('discountPercent').focus(); });
+      document.getElementById('discountEndsAt').min = new Date().toISOString().slice(0, 10);
+
       if (editingId) {
         editingProduct = (PSA.online ? PSA.products : ACCESSORIES_PRODUCTS).find(p => p.id === editingId);
         if (!editingProduct) {
-          alert('That product was not found.');
-          window.location.href = 'admin-products.html';
+          showRBACToast('That product was not found.', 'danger');
+          setTimeout(() => { window.location.href = 'admin-products.html'; }, 900);
           return;
         }
-        document.getElementById('formModeLabel').textContent = `Editing ${editingProduct.id}`;
+        document.title = `${editingProduct.title} — PsaOnline Staff`;
+        document.getElementById('formTitle').textContent = editingProduct.title;
+        document.getElementById('formSub').textContent = `Product ${editingProduct.id}. Changes show in the shop as soon as you save.`;
+        const crumb = document.querySelector('.pt-top__crumb b');
+        if (crumb) crumb.textContent = editingProduct.title;
         fillForm(editingProduct);
+        // Changing a stock count needs the "Stock & buying" permission
+        if (!ptCan('manage_stock')) {
+          document.getElementById('stockQuantity').disabled = true;
+          document.getElementById('stockHint').textContent = 'Your role can\'t change stock counts.';
+        }
       } else {
         addSpecRow();
+        renderSale();
       }
     });
   </script>
-
 </body>
 </html>

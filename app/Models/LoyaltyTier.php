@@ -4,30 +4,37 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/** Bronze, Silver, Gold: how many points unlock the tier, its discount and how fast it earns. */
+/**
+ * Plus, Pro, Max: how much a customer must spend to reach the tier and the discount it gives on
+ * items at checkout. Membership lapses after LAPSE_DAYS without an order, and the spending
+ * count starts again.
+ */
 class LoyaltyTier extends Model
 {
-    protected $fillable = ['name', 'min_points', 'discount_percent', 'earn_multiplier'];
+    /** Days without an order before the membership drops back to the first tier. */
+    public const LAPSE_DAYS = 18;
+
+    protected $fillable = ['name', 'min_spend_usd', 'discount_percent'];
 
     protected $casts = [
-        'min_points' => 'integer',
+        'min_spend_usd' => 'decimal:2',
         'discount_percent' => 'decimal:2',
-        'earn_multiplier' => 'decimal:2',
     ];
-
-    public function customers()
-    {
-        return $this->hasMany(Customer::class);
-    }
 
     public static function lowest(): self
     {
-        return static::orderBy('min_points')->firstOrFail();
+        return static::orderBy('min_spend_usd')->firstOrFail();
     }
 
-    /** The highest tier the points reach. */
-    public static function forPoints(int $points): self
+    /** The highest tier this much spending reaches. */
+    public static function forSpend(float $spend): self
     {
-        return static::where('min_points', '<=', max(0, $points))->orderByDesc('min_points')->first() ?? static::lowest();
+        return static::where('min_spend_usd', '<=', max(0, $spend))->orderByDesc('min_spend_usd')->first() ?? static::lowest();
+    }
+
+    /** Dollars off these items for a member of this tier. */
+    public function discountFor(float $subtotal): float
+    {
+        return round($subtotal * (float) $this->discount_percent / 100, 2);
     }
 }

@@ -2,34 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * A shopper's profile (1:1 with users): loyalty points, tier, total spent, saved addresses and orders.
- * loyalty_points is a quick copy of the sum of loyalty_transactions; addPoints() keeps them in step.
+ * A shopper (1:1 with users: a customer IS a user). Stores nothing but the link; the membership
+ * tier and total spent are calculated from their orders.
  */
 class Customer extends Model
 {
-    protected $fillable = ['user_id', 'loyalty_tier_id', 'loyalty_points', 'total_spent_usd'];
-
-    protected $attributes = [
-        'loyalty_points' => 0,
-        'total_spent_usd' => 0,
-    ];
-
-    protected $casts = [
-        'loyalty_points' => 'integer',
-        'total_spent_usd' => 'decimal:2',
-    ];
+    protected $fillable = ['user_id'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function tier()
-    {
-        return $this->belongsTo(LoyaltyTier::class, 'loyalty_tier_id');
     }
 
     public function addresses()
@@ -39,7 +25,7 @@ class Customer extends Model
 
     public function defaultAddress()
     {
-        return $this->hasOne(CustomerAddress::class)->where('is_default', true);
+        return $this->hasOne(CustomerAddress::class)->where('is_default', true)->whereNull('archived_at');
     }
 
     public function orders()
@@ -52,21 +38,53 @@ class Customer extends Model
         return $this->hasMany(ProductReview::class);
     }
 
-    public function loyaltyTransactions()
+    /**
+     * Where the membership stands, worked out from the customer's orders:
+     *  - spend: delivered orders since the membership last lapsed. A gap of more than
+     *    LoyaltyTier::LAPSE_DAYS between orders (or since the last one) starts the count again.
+     *  - lastOrderAt / expiresAt: the newest order (cancelled ones don't count) and 18 days after it.
+     *
+     * @return array{spend: float, lastOrderAt: mixed, expiresAt: mixed}
+     */
+    protected function membership(): Attribute
     {
-        return $this->hasMany(LoyaltyTransaction::class);
+        return Attribute::get(function () {
+            $cancelled = OrderStatus::idFor('cancelled');
+            $delivered = OrderStatus::idFor('delivered');
+            $orders = $this->orders()->with(['items', 'currentStatus'])->orderBy('created_at')->orderBy('id')->get()
+                ->reject(fn (Order $o) => $o->currentStatus?->order_status_id === $cancelled)->values();
+
+            $spend = 0.0;
+            $previous = null;
+            foreach ($orders as $order) {
+                if ($previous && $previous->created_at->diffInDays($order->created_at, true) > LoyaltyTier::LAPSE_DAYS) {
+                    $spend = 0.0; // the membership had lapsed before this order
+                }
+                if ($order->currentStatus?->order_status_id === $delivered) {
+                    $spend += (float) $order->total_usd;
+                }
+                $previous = $order;
+            }
+            $expiresAt = $previous?->created_at->copy()->addDays(LoyaltyTier::LAPSE_DAYS);
+            if ($expiresAt && $expiresAt->isPast()) {
+                $spend = 0.0;
+            }
+
+            return ['spend' => round($spend, 2), 'lastOrderAt' => $previous?->created_at, 'expiresAt' => $expiresAt];
+        })->shouldCache();
     }
 
-    /** Record a points change, then refresh the balance and the tier from the history. */
-    public function addPoints(string $type, int $points, ?Order $order = null, ?User $by = null, ?string $note = null): void
+    /** The tier the current spending reaches (Plus, Pro or Max). */
+    protected function tier(): Attribute
     {
-        if ($points === 0) {
-            return;
-        }
-        $this->loyaltyTransactions()->create([
-            'order_id' => $order?->id, 'handled_by' => $by?->id, 'type' => $type, 'points' => $points, 'note' => $note,
-        ]);
-        $balance = max(0, (int) $this->loyaltyTransactions()->sum('points'));
-        $this->update(['loyalty_points' => $balance, 'loyalty_tier_id' => LoyaltyTier::forPoints($balance)->id]);
+        return Attribute::get(fn () => LoyaltyTier::forSpend($this->membership['spend']))->shouldCache();
+    }
+
+    /** What the customer has spent on delivered orders. */
+    protected function totalSpentUsd(): Attribute
+    {
+        return Attribute::get(fn () => round(
+            $this->orders()->inStatus('delivered')->with('items')->get()->sum(fn (Order $o) => $o->total_usd), 2
+        ))->shouldCache();
     }
 }

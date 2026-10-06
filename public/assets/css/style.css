@@ -1149,3 +1149,12 @@ html.dark .psa-pin__coords, .checkout-dark .psa-pin__coords { color: #94a3b8 !im
 .psa-notify--out { opacity: 0; transform: translateX(24px); }
 @keyframes psaNotifyIn { from { opacity: 0; transform: translateY(-10px) scale(0.97); } }
 @media (prefers-reduced-motion: reduce) { .psa-notify { animation: none; transition: none; } }
+
+/* Sale prices: what you pay now, the normal price crossed out, and the percent off */
+.psa-price { display: inline-flex; align-items: baseline; flex-wrap: wrap; column-gap: 6px; row-gap: 2px; }
+.psa-price-now--sale { color: #B4232A; }
+.dark .psa-price-now--sale { color: #FF8A8F; }
+.psa-price-was { font-size: .8em; font-weight: 600; color: #8C7B74; text-decoration-thickness: 1.5px; }
+.psa-price-off { align-self: center; font-size: 11px; line-height: 1; font-weight: 800; padding: 3px 6px; border-radius: 999px; background: #FDECEC; color: #A3262A; }
+.dark .psa-price-off { background: rgba(226, 75, 80, .18); color: #F49A9D; }
+.psa-price--lg .psa-price-off { font-size: 13px; padding: 4px 8px; }

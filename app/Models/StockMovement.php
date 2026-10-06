@@ -4,20 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/** One change to stock: purchase (+), sale (-), return (+), adjust (+/-) or damage (-), with buy cost and sell price. */
+/** One change to stock: purchase (+), sale (-), return (+), adjust (+/-) or damage (-). The cost or price is on the linked purchase_order_item / order_item. */
 class StockMovement extends Model
 {
     public const UPDATED_AT = null;
 
     protected $fillable = [
-        'product_id', 'handled_by', 'type', 'quantity_change', 'unit_cost_usd', 'unit_price_usd',
+        'product_id', 'handled_by', 'type', 'quantity_change',
         'order_item_id', 'purchase_order_item_id', 'reason',
     ];
 
     protected $casts = [
         'quantity_change' => 'integer',
-        'unit_cost_usd' => 'decimal:2',
-        'unit_price_usd' => 'decimal:2',
     ];
 
     public function product()

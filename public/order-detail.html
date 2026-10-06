@@ -190,8 +190,11 @@
             </ul>
             <dl class="mt-3 pt-3 border-t border-[#EFE4D6] dark:border-[#2D2D38] space-y-1.5 text-base">
               <div class="flex justify-between"><dt class="text-stone-600">Subtotal</dt><dd class="font-bold tabular-nums">${money(subtotal)}</dd></div>
+              ${Number(order.memberDiscountUSD) ? `<div class="flex justify-between"><dt class="text-stone-600">Member discount</dt><dd class="font-bold tabular-nums text-emerald-700">-${money(order.memberDiscountUSD)}</dd></div>` : ''}
+              ${Number(order.discountUSD) ? `<div class="flex justify-between"><dt class="text-stone-600">Promo${order.promoCode ? ' ' + psaEsc(order.promoCode) : ''}</dt><dd class="font-bold tabular-nums text-emerald-700">-${money(order.discountUSD)}</dd></div>` : ''}
               <div class="flex justify-between"><dt class="text-stone-600">Delivery</dt><dd class="font-bold tabular-nums">${delivery ? money(delivery) : 'Free'}</dd></div>
               <div class="flex justify-between text-lg"><dt class="font-black">Total</dt><dd class="font-black tabular-nums">${money(order.totalUSD)}</dd></div>
+              <div class="flex justify-between text-sm"><dt class="text-stone-600">In riel ($1 = 4,000៛)</dt><dd class="font-bold tabular-nums text-stone-600">${psaRiel(order.totalUSD)}</dd></div>
             </dl>
           </section>
 

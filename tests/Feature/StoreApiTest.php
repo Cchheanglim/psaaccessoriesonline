@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Product;
-use App\Models\ProductStock;
 use App\Models\User;
 use Database\Seeders\CatalogSeeder;
 use Database\Seeders\PaymentMethodSeeder;
@@ -36,7 +35,7 @@ class StoreApiTest extends TestCase
 
     private function stockOf(string $sku): int
     {
-        return (int) ProductStock::where('product_id', Product::where('sku', $sku)->value('id'))->value('quantity_on_hand');
+        return Product::where('sku', $sku)->firstOrFail()->stock_on_hand; // SUM of its stock movements
     }
 
     private function orderPayload(array $overrides = []): array
@@ -114,7 +113,7 @@ class StoreApiTest extends TestCase
     {
         $buyer = $this->makeUser();
 
-        ProductStock::where('product_id', Product::where('sku', 'genz-02')->value('id'))->update(['quantity_on_hand' => 1]);
+        \App\Support\Inventory::setQuantity(Product::where('sku', 'genz-02')->firstOrFail(), 1);
         $this->actingAs($buyer)->postJson('/api/orders', $this->orderPayload(['items' => [['id' => 'genz-02', 'quantity' => 3]]]))
             ->assertStatus(422);
 

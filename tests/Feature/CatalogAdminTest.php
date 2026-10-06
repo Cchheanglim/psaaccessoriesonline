@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\ShowcaseProduct;
 use App\Models\User;
 use Database\Seeders\CatalogSeeder;
 use Database\Seeders\PaymentMethodSeeder;
@@ -122,11 +121,11 @@ class CatalogAdminTest extends TestCase
         \App\Support\Storefront::forgetCatalog();
         $this->actingAsGuest();
         $this->assertSame(['genz-05', 'genz-09'], $this->getJson('/api/bootstrap')->json('showcase'));
-        $this->assertSame(3, ShowcaseProduct::count());
+        $this->assertSame(3, Product::whereNotNull('showcase_position')->count());
         $this->assertSame(['genz-05', 'genz-01', 'genz-09'], $this->actingAs($staff)->getJson('/api/bootstrap')->json('showcase'));
 
         $this->actingAs($staff)->putJson('/api/admin/showcase', ['products' => []])->assertOk();
-        $this->assertSame(0, ShowcaseProduct::count());
+        $this->assertSame(0, Product::whereNotNull('showcase_position')->count());
     }
 
     private function order(User $buyer, array $items): array

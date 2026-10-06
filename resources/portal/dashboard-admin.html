@@ -1,2008 +1,324 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Executive Financial & Operations Report — PsaOnline Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — PsaOnline Staff</title>
   <link rel="icon" href="/favicon.ico" sizes="32x32" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <meta name="description" content="PsaOnline accessories studio financial report, Bakong KHQR settlement ledger, and fulfillment SLA analytics." />
+  <meta name="description" content="Sales, orders and what needs doing today." />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            sorbet: '#FFA552',
-            cotton: '#F9F3EA',
-            espresso: '#2B1D1D'
-          }
-        }
-      }
-    };
-  </script>
+  <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { sorbet: '#FFA552', cotton: '#F9F3EA', espresso: '#2B1D1D' } } } };</script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
   <style>
-    /* Force clean white-paper styling inside the official print sheet regardless of dark mode */
-    .print-sheet,
-    html.dark .print-sheet {
-      background-color: #ffffff !important;
-      color: #111827 !important;
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-    html.dark .print-sheet .bg-white,
-    html.dark .print-sheet .bg-stone-50,
-    html.dark .print-sheet .bg-stone-100 {
-      background-color: #f9fafb !important;
-      color: #111827 !important;
-    }
-    html.dark .print-sheet .text-\[\#2B1D1D\],
-    html.dark .print-sheet .text-stone-900,
-    html.dark .print-sheet .text-stone-800,
-    html.dark .print-sheet .text-stone-700,
-    html.dark .print-sheet .text-stone-600,
-    html.dark .print-sheet .text-stone-500 {
-      color: #111827 !important;
-    }
-    .print-table th,
-    .print-table td {
-      border: 1px solid #d6d3d1;
-      padding: 5px 8px;
-      font-variant-numeric: tabular-nums;
-    }
-    .print-table thead th {
-      background-color: #f5f5f4 !important;
-      color: #1c1917 !important;
-      font-weight: 800;
-      text-transform: uppercase;
-      font-size: 9.5px;
-      letter-spacing: 0.04em;
-    }
+    .todo { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--pt-line); color: inherit; text-decoration: none; transition: background-color .12s ease; }
+    .todo:last-child { border-bottom: 0; }
+    .todo:hover { background: var(--pt-sunken); }
+    .todo__n { min-width: 44px; height: 44px; padding: 0 8px; border-radius: 12px; display: grid; place-items: center; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; background: var(--pt-sunken); color: var(--pt-ink-2); }
+    .todo.is-hot .todo__n { background: var(--pt-accent); color: #2B1D1D; }
+    .todo b { display: block; font-size: 14px; }
+    .todo small { display: block; font-size: 12px; color: var(--pt-ink-2); }
+    .todo svg { width: 18px; height: 18px; margin-left: auto; color: var(--pt-ink-3); flex: none; }
 
-    @media print {
-      @page {
-        size: A4 portrait;
-        margin: 8mm 10mm;
-      }
-      header,
-      #mobileAdminNav,
-      #webDashboardMain,
-      #printPreviewToolbar,
-      .no-print {
-        display: none !important;
-      }
-      body,
-      html {
-        background: #ffffff !important;
-        color: #111827 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-      #printReportModal {
-        display: block !important;
-        position: static !important;
-        inset: auto !important;
-        background: #ffffff !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        overflow: visible !important;
-      }
-      #printableOfficialReport {
-        max-width: 100% !important;
-        width: 100% !important;
-        box-shadow: none !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-      .print-avoid-break {
-        break-inside: avoid;
-        page-break-inside: avoid;
-      }
-    }
+    .chart { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); align-items: end; gap: 6px; height: 220px; padding: 8px 4px 0; border-bottom: 1px solid var(--pt-line-strong); background-image: linear-gradient(to top, var(--pt-line) 1px, transparent 1px); background-size: 100% 25%; }
+    .chart__bar { position: relative; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; }
+    .chart__bar span { display: block; min-height: 2px; border-radius: 6px 6px 2px 2px; background: var(--pt-primary); opacity: .9; transition: height .3s cubic-bezier(.16,1,.3,1), opacity .15s ease; }
+    .chart__bar.is-zero span { background: var(--pt-line-strong); }
+    .chart__bar:hover span { opacity: 1; background: var(--pt-accent); }
+    .chart__bar:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 6px 8px; border-radius: 8px; background: var(--pt-ink); color: var(--pt-bg); font-size: 12px; font-weight: 700; z-index: 2; pointer-events: none; }
+    .chart-axis { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; padding: 6px 4px 0; font-size: 11px; color: var(--pt-ink-3); font-weight: 600; text-align: center; }
+    .chart-axis span { overflow: hidden; white-space: nowrap; }
+
+    .share { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline; }
+    .share + .share { margin-top: 14px; }
+    .share b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .share em { font-style: normal; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .share i { grid-column: 1 / -1; display: block; height: 6px; border-radius: 99px; background: var(--pt-sunken); overflow: hidden; }
+    .share i::after { content: ''; display: block; height: 100%; width: var(--w); border-radius: 99px; background: var(--pt-primary); }
   </style>
 </head>
-<body class="bg-[#F8F6F2] dark:bg-[#111115] text-[#2B1D1D] dark:text-[#F4F4F6] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
-
-  <!-- Admin Top Navigation Bar with Persistent RBAC & Logout Menu -->
-  <header class="bg-white/95 dark:bg-[#16161C]/95 backdrop-blur-md border-b border-stone-200/80 dark:border-[#272732] sticky top-0 z-40 transition-all duration-200">
-    
-    <!-- Staff Mode Notice Banner (Visible when user has Staff role) -->
-    <div class="rbac-staff-banner hidden bg-blue-50 dark:bg-blue-950/60 border-b border-blue-200 dark:border-blue-900/60 px-4 sm:px-8 py-2 text-xs flex items-center justify-between text-[#2B1D1D] dark:text-white">
-      <div class="flex items-center gap-2">
-        <span class="px-2 py-0.5 rounded bg-blue-600 text-white font-bold text-[10px] uppercase tracking-wider">Staff View</span>
-        <span class="font-medium text-stone-600 dark:text-stone-300">Operational fulfillment mode. Raw financial ledger exports and role assignments require Admin privileges.</span>
-      </div>
-      <button onclick="switchUserRole('Admin')" class="text-blue-700 dark:text-blue-400 font-bold hover:underline cursor-pointer flex items-center gap-1">
-        <span>Switch to Admin Role &rarr;</span>
-      </button>
-    </div>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-4 sm:gap-6">
-        
-        <!-- Logo -->
-        <a href="dashboard-admin.html" class="flex items-center gap-2.5 group shrink-0" title="PsaOnline Studio Operations">
-          <img 
-            src="assets/images/psa-accessories-online-logo.svg" 
-            alt="Psa Accessories Online" 
-            class="h-9 w-auto object-contain"
-          />
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-base font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">Psa<span class="text-[#FFA552]">Online</span></span>
-              <span data-hide-mobile class="text-[9px] uppercase tracking-wider text-stone-600 dark:text-stone-300 font-bold px-1.5 py-0.5 rounded bg-stone-100 dark:bg-[#252530] border border-stone-200 dark:border-[#32323D]">Admin</span>
-            </div>
-            <div data-hide-mobile class="text-[10px] text-stone-500 dark:text-stone-400 font-medium mt-0.5">Operations &amp; Finance</div>
-          </div>
-        </a>
-
-        <!-- Desktop Nav Items -->
-        <nav class="hidden lg:flex items-center gap-1 text-xs font-semibold text-stone-600 dark:text-stone-300">
-          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-lg bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D] font-bold">Financial Report</a>
-          <a href="admin-orders.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition">Orders &amp; Slips</a>
-          <a href="admin-messages.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition">Messages <span class="psa-inbox-count hidden ml-1 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-rose-600 text-white text-xs font-black"></span></a>
-          <a href="admin-products.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition">Catalog &amp; Stock</a>
-          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition rbac-admin-only">KHQR Gateways</a>
-          <a href="admin-users.html" class="px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-[#22222C] hover:text-[#2B1D1D] dark:hover:text-white transition rbac-admin-only">Staff &amp; RBAC</a>
-        </nav>
-      </div>
-
-      <!-- Action Items: Exit to Storefront, Currency, Theme, Profile & Logout Dropdown -->
-      <div class="flex items-center gap-2">
-        
-        <!-- Back / Exit to Storefront Button -->
-        <a data-hide-mobile href="home.html" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-stone-200 dark:border-[#32323D] bg-stone-50 dark:bg-[#1E1E26] hover:bg-stone-100 dark:hover:bg-[#272732] text-xs text-[#2B1D1D] dark:text-stone-200 font-bold transition" title="Exit Admin & Return to Storefront">
-          <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-          <span class="hidden sm:inline">Exit to Store</span>
-        </a>
-
-
-        <!-- Dark / Light Theme Toggle -->
-        <button 
-          type="button" 
-          onclick="toggleTheme()" 
-          class="theme-toggle-btn p-2 rounded-lg border border-stone-200 dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-stone-100 dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all cursor-pointer" 
-          title="Toggle Dark / Light Theme"
-        >
-          <svg class="w-4 h-4 text-stone-600 dark:text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-        </button>
-
-        <div class="h-5 w-px bg-stone-200 dark:bg-[#2D2D38] hidden sm:block"></div>
-
-        <!-- RBAC & Account Menu (Click OR Hover with Zero Gap so it never disappears) -->
-        <div class="relative group rbac-dropdown-container">
-          <button 
-            type="button" 
-            onclick="toggleRbacDropdown(event)"
-            aria-expanded="false"
-            aria-haspopup="true"
-            class="flex items-center gap-2 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl bg-white dark:bg-[#1E1E26] border border-stone-200 dark:border-[#32323D] hover:border-[#FFA552] transition cursor-pointer"
-            id="rbacRoleSelectorBtn"
-          >
-            <div class="w-7 h-7 rounded-lg bg-[#2B1D1D] dark:bg-[#FFA552] text-white dark:text-[#2B1D1D] font-black text-xs flex items-center justify-center rbac-current-avatar">
-              SO
-            </div>
-            <div class="hidden sm:block text-left text-xs leading-tight">
-              <div class="font-bold text-[#2B1D1D] dark:text-white rbac-current-name">Sokha Ouk</div>
-              <div class="flex items-center gap-1 mt-0.5">
-                <span data-hide-mobile class="rbac-role-badge">Admin</span>
-                <svg class="w-3 h-3 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-              </div>
-            </div>
-          </button>
-
-          <!-- Dropdown Menu: Uses seamless hover bridge + click-to-pin so moving cursor never closes it -->
-          <div class="rbac-dropdown-menu absolute right-0 top-full w-72 bg-white dark:bg-[#1A1A22] rounded-xl border border-stone-200 dark:border-[#32323D] shadow-xl p-2 hidden group-hover:block z-50">
-            <div class="px-3 py-2 border-b border-stone-100 dark:border-[#2D2D38]">
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold text-[#2B1D1D] dark:text-white rbac-current-name">Sokha Ouk</span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold">Active Session</span>
-              </div>
-              <div class="text-[11px] text-stone-500 dark:text-stone-400 truncate rbac-current-email">sokha@psaonline.kh</div>
-            </div>
-
-            <div class="px-3 pt-2 pb-1">
-              <div class="text-[10px] font-bold uppercase text-stone-400 tracking-wider">Switch Role (RBAC Preview)</div>
-            </div>
-
-            <div class="py-1 space-y-1">
-              <button 
-                type="button" 
-                onclick="switchUserRole('Admin')" 
-                class="w-full px-3 py-2 rounded-lg text-left hover:bg-stone-100 dark:hover:bg-[#252530] text-xs flex items-center justify-between transition cursor-pointer"
-              >
-                <div class="flex items-center gap-2.5">
-                  <span class="w-6 h-6 rounded-md bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 flex items-center justify-center font-bold text-[11px]">A</span>
-                  <div>
-                    <div class="font-bold text-[#2B1D1D] dark:text-white">Admin (Studio Lead)</div>
-                    <div class="text-[10px] text-stone-400">Full financial report, exports &amp; roles</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-purple-600 dark:text-purple-400 rbac-status-admin">Select</span>
-              </button>
-
-              <button 
-                type="button" 
-                onclick="switchUserRole('Staff')" 
-                class="w-full px-3 py-2 rounded-lg text-left hover:bg-stone-100 dark:hover:bg-[#252530] text-xs flex items-center justify-between transition cursor-pointer"
-              >
-                <div class="flex items-center gap-2.5">
-                  <span class="w-6 h-6 rounded-md bg-blue-100 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-[11px]">S</span>
-                  <div>
-                    <div class="font-bold text-[#2B1D1D] dark:text-white">Staff (Fulfillment Team)</div>
-                    <div class="text-[10px] text-stone-400">Verify KHQR slips &amp; dispatch orders</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-blue-600 dark:text-blue-400 rbac-status-staff">Select</span>
-              </button>
-
-              <button 
-                type="button" 
-                onclick="switchUserRole('Buyer')" 
-                class="w-full px-3 py-2 rounded-lg text-left hover:bg-stone-100 dark:hover:bg-[#252530] text-xs flex items-center justify-between transition cursor-pointer"
-              >
-                <div class="flex items-center gap-2.5">
-                  <span class="w-6 h-6 rounded-md bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-[11px]">B</span>
-                  <div>
-                    <div class="font-bold text-[#2B1D1D] dark:text-white">Buyer (Customer View)</div>
-                    <div class="text-[10px] text-stone-400">Test 403 security access boundary</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 rbac-status-buyer">Select</span>
-              </button>
-            </div>
-            
-            <div class="pt-1.5 mt-1 border-t border-stone-100 dark:border-[#2D2D38] px-3 py-1.5 flex items-center justify-between text-[11px]">
-              <a href="admin-users.html" class="text-stone-600 dark:text-stone-300 font-semibold hover:text-[#FFA552]">Manage Staff &rarr;</a>
-              <button type="button" onclick="openRBACMatrixModal()" class="text-stone-500 dark:text-stone-400 hover:text-[#FFA552] font-medium cursor-pointer">Permissions Matrix</button>
-            </div>
-
-            <!-- Explicit Exit & Log Out Buttons -->
-            <div class="pt-2 mt-1 border-t border-stone-100 dark:border-[#2D2D38] flex items-center justify-between gap-2 px-2 pb-1">
-              <a href="home.html" class="flex-1 px-2.5 py-2 rounded-lg text-[11px] font-bold text-stone-700 dark:text-stone-200 bg-stone-100 dark:bg-[#252530] hover:bg-stone-200 dark:hover:bg-[#30303E] flex items-center justify-center gap-1.5 transition">
-                <svg class="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                <span>Storefront</span>
-              </a>
-              <button type="button" data-rbac-logout onclick="logoutSession()" class="flex-1 px-2.5 py-2 rounded-lg text-[11px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-950/70 border border-red-200/70 dark:border-red-900/50 flex items-center justify-center gap-1.5 transition cursor-pointer">
-                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                <span>Log Out</span>
-              </button>
-            </div>
-          </div>
+<body class="pt" data-portal="dashboard">
+  <div class="pt-frame">
+    <main class="pt-main">
+      <div class="pt-head">
+        <div class="pt-head__text">
+          <h1 id="greeting">Dashboard</h1>
+          <p id="periodText">How the shop is doing.</p>
         </div>
-
-      </div>
-    </div>
-  </header>
-
-  <!-- Executive Report Main Container -->
-  <main id="webDashboardMain" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 w-full space-y-6">
-    
-    <!-- Formal Executive Report Header Card -->
-    <div class="report-card bg-white dark:bg-[#18181F] rounded-xl border border-stone-200/90 dark:border-[#272732] p-5 sm:p-6 shadow-xs">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-stone-100 dark:border-[#252530]">
-        <div class="space-y-1">
-          <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold text-stone-500 dark:text-stone-400">
-            <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] dark:text-stone-200 font-mono font-bold">REF: FIN-2026-Q4</span>
-            <span>&bull;</span>
-            <span id="reportPeriodSubtitle">Reporting Period: Sep 26 – Oct 02, 2026 (Last 7 Days)</span>
-            <span>&bull;</span>
-            <span class="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-semibold">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              Audited Ledger
-            </span>
+        <div class="pt-head__actions">
+          <div class="pt-seg" id="rangeSeg" aria-label="Period">
+            <button type="button" data-range="today" aria-pressed="false">Today</button>
+            <button type="button" data-range="7d" aria-pressed="true">7 days</button>
+            <button type="button" data-range="30d" aria-pressed="false">30 days</button>
+            <button type="button" data-range="year" aria-pressed="false">This year</button>
           </div>
-          <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight">
-            Executive Sales &amp; Operations Report
-          </h1>
-          <p class="text-xs text-stone-500 dark:text-stone-400">
-            Consolidated revenue statement, Bakong KHQR bank settlement reconciliation, SKU velocity, and Phnom Penh courier SLA performance.
-          </p>
-        </div>
-
-        <!-- Controls: Date Range Filter & Export Actions -->
-        <div class="no-print flex flex-wrap items-center gap-2 self-start lg:self-center">
-          <!-- Date Range Segmented Filter -->
-          <div class="flex items-center bg-stone-100 dark:bg-[#22222C] p-1 rounded-lg border border-stone-200 dark:border-[#32323D] text-xs font-semibold" id="dateFilterBar">
-            <button type="button" data-range="today" onclick="setReportDateRange('today', this)" class="date-range-btn px-2.5 py-1.5 rounded-md transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D] dark:hover:text-white cursor-pointer">Today</button>
-            <button type="button" data-range="7d" onclick="setReportDateRange('7d', this)" class="date-range-btn px-2.5 py-1.5 rounded-md transition-all bg-white dark:bg-[#16161C] text-[#2B1D1D] dark:text-white font-bold shadow-xs cursor-pointer">7 Days</button>
-            <button type="button" data-range="30d" onclick="setReportDateRange('30d', this)" class="date-range-btn px-2.5 py-1.5 rounded-md transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D] dark:hover:text-white cursor-pointer">30 Days</button>
-            <button type="button" data-range="ytd" onclick="setReportDateRange('ytd', this)" class="date-range-btn px-2.5 py-1.5 rounded-md transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D] dark:hover:text-white cursor-pointer">YTD 2026</button>
-          </div>
-
-          <!-- Export Buttons -->
-          <button 
-            type="button" 
-            onclick="exportReportData('csv')" 
-            class="px-3.5 py-2 rounded-lg bg-white dark:bg-[#22222C] hover:bg-stone-50 dark:hover:bg-[#2A2A36] border border-stone-200 dark:border-[#32323D] text-xs font-bold text-[#2B1D1D] dark:text-white flex items-center gap-1.5 shadow-xs transition cursor-pointer"
-            id="exportCsvBtn"
-            title="Export Financial Statement CSV"
-          >
-            <svg class="w-3.5 h-3.5 text-stone-600 dark:text-stone-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span>Export CSV</span>
-          </button>
-
-          <button 
-            type="button" 
-            onclick="openPrintReportPreview()" 
-            class="px-3.5 py-2 rounded-lg bg-[#2B1D1D] hover:bg-[#3D2929] dark:bg-[#FFA552] dark:hover:bg-[#E88C35] text-white dark:text-[#2B1D1D] text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
-            title="Open Clean Printable Statement & Save as PDF"
-          >
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-            <span>Print Report</span>
+          <button type="button" class="pt-btn pt-btn--secondary" id="exportBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+            Export CSV
           </button>
         </div>
       </div>
 
-      <!-- Report Metadata Strip -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-3.5 text-xs">
-        <div>
-          <span class="text-stone-400 block text-[10px] uppercase font-bold tracking-wider">Operating Entity</span>
-          <span class="font-bold text-[#2B1D1D] dark:text-stone-200">PsaOnline Studio (Phnom Penh)</span>
-        </div>
-        <div>
-          <span class="text-stone-400 block text-[10px] uppercase font-bold tracking-wider">Primary Merchant Gateway</span>
-          <span class="font-bold text-[#2B1D1D] dark:text-stone-200">Bakong KHQR (ABA / ACLEDA)</span>
-        </div>
-        <div>
-          <span class="text-stone-400 block text-[10px] uppercase font-bold tracking-wider">Prepared By</span>
-          <span class="font-bold text-[#2B1D1D] dark:text-stone-200"><span class="rbac-current-name">Sokha Ouk</span> (<span class="rbac-current-role">Admin</span>)</span>
-        </div>
-      </div>
-    </div>
+      <div class="pt-stack">
+        <dl class="pt-stats" id="stats"></dl>
 
-    <!-- 4 Executive KPI Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      
-      <!-- KPI 1: Gross Sales Revenue -->
-      <div class="report-card bg-white dark:bg-[#18181F] p-5 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs flex flex-col justify-between">
-        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-semibold">
-          <span>Gross Sales Revenue</span>
-          <span id="kpiRevenueDelta" class="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/50 px-2 py-0.5 rounded-md tabular-nums">
-            +14.2%
-          </span>
-        </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2.5 tabular-nums tracking-tight" id="kpiGrossRevenue">
-          $1,842.50
-        </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-3 pt-2.5 border-t border-stone-100 dark:border-[#252530] tabular-nums">
-          <span>Net Margin: <strong class="text-[#2B1D1D] dark:text-white" id="kpiNetMargin">64.8%</strong></span>
-        </div>
-      </div>
-
-      <!-- KPI 2: Completed Orders -->
-      <div class="report-card bg-white dark:bg-[#18181F] p-5 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs flex flex-col justify-between">
-        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-semibold">
-          <span>Completed Orders</span>
-          <span id="kpiOrdersRate" class="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/50 px-2 py-0.5 rounded-md tabular-nums">
-            94.6% Fulfilled
-          </span>
-        </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2.5 tabular-nums tracking-tight" id="kpiTotalOrders">
-          84 Orders
-        </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-3 pt-2.5 border-t border-stone-100 dark:border-[#252530] tabular-nums">
-          <span>Awaiting Review: <strong class="text-amber-600 dark:text-amber-400" id="kpiPendingCount">3</strong></span>
-          <span>Cancelled: <strong class="text-[#2B1D1D] dark:text-white" id="kpiRefundCount">1</strong></span>
-        </div>
-      </div>
-
-      <!-- KPI 3: Average Order Value (AOV) -->
-      <div class="report-card bg-white dark:bg-[#18181F] p-5 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs flex flex-col justify-between">
-        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-semibold">
-          <span>Average Order Value</span>
-          <span id="kpiUnitsPerOrder" class="inline-flex items-center gap-0.5 text-[11px] font-bold text-stone-700 dark:text-stone-300 bg-stone-100 dark:bg-[#252530] px-2 py-0.5 rounded-md tabular-nums">
-            2.4 Units / Order
-          </span>
-        </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2.5 tabular-nums tracking-tight" id="kpiAOV">
-          $21.93
-        </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-3 pt-2.5 border-t border-stone-100 dark:border-[#252530] tabular-nums">
-          <span>Conversion: <strong class="text-[#2B1D1D] dark:text-white" id="kpiConversion">4.2%</strong></span>
-        </div>
-      </div>
-
-      <!-- KPI 4: Courier Dispatch & SLA -->
-      <div class="report-card bg-white dark:bg-[#18181F] p-5 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs flex flex-col justify-between">
-        <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 font-semibold">
-          <span>Avg. Dispatch SLA</span>
-          <span id="kpiSlaBadge" class="inline-flex items-center gap-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/50 px-2 py-0.5 rounded-md tabular-nums">
-            98.4% On-Time
-          </span>
-        </div>
-        <div class="text-2xl sm:text-3xl font-black text-[#2B1D1D] dark:text-white mt-2.5 tabular-nums tracking-tight" id="kpiDispatchTime">
-          36 Mins
-        </div>
-        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 mt-3 pt-2.5 border-t border-stone-100 dark:border-[#252530]">
-          <span>Fleet: <strong class="text-[#2B1D1D] dark:text-white">Grab &amp; VET</strong></span>
-          <span>Zone: <strong class="text-[#2B1D1D] dark:text-white">Phnom Penh</strong></span>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Analytical Section: Revenue Trend & Financial Reconciliation (7 Cols) + Category & Gateway Breakdown (5 Cols) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      
-      <!-- Left 7 Cols: Revenue & Order Volume Chart + Net Reconciliation Ledger -->
-      <div class="lg:col-span-7 report-card bg-white dark:bg-[#18181F] p-5 sm:p-6 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs flex flex-col justify-between space-y-5">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 dark:border-[#252530] pb-3.5">
-          <div>
-            <div class="flex items-center gap-2">
-              <h2 class="text-base font-black text-[#2B1D1D] dark:text-white" id="chartHeadingTitle">Revenue &amp; Order Trajectory</h2>
-              <span id="chartCurrencyBadge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-100 dark:bg-[#252530] text-stone-700 dark:text-stone-300">USD ($)</span>
+        <div class="pt-grid pt-grid--main-side">
+          <section class="pt-panel" aria-labelledby="chartTitle">
+            <div class="pt-panel__head">
+              <div><h2 class="pt-section-title" id="chartTitle">Sales</h2><p class="pt-section-sub" id="chartSub"></p></div>
             </div>
-            <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Verified gross sales and completed order count across selected period</p>
-          </div>
-          <div class="flex items-center gap-3 text-[11px] font-semibold text-stone-500">
-            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-[#2B1D1D] dark:bg-stone-300"></span> Standard Day</span>
-            <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-[#FFA552]"></span> Peak Drop</span>
+            <div class="pt-panel__body">
+              <div class="chart" id="chart" role="img"></div>
+              <div class="chart-axis" id="chartAxis" aria-hidden="true"></div>
+            </div>
+          </section>
+
+          <section class="pt-panel" aria-labelledby="todoTitle">
+            <div class="pt-panel__head"><div><h2 class="pt-section-title" id="todoTitle">Needs attention</h2><p class="pt-section-sub">Right now, whatever the period.</p></div></div>
+            <div id="todo"></div>
+          </section>
+        </div>
+
+        <div class="pt-grid pt-grid--main-side">
+          <section class="pt-panel" aria-labelledby="topTitle">
+            <div class="pt-panel__head">
+              <div><h2 class="pt-section-title" id="topTitle">Best sellers</h2><p class="pt-section-sub">By sales in this period.</p></div>
+              <a href="admin-products.html" class="pt-btn pt-btn--ghost pt-btn--sm">All products</a>
+            </div>
+            <div class="pt-table-wrap">
+              <table class="pt-table pt-table--stack">
+                <thead><tr><th scope="col">Product</th><th scope="col" class="is-num">Sold</th><th scope="col" class="is-num">Sales</th><th scope="col" class="is-num">In stock</th></tr></thead>
+                <tbody id="topBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="pt-stack">
+            <section class="pt-panel" aria-labelledby="catTitle">
+              <div class="pt-panel__head"><h2 class="pt-section-title" id="catTitle">Sales by category</h2></div>
+              <div class="pt-panel__body" id="categories"></div>
+            </section>
+            <section class="pt-panel" aria-labelledby="payTitle">
+              <div class="pt-panel__head"><h2 class="pt-section-title" id="payTitle">How customers paid</h2></div>
+              <div class="pt-panel__body" id="payments"></div>
+            </section>
           </div>
         </div>
 
-        <!-- Bar Chart with Y-Axis Reference Lines -->
-        <div class="relative pt-4 pb-1">
-          <!-- Subtle horizontal grid lines -->
-          <div class="absolute inset-x-0 top-4 bottom-8 flex flex-col justify-between pointer-events-none">
-            <div class="border-b border-dashed border-stone-100 dark:border-[#23232E] w-full"></div>
-            <div class="border-b border-dashed border-stone-100 dark:border-[#23232E] w-full"></div>
-            <div class="border-b border-dashed border-stone-100 dark:border-[#23232E] w-full"></div>
-            <div class="border-b border-stone-200 dark:border-[#2D2D38] w-full"></div>
+        <section class="pt-panel" aria-labelledby="recentTitle">
+          <div class="pt-panel__head">
+            <div><h2 class="pt-section-title" id="recentTitle">Latest orders</h2></div>
+            <a href="admin-orders.html?show=all" class="pt-btn pt-btn--ghost pt-btn--sm">All orders</a>
           </div>
-
-          <!-- Dynamic Bars -->
-          <div class="relative h-56 flex items-end justify-between gap-2 sm:gap-3 pt-6 px-2 select-none z-10" id="chartBarContainer">
-            <!-- Populated via renderBarChart() -->
-          </div>
-        </div>
-
-        <!-- Chart Min / Peak / Period Total Bar -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-stone-500 dark:text-stone-400 pt-2 border-t border-stone-100 dark:border-[#252530] gap-1 tabular-nums">
-          <div>Period Low: <strong class="text-[#2B1D1D] dark:text-stone-200" id="chartMinVal">$185.00</strong> &bull; Peak Period: <strong class="text-[#2B1D1D] dark:text-stone-200" id="chartMaxVal">$395.00</strong></div>
-          <div class="font-bold text-[#2B1D1D] dark:text-white" id="chartPeriodTotal">Gross Total: $1,842.50</div>
-        </div>
-
-        <!-- Accounting Reconciliation Sub-Table -->
-        <div class="bg-stone-50/90 dark:bg-[#14141A] rounded-lg border border-stone-200/70 dark:border-[#252530] p-3.5">
-          <div class="text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-2">Financial Settlement Reconciliation</div>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs tabular-nums">
-            <div>
-              <div class="text-[11px] text-stone-500">Gross Merchandise</div>
-              <div class="font-bold text-[#2B1D1D] dark:text-white mt-0.5" id="reconGross">$1,842.50</div>
-            </div>
-            <div>
-              <div class="text-[11px] text-stone-500">Courier Fees Collected</div>
-              <div class="font-bold text-emerald-700 dark:text-emerald-400 mt-0.5" id="reconShipping">+$126.00</div>
-            </div>
-            <div>
-              <div class="text-[11px] text-stone-500">Discounts</div>
-              <div class="font-bold text-red-600 dark:text-red-400 mt-0.5" id="reconDiscounts">-$48.50</div>
-            </div>
-            <div class="border-l border-stone-200 dark:border-[#272732] pl-3">
-              <div class="text-[11px] font-semibold text-stone-600 dark:text-stone-300">Net Settled Payout</div>
-              <div class="font-black text-[#2B1D1D] dark:text-[#FFA552] mt-0.5" id="reconNet">$1,920.00</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right 5 Cols: Category Revenue Breakdown + Payment Gateway & District SLA -->
-      <div class="lg:col-span-5 space-y-6">
-        
-        <!-- Category Sales Breakdown Table -->
-        <div class="report-card bg-white dark:bg-[#18181F] p-5 sm:p-6 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs space-y-4">
-          <div class="flex items-center justify-between border-b border-stone-100 dark:border-[#252530] pb-3">
-            <div>
-              <h2 class="text-base font-black text-[#2B1D1D] dark:text-white">Revenue by Product Category</h2>
-              <p class="text-xs text-stone-500 dark:text-stone-400">Share of gross sales across 4 core studio lines</p>
-            </div>
-            <span class="text-[11px] font-semibold text-stone-500 tabular-nums" id="catTotalUnitsBadge">202 Units Sold</span>
-          </div>
-
-          <div class="space-y-3.5 pt-0.5" id="categoryBreakdownList">
-            <!-- Category 1: Apparel -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between text-xs tabular-nums">
-                <span class="font-bold text-[#2B1D1D] dark:text-white">Tees, Shirts &amp; Polos</span>
-                <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catJewelryVal">42% &bull; $773.85</span>
-              </div>
-              <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
-                <div class="bg-[#2B1D1D] dark:bg-[#FFA552] h-full rounded-full transition-all duration-500" style="width: 42%;"></div>
-              </div>
-              <div class="flex justify-between text-[10px] text-stone-400 tabular-nums">
-                <span id="catJewelryUnits">86 units sold</span>
-              </div>
-            </div>
-
-            <!-- Category 2: Watches & Jewelry -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between text-xs tabular-nums">
-                <span class="font-bold text-[#2B1D1D] dark:text-white">Watches &amp; Jewelry</span>
-                <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catShadesVal">26% &bull; $479.05</span>
-              </div>
-              <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
-                <div class="bg-[#FFA552] h-full rounded-full transition-all duration-500" style="width: 26%;"></div>
-              </div>
-              <div class="flex justify-between text-[10px] text-stone-400 tabular-nums">
-                <span id="catShadesUnits">52 units sold</span>
-              </div>
-            </div>
-
-            <!-- Category 3: Bags -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between text-xs tabular-nums">
-                <span class="font-bold text-[#2B1D1D] dark:text-white">Bags &amp; Pouches</span>
-                <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catBagsVal">20% &bull; $368.50</span>
-              </div>
-              <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
-                <div class="bg-stone-500 dark:bg-stone-400 h-full rounded-full transition-all duration-500" style="width: 20%;"></div>
-              </div>
-              <div class="flex justify-between text-[10px] text-stone-400 tabular-nums">
-                <span id="catBagsUnits">31 units sold</span>
-              </div>
-            </div>
-
-            <!-- Category 4: Hair, Charms & More -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between text-xs tabular-nums">
-                <span class="font-bold text-[#2B1D1D] dark:text-white">Hair, Charms &amp; More</span>
-                <span class="font-bold text-[#2B1D1D] dark:text-stone-200" id="catClipsVal">12% &bull; $221.10</span>
-              </div>
-              <div class="w-full bg-stone-100 dark:bg-[#252530] h-2 rounded-full overflow-hidden">
-                <div class="bg-amber-600 h-full rounded-full transition-all duration-500" style="width: 12%;"></div>
-              </div>
-              <div class="flex justify-between text-[10px] text-stone-400 tabular-nums">
-                <span id="catClipsUnits">33 units sold</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Payment Gateway Settlement Ledger -->
-        <div class="report-card bg-white dark:bg-[#18181F] p-5 sm:p-6 rounded-xl border border-stone-200/90 dark:border-[#272732] shadow-xs space-y-3.5">
-          <div class="flex items-center justify-between border-b border-stone-100 dark:border-[#252530] pb-3">
-            <div>
-              <h2 class="text-sm font-black text-[#2B1D1D] dark:text-white">Payment Gateway Settlement</h2>
-              <p class="text-[11px] text-stone-500 dark:text-stone-400">Verified payment method distribution</p>
-            </div>
-            <span class="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/50 px-2 py-0.5 rounded">
-              99.2% Auth Rate
-            </span>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs tabular-nums">
-              <thead>
-                <tr class="text-[10px] uppercase tracking-wider text-stone-400 border-b border-stone-100 dark:border-[#252530]">
-                  <th class="pb-2 font-bold">Settlement Channel</th>
-                  <th class="pb-2 font-bold text-right">Txns</th>
-                  <th class="pb-2 font-bold text-right">Share</th>
-                  <th class="pb-2 font-bold text-right">Volume</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-stone-100 dark:divide-[#252530]">
-                <tr>
-                  <td class="py-2.5">
-                    <div class="font-bold text-[#2B1D1D] dark:text-white">Bakong Universal KHQR</div>
-                    <div class="text-[10px] text-stone-400">ABA Mobile &amp; ACLEDA ToanChet</div>
-                  </td>
-                  <td class="py-2.5 text-right font-semibold text-stone-600 dark:text-stone-300" id="gwKhqrTxns">66</td>
-                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white">78%</td>
-                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white" id="gwKhqrAmt">$1,437.15</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5">
-                    <div class="font-bold text-[#2B1D1D] dark:text-white">Courier Cash on Delivery</div>
-                    <div class="text-[10px] text-stone-400">GrabExpress / VET COD Settlement</div>
-                  </td>
-                  <td class="py-2.5 text-right font-semibold text-stone-600 dark:text-stone-300" id="gwCodTxns">15</td>
-                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white">18%</td>
-                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white" id="gwCodAmt">$331.65</td>
-                </tr>
-                <tr>
-                  <td class="py-2.5">
-                    <div class="font-bold text-[#2B1D1D] dark:text-white">International Cards</div>
-                    <div class="text-[10px] text-stone-400">Visa / Mastercard 3DS</div>
-                  </td>
-                  <td class="py-2.5 text-right font-semibold text-stone-600 dark:text-stone-300" id="gwCardTxns">3</td>
-                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white">4%</td>
-                  <td class="py-2.5 text-right font-bold text-[#2B1D1D] dark:text-white" id="gwCardAmt">$73.70</td>
-                </tr>
-              </tbody>
+          <div class="pt-table-wrap">
+            <table class="pt-table pt-table--stack">
+              <thead><tr><th scope="col">Order</th><th scope="col">Customer</th><th scope="col" class="is-num">Total</th><th scope="col">Status</th></tr></thead>
+              <tbody id="recentBody"></tbody>
             </table>
           </div>
-        </div>
-
+        </section>
       </div>
-
-    </div>
-
-    <!-- Top Performing SKUs & Inventory Valuation Table -->
-    <div class="report-card bg-white dark:bg-[#18181F] rounded-xl border border-stone-200/90 dark:border-[#272732] p-5 sm:p-6 shadow-xs space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 dark:border-[#252530] pb-3.5">
-        <div>
-          <h2 class="text-base font-black text-[#2B1D1D] dark:text-white">Top Performing SKUs &amp; Inventory Valuation</h2>
-          <p class="text-xs text-stone-500 dark:text-stone-400">Ranked by period revenue contribution, unit turnover, and current warehouse stock health</p>
-        </div>
-        <div class="no-print flex items-center gap-2">
-          <a href="admin-products.html" class="px-3 py-1.5 rounded-lg bg-stone-100 dark:bg-[#252530] hover:bg-[#2B1D1D] hover:text-white dark:hover:bg-[#FFA552] dark:hover:text-[#2B1D1D] text-xs font-bold text-[#2B1D1D] dark:text-white transition">
-            Manage Full Catalog &rarr;
-          </a>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs tabular-nums">
-          <thead>
-            <tr class="text-[11px] uppercase tracking-wider text-stone-400 border-b border-stone-200/80 dark:border-[#272732]">
-              <th class="py-2.5 px-3 font-bold">Rank &amp; Product</th>
-              <th class="py-2.5 px-3 font-bold">Category</th>
-              <th class="py-2.5 px-3 font-bold text-right">Unit Price</th>
-              <th class="py-2.5 px-3 font-bold text-right">Units Sold</th>
-              <th class="py-2.5 px-3 font-bold text-right">Gross Revenue</th>
-              <th class="py-2.5 px-3 font-bold">Stock Status</th>
-              <th class="py-2.5 px-3 font-bold text-right no-print">Action</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-stone-100 dark:divide-[#252530]" id="topSellingTableBody">
-            <!-- Populated via renderTopSellingTable() -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- District Courier SLA & Pending KHQR Verification Queue (2-Section Operational Audit) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      
-      <!-- Left 4 Cols: Phnom Penh District Dispatch SLA -->
-      <div class="lg:col-span-4 report-card bg-white dark:bg-[#18181F] rounded-xl border border-stone-200/90 dark:border-[#272732] p-5 sm:p-6 shadow-xs space-y-4">
-        <div class="border-b border-stone-100 dark:border-[#252530] pb-3">
-          <div class="flex items-center justify-between">
-            <h2 class="text-sm font-black text-[#2B1D1D] dark:text-white">Phnom Penh Logistics SLA</h2>
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-100 dark:bg-[#252530] text-stone-600 dark:text-stone-300">St. 240 Hub</span>
-          </div>
-          <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">Average courier transit time by district</p>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs tabular-nums">
-            <thead>
-              <tr class="text-[10px] uppercase tracking-wider text-stone-400 border-b border-stone-100 dark:border-[#252530]">
-                <th class="pb-2 font-bold">District Zone</th>
-                <th class="pb-2 font-bold text-right">Avg Transit</th>
-                <th class="pb-2 font-bold text-right">On-Time SLA</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-stone-100 dark:divide-[#252530]">
-              <tr>
-                <td class="py-2.5 font-bold text-[#2B1D1D] dark:text-white">Daun Penh</td>
-                <td class="py-2.5 text-right font-semibold text-stone-700 dark:text-stone-300">25 mins</td>
-                <td class="py-2.5 text-right font-bold text-emerald-700 dark:text-emerald-400">99.4%</td>
-              </tr>
-              <tr>
-                <td class="py-2.5 font-bold text-[#2B1D1D] dark:text-white">BKK 1 / 2 / 3</td>
-                <td class="py-2.5 text-right font-semibold text-stone-700 dark:text-stone-300">28 mins</td>
-                <td class="py-2.5 text-right font-bold text-emerald-700 dark:text-emerald-400">99.1%</td>
-              </tr>
-              <tr>
-                <td class="py-2.5 font-bold text-[#2B1D1D] dark:text-white">Chamkarmon</td>
-                <td class="py-2.5 text-right font-semibold text-stone-700 dark:text-stone-300">30 mins</td>
-                <td class="py-2.5 text-right font-bold text-emerald-700 dark:text-emerald-400">98.5%</td>
-              </tr>
-              <tr>
-                <td class="py-2.5 font-bold text-[#2B1D1D] dark:text-white">Toul Kork</td>
-                <td class="py-2.5 text-right font-semibold text-stone-700 dark:text-stone-300">34 mins</td>
-                <td class="py-2.5 text-right font-bold text-emerald-700 dark:text-emerald-400">97.8%</td>
-              </tr>
-              <tr>
-                <td class="py-2.5 font-bold text-[#2B1D1D] dark:text-white">Sen Sok</td>
-                <td class="py-2.5 text-right font-semibold text-stone-700 dark:text-stone-300">42 mins</td>
-                <td class="py-2.5 text-right font-bold text-amber-600 dark:text-amber-400">95.2%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Right 8 Cols: Pending KHQR Verification & Fulfillment Log -->
-      <div class="lg:col-span-8 report-card bg-white dark:bg-[#18181F] rounded-xl border border-stone-200/90 dark:border-[#272732] p-5 sm:p-6 shadow-xs space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 dark:border-[#252530] pb-3">
-          <div>
-            <div class="flex items-center gap-2">
-              <h2 class="text-sm sm:text-base font-black text-[#2B1D1D] dark:text-white">Orders Awaiting KHQR Slip Verification</h2>
-              <span id="pendingSlipsBadge" class="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60 text-[10px] font-bold tabular-nums">
-                2 Pending
-              </span>
-            </div>
-            <p class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">Verify Bakong transfer reference numbers prior to courier dispatch</p>
-          </div>
-          <a href="admin-orders.html" class="no-print text-xs font-bold text-[#FFA552] hover:underline">
-            View Full Order Ledger &rarr;
-          </a>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs tabular-nums">
-            <thead>
-              <tr class="text-[10px] uppercase tracking-wider text-stone-400 border-b border-stone-200/80 dark:border-[#272732]">
-                <th class="py-2.5 px-2.5 font-bold">Order ID</th>
-                <th class="py-2.5 px-2.5 font-bold">Customer &amp; Zone</th>
-                <th class="py-2.5 px-2.5 font-bold text-right">Amount</th>
-                <th class="py-2.5 px-2.5 font-bold">Gateway Ref</th>
-                <th class="py-2.5 px-2.5 font-bold">Status</th>
-                <th class="py-2.5 px-2.5 font-bold text-right no-print">Action</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-stone-100 dark:divide-[#252530]" id="verificationQueueTable">
-              <tr class="hover:bg-stone-50/70 dark:hover:bg-[#20202A]/50 transition" id="queueRow-1">
-                <td class="py-3 px-2.5 font-mono font-bold text-[#2B1D1D] dark:text-white">#PSA-902184</td>
-                <td class="py-3 px-2.5">
-                  <div class="font-bold text-[#2B1D1D] dark:text-white">Sophea Chhum</div>
-                  <div class="text-[10px] text-stone-400">012 345 678 &bull; Daun Penh</div>
-                </td>
-                <td class="py-3 px-2.5 text-right">
-                  <div class="font-bold text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="18.50">$18.50</div>
-                </td>
-                <td class="py-3 px-2.5">
-                  <div class="font-semibold text-stone-700 dark:text-stone-300">ABA KHQR</div>
-                  <div class="text-[10px] text-stone-400 font-mono">REF: 902184</div>
-                </td>
-                <td class="py-3 px-2.5" id="queueStatus-1">
-                  <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 font-bold text-[10px] border border-amber-200 dark:border-amber-800/60">
-                    Slip Submitted
-                  </span>
-                </td>
-                <td class="py-3 px-2.5 text-right no-print">
-                  <div class="flex items-center justify-end gap-1.5">
-                    <button 
-                      type="button" 
-                      onclick="verifyOrderSlip('PSA-902184', 1)" 
-                      class="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition cursor-pointer"
-                    >
-                      Verify
-                    </button>
-                    <a href="order-detail--admin-payment-submitted.html" class="px-2 py-1 rounded-md bg-stone-100 hover:bg-stone-200 dark:bg-[#252530] dark:hover:bg-[#30303E] text-stone-700 dark:text-stone-300 font-semibold text-[10px] transition">
-                      Inspect
-                    </a>
-                  </div>
-                </td>
-              </tr>
-
-              <tr class="hover:bg-stone-50/70 dark:hover:bg-[#20202A]/50 transition" id="queueRow-2">
-                <td class="py-3 px-2.5 font-mono font-bold text-[#2B1D1D] dark:text-white">#PSA-902183</td>
-                <td class="py-3 px-2.5">
-                  <div class="font-bold text-[#2B1D1D] dark:text-white">Bona Seng</div>
-                  <div class="text-[10px] text-stone-400">098 765 432 &bull; Toul Kork</div>
-                </td>
-                <td class="py-3 px-2.5 text-right">
-                  <div class="font-bold text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="24.00">$24.00</div>
-                </td>
-                <td class="py-3 px-2.5">
-                  <div class="font-semibold text-stone-700 dark:text-stone-300">ACLEDA KHQR</div>
-                  <div class="text-[10px] text-stone-400 font-mono">REF: 902183</div>
-                </td>
-                <td class="py-3 px-2.5" id="queueStatus-2">
-                  <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 font-bold text-[10px] border border-amber-200 dark:border-amber-800/60">
-                    Slip Submitted
-                  </span>
-                </td>
-                <td class="py-3 px-2.5 text-right no-print">
-                  <div class="flex items-center justify-end gap-1.5">
-                    <button 
-                      type="button" 
-                      onclick="verifyOrderSlip('PSA-902183', 2)" 
-                      class="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition cursor-pointer"
-                    >
-                      Verify
-                    </button>
-                    <a href="order-detail--admin-payment-submitted.html" class="px-2 py-1 rounded-md bg-stone-100 hover:bg-stone-200 dark:bg-[#252530] dark:hover:bg-[#30303E] text-stone-700 dark:text-stone-300 font-semibold text-[10px] transition">
-                      Inspect
-                    </a>
-                  </div>
-                </td>
-              </tr>
-
-              <tr class="hover:bg-stone-50/70 dark:hover:bg-[#20202A]/50 transition" id="queueRow-3">
-                <td class="py-3 px-2.5 font-mono font-bold text-[#2B1D1D] dark:text-white">#PSA-902182</td>
-                <td class="py-3 px-2.5">
-                  <div class="font-bold text-[#2B1D1D] dark:text-white">Dara Heng</div>
-                  <div class="text-[10px] text-stone-400">015 889 911 &bull; BKK 1</div>
-                </td>
-                <td class="py-3 px-2.5 text-right">
-                  <div class="font-bold text-[#2B1D1D] dark:text-white order-amount-usd" data-usd="12.50">$12.50</div>
-                </td>
-                <td class="py-3 px-2.5">
-                  <div class="font-semibold text-stone-700 dark:text-stone-300">Courier COD</div>
-                  <div class="text-[10px] text-stone-400 font-mono">GrabExpress</div>
-                </td>
-                <td class="py-3 px-2.5">
-                  <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 font-bold text-[10px] border border-blue-200 dark:border-blue-800/60">
-                    Dispatched
-                  </span>
-                </td>
-                <td class="py-3 px-2.5 text-right no-print">
-                  <a href="order-detail--staff-payment-submitted.html" class="px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-[#2B1D1D] dark:bg-[#252530] dark:text-stone-200 font-semibold text-[10px] transition">
-                    Track
-                  </a>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Formal Report Footer -->
-    <div class="border-t border-stone-200 dark:border-[#272732] pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-stone-400">
-      <div>PsaOnline Studio Operations &bull; Internal Financial &amp; Fulfillment Statement</div>
-      <div class="flex items-center gap-4 no-print">
-        <a href="home.html" class="hover:text-[#FFA552] font-semibold">&larr; Return to Storefront</a>
-        <button type="button" onclick="logoutSession()" class="text-red-500 hover:underline font-semibold cursor-pointer">Log Out of Admin</button>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- Admin Portal Footer -->
-  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-xs text-stone-500 dark:text-stone-400 no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline Operations Portal &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
-
-  <!-- =========================================================================
-       OFFICIAL A4 PRINTABLE FINANCIAL & OPERATIONS REPORT (PREVIEW + @MEDIA PRINT)
-       ========================================================================= -->
-  <div id="printReportModal" class="hidden fixed inset-0 z-50 bg-stone-900/80 backdrop-blur-xs overflow-y-auto py-6 px-3 sm:px-6">
-    
-    <!-- Floating Action Toolbar (Hidden on actual paper/PDF printout) -->
-    <div id="printPreviewToolbar" class="no-print max-w-[210mm] mx-auto mb-4 bg-[#2B1D1D] text-white rounded-xl px-4 py-3 shadow-xl border border-stone-700 flex flex-wrap items-center justify-between gap-3 sticky top-2 z-50">
-      <div class="flex items-center gap-3">
-        <button 
-          type="button" 
-          onclick="closePrintReportPreview()" 
-          class="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-white text-xs font-bold flex items-center gap-1.5 border border-stone-600 transition cursor-pointer"
-        >
-          <svg class="w-3.5 h-3.5 text-[#FFA552]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-          <span>Back to Dashboard</span>
-        </button>
-        <div class="hidden sm:block">
-          <div class="text-xs font-bold text-white">Official A4 Print Statement Preview</div>
-          <div class="text-[10px] text-stone-300">Formatted for single-sheet A4 / Letter printing &amp; PDF export</div>
-        </div>
-      </div>
-
-      <!-- Period Selector inside Print Preview -->
-      <div class="flex items-center gap-2">
-        <div class="flex items-center bg-stone-800 p-0.5 rounded-lg border border-stone-700 text-[11px] font-semibold">
-          <button type="button" onclick="setReportDateRange('today')" data-print-range="today" class="print-range-btn px-2 py-1 rounded text-stone-300 hover:text-white cursor-pointer">Today</button>
-          <button type="button" onclick="setReportDateRange('7d')" data-print-range="7d" class="print-range-btn px-2 py-1 rounded bg-[#FFA552] text-[#2B1D1D] font-bold cursor-pointer">7 Days</button>
-          <button type="button" onclick="setReportDateRange('30d')" data-print-range="30d" class="print-range-btn px-2 py-1 rounded text-stone-300 hover:text-white cursor-pointer">30 Days</button>
-          <button type="button" onclick="setReportDateRange('ytd')" data-print-range="ytd" class="print-range-btn px-2 py-1 rounded text-stone-300 hover:text-white cursor-pointer">YTD 2026</button>
-        </div>
-
-        <button 
-          type="button" 
-          onclick="window.print()" 
-          class="px-4 py-1.5 rounded-lg bg-[#FFA552] hover:bg-[#E88C35] text-[#2B1D1D] text-xs font-black flex items-center gap-1.5 shadow-sm transition cursor-pointer"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-          <span>Print / Save PDF</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Clean A4 Paper Statement Sheet -->
-    <div id="printableOfficialReport" class="print-sheet max-w-[210mm] mx-auto bg-white text-stone-900 rounded-none sm:rounded-lg shadow-2xl border border-stone-300 p-6 sm:p-8 space-y-5 text-[11px] leading-snug">
-      
-      <!-- 1. Official Corporate Letterhead -->
-      <div class="border-b-2 border-stone-900 pb-4 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-        <div class="flex items-start gap-3">
-          <div class="w-10 h-10 rounded-lg bg-[#2B1D1D] text-white font-black text-lg flex items-center justify-center shrink-0 mt-0.5">
-            P
-          </div>
-          <div>
-            <div class="text-base font-black tracking-tight text-stone-900 uppercase">PsaOnline Accessories Studio Co., Ltd.</div>
-            <div class="text-[10.5px] text-stone-600 mt-0.5">Showroom &amp; Dispatch Hub: No. 24, Street 240, Sangkat Chaktomuk, Khan Daun Penh, Phnom Penh</div>
-            <div class="text-[10px] text-stone-500 font-mono mt-0.5">Commercial Reg: MOC-KH-2026-88412 &bull; VAT TIN: K004-90218402 &bull; Tel: +855 12 889 104</div>
-          </div>
-        </div>
-
-        <div class="sm:text-right shrink-0 space-y-0.5">
-          <div class="inline-block px-2 py-0.5 bg-stone-900 text-white font-black text-[10px] uppercase tracking-widest">
-            Official Financial &amp; Operations Report
-          </div>
-          <div class="text-[11px] font-bold text-stone-900 mt-1" id="printPeriodTitle">Reporting Period: Sep 26 – Oct 02, 2026 (Last 7 Days)</div>
-          <div class="text-[10px] text-stone-600 font-mono">Doc Ref: <strong class="text-stone-900">FIN-OPS-2026-Q4</strong> &bull; Generated: <span id="printGeneratedDate">Oct 02, 2026, 15:00 ICT</span></div>
-        </div>
-      </div>
-
-      <!-- 2. Executive Summary KPI Strip (Always 4 Columns on Paper) -->
-      <div class="print-avoid-break">
-        <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section I &mdash; Executive Summary &amp; Operational Key Performance Indicators</div>
-        <div class="grid grid-cols-4 gap-2.5">
-          <div class="border border-stone-300 rounded p-2.5 bg-stone-50/60">
-            <div class="text-[9.5px] font-bold uppercase text-stone-500">Gross Merchandise (GMV)</div>
-            <div class="text-base font-black text-stone-900 mt-0.5 tabular-nums" id="printKpiGrossUSD">$1,842.50</div>
-            <div class="text-[9.5px] text-emerald-700 font-bold mt-1" id="printKpiDelta">+14.2% vs prior period</div>
-          </div>
-
-          <div class="border border-stone-300 rounded p-2.5 bg-stone-50/60">
-            <div class="text-[9.5px] font-bold uppercase text-stone-500">Net Settled Payout</div>
-            <div class="text-base font-black text-stone-900 mt-0.5 tabular-nums" id="printKpiNetUSD">$1,920.00</div>
-            <div class="text-[9.5px] text-stone-600 font-semibold mt-1">Gross Margin: <strong id="printKpiMargin">64.8%</strong></div>
-          </div>
-
-          <div class="border border-stone-300 rounded p-2.5 bg-stone-50/60">
-            <div class="text-[9.5px] font-bold uppercase text-stone-500">Completed Orders</div>
-            <div class="text-base font-black text-stone-900 mt-0.5 tabular-nums" id="printKpiOrders">84 Orders</div>
-            <div class="text-[10px] text-stone-700 font-semibold" id="printKpiFulfilled">94.6% Fulfilled</div>
-            <div class="text-[9.5px] text-stone-600 mt-1">Pending Audit: <strong id="printKpiPending">2</strong> &bull; Cancelled: <strong id="printKpiRefund">1</strong></div>
-          </div>
-
-          <div class="border border-stone-300 rounded p-2.5 bg-stone-50/60">
-            <div class="text-[9.5px] font-bold uppercase text-stone-500">AOV &amp; Dispatch SLA</div>
-            <div class="text-base font-black text-stone-900 mt-0.5 tabular-nums" id="printKpiAOV">$21.93</div>
-            <div class="text-[9.5px] text-emerald-700 font-bold mt-1" id="printKpiSLA">36 Mins Avg (98.4% SLA)</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3. Financial Reconciliation & Payment Gateway Settlement (2 Columns Side-by-Side) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 print-avoid-break" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
-        
-        <!-- 3A. Net Financial Reconciliation Ledger -->
-        <div>
-          <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section II-A &mdash; Revenue &amp; Settlement Reconciliation</div>
-          <table class="w-full text-left border-collapse print-table text-[10.5px]">
-            <thead>
-              <tr>
-                <th>Ledger Account Line</th>
-                <th class="text-right">Amount (USD)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="font-semibold text-stone-800">Gross Merchandise Sales (GMV)</td>
-                <td class="text-right font-bold text-stone-900" id="printReconGrossUSD">$1,842.50</td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-stone-800">(+) Courier Delivery Fees Collected</td>
-                <td class="text-right font-semibold text-emerald-700" id="printReconShipUSD">+$126.00</td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-stone-800">(&ndash;) Promotional Discounts</td>
-                <td class="text-right font-semibold text-red-700" id="printReconDiscUSD">-$48.50</td>
-              </tr>
-              <tr class="bg-stone-100 font-black">
-                <td class="font-black text-stone-900">(=) Net Settled Operating Payout</td>
-                <td class="text-right font-black text-stone-900 underline decoration-double" id="printReconNetUSD">$1,920.00</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- 3B. Payment Gateway Settlement Breakdown -->
-        <div>
-          <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section II-B &mdash; Settlement by Payment Gateway</div>
-          <table class="w-full text-left border-collapse print-table text-[10.5px]">
-            <thead>
-              <tr>
-                <th>Payment Channel</th>
-                <th class="text-right">Txns</th>
-                <th class="text-right">Share</th>
-                <th class="text-right">USD</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="font-semibold text-stone-800">Bakong Universal KHQR (ABA/ACLEDA)</td>
-                <td class="text-right" id="printGwKhqrTxns">66</td>
-                <td class="text-right font-semibold">78.0%</td>
-                <td class="text-right font-bold text-stone-900" id="printGwKhqrUSD">$1,437.15</td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-stone-800">Courier Cash on Delivery (COD)</td>
-                <td class="text-right" id="printGwCodTxns">15</td>
-                <td class="text-right font-semibold">18.0%</td>
-                <td class="text-right font-bold text-stone-900" id="printGwCodUSD">$331.65</td>
-              </tr>
-              <tr>
-                <td class="font-semibold text-stone-800">International Cards (Visa/MC 3DS)</td>
-                <td class="text-right" id="printGwCardTxns">3</td>
-                <td class="text-right font-semibold">4.0%</td>
-                <td class="text-right font-bold text-stone-900" id="printGwCardUSD">$73.70</td>
-              </tr>
-              <tr class="bg-stone-100 font-black">
-                <td class="font-black text-stone-900">Total Gateway Volume</td>
-                <td class="text-right font-black" id="printGwTotalTxns">84</td>
-                <td class="text-right font-black">100.0%</td>
-                <td class="text-right font-black text-stone-900" id="printGwTotalUSD">$1,842.50</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-      </div>
-
-      <!-- 4. Chronological Period Schedule & Category Breakdown (2 Columns Side-by-Side) -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 print-avoid-break" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
-        
-        <!-- 4A. Period Revenue Schedule Table (Replaces messy CSS bar chart in print!) -->
-        <div>
-          <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section III-A &mdash; Chronological Revenue Schedule</div>
-          <table class="w-full text-left border-collapse print-table text-[10.5px]">
-            <thead>
-              <tr>
-                <th>Period / Window</th>
-                <th class="text-right">Orders</th>
-                <th class="text-right">Gross (USD)</th>
-              </tr>
-            </thead>
-            <tbody id="printPeriodScheduleBody">
-              <!-- Populated dynamically from active period dataset -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- 4B. Category Sales Breakdown Table -->
-        <div>
-          <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section III-B &mdash; Sales by Product Category</div>
-          <table class="w-full text-left border-collapse print-table text-[10.5px]">
-            <thead>
-              <tr>
-                <th>Studio Category Line</th>
-                <th class="text-right">Units</th>
-                <th class="text-right">Share</th>
-                <th class="text-right">Gross (USD)</th>
-              </tr>
-            </thead>
-            <tbody id="printCategoryTableBody">
-              <!-- Populated dynamically -->
-            </tbody>
-          </table>
-        </div>
-
-      </div>
-
-      <!-- 5. Top Performing SKUs & Inventory Audit Table -->
-      <div class="print-avoid-break">
-        <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section IV &mdash; Top Performing SKUs &amp; Warehouse Inventory Valuation</div>
-        <table class="w-full text-left border-collapse print-table text-[10.5px]">
-          <thead>
-            <tr>
-              <th class="w-10 text-center">Rank</th>
-              <th>SKU Code</th>
-              <th>Product Description</th>
-              <th>Category</th>
-              <th class="text-right">Unit Price</th>
-              <th class="text-right">Units Sold</th>
-              <th class="text-right">Stock On-Hand</th>
-              <th class="text-right">Gross Revenue (USD)</th>
-            </tr>
-          </thead>
-          <tbody id="printTopSkusTableBody">
-            <!-- Populated dynamically -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- 6. Recent KHQR Slip Verification & Dispatch Audit Log -->
-      <div class="print-avoid-break">
-        <div class="text-[10px] font-black uppercase tracking-wider text-stone-500 mb-1.5">Section V &mdash; Recent KHQR Settlement &amp; Fulfillment Audit Log</div>
-        <table class="w-full text-left border-collapse print-table text-[10.5px]">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Customer &amp; Delivery Zone</th>
-              <th>Payment Method &amp; Ref</th>
-              <th class="text-right">Order Total (USD)</th>
-              <th>Verification Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="font-mono font-bold">#PSA-902184</td>
-              <td>Sophea Chhum &bull; Daun Penh (012 345 678)</td>
-              <td class="font-mono">ABA KHQR &bull; REF: 902184</td>
-              <td class="text-right font-bold">$18.50</td>
-              <td class="font-bold text-amber-800">Slip Submitted (Pending Audit)</td>
-            </tr>
-            <tr>
-              <td class="font-mono font-bold">#PSA-902183</td>
-              <td>Bona Seng &bull; Toul Kork (098 765 432)</td>
-              <td class="font-mono">ACLEDA KHQR &bull; REF: 902183</td>
-              <td class="text-right font-bold">$24.00</td>
-              <td class="font-bold text-amber-800">Slip Submitted (Pending Audit)</td>
-            </tr>
-            <tr>
-              <td class="font-mono font-bold">#PSA-902182</td>
-              <td>Dara Heng &bull; BKK 1 (015 889 911)</td>
-              <td class="font-mono">GrabExpress Courier COD</td>
-              <td class="text-right font-bold">$12.50</td>
-              <td class="font-bold text-emerald-800">Verified &amp; Dispatched</td>
-            </tr>
-            <tr>
-              <td class="font-mono font-bold">#PSA-902181</td>
-              <td>Malis Chan &bull; Chamkarmon (017 224 910)</td>
-              <td class="font-mono">ABA KHQR &bull; REF: 902181</td>
-              <td class="text-right font-bold">$31.00</td>
-              <td class="font-bold text-emerald-800">Settled &amp; Delivered</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- 7. Official Certification & Signatures Block -->
-      <div class="pt-4 border-t-2 border-stone-900 print-avoid-break">
-        <div class="grid grid-cols-3 gap-6 text-[10px]">
-          <div class="border border-stone-300 rounded p-3 space-y-4">
-            <div>
-              <div class="font-black uppercase text-stone-500 tracking-wider">1. Prepared &amp; Certified By</div>
-              <div class="font-bold text-stone-900 mt-0.5"><span class="rbac-current-name">Sokha Ouk</span> (<span class="rbac-current-role">Admin</span>)</div>
-              <div class="text-stone-500">PsaOnline Operations &amp; Finance</div>
-            </div>
-            <div class="border-t border-dashed border-stone-400 pt-1.5 flex justify-between text-stone-500 font-mono text-[9.5px]">
-              <span>Signed Electronically</span>
-              <span>02 Oct 2026</span>
-            </div>
-          </div>
-
-          <div class="border border-stone-300 rounded p-3 space-y-4">
-            <div>
-              <div class="font-black uppercase text-stone-500 tracking-wider">2. Treasury &amp; KHQR Audit</div>
-              <div class="font-bold text-stone-900 mt-0.5">Bakong / ABA Merchant Ledger</div>
-              <div class="text-emerald-700 font-bold">Status: RECONCILED (99.2% Auth)</div>
-            </div>
-            <div class="border-t border-dashed border-stone-400 pt-1.5 flex justify-between text-stone-500 font-mono text-[9.5px]">
-              <span>Batch #KHQR-2026-1002</span>
-              <span>Verified</span>
-            </div>
-          </div>
-
-          <div class="border border-stone-300 rounded p-3 space-y-4">
-            <div>
-              <div class="font-black uppercase text-stone-500 tracking-wider">3. Executive Approval</div>
-              <div class="font-bold text-stone-900 mt-0.5">Studio Managing Director</div>
-              <div class="text-stone-500">Final Presentation / Audit Sign-Off</div>
-            </div>
-            <div class="border-t border-dashed border-stone-400 pt-1.5 flex justify-between text-stone-500 font-mono text-[9.5px]">
-              <span>Signature / Stamp</span>
-              <span>Date: ____/____/2026</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-3 flex items-center justify-between text-[9.5px] text-stone-500 font-mono">
-          <span>PsaOnline Accessories Studio &bull; Confidential Financial &amp; Operations Statement</span>
-          <span>Page 1 of 1</span>
-        </div>
-      </div>
-
-    </div>
+    </main>
   </div>
 
-  <!-- Mobile Admin Bottom Navigation Bar -->
-  <nav id="mobileAdminNav" class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#16161C]/95 backdrop-blur-lg border-t border-stone-200 dark:border-[#272732] px-3 py-2 flex items-center justify-around text-center select-none">
-    <a href="dashboard-admin.html" class="flex flex-col items-center gap-0.5 text-[#FFA552] font-bold text-[10px]">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-      <span>Report</span>
-    </a>
-    <a href="admin-orders.html" class="flex flex-col items-center gap-0.5 text-stone-500 dark:text-stone-400 text-[10px]">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-      <span>Orders</span>
-    </a>
-    <a href="admin-products.html" class="flex flex-col items-center gap-0.5 text-stone-500 dark:text-stone-400 text-[10px]">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-      <span>Catalog</span>
-    </a>
-    <a href="home.html" class="flex flex-col items-center gap-0.5 text-stone-500 dark:text-stone-400 text-[10px]">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-      <span>Store</span>
-    </a>
-    <button type="button" onclick="logoutSession()" class="flex flex-col items-center gap-0.5 text-red-500 font-semibold text-[10px] cursor-pointer">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-      <span>Log Out</span>
-    </button>
-  </nav>
-
-  <!-- Storefront & RBAC Scripts -->
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
+  <script src="assets/js/portal-shell.js"></script>
   <script>
-    let currentRangeKey = '7d';
-
-    // Comprehensive, realistic datasets for each reporting window
-    const REPORT_DATASETS = {
-      today: {
-        subtitle: 'Reporting Period: Oct 02, 2026 (Intraday 08:00 – 18:00 ICT)',
-        grossUSD: 312.50,
-        delta: '+8.4% vs yesterday',
-        margin: '65.2%',
-        orders: 14,
-        fulfilledRate: '92.8% Fulfilled',
-        pending: 2,
-        refunded: 0,
-        aovUSD: 22.32,
-        unitsPerOrder: '2.3 Units / Order',
-        conversion: '4.4%',
-        dispatchTime: '31 Mins',
-        slaBadge: '100% On-Time',
-        shippingUSD: 21.00,
-        discountsUSD: 6.50,
-        unitMultiplier: 0.18,
-        bars: [
-          { label: '09:00', usd: 28.00, orders: 1 },
-          { label: '11:00', usd: 54.50, orders: 3 },
-          { label: '13:00', usd: 76.00, orders: 3, peak: true },
-          { label: '15:00', usd: 62.00, orders: 3 },
-          { label: '17:00', usd: 92.00, orders: 4, peak: true }
-        ]
-      },
-      '7d': {
-        subtitle: 'Reporting Period: Sep 26 – Oct 02, 2026 (Last 7 Days)',
-        grossUSD: 1842.50,
-        delta: '+14.2% WoW',
-        margin: '64.8%',
-        orders: 84,
-        fulfilledRate: '94.6% Fulfilled',
-        pending: 2,
-        refunded: 1,
-        aovUSD: 21.93,
-        unitsPerOrder: '2.4 Units / Order',
-        conversion: '4.2%',
-        dispatchTime: '36 Mins',
-        slaBadge: '98.4% On-Time',
-        shippingUSD: 126.00,
-        discountsUSD: 48.50,
-        unitMultiplier: 1,
-        bars: [
-          { label: 'Thu 26', usd: 210.00, orders: 10 },
-          { label: 'Fri 27', usd: 265.50, orders: 12 },
-          { label: 'Sat 28', usd: 395.00, orders: 18, peak: true },
-          { label: 'Sun 29', usd: 342.00, orders: 15, peak: true },
-          { label: 'Mon 30', usd: 185.00, orders: 9 },
-          { label: 'Tue 01', usd: 218.50, orders: 10 },
-          { label: 'Wed 02', usd: 226.50, orders: 10 }
-        ]
-      },
-      '30d': {
-        subtitle: 'Reporting Period: Sep 03 – Oct 02, 2026 (Last 30 Days)',
-        grossUSD: 7480.00,
-        delta: '+19.6% MoM',
-        margin: '66.1%',
-        orders: 342,
-        fulfilledRate: '96.2% Fulfilled',
-        pending: 2,
-        refunded: 4,
-        aovUSD: 21.87,
-        unitsPerOrder: '2.5 Units / Order',
-        conversion: '4.5%',
-        dispatchTime: '35 Mins',
-        slaBadge: '98.1% On-Time',
-        shippingUSD: 513.00,
-        discountsUSD: 195.00,
-        unitMultiplier: 4.1,
-        bars: [
-          { label: 'Wk 1 (Sep 3)', usd: 1640.00, orders: 75 },
-          { label: 'Wk 2 (Sep 10)', usd: 1825.00, orders: 84 },
-          { label: 'Wk 3 (Sep 17)', usd: 2110.00, orders: 96, peak: true },
-          { label: 'Wk 4 (Sep 24)', usd: 1905.00, orders: 87 }
-        ]
-      },
-      ytd: {
-        subtitle: 'Reporting Period: Jan 01 – Oct 02, 2026 (Fiscal YTD)',
-        grossUSD: 46920.00,
-        delta: '+31.4% YoY',
-        margin: '65.5%',
-        orders: 2145,
-        fulfilledRate: '97.1% Fulfilled',
-        pending: 2,
-        refunded: 19,
-        aovUSD: 21.87,
-        unitsPerOrder: '2.4 Units / Order',
-        conversion: '4.3%',
-        dispatchTime: '37 Mins',
-        slaBadge: '97.9% On-Time',
-        shippingUSD: 3217.50,
-        discountsUSD: 1140.00,
-        unitMultiplier: 24.5,
-        bars: [
-          { label: 'Jan–Feb', usd: 7850.00, orders: 360 },
-          { label: 'Mar–Apr', usd: 9420.00, orders: 432, peak: true },
-          { label: 'May–Jun', usd: 8910.00, orders: 408 },
-          { label: 'Jul–Aug', usd: 10340.00, orders: 472, peak: true },
-          { label: 'Sep–Oct', usd: 10400.00, orders: 473, peak: true }
-        ]
-      }
+    const STATUS_TONE = {
+      'Payment Pending': 'amber', 'Slip Uploaded': 'amber', 'Paid (demo)': 'amber', 'Payment Failed': 'red',
+      'Processing': 'violet', 'Out for delivery': 'sky', 'Delivered': 'green', 'Cancelled': 'red', 'Refunded': 'grey'
     };
+    const CHEVRON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg>';
+    let range = '7d';
 
-    const CATEGORY_SHARES = [
-      { key: 'Jewelry', share: 0.42, baseUnits: 86 },
-      { key: 'Shades', share: 0.26, baseUnits: 52 },
-      { key: 'Bags', share: 0.20, baseUnits: 31 },
-      { key: 'Clips', share: 0.12, baseUnits: 33 }
-    ];
+    const money = v => '$' + Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const allOrders = () => (PSA.online ? PSA.orders : JSON.parse(localStorage.getItem('psa_orders') || '[]'));
+    const products = () => (PSA.online ? PSA.products : (typeof ACCESSORIES_PRODUCTS !== 'undefined' ? ACCESSORIES_PRODUCTS : []));
+    const dateOf = o => new Date(o.createdAt || o.date || Date.now());
+    const counts = o => o.orderStatus !== 'cancelled'; // sales leave out cancelled orders
 
-    function fmtMoney(usdAmount) {
-      return '$' + usdAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    function startOf(key) {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      if (key === '7d') d.setDate(d.getDate() - 6);
+      if (key === '30d') d.setDate(d.getDate() - 29);
+      if (key === 'year') d.setMonth(0, 1);
+      return d;
     }
 
-    function renderReportAll() {
-      const ds = REPORT_DATASETS[currentRangeKey] || REPORT_DATASETS['7d'];
-
-      // Header subtitle
-      const subEl = document.getElementById('reportPeriodSubtitle');
-      if (subEl) subEl.textContent = ds.subtitle;
-
-      // KPIs
-      document.getElementById('kpiGrossRevenue').textContent = fmtMoney(ds.grossUSD);
-      document.getElementById('kpiRevenueDelta').textContent = ds.delta;
-      document.getElementById('kpiNetMargin').textContent = ds.margin;
-
-      document.getElementById('kpiTotalOrders').textContent = ds.orders.toLocaleString() + ' Orders';
-      document.getElementById('kpiOrdersRate').textContent = ds.fulfilledRate;
-      document.getElementById('kpiPendingCount').textContent = ds.pending;
-      document.getElementById('kpiRefundCount').textContent = ds.refunded;
-
-      document.getElementById('kpiAOV').textContent = fmtMoney(ds.aovUSD);
-      document.getElementById('kpiUnitsPerOrder').textContent = ds.unitsPerOrder;
-      document.getElementById('kpiConversion').textContent = ds.conversion;
-
-      document.getElementById('kpiDispatchTime').textContent = ds.dispatchTime;
-      document.getElementById('kpiSlaBadge').textContent = ds.slaBadge;
-
-      // Reconciliation strip
-      const netUSD = ds.grossUSD + ds.shippingUSD - ds.discountsUSD;
-      document.getElementById('reconGross').textContent = fmtMoney(ds.grossUSD);
-      document.getElementById('reconShipping').textContent = '+' + fmtMoney(ds.shippingUSD);
-      document.getElementById('reconDiscounts').textContent = '-' + fmtMoney(ds.discountsUSD);
-      document.getElementById('reconNet').textContent = fmtMoney(netUSD);
-
-      // Category breakdown
-      let totalUnits = 0;
-      CATEGORY_SHARES.forEach(c => {
-        const catUSD = ds.grossUSD * c.share;
-        const units = Math.max(1, Math.round(c.baseUnits * ds.unitMultiplier));
-        totalUnits += units;
-        const pct = Math.round(c.share * 100);
-        const valEl = document.getElementById('cat' + c.key + 'Val');
-        const unitEl = document.getElementById('cat' + c.key + 'Units');
-        if (valEl) valEl.textContent = `${pct}% • ${fmtMoney(catUSD)}`;
-        if (unitEl) unitEl.textContent = `${units.toLocaleString()} units sold`;
-      });
-      const totalUnitsBadge = document.getElementById('catTotalUnitsBadge');
-      if (totalUnitsBadge) totalUnitsBadge.textContent = `${totalUnits.toLocaleString()} Units Sold`;
-
-      // Payment Gateway settlement
-      const khqrTxns = Math.round(ds.orders * 0.78);
-      const codTxns = Math.round(ds.orders * 0.18);
-      const cardTxns = Math.max(1, ds.orders - khqrTxns - codTxns);
-      document.getElementById('gwKhqrTxns').textContent = khqrTxns.toLocaleString();
-      document.getElementById('gwCodTxns').textContent = codTxns.toLocaleString();
-      document.getElementById('gwCardTxns').textContent = cardTxns.toLocaleString();
-      document.getElementById('gwKhqrAmt').textContent = fmtMoney(ds.grossUSD * 0.78);
-      document.getElementById('gwCodAmt').textContent = fmtMoney(ds.grossUSD * 0.18);
-      document.getElementById('gwCardAmt').textContent = fmtMoney(ds.grossUSD * 0.04);
-
-      renderBarChart();
-      renderTopSellingTable();
-      renderPrintableOfficialReport();
+    function inRange() {
+      const from = startOf(range);
+      return allOrders().filter(o => dateOf(o) >= from);
     }
 
-    function renderPrintableOfficialReport() {
-      const ds = REPORT_DATASETS[currentRangeKey] || REPORT_DATASETS['7d'];
-      const fmtU = (v) => '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      const netUSD = ds.grossUSD + ds.shippingUSD - ds.discountsUSD;
-
-      const setTxt = (id, val) => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = val;
-      };
-
-      setTxt('printPeriodTitle', ds.subtitle);
-      setTxt('printKpiGrossUSD', fmtU(ds.grossUSD));
-      setTxt('printKpiDelta', ds.delta);
-
-      setTxt('printKpiNetUSD', fmtU(netUSD));
-      setTxt('printKpiMargin', ds.margin);
-
-      setTxt('printKpiOrders', ds.orders.toLocaleString() + ' Orders');
-      setTxt('printKpiFulfilled', ds.fulfilledRate);
-      setTxt('printKpiPending', ds.pending);
-      setTxt('printKpiRefund', ds.refunded);
-
-      setTxt('printKpiAOV', fmtU(ds.aovUSD));
-      setTxt('printKpiSLA', `${ds.dispatchTime} Avg (${ds.slaBadge})`);
-
-      // Section II-A: Reconciliation
-      setTxt('printReconGrossUSD', fmtU(ds.grossUSD));
-      setTxt('printReconShipUSD', '+' + fmtU(ds.shippingUSD));
-      setTxt('printReconDiscUSD', '-' + fmtU(ds.discountsUSD));
-      setTxt('printReconNetUSD', fmtU(netUSD));
-
-      // Section II-B: Payment Gateways
-      const khqrTxns = Math.round(ds.orders * 0.78);
-      const codTxns = Math.round(ds.orders * 0.18);
-      const cardTxns = Math.max(1, ds.orders - khqrTxns - codTxns);
-      const khqrUSD = ds.grossUSD * 0.78;
-      const codUSD = ds.grossUSD * 0.18;
-      const cardUSD = ds.grossUSD * 0.04;
-
-      setTxt('printGwKhqrTxns', khqrTxns.toLocaleString());
-      setTxt('printGwKhqrUSD', fmtU(khqrUSD));
-
-      setTxt('printGwCodTxns', codTxns.toLocaleString());
-      setTxt('printGwCodUSD', fmtU(codUSD));
-
-      setTxt('printGwCardTxns', cardTxns.toLocaleString());
-      setTxt('printGwCardUSD', fmtU(cardUSD));
-
-      setTxt('printGwTotalTxns', ds.orders.toLocaleString());
-      setTxt('printGwTotalUSD', fmtU(ds.grossUSD));
-
-      // Section III-A: Chronological Schedule Table
-      const schedBody = document.getElementById('printPeriodScheduleBody');
-      if (schedBody) {
-        const rowsHtml = ds.bars.map(b => `
-          <tr>
-            <td class="font-semibold text-stone-800">${b.label} ${b.peak ? '<span class="text-[9px] font-bold px-1 py-0.2 bg-stone-200 rounded ml-1">PEAK</span>' : ''}</td>
-            <td class="text-right">${b.orders}</td>
-            <td class="text-right font-bold text-stone-900">${fmtU(b.usd)}</td>
-          </tr>
-        `).join('');
-        schedBody.innerHTML = rowsHtml + `
-          <tr class="bg-stone-100 font-black">
-            <td class="font-black text-stone-900">Period Total</td>
-            <td class="text-right font-black">${ds.orders.toLocaleString()}</td>
-            <td class="text-right font-black text-stone-900">${fmtU(ds.grossUSD)}</td>
-          </tr>
-        `;
-      }
-
-      // Section III-B: Category Breakdown Table
-      const catNames = {
-        Jewelry: 'Tees, Shirts & Polos',
-        Shades: 'Watches & Jewelry',
-        Bags: 'Bags & Pouches',
-        Clips: 'Hair, Charms & More'
-      };
-      const catBody = document.getElementById('printCategoryTableBody');
-      if (catBody) {
-        let totalCatUnits = 0;
-        const catRows = CATEGORY_SHARES.map(c => {
-          const units = Math.max(1, Math.round(c.baseUnits * ds.unitMultiplier));
-          totalCatUnits += units;
-          const catUSD = ds.grossUSD * c.share;
-          return `
-            <tr>
-              <td class="font-semibold text-stone-800">${catNames[c.key] || c.key}</td>
-              <td class="text-right">${units.toLocaleString()}</td>
-              <td class="text-right font-semibold">${Math.round(c.share * 100)}%</td>
-              <td class="text-right font-bold text-stone-900">${fmtU(catUSD)}</td>
-            </tr>
-          `;
-        }).join('');
-        catBody.innerHTML = catRows + `
-          <tr class="bg-stone-100 font-black">
-            <td class="font-black text-stone-900">Total All Categories</td>
-            <td class="text-right font-black">${totalCatUnits.toLocaleString()}</td>
-            <td class="text-right font-black">100%</td>
-            <td class="text-right font-black text-stone-900">${fmtU(ds.grossUSD)}</td>
-          </tr>
-        `;
-      }
-
-      // Section IV: Top SKUs Table
-      const skuBody = document.getElementById('printTopSkusTableBody');
-      if (skuBody && typeof ACCESSORIES_PRODUCTS !== 'undefined') {
-        const baseUnitsSold = [34, 29, 24, 19, 16, 13];
-        const topProducts = ACCESSORIES_PRODUCTS.slice(0, 6);
-        skuBody.innerHTML = topProducts.map((p, idx) => {
-          const sold = Math.max(2, Math.round((baseUnitsSold[idx] || 10) * ds.unitMultiplier));
-          const revUSD = sold * p.priceUSD;
-          return `
-            <tr>
-              <td class="text-center font-bold">#${idx + 1}</td>
-              <td class="font-mono text-[10px]">SKU-${p.id.toUpperCase()}</td>
-              <td class="font-bold text-stone-900">${p.title}</td>
-              <td>${p.categoryLabel}</td>
-              <td class="text-right">${fmtU(p.priceUSD)}</td>
-              <td class="text-right font-bold">${sold.toLocaleString()}</td>
-              <td class="text-right">${p.stock} units</td>
-              <td class="text-right font-bold text-stone-900">${fmtU(revUSD)}</td>
-            </tr>
-          `;
-        }).join('');
-      }
-
-      // Highlight active period button in Print Preview Toolbar
-      document.querySelectorAll('.print-range-btn').forEach(btn => {
-        if (btn.getAttribute('data-print-range') === currentRangeKey) {
-          btn.className = 'print-range-btn px-2 py-1 rounded bg-[#FFA552] text-[#2B1D1D] font-bold cursor-pointer';
-        } else {
-          btn.className = 'print-range-btn px-2 py-1 rounded text-stone-300 hover:text-white cursor-pointer';
+    // Chart buckets: hours today, days for 7 / 30 days, months this year.
+    function buckets(orders) {
+      const from = startOf(range);
+      const list = [];
+      if (range === 'today') {
+        for (let h = 0; h < 24; h += 3) list.push({ label: `${h}:00`, tip: `${h}:00–${h + 3}:00`, test: d => d.getHours() >= h && d.getHours() < h + 3, sum: 0, n: 0 });
+      } else if (range === 'year') {
+        for (let m = 0; m <= new Date().getMonth(); m++) {
+          const name = new Date(2000, m, 1).toLocaleDateString([], { month: 'short' });
+          list.push({ label: name, tip: name, test: d => d.getMonth() === m && d.getFullYear() === from.getFullYear(), sum: 0, n: 0 });
         }
-      });
-    }
-
-    function openPrintReportPreview() {
-      renderPrintableOfficialReport();
-      const modal = document.getElementById('printReportModal');
-      if (modal) {
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-      }
-    }
-
-    function closePrintReportPreview() {
-      const modal = document.getElementById('printReportModal');
-      if (modal) {
-        modal.classList.add('hidden');
-        document.body.style.overflow = '';
-      }
-    }
-
-    function renderBarChart() {
-      const container = document.getElementById('chartBarContainer');
-      if (!container) return;
-
-      const ds = REPORT_DATASETS[currentRangeKey] || REPORT_DATASETS['7d'];
-      const bars = ds.bars;
-      const maxUSD = Math.max(...bars.map(d => d.usd));
-      const minUSD = Math.min(...bars.map(d => d.usd));
-
-      container.innerHTML = bars.map(bar => {
-        const heightPct = Math.max(16, Math.round((bar.usd / maxUSD) * 100));
-        const valDisplay = '$' + bar.usd.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-
-        return `
-          <div class="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
-            <div class="text-[10px] font-bold text-stone-600 dark:text-stone-300 tabular-nums">
-              ${valDisplay}
-            </div>
-            <div class="w-full max-w-[52px] bg-stone-100 dark:bg-[#23232E] rounded-t-md h-full flex items-end overflow-hidden p-0.5">
-              <div 
-                class="w-full rounded-t transition-all duration-500 ${bar.peak ? 'bg-[#FFA552]' : 'bg-[#2B1D1D] dark:bg-stone-300 group-hover:bg-[#FFA552]'}" 
-                style="height: ${heightPct}%"
-                title="${bar.label}: ${fmtMoney(bar.usd)} (${bar.orders} orders)"
-              ></div>
-            </div>
-            <div class="text-[11px] font-bold text-[#2B1D1D] dark:text-stone-200 mt-0.5">${bar.label}</div>
-            <div class="text-[10px] text-stone-400 tabular-nums">${bar.orders} ord</div>
-          </div>
-        `;
-      }).join('');
-
-      document.getElementById('chartMinVal').textContent = fmtMoney(minUSD);
-      document.getElementById('chartMaxVal').textContent = fmtMoney(maxUSD);
-      document.getElementById('chartPeriodTotal').textContent =
-        `Gross Total: $${ds.grossUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    }
-
-    function renderTopSellingTable() {
-      const tbody = document.getElementById('topSellingTableBody');
-      if (!tbody || typeof ACCESSORIES_PRODUCTS === 'undefined') return;
-
-      const ds = REPORT_DATASETS[currentRangeKey] || REPORT_DATASETS['7d'];
-      const mult = ds.unitMultiplier;
-      const baseUnitsSold = [34, 29, 24, 19, 16, 13];
-      const topProducts = ACCESSORIES_PRODUCTS.slice(0, 6);
-
-      tbody.innerHTML = topProducts.map((p, index) => {
-        const sold = Math.max(2, Math.round((baseUnitsSold[index] || 10) * mult));
-        const revUSD = sold * p.priceUSD;
-        const unitDisplay = fmtMoney(p.priceUSD);
-        const revDisplay = fmtMoney(revUSD);
-        const skuCode = 'SKU-' + p.id.toUpperCase();
-
-        return `
-          <tr class="hover:bg-stone-50/80 dark:hover:bg-[#20202A]/50 transition">
-            <td class="py-3 px-3">
-              <div class="flex items-center gap-3">
-                <span class="w-6 h-6 rounded-md ${index < 3 ? 'bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D]' : 'bg-stone-100 dark:bg-[#252530] text-stone-500'} font-bold text-[11px] flex items-center justify-center shrink-0">
-                  #${index + 1}
-                </span>
-                <img src="${p.image}" alt="${p.title}" class="w-9 h-9 rounded-md object-cover border border-stone-200 dark:border-[#32323D] shrink-0" />
-                <div>
-                  <div class="font-bold text-[#2B1D1D] dark:text-white line-clamp-1">${p.title}</div>
-                  <div class="text-[10px] text-stone-400 font-mono">${skuCode} &bull; ${p.khmerTitle}</div>
-                </div>
-              </div>
-            </td>
-            <td class="py-3 px-3">
-              <span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] dark:text-stone-300 font-semibold text-[10px] uppercase">
-                ${p.categoryLabel}
-              </span>
-            </td>
-            <td class="py-3 px-3 text-right font-semibold text-[#2B1D1D] dark:text-stone-200">${unitDisplay}</td>
-            <td class="py-3 px-3 text-right font-bold text-[#2B1D1D] dark:text-white">${sold.toLocaleString()}</td>
-            <td class="py-3 px-3 text-right">
-              <div class="font-bold text-[#2B1D1D] dark:text-white">${revDisplay}</div>
-            </td>
-            <td class="py-3 px-3">
-              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold ${p.stock > 10 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50'}">
-                <span class="w-1.5 h-1.5 rounded-full ${p.stock > 10 ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
-                ${p.stock} in stock
-              </span>
-            </td>
-            <td class="py-3 px-3 text-right no-print">
-              <a href="product-form.html" class="px-2.5 py-1 rounded-md border border-stone-200 dark:border-[#32323D] hover:border-[#FFA552] text-[#2B1D1D] dark:text-stone-300 font-semibold text-[10px] transition">
-                Edit SKU
-              </a>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-
-    function setReportDateRange(range, clickedBtn) {
-      currentRangeKey = REPORT_DATASETS[range] ? range : '7d';
-      document.querySelectorAll('.date-range-btn').forEach(btn => {
-        if (btn === clickedBtn || btn.getAttribute('data-range') === currentRangeKey) {
-          btn.className = 'date-range-btn px-2.5 py-1.5 rounded-md transition-all bg-white dark:bg-[#16161C] text-[#2B1D1D] dark:text-white font-bold shadow-xs cursor-pointer';
-        } else {
-          btn.className = 'date-range-btn px-2.5 py-1.5 rounded-md transition-all text-stone-600 dark:text-stone-400 hover:text-[#2B1D1D] dark:hover:text-white cursor-pointer';
+      } else {
+        const days = range === '7d' ? 7 : 30;
+        for (let i = 0; i < days; i++) {
+          const day = new Date(from);
+          day.setDate(from.getDate() + i);
+          const label = range === '7d' ? day.toLocaleDateString([], { weekday: 'short' }) : (i % 5 === 0 ? day.getDate() : '');
+          list.push({ label, tip: day.toLocaleDateString([], { day: 'numeric', month: 'short' }), test: d => d.toDateString() === day.toDateString(), sum: 0, n: 0 });
         }
+      }
+      orders.filter(counts).forEach(o => {
+        const b = list.find(x => x.test(dateOf(o)));
+        if (b) { b.sum += Number(o.totalUSD || 0); b.n++; }
       });
-
-      renderReportAll();
+      return list;
     }
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        closePrintReportPreview();
-      }
-    });
+    function render() {
+      const orders = inRange();
+      const sold = orders.filter(counts);
+      const sales = sold.reduce((s, o) => s + Number(o.totalUSD || 0), 0);
+      const items = sold.reduce((s, o) => s + (o.items || []).reduce((n, i) => n + Number(i.quantity || 0), 0), 0);
+      const discounts = sold.reduce((s, o) => s + Number(o.discountUSD || 0) + Number(o.memberDiscountUSD || 0), 0);
+      const promoUses = sold.filter(o => o.promoCode).length;
+      const cancelled = orders.length - sold.length;
+      const label = { today: 'today', '7d': 'in the last 7 days', '30d': 'in the last 30 days', year: 'this year' }[range];
 
-    function verifyOrderSlip(orderId, rowIndex) {
-      if (!hasPermission('canVerifyOrders')) {
-        showRBACToast('Your role does not have permission to verify bank slips.', 'danger');
-        return;
-      }
+      const hour = new Date().getHours();
+      const first = String((PSA.user && PSA.user.name) || '').split(' ')[0];
+      document.getElementById('greeting').textContent = `${hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'}${first ? ', ' + first : ''}`;
+      document.getElementById('periodText').textContent = `Sales ${label}. Cancelled orders are left out.`;
 
-      const statusCell = document.getElementById('queueStatus-' + rowIndex);
-      if (statusCell) {
-        statusCell.innerHTML = `
-          <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 font-bold text-[10px] border border-emerald-200 dark:border-emerald-800/60">
-            Verified &amp; Dispatched
-          </span>
-        `;
-      }
+      document.getElementById('stats').innerHTML = [
+        ['Sales', money(sales), `${sold.length} order${sold.length === 1 ? '' : 's'}${cancelled ? ` · ${cancelled} cancelled` : ''}`],
+        ['Average order', money(sold.length ? sales / sold.length : 0), sold.length ? `${(items / sold.length).toFixed(1)} items each` : 'No orders yet'],
+        ['Items sold', items.toLocaleString(), `${new Set(sold.flatMap(o => (o.items || []).map(i => i.id))).size} different products`],
+        ['Discounts given', money(discounts), promoUses ? `${promoUses} used a promo code` : 'Member and promo discounts']
+      ].map(([dt, dd, small]) => `<div class="pt-stat"><dt>${dt}</dt><dd>${dd}</dd><small>${psaEsc(small)}</small></div>`).join('');
 
-      const badge = document.getElementById('pendingSlipsBadge');
-      if (badge) {
-        const currentCount = parseInt(badge.textContent) || 2;
-        const nextCount = Math.max(0, currentCount - 1);
-        badge.textContent = nextCount + ' Pending';
-      }
+      // Chart
+      const bs = buckets(orders);
+      const max = Math.max(1, ...bs.map(b => b.sum));
+      document.getElementById('chartSub').textContent = `${money(sales)} ${label}${sales ? ` · best ${bs.reduce((a, b) => (b.sum > a.sum ? b : a), bs[0]).tip}` : ''}`;
+      document.getElementById('chart').innerHTML = bs.map(b => `<div class="chart__bar ${b.sum ? '' : 'is-zero'}" data-tip="${psaEsc(b.tip)}: ${money(b.sum)} · ${b.n} order${b.n === 1 ? '' : 's'}"><span style="height:${Math.max(1, (b.sum / max) * 100)}%"></span></div>`).join('');
+      document.getElementById('chart').setAttribute('aria-label', `Sales ${label}: ` + bs.filter(b => b.sum).map(b => `${b.tip} ${money(b.sum)}`).join(', ') || 'no sales');
+      document.getElementById('chartAxis').innerHTML = bs.map(b => `<span>${psaEsc(b.label)}</span>`).join('');
 
-      showRBACToast(`Order #${orderId} Bakong KHQR verified and assigned to courier.`, 'success');
+      // Best sellers
+      const byProduct = {};
+      sold.forEach(o => (o.items || []).forEach(i => {
+        const row = byProduct[i.id] || (byProduct[i.id] = { id: i.id, title: i.title, image: i.image, qty: 0, sum: 0 });
+        row.qty += Number(i.quantity || 0);
+        row.sum += Number(i.priceUSD || 0) * Number(i.quantity || 0);
+      }));
+      const top = Object.values(byProduct).sort((a, b) => b.sum - a.sum).slice(0, 6);
+      document.getElementById('topBody').innerHTML = top.length ? top.map(r => {
+        const p = products().find(x => x.id === r.id);
+        const stock = p ? p.stock : null;
+        return `<tr>
+          <td><div style="display:flex;align-items:center;gap:12px">${r.image ? `<img class="pt-thumb" src="${psaEsc(r.image)}" alt="">` : ''}<div style="min-width:0"><span class="pt-strong">${psaEsc(r.title || r.id)}</span><span class="pt-sub">${psaEsc(p ? p.categoryLabel || '' : '')}</span></div></div></td>
+          <td data-label="Sold" class="is-num">${r.qty}</td>
+          <td data-label="Sales" class="is-num pt-strong">${money(r.sum)}</td>
+          <td data-label="In stock" class="is-num">${stock == null ? '—' : `<span class="pt-badge pt-badge--${stock === 0 ? 'red' : stock <= 5 ? 'amber' : 'green'}">${stock}</span>`}</td>
+        </tr>`;
+      }).join('') : `<tr><td colspan="4"><div class="pt-empty"><h3>No sales ${label}</h3><p>Best sellers show up here once customers order.</p></div></td></tr>`;
+
+      // Categories and payment methods
+      const share = (rows, el) => {
+        const total = rows.reduce((s, r) => s + r.sum, 0);
+        document.getElementById(el).innerHTML = rows.length ? rows.map(r => `
+          <div class="share" style="--w:${total ? Math.round((r.sum / total) * 100) : 0}%"><b>${psaEsc(r.name)}</b><em>${money(r.sum)} · ${total ? Math.round((r.sum / total) * 100) : 0}%</em><i></i></div>`).join('')
+          : `<p class="pt-muted" style="margin:0">Nothing ${label} yet.</p>`;
+      };
+      const byCat = {};
+      sold.forEach(o => (o.items || []).forEach(i => {
+        const p = products().find(x => x.id === i.id);
+        const name = (p && p.categoryLabel) || 'Other';
+        byCat[name] = (byCat[name] || 0) + Number(i.priceUSD || 0) * Number(i.quantity || 0);
+      }));
+      share(Object.entries(byCat).map(([name, sum]) => ({ name, sum })).sort((a, b) => b.sum - a.sum).slice(0, 6), 'categories');
+      const byPay = {};
+      sold.forEach(o => { const n = o.paymentMethod || 'Other'; byPay[n] = (byPay[n] || 0) + Number(o.totalUSD || 0); });
+      share(Object.entries(byPay).map(([name, sum]) => ({ name, sum })).sort((a, b) => b.sum - a.sum), 'payments');
+
+      // Latest orders (any period)
+      const recent = allOrders().slice(0, 6);
+      document.getElementById('recentBody').innerHTML = recent.length ? recent.map(o => `
+        <tr>
+          <td><a class="pt-strong pt-mono" style="text-decoration:none" href="order-detail--admin-payment-submitted.html?order=${encodeURIComponent(o.id)}">${psaEsc(o.id)}</a><span class="pt-sub">${psaEsc(o.date || '')}</span></td>
+          <td><span class="pt-strong">${psaEsc(o.customerName)}</span><span class="pt-sub">${psaEsc(o.paymentMethod || '')}</span></td>
+          <td data-label="Total" class="is-num pt-strong">${money(o.totalUSD)}</td>
+          <td data-label="Status"><span class="pt-badge pt-badge--${STATUS_TONE[o.status] || 'grey'}">${psaEsc(o.status)}</span></td>
+        </tr>`).join('') : '<tr><td colspan="4"><div class="pt-empty"><h3>No orders yet</h3><p>They show up here as soon as a customer checks out.</p></div></td></tr>';
     }
 
-    function exportReportData(format) {
-      if (!hasPermission('canExportReports')) {
-        showRBACToast('Restricted: Staff role cannot export raw financial statements. Switch to Admin.', 'danger');
-        return;
+    // What needs doing now, linked to the page that does it (only what this role can act on).
+    function renderTodo() {
+      const all = allOrders();
+      const rows = [];
+      if (ptCan('verify_payments')) {
+        const n = all.filter(o => o.orderStatus === 'pending_payment' && (o.paymentCode === 'cod' || o.slipUploaded || o.paymentStatus === 'paid_demo')).length;
+        rows.push({ n, title: 'Payments to check', sub: 'Slips sent and cash orders to confirm', href: 'admin-orders.html?show=pending_payment' });
       }
-
-      if (format === 'csv') {
-        const ds = REPORT_DATASETS[currentRangeKey] || REPORT_DATASETS['7d'];
-        const rows = [
-          ['PSAONLINE STUDIO OPERATIONS - FINANCIAL & FULFILLMENT STATEMENT'],
-          ['Report Reference', 'FIN-2026-Q4', 'Period', ds.subtitle],
-          [],
-          ['PERIOD BREAKDOWN', 'Revenue (USD)', 'Completed Orders'],
-          ...ds.bars.map(b => [b.label, b.usd.toFixed(2), b.orders]),
-          [],
-          ['SUMMARY METRIC', 'USD Value'],
-          ['Gross Merchandise Value', ds.grossUSD.toFixed(2)],
-          ['Courier Fees Collected', ds.shippingUSD.toFixed(2)],
-          ['Discounts', (-ds.discountsUSD).toFixed(2)],
-          ['Net Settled Revenue', (ds.grossUSD + ds.shippingUSD - ds.discountsUSD).toFixed(2)]
-        ];
-        const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement('a');
-        link.setAttribute('href', encodedUri);
-        link.setAttribute('download', `PsaOnline_Executive_Report_${currentRangeKey}_2026.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        showRBACToast('Financial statement exported to CSV.', 'success');
+      if (ptCan('manage_orders')) {
+        rows.push({ n: all.filter(o => o.orderStatus === 'processing').length, title: 'Ready to send out', sub: 'Paid and being prepared', href: 'admin-orders.html?show=processing' });
+        rows.push({ n: all.filter(o => o.orderStatus === 'out_for_delivery').length, title: 'Out for delivery', sub: 'Mark delivered when they arrive', href: 'admin-orders.html?show=out_for_delivery' });
       }
+      if (ptCan('manage_stock') || ptCan('manage_products')) {
+        const low = products().filter(p => p.status !== 'archived' && Number(p.stock) <= 5);
+        rows.push({ n: low.length, title: 'Low on stock', sub: low.length ? low.slice(0, 2).map(p => p.title).join(', ') + (low.length > 2 ? '…' : '') : '5 or fewer left', href: 'admin-products.html' });
+      }
+      if (ptCan('manage_messages')) {
+        rows.push({ n: (typeof psaBellState !== 'undefined' && psaBellState.unreadMessages) || 0, title: 'Unread messages', sub: 'From customers about their orders', href: 'admin-messages.html', live: true });
+      }
+      document.getElementById('todo').innerHTML = rows.length ? rows.map(r => `
+        <a class="todo ${r.n ? 'is-hot' : ''}" href="${r.href}" ${r.live ? 'data-live-messages' : ''}>
+          <span class="todo__n">${r.n}</span>
+          <span style="min-width:0"><b>${r.title}</b><small>${psaEsc(r.sub)}</small></span>
+          ${CHEVRON}
+        </a>`).join('') : '<p class="pt-muted" style="padding:20px;margin:0">Nothing for your role here.</p>';
+    }
+
+    function exportCsv() {
+      const rows = inRange();
+      const head = ['Order', 'Date', 'Customer', 'Phone', 'Items', 'Subtotal', 'Member discount', 'Promo code', 'Promo discount', 'Delivery', 'Total', 'Payment', 'Status'];
+      const cell = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+      const lines = [head.map(cell).join(',')].concat(rows.map(o => [
+        o.id, o.date, o.customerName, o.phone, (o.items || []).reduce((n, i) => n + Number(i.quantity || 0), 0),
+        o.subtotalUSD, o.memberDiscountUSD || '0.00', o.promoCode || '', o.discountUSD || '0.00', o.deliveryUSD, o.totalUSD, o.paymentMethod, o.status
+      ].map(cell).join(',')));
+      const blob = new Blob(['﻿' + lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `psaonline-orders-${range}-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showRBACToast(`${rows.length} order${rows.length === 1 ? '' : 's'} exported.`, 'success');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      enforcePageRBAC('canAccessAdminPortal');
-      renderReportAll();
-
-      if (!hasPermission('canExportReports')) {
-        const exportBtn = document.getElementById('exportCsvBtn');
-        if (exportBtn) {
-          exportBtn.classList.add('opacity-60');
-          exportBtn.setAttribute('title', 'Restricted to Admin Role');
-        }
-      }
+      if (ptDenied()) return;
+      render();
+      renderTodo();
+      document.getElementById('rangeSeg').addEventListener('click', e => {
+        const b = e.target.closest('[data-range]');
+        if (!b) return;
+        range = b.dataset.range;
+        document.querySelectorAll('[data-range]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        render();
+      });
+      document.getElementById('exportBtn').addEventListener('click', exportCsv);
+      document.addEventListener('psa:notifications', renderTodo);
+      setTimeout(renderTodo, 1500); // the message count arrives with the bell
+      setInterval(() => { if (!document.hidden) renderTodo(); }, 15000);
     });
-  </script>
-
-  <!-- Live mode: the report figures, top sellers and the verification queue come from real orders in the
-       database. The demo numbers above are only used when the server is offline. -->
-  <script>
-    if (PSA.online) {
-      const DAY = 86400000;
-      const liveOrders = () => PSA.orders.filter(o => o.orderStatus !== 'cancelled' && o.createdAt);
-      const fmtDay = d => d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
-      // Map product categories onto the four category rows of the report (row keys are the element ids:
-      // Jewelry = apparel, Shades = watches & jewelry, Bags = bags, Clips = everything else)
-      const CATEGORY_ROW = { apparel: 'Jewelry', watches: 'Shades', jewelry: 'Shades', eyewear: 'Shades', bags: 'Bags' };
-
-      function rangeStart(key) {
-        const now = new Date();
-        if (key === 'today') return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        if (key === 'ytd') return new Date(now.getFullYear(), 0, 1);
-        return new Date(now.getTime() - (key === '30d' ? 30 : 7) * DAY);
-      }
-
-      // Chart buckets: 4 blocks of 6 hours (today), days (7d), weeks (30d) or months (YTD)
-      function buckets(key, from) {
-        const now = new Date();
-        const list = [];
-        if (key === 'today') {
-          for (let h = 0; h < 24; h += 6) {
-            const s = new Date(from.getTime() + h * 3600000);
-            list.push({ label: `${String(h).padStart(2, '0')}:00`, from: s, to: new Date(s.getTime() + 6 * 3600000) });
-          }
-        } else if (key === '7d') {
-          for (let i = 6; i >= 0; i--) {
-            const s = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-            list.push({ label: s.toLocaleDateString('en-US', { weekday: 'short', day: '2-digit' }), from: s, to: new Date(s.getTime() + DAY) });
-          }
-        } else if (key === '30d') {
-          for (let s = from; s < now; s = new Date(s.getTime() + 7 * DAY)) {
-            list.push({ label: `Wk of ${fmtDay(s)}`, from: s, to: new Date(s.getTime() + 7 * DAY) });
-          }
-        } else {
-          for (let m = 0; m <= now.getMonth(); m++) {
-            const s = new Date(now.getFullYear(), m, 1);
-            list.push({ label: s.toLocaleDateString('en-US', { month: 'short' }), from: s, to: new Date(now.getFullYear(), m + 1, 1) });
-          }
-        }
-        return list;
-      }
-
-      function liveDataset(key) {
-        const from = rangeStart(key);
-        const now = new Date();
-        const orders = liveOrders().filter(o => new Date(o.createdAt) >= from);
-        const sum = (list, field) => list.reduce((t, o) => t + Number(o[field] || 0), 0);
-        const gross = sum(orders, 'subtotalUSD');
-        const units = orders.reduce((t, o) => t + (o.items || []).reduce((u, i) => u + Number(i.quantity), 0), 0);
-        const delivered = orders.filter(o => o.orderStatus === 'delivered').length;
-        const cancelled = PSA.orders.filter(o => o.orderStatus === 'cancelled' && o.createdAt && new Date(o.createdAt) >= from).length;
-        const bars = buckets(key, from).map(b => {
-          const inBucket = orders.filter(o => { const t = new Date(o.createdAt); return t >= b.from && t < b.to; });
-          return { label: b.label, usd: sum(inBucket, 'subtotalUSD'), orders: inBucket.length };
-        });
-        const peak = Math.max(...bars.map(b => b.usd));
-        bars.forEach(b => { b.peak = peak > 0 && b.usd === peak; });
-        // Keep the chart from dividing by zero when there are no sales yet
-        if (peak === 0 && bars.length) bars[0].usd = 0.0001;
-        return {
-          subtitle: `Reporting Period: ${fmtDay(from)} – ${fmtDay(now)}, ${now.getFullYear()} (live data)`,
-          grossUSD: gross,
-          delta: 'Live',
-          margin: '—',
-          orders: orders.length,
-          fulfilledRate: orders.length ? `${Math.round((delivered / orders.length) * 100)}% Delivered` : 'No orders yet',
-          pending: awaitingVerification().length,
-          refunded: cancelled,
-          aovUSD: orders.length ? gross / orders.length : 0,
-          unitsPerOrder: `${orders.length ? (units / orders.length).toFixed(1) : '0'} Units / Order`,
-          conversion: '—',
-          dispatchTime: '—',
-          slaBadge: `${orders.filter(o => o.orderStatus === 'out_for_delivery').length} Out for delivery`,
-          shippingUSD: sum(orders, 'deliveryUSD'),
-          discountsUSD: 0,
-          unitMultiplier: 1,
-          bars,
-          liveOrders: orders
-        };
-      }
-
-      function refreshLiveDatasets() {
-        ['today', '7d', '30d', 'ytd'].forEach(key => { REPORT_DATASETS[key] = liveDataset(key); });
-      }
-
-      // Units and revenue per product for the selected period, best sellers first
-      function topSellers() {
-        const totals = new Map();
-        (REPORT_DATASETS[currentRangeKey] || liveDataset('7d')).liveOrders.forEach(o => (o.items || []).forEach(i => {
-          const t = totals.get(i.id) || { id: i.id, title: i.title, image: i.image, units: 0, sales: 0 };
-          t.units += Number(i.quantity);
-          t.sales += Number(i.priceUSD) * Number(i.quantity);
-          totals.set(i.id, t);
-        }));
-        return [...totals.values()].sort((a, b) => b.units - a.units).slice(0, 6)
-          .map(t => ({ ...t, p: PSA.products.find(x => x.id === t.id) || {} }));
-      }
-
-      const demoRenderReportAll = renderReportAll;
-      renderReportAll = function () {
-        refreshLiveDatasets();
-        demoRenderReportAll();
-        const ds = REPORT_DATASETS[currentRangeKey];
-        const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
-
-        // Category split from what was actually sold
-        const cats = { Jewelry: { usd: 0, units: 0 }, Shades: { usd: 0, units: 0 }, Bags: { usd: 0, units: 0 }, Clips: { usd: 0, units: 0 } };
-        ds.liveOrders.forEach(o => (o.items || []).forEach(i => {
-          const p = PSA.products.find(x => x.id === i.id);
-          const row = cats[CATEGORY_ROW[p && p.category] || 'Clips'];
-          row.usd += Number(i.priceUSD) * Number(i.quantity);
-          row.units += Number(i.quantity);
-        }));
-        let totalUnits = 0;
-        Object.entries(cats).forEach(([key, c]) => {
-          totalUnits += c.units;
-          const pct = ds.grossUSD ? Math.round((c.usd / ds.grossUSD) * 100) : 0;
-          set(`cat${key}Val`, `${pct}% • ${fmtMoney(c.usd)}`);
-          set(`cat${key}Units`, `${c.units.toLocaleString()} units sold`);
-        });
-        set('catTotalUnitsBadge', `${totalUnits.toLocaleString()} Units Sold`);
-
-        // Payment gateways from each order's real payment method
-        const gw = { khqr: { n: 0, usd: 0 }, cod: { n: 0, usd: 0 }, card: { n: 0, usd: 0 } };
-        ds.liveOrders.forEach(o => {
-          const g = o.paymentCode === 'cod' ? gw.cod : o.paymentCode === 'visa_card' ? gw.card : gw.khqr;
-          g.n += 1;
-          g.usd += Number(o.subtotalUSD);
-        });
-        set('gwKhqrTxns', gw.khqr.n); set('gwKhqrAmt', fmtMoney(gw.khqr.usd));
-        set('gwCodTxns', gw.cod.n); set('gwCodAmt', fmtMoney(gw.cod.usd));
-        set('gwCardTxns', gw.card.n); set('gwCardAmt', fmtMoney(gw.card.usd));
-        set('printGwKhqrTxns', gw.khqr.n); set('printGwKhqrUSD', '$' + gw.khqr.usd.toFixed(2));
-        set('printGwCodTxns', gw.cod.n); set('printGwCodUSD', '$' + gw.cod.usd.toFixed(2));
-        set('printGwCardTxns', gw.card.n); set('printGwCardUSD', '$' + gw.card.usd.toFixed(2));
-
-        // Printable report: top SKUs from real sales
-        const skuBody = document.getElementById('printTopSkusTableBody');
-        if (skuBody) {
-          const rows = topSellers();
-          skuBody.innerHTML = rows.length ? rows.map((t, idx) => `
-            <tr>
-              <td class="text-center font-bold">#${idx + 1}</td>
-              <td class="font-mono text-[10px]">SKU-${psaEsc(String(t.id).toUpperCase())}</td>
-              <td class="font-bold text-stone-900">${psaEsc(t.p.title || t.title)}</td>
-              <td>${psaEsc(t.p.categoryLabel || '—')}</td>
-              <td class="text-right">${t.p.priceUSD != null ? '$' + Number(t.p.priceUSD).toFixed(2) : '—'}</td>
-              <td class="text-right font-bold">${t.units.toLocaleString()}</td>
-              <td class="text-right">${t.p.stock != null ? t.p.stock : 0} units</td>
-              <td class="text-right font-bold text-stone-900">$${t.sales.toFixed(2)}</td>
-            </tr>`).join('') : '<tr><td colspan="8" class="text-center text-stone-500">No sales in this period yet.</td></tr>';
-        }
-
-        renderVerificationQueue();
-      };
-
-      renderTopSellingTable = function () {
-        const tbody = document.getElementById('topSellingTableBody');
-        if (!tbody) return;
-        const rows = topSellers();
-        if (!rows.length) {
-          tbody.innerHTML = '<tr><td colspan="7" class="py-6 px-3 text-center text-xs text-stone-400">No sales in this period yet.</td></tr>';
-          return;
-        }
-        tbody.innerHTML = rows.map((t, index) => {
-          const stock = t.p.stock != null ? t.p.stock : 0;
-          const ok = stock > 10;
-          return `
-          <tr class="hover:bg-stone-50/80 dark:hover:bg-[#20202A]/50 transition">
-            <td class="py-3 px-3">
-              <div class="flex items-center gap-3">
-                <span class="w-6 h-6 rounded-md ${index < 3 ? 'bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D]' : 'bg-stone-100 dark:bg-[#252530] text-stone-500'} font-bold text-[11px] flex items-center justify-center shrink-0">#${index + 1}</span>
-                <img src="${psaEsc(t.p.image || t.image)}" alt="" class="w-9 h-9 rounded-md object-cover border border-stone-200 dark:border-[#32323D] shrink-0" />
-                <div>
-                  <div class="font-bold text-[#2B1D1D] dark:text-white line-clamp-1">${psaEsc(t.p.title || t.title)}</div>
-                  <div class="text-[10px] text-stone-400 font-mono">SKU-${psaEsc(String(t.id).toUpperCase())}${t.p.titleKhmer ? ' &bull; ' + psaEsc(t.p.titleKhmer) : ''}</div>
-                </div>
-              </div>
-            </td>
-            <td class="py-3 px-3"><span class="px-2 py-0.5 rounded bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] dark:text-stone-300 font-semibold text-[10px] uppercase">${psaEsc(t.p.categoryLabel || '—')}</span></td>
-            <td class="py-3 px-3 text-right font-semibold text-[#2B1D1D] dark:text-stone-200">${t.p.priceUSD != null ? fmtMoney(Number(t.p.priceUSD)) : '—'}</td>
-            <td class="py-3 px-3 text-right font-bold text-[#2B1D1D] dark:text-white">${t.units.toLocaleString()}</td>
-            <td class="py-3 px-3 text-right">
-              <div class="font-bold text-[#2B1D1D] dark:text-white">${fmtMoney(t.sales)}</div>
-            </td>
-            <td class="py-3 px-3">
-              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold ${ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50' : 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50'}">
-                <span class="w-1.5 h-1.5 rounded-full ${ok ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
-                ${stock} in stock
-              </span>
-            </td>
-            <td class="py-3 px-3 text-right no-print">
-              <a href="product-form.html?id=${encodeURIComponent(t.id)}" class="px-2.5 py-1 rounded-md border border-stone-200 dark:border-[#32323D] hover:border-[#FFA552] text-[#2B1D1D] dark:text-stone-300 font-semibold text-[10px] transition">Edit SKU</a>
-            </td>
-          </tr>`;
-        }).join('');
-      };
-
-      function awaitingVerification() {
-        return PSA.orders.filter(o => o.orderStatus === 'pending_payment' && o.paymentCode !== 'cod' && o.paymentStatus !== 'failed');
-      }
-
-      function renderVerificationQueue() {
-        const tbody = document.getElementById('verificationQueueTable');
-        const queue = awaitingVerification();
-        const badge = document.getElementById('pendingSlipsBadge');
-        if (badge) badge.textContent = `${queue.length} Pending`;
-        if (!tbody) return;
-        if (!queue.length) {
-          tbody.innerHTML = '<tr><td colspan="6" class="py-6 px-3 text-center text-xs text-stone-400">Nothing to verify right now.</td></tr>';
-          return;
-        }
-        tbody.innerHTML = queue.slice(0, 8).map(o => {
-          const id = psaEsc(o.id);
-          return `
-          <tr class="hover:bg-stone-50/70 dark:hover:bg-[#20202A]/50 transition">
-            <td class="py-3 px-2.5 font-mono font-bold text-[#2B1D1D] dark:text-white">#${id}</td>
-            <td class="py-3 px-2.5">
-              <div class="font-bold text-[#2B1D1D] dark:text-white">${psaEsc(o.customerName)}</div>
-              <div class="text-[10px] text-stone-400">${psaEsc(o.phone)}</div>
-            </td>
-            <td class="py-3 px-2.5 text-right">
-              <div class="font-bold text-[#2B1D1D] dark:text-white">$${psaEsc(o.totalUSD)}</div>
-            </td>
-            <td class="py-3 px-2.5">
-              <div class="font-semibold text-stone-700 dark:text-stone-300">${psaEsc(o.paymentMethod)}</div>
-              <div class="text-[10px] text-stone-400">${o.slipUploaded ? 'Slip attached' : 'No slip yet'}</div>
-            </td>
-            <td class="py-3 px-2.5">
-              <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 font-bold text-[10px] border border-amber-200 dark:border-amber-800/60">${psaEsc(o.status)}</span>
-            </td>
-            <td class="py-3 px-2.5 text-right no-print">
-              <div class="flex items-center justify-end gap-1.5">
-                <button type="button" onclick="verifyOrderSlip('${id}')" class="px-2.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition cursor-pointer">Verify</button>
-                <a href="order-detail--admin-payment-submitted.html?order=${encodeURIComponent(o.id)}" class="px-2 py-1 rounded-md bg-stone-100 hover:bg-stone-200 dark:bg-[#252530] dark:hover:bg-[#30303E] text-stone-700 dark:text-stone-300 font-semibold text-[10px] transition">Inspect</a>
-              </div>
-            </td>
-          </tr>`;
-        }).join('');
-      }
-
-      verifyOrderSlip = async function (orderId) {
-        if (!hasPermission('canVerifyOrders')) {
-          showRBACToast('Your role does not have permission to verify bank slips.', 'danger');
-          return;
-        }
-        try {
-          await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(orderId)}`, { action: 'verify' });
-          const { order } = await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(orderId)}`, { action: 'dispatch' });
-          PSA.orders = PSA.orders.map(o => (o.id === order.id ? order : o));
-          localStorage.setItem('psa_orders', JSON.stringify(PSA.orders));
-        } catch (err) {
-          showRBACToast(psaEsc(err.message), 'danger');
-          return;
-        }
-        renderReportAll();
-        showRBACToast(`Order #${psaEsc(orderId)} verified and sent out for delivery.`, 'success');
-      };
-    }
   </script>
 </body>
 </html>

@@ -435,20 +435,14 @@ const PSA_BACK_FALLBACKS = {
   'order-detail.html': 'dashboard-buyer.html',
   'order-detail--buyer-pending.html': 'dashboard-buyer.html',
   'login.html': 'home.html',
-  'register.html': 'login.html',
-  'admin-orders.html': 'dashboard-admin.html',
-  'admin-products.html': 'dashboard-admin.html',
-  'admin-users.html': 'dashboard-admin.html',
-  'admin-payment-methods.html': 'dashboard-admin.html',
-  'product-form.html': 'admin-products.html',
-  'user-form.html': 'admin-users.html',
-  'payment-method-form.html': 'admin-payment-methods.html'
+  'register.html': 'login.html'
+  // Staff portal pages have their own sidebar and back links (portal-shell.js).
 };
 
 function psaAddHeaderBackButton() {
   const fallback = PSA_BACK_FALLBACKS[psaPageName()];
   const logo = document.querySelector('header a');
-  if (!fallback || !logo || document.getElementById('psaBackBtn')) return;
+  if (!fallback || !logo || document.getElementById('psaBackBtn') || document.body.classList.contains('pt')) return;
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.id = 'psaBackBtn';
@@ -2219,8 +2213,15 @@ if (PSA.online) {
   }
 }
 
-// Prices are in US dollars only (riel was removed in Oct 2026).
+// Prices are stored and charged in US dollars only. Riel is only shown, worked out here.
 const CURRENT_CURRENCY = 'USD';
+const PSA_RIEL_PER_USD = 4000;
+
+// $27.00 -> "108,000៛" (rounded to the nearest 100 riel, as cash is)
+function psaRiel(usd) {
+  const riel = Math.round((Number(usd) || 0) * PSA_RIEL_PER_USD / 100) * 100;
+  return `${riel.toLocaleString('en-US')}៛`;
+}
 try { localStorage.removeItem('psa_currency'); } catch (e) { /* storage unavailable */ }
 
 // Delivery in Phnom Penh: $1.50, free from $15, or when the bag has any free-delivery item
@@ -2377,6 +2378,17 @@ function updateCartBadge() {
 
 function formatPrice(usd) {
   return `$${Number(usd || 0).toFixed(2)}`;
+}
+
+// The price a product sells for, with the normal price crossed out and "-20%" while it is on sale.
+// size: 'sm' (cards) or 'lg' (product page).
+function psaPriceHtml(p, size = 'sm') {
+  const now = `<span class="psa-price-now">${formatPrice(p.priceUSD)}</span>`;
+  if (!p.onSale || !p.originalPriceUSD) return now;
+  const pct = Math.round(p.discountPercent || 0);
+  return `<span class="psa-price psa-price--${size}"><span class="psa-price-now psa-price-now--sale">${formatPrice(p.priceUSD)}</span>`
+    + `<s class="psa-price-was" aria-label="Was ${formatPrice(p.originalPriceUSD)}">${formatPrice(p.originalPriceUSD)}</s>`
+    + (pct ? `<span class="psa-price-off">-${pct}%</span>` : '') + '</span>';
 }
 
 // Toast Notification with Sorbet Orange & Cotton Beige Frame
@@ -2655,7 +2667,7 @@ function openQuickView(productId, event) {
             <div class="p-3 bg-[#FDFBF7] dark:bg-[#16161D] rounded-2xl border border-[#EFE4D6] dark:border-[#2D2D38] flex items-baseline justify-between">
               <div>
                 <span class="text-2xl font-black text-[#2B1D1D] dark:text-white" id="quickViewPricePrimary">
-                  ${formatPrice(product.priceUSD)}
+                  ${psaPriceHtml(product, 'lg')}
                 </span>
               </div>
             </div>
@@ -3379,6 +3391,8 @@ function psaTimeAgo(iso) {
 
 // Where the bell goes: next to the account or bag link, else at the start of the header's right-hand group.
 function psaBellHost() {
+  const portal = document.querySelector('[data-bell-host]'); // staff portal top bar
+  if (portal) return { parent: portal, before: null };
   const header = document.querySelector('header');
   if (!header) return null;
   const anchor = header.querySelector('a[href="dashboard-buyer.html"], a[href="cart.html"]');
@@ -3412,7 +3426,7 @@ function psaRenderBell() {
   panel.innerHTML = `
     <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-[#EFE4D6] dark:border-[#2D2D38]">
       <h2 class="text-base font-black text-[#2B1D1D]">Notifications</h2>
-      ${total ? '<button type="button" data-bell-readall class="h-9 px-2 text-sm font-bold text-[#A3520F] dark:text-[#FFA552] hover:underline cursor-pointer">Mark all read</button>' : ''}
+      ${total ? '<span class="text-sm font-bold text-[#A3520F] dark:text-[#FFA552]">' + total + ' new</span>' : ''}
     </div>
     ${isStaff ? `<a href="admin-messages.html" class="flex items-center justify-between gap-3 px-4 py-3 border-b border-[#EFE4D6] dark:border-[#2D2D38] hover:bg-[#F9F3EA] dark:hover:bg-[#20202A]">
       <span class="text-sm font-black text-[#2B1D1D]">Messages inbox</span>
@@ -3421,7 +3435,7 @@ function psaRenderBell() {
     <ul class="max-h-[60vh] overflow-y-auto divide-y divide-[#F3EAD9] dark:divide-[#2D2D38]">
       ${items.length ? items.map(n => `
         <li>
-          <a href="${psaEsc(n.link || '#')}" data-bell-item="${Number(n.id)}" class="flex gap-3 px-4 py-3 hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] ${n.read ? '' : 'bg-[#FFF6EC] dark:bg-[#231E1A]'}">
+          <a href="${psaEsc(n.link || '#')}" class="flex gap-3 px-4 py-3 hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] ${n.read ? '' : 'bg-[#FFF6EC] dark:bg-[#231E1A]'}">
             <span class="mt-1.5 w-2 h-2 rounded-full shrink-0 ${n.read ? 'bg-transparent' : 'bg-[#E88C35]'}" aria-hidden="true"></span>
             <span class="min-w-0">
               <span class="block text-sm ${n.read ? 'font-semibold' : 'font-black'} text-[#2B1D1D]">${psaEsc(n.title)}${n.read ? '' : '<span class="sr-only"> (unread)</span>'}</span>
@@ -3434,15 +3448,18 @@ function psaRenderBell() {
 }
 
 // ---------- Live updates: new notifications pop up without reloading ----------
-// The newest notification id this browser has already shown (per account), shared by every open tab
-// so the same notification never pops up twice.
+// Nothing about the bell is stored in the database: the server builds it from orders and messages.
+// This browser remembers, per account and shared by every open tab:
+//  - "opened": when the bell was last opened (older notifications count as read), sent as ?since=
+//  - "shown":  the newest notification already popped up, so nothing pops up twice.
 const PSA_BELL_POLL_MS = 10000;
-const psaBellSeenKey = () => `psa_bell_seen_${PSA.user ? PSA.user.id : ''}`;
-function psaBellSeenId() {
-  try { const v = localStorage.getItem(psaBellSeenKey()); return v === null ? null : Number(v) || 0; } catch (e) { return null; }
+const psaBellKey = kind => `psa_bell_${kind}_${PSA.user ? PSA.user.id : ''}`;
+const psaBellSeenKey = () => psaBellKey('opened');
+function psaBellGet(kind) {
+  try { return localStorage.getItem(psaBellKey(kind)); } catch (e) { return null; }
 }
-function psaSetBellSeenId(id) {
-  try { localStorage.setItem(psaBellSeenKey(), String(id)); } catch (e) { /* storage unavailable */ }
+function psaBellSet(kind, iso) {
+  try { localStorage.setItem(psaBellKey(kind), iso); } catch (e) { /* storage unavailable */ }
 }
 
 const psaBaseTitle = document.title;
@@ -3456,18 +3473,19 @@ async function psaLoadNotifications() {
   if (!PSA.online || !PSA.user || psaBellLoading) return;
   psaBellLoading = true;
   try {
-    psaBellState = await psaApi('GET', '/api/notifications');
+    // First visit on this browser: everything so far counts as read and nothing pops up.
+    if (psaBellGet('opened') === null) psaBellSet('opened', new Date().toISOString());
+    const opened = psaBellGet('opened');
+    psaBellState = await psaApi('GET', `/api/notifications?since=${encodeURIComponent(opened)}`);
     psaRenderBell();
     psaUpdateTitleCount();
 
     const items = psaBellState.items || [];
-    const newest = items.reduce((max, n) => Math.max(max, Number(n.id) || 0), 0);
-    const seen = psaBellSeenId();
-    if (seen === null) {
-      psaSetBellSeenId(newest); // first visit on this browser: don't pop up old ones
-    } else if (newest > seen) {
-      psaSetBellSeenId(newest);
-      const fresh = items.filter(n => Number(n.id) > seen && !n.read).reverse();
+    const newest = items.reduce((max, n) => (n.createdAt > max ? n.createdAt : max), '');
+    const shown = psaBellGet('shown') || opened;
+    if (newest && new Date(newest) > new Date(shown)) {
+      psaBellSet('shown', newest);
+      const fresh = items.filter(n => !n.read && new Date(n.createdAt) > new Date(shown)).reverse();
       if (fresh.length) {
         psaShowNotificationPopups(fresh);
         // Pages can refresh what they show (e.g. an order's chat) when something new arrives.
@@ -3511,11 +3529,8 @@ function psaShowNotificationPopups(fresh) {
     card.addEventListener('mouseenter', () => clearTimeout(timer));
     card.addEventListener('mouseleave', start);
     card.addEventListener('focusin', () => clearTimeout(timer));
-    card.querySelector('[data-notify-open]').addEventListener('click', async e => {
-      if (!n.link) { e.preventDefault(); close(); return; }
-      e.preventDefault();
-      await psaApi('POST', '/api/notifications/read', { id: Number(n.id) }).catch(() => null);
-      window.location.href = n.link;
+    card.querySelector('[data-notify-open]').addEventListener('click', e => {
+      if (!n.link) { e.preventDefault(); close(); }
     });
     stack.appendChild(card);
     start();
@@ -3541,8 +3556,13 @@ function psaToggleBellPanel(force) {
   panel.hidden = !open;
   btn.setAttribute('aria-expanded', String(open));
   if (open) {
+    // Opening the bell reads everything: remembered in this browser only. What was new stays
+    // highlighted in the list until the next refresh.
     psaRenderBell();
-    psaLoadNotifications();
+    psaBellSet('opened', new Date().toISOString());
+    psaBellState.unread = 0;
+    psaRenderBell();
+    psaUpdateTitleCount();
   }
 }
 
@@ -3564,20 +3584,6 @@ function psaInitNotifications() {
   wrap.querySelector('.psa-bell-btn').addEventListener('click', e => { e.stopPropagation(); psaToggleBellPanel(); });
   wrap.querySelector('#psaBellPanel').addEventListener('click', async e => {
     e.stopPropagation();
-    if (e.target.closest('[data-bell-readall]')) {
-      await psaApi('POST', '/api/notifications/read').catch(() => null);
-      (psaBellState.items || []).forEach(n => { n.read = true; });
-      psaBellState.unread = 0;
-      psaRenderBell();
-      psaUpdateTitleCount();
-      return;
-    }
-    const item = e.target.closest('[data-bell-item]');
-    if (item) {
-      e.preventDefault();
-      await psaApi('POST', '/api/notifications/read', { id: Number(item.dataset.bellItem) }).catch(() => null);
-      window.location.href = item.getAttribute('href');
-    }
   });
   document.addEventListener('click', () => psaToggleBellPanel(false));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') psaToggleBellPanel(false); });

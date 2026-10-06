@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\ShowcaseProduct;
 use App\Support\Inventory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -53,8 +52,13 @@ class CatalogSeeder extends Seeder
 
                 $product->detail()->updateOrCreate(['product_id' => $product->id], [
                     'description' => $item['description'] ?? null,
-                    'specifications' => $item['specifications'] ?? [],
                 ]);
+                // One row per fact (1NF)
+                $product->specifications()->delete();
+                $i = 0;
+                foreach ($item['specifications'] ?? [] as $name => $value) {
+                    $product->specifications()->create(['name' => mb_substr($name, 0, 100), 'value' => (string) $value, 'sort_order' => $i++]);
+                }
 
                 $gallery = array_values(array_filter($item['gallery'] ?? [])) ?: array_values(array_filter([$item['image'] ?? null]));
                 $product->images()->delete();
@@ -64,17 +68,13 @@ class CatalogSeeder extends Seeder
 
                 if ($isNew) {
                     Inventory::setQuantity($product, ($item['inStock'] ?? true) ? 50 : 0, null, 'Opening stock (catalog seed)');
-                } else {
-                    Inventory::lock($product);
                 }
             }
 
             // The home page showcase starts with these, unless staff already picked their own.
-            if (! ShowcaseProduct::exists()) {
-                $picks = ['genz-25', 'genz-24', 'genz-08'];
-                $ids = Product::whereIn('sku', $picks)->pluck('id', 'sku');
-                foreach (array_values(array_filter($picks, fn ($sku) => isset($ids[$sku]))) as $i => $sku) {
-                    ShowcaseProduct::create(['product_id' => $ids[$sku], 'sort_order' => $i]);
+            if (! Product::whereNotNull('showcase_position')->exists()) {
+                foreach (['genz-25', 'genz-24', 'genz-08'] as $i => $sku) {
+                    Product::where('sku', $sku)->update(['showcase_position' => $i]);
                 }
             }
         });

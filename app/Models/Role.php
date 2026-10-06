@@ -4,9 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/** buyer, staff, admin. Permissions are linked through role_permissions (many-to-many). */
+/**
+ * buyer, staff, admin, plus any role an admin creates. Permissions are linked through
+ * role_permissions (many-to-many). Admin always has every permission; buyer works only in the shop.
+ */
 class Role extends Model
 {
+    /** Roles the website needs; they can't be renamed or deleted. */
+    public const BUILT_IN = ['admin', 'staff', 'buyer'];
+
+    /** Roles whose permissions are fixed: admin has all of them, buyer none. */
+    public const LOCKED = ['admin', 'buyer'];
+
     protected $fillable = ['name', 'description', 'is_active'];
 
     protected $casts = ['is_active' => 'boolean'];
@@ -25,6 +34,12 @@ class Role extends Model
     public function permissions()
     {
         return $this->belongsToMany(Permission::class, 'role_permissions');
+    }
+
+    /** "warehouse team" -> "Warehouse team", how the name is shown and sent to the pages. */
+    public static function label(?string $name): string
+    {
+        return ucfirst((string) $name);
     }
 
     public static function idFor(string $name): ?int

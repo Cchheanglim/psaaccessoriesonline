@@ -272,16 +272,45 @@
               <span>Items Total</span>
               <span class="font-bold text-[#2B1D1D]" id="coSubtotal">$0.00</span>
             </div>
+            <div class="flex justify-between hidden" id="coMemberRow">
+              <span id="coMemberLabel">Member discount</span>
+              <span class="font-bold text-emerald-700" id="coMemberDiscount">-$0.00</span>
+            </div>
+            <div class="flex justify-between hidden" id="coPromoRow">
+              <span>Promo <b class="font-mono text-[#2B1D1D]" id="coPromoCodeLabel"></b></span>
+              <span class="font-bold text-emerald-700" id="coPromoDiscount">-$0.00</span>
+            </div>
             <div class="flex justify-between">
               <span>Express Delivery</span>
               <span class="font-bold text-[#FFA552]" id="coDelivery">$1.50</span>
             </div>
           </div>
 
+          <!-- Promo code -->
+          <div class="border-t checkout-divider pt-4" id="promoBox">
+            <div id="promoEntry">
+              <label for="promoInput" class="block text-xs font-black text-[#2B1D1D] mb-1.5">Promo code</label>
+              <div class="flex gap-2">
+                <input id="promoInput" type="text" maxlength="30" autocomplete="off" autocapitalize="characters" placeholder="Type your code"
+                  class="min-w-0 flex-1 h-11 px-3 rounded-xl border border-[#EFE4D6] bg-white text-sm font-bold uppercase tracking-wide text-[#2B1D1D] placeholder:normal-case placeholder:font-medium placeholder:tracking-normal focus:outline-none focus:ring-2 focus:ring-[#FFA552]" />
+                <button type="button" id="promoApply" class="shrink-0 h-11 px-4 rounded-xl bg-[#2B1D1D] text-white text-xs font-black hover:bg-black cursor-pointer">Apply</button>
+              </div>
+            </div>
+            <div id="promoApplied" class="hidden flex items-center justify-between gap-2 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2.5">
+              <div class="min-w-0 text-xs">
+                <div class="font-black text-emerald-900"><span class="font-mono" id="promoAppliedCode"></span> applied</div>
+                <div class="text-emerald-800 truncate" id="promoAppliedNote"></div>
+              </div>
+              <button type="button" id="promoRemove" class="shrink-0 h-9 px-3 rounded-lg text-xs font-bold text-emerald-900 hover:bg-emerald-100 cursor-pointer">Remove</button>
+            </div>
+            <p id="promoError" class="hidden mt-1.5 text-xs font-bold text-red-700" role="alert"></p>
+          </div>
+
           <div class="border-t checkout-divider pt-4 flex justify-between items-baseline">
             <span class="text-sm font-black text-[#2B1D1D]">Total Due</span>
             <div class="text-right">
               <div class="checkout-total text-2xl font-black tracking-tight" id="coTotalUSD">$0.00</div>
+              <div class="text-xs font-bold text-stone-500 tabular-nums" id="coTotalRiel"></div>
             </div>
           </div>
 
@@ -441,21 +470,99 @@
         `;
       }).join('');
 
-      const delivery = psaDeliveryFee(cart, subtotal);
-      const total = subtotal + delivery;
-
-      document.getElementById('coSubtotal').textContent = `$${subtotal.toFixed(2)}`;
-      document.getElementById('coDelivery').textContent = psaDeliveryLabel(cart, subtotal);
-      document.getElementById('coTotalUSD').textContent = `$${total.toFixed(2)}`;
+      const a = getCheckoutAmounts();
+      const loyalty = PSA.user && PSA.user.loyalty;
+      document.getElementById('coSubtotal').textContent = `$${a.subtotalUsd}`;
+      document.getElementById('coMemberRow').classList.toggle('hidden', !(a.member > 0));
+      if (a.member > 0) {
+        document.getElementById('coMemberLabel').textContent = `${loyalty.tier} member ${loyalty.discountPercent}% off`;
+        document.getElementById('coMemberDiscount').textContent = `-$${a.member.toFixed(2)}`;
+      }
+      document.getElementById('coPromoRow').classList.toggle('hidden', !appliedPromo);
+      if (appliedPromo) {
+        document.getElementById('coPromoCodeLabel').textContent = appliedPromo.code;
+        document.getElementById('coPromoDiscount').textContent = `-$${a.promo.toFixed(2)}`;
+      }
+      document.getElementById('coDelivery').textContent = psaDeliveryLabel(a.cart, Number(a.subtotalUsd));
+      document.getElementById('coTotalUSD').textContent = `$${a.totalUsd}`;
+      document.getElementById('coTotalRiel').textContent = `about ${psaRiel(a.totalUsd)}`;
     }
 
+    // Pro / Max members get their tier's percent off the items, then a promo code comes off
+    // what is left. Delivery is worked out on the items before discounts. The server checks it all again.
+    let appliedPromo = null; // { code, label, description, percent | fixed }
     function getCheckoutAmounts() {
       const cart = getCart();
       const subtotal = cart.reduce((sum, item) => sum + item.priceUSD * item.quantity, 0);
+      const loyalty = PSA.user && PSA.user.loyalty;
+      const member = loyalty && loyalty.discountPercent ? Math.round(subtotal * loyalty.discountPercent) / 100 : 0;
+      let promo = 0;
+      if (appliedPromo) {
+        const rest = subtotal - member;
+        promo = appliedPromo.type === 'percent' ? Math.round(rest * appliedPromo.value) / 100 : Math.min(appliedPromo.value, rest);
+      }
       const delivery = psaDeliveryFee(cart, subtotal);
-      const totalUsd = (subtotal + delivery).toFixed(2);
-      return { cart, subtotalUsd: subtotal.toFixed(2), deliveryUsd: delivery.toFixed(2), totalUsd };
+      const totalUsd = Math.max(0, subtotal - member - promo + delivery).toFixed(2);
+      return { cart, member, promo, subtotalUsd: subtotal.toFixed(2), deliveryUsd: delivery.toFixed(2), totalUsd };
     }
+
+    function showPromoError(message) {
+      const el = document.getElementById('promoError');
+      el.textContent = message || '';
+      el.classList.toggle('hidden', !message);
+      document.getElementById('promoInput').setAttribute('aria-invalid', message ? 'true' : 'false');
+    }
+
+    async function applyPromo(code) {
+      code = String(code || '').trim();
+      showPromoError('');
+      if (!code) { showPromoError('Type a promo code first.'); return; }
+      if (!PSA.online) { showPromoError('Promo codes work when the shop is online.'); return; }
+      if (!PSA.user) { showPromoError('Sign in to use a promo code.'); return; }
+      const btn = document.getElementById('promoApply');
+      psaSetButtonLoading(btn, true, '…');
+      try {
+        const cart = getCart();
+        const res = await psaApi('POST', '/api/promo-codes/check', { code, items: cart.map(i => ({ id: i.id, quantity: i.quantity })) });
+        const percent = /%/.test(res.label);
+        appliedPromo = { code: res.code, label: res.label, description: res.description, type: percent ? 'percent' : 'fixed', value: parseFloat(res.label.replace(/[^0-9.]/g, '')) };
+        document.getElementById('promoAppliedCode').textContent = res.code;
+        document.getElementById('promoAppliedNote').textContent = `${res.label}${res.description ? ' · ' + res.description : ''} · -$${res.discountUSD}`;
+        document.getElementById('promoEntry').classList.add('hidden');
+        document.getElementById('promoApplied').classList.remove('hidden');
+        updateCheckoutSummary();
+      } catch (err) {
+        appliedPromo = null;
+        showPromoError(err.message);
+        updateCheckoutSummary();
+      } finally {
+        psaSetButtonLoading(btn, false);
+      }
+    }
+
+    function removePromo() {
+      appliedPromo = null;
+      document.getElementById('promoInput').value = '';
+      document.getElementById('promoApplied').classList.add('hidden');
+      document.getElementById('promoEntry').classList.remove('hidden');
+      showPromoError('');
+      updateCheckoutSummary();
+      document.getElementById('promoInput').focus();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('promoApply').addEventListener('click', () => applyPromo(document.getElementById('promoInput').value));
+      document.getElementById('promoInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); applyPromo(e.target.value); }
+      });
+      document.getElementById('promoInput').addEventListener('input', () => showPromoError(''));
+      document.getElementById('promoRemove').addEventListener('click', removePromo);
+      const fromLink = new URLSearchParams(location.search).get('promo');
+      if (fromLink) {
+        document.getElementById('promoInput').value = fromLink;
+        applyPromo(fromLink);
+      }
+    });
 
     // Live mode: the order is created in the database (prices and stock are checked by the server).
     // Demo mode (no server): it is kept in this browser only, as before.
@@ -472,7 +579,8 @@
           latitude: pos ? pos.lat : null,
           longitude: pos ? pos.lng : null,
           paymentMethod,
-          items: cart.map(i => ({ id: i.id, quantity: i.quantity }))
+          items: cart.map(i => ({ id: i.id, quantity: i.quantity })),
+          promoCode: appliedPromo ? appliedPromo.code : null
         });
         try {
           const orders = JSON.parse(localStorage.getItem('psa_orders') || '[]');

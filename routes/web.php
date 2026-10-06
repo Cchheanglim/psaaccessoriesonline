@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\PromoApiController;
+use App\Http\Controllers\Api\RoleApiController;
+use App\Http\Controllers\Api\StockApiController;
 use App\Http\Controllers\Api\StoreApiController;
 use App\Http\Controllers\Api\AdminApiController;
 use App\Http\Controllers\Api\ChatAssistantController;
@@ -25,7 +28,7 @@ Route::get('/home', fn () => response()->file(public_path('home.html')));
 // Staff portal pages live in resources/portal/ (not public/), so the web server can't hand
 // them out directly; they are only sent to signed-in Staff and Admin accounts.
 $portalPages = [
-    'dashboard-admin', 'admin-orders', 'admin-products', 'admin-users', 'admin-payment-methods', 'admin-messages',
+    'dashboard-admin', 'admin-orders', 'admin-products', 'admin-users', 'admin-payment-methods', 'admin-messages', 'admin-promo-codes',
     'order-detail--admin-payment-submitted', 'order-detail--staff-payment-submitted',
     'payment-method-form', 'product-detail--staff', 'product-form', 'user-form',
 ];
@@ -48,6 +51,7 @@ Route::prefix('api')->middleware('same-account')->group(function () {
     Route::put('/me/password', [StoreApiController::class, 'updatePassword']);
 
     Route::post('/orders', [StoreApiController::class, 'placeOrder'])->middleware('throttle:20,1');
+    Route::post('/promo-codes/check', [StoreApiController::class, 'checkPromoCode'])->middleware('throttle:30,1');
     Route::post('/orders/{orderNumber}/slip', [StoreApiController::class, 'uploadSlip']);
     Route::post('/orders/{orderNumber}/demo-paid', [StoreApiController::class, 'markDemoPaid']);
 
@@ -61,7 +65,6 @@ Route::prefix('api')->middleware('same-account')->group(function () {
 
     // Notification bell + staff Messages inbox
     Route::get('/notifications', [NotificationController::class, 'index']);
-    Route::post('/notifications/read', [NotificationController::class, 'markRead']);
     Route::get('/admin/conversations', [NotificationController::class, 'conversations']);
     Route::get('/chat/messages', [StoreApiController::class, 'getChatMessages']);
     Route::post('/chat/messages', [StoreApiController::class, 'sendChatMessage'])->middleware('throttle:30,1');
@@ -77,6 +80,14 @@ Route::prefix('api')->middleware('same-account')->group(function () {
         Route::put('/showcase', [AdminApiController::class, 'updateShowcase']);
         Route::put('/site-content', [AdminApiController::class, 'updateSiteContent']);
         Route::put('/socials', [AdminApiController::class, 'updateSocials']);
+        Route::get('/suppliers', [StockApiController::class, 'suppliers']);
+        Route::post('/suppliers', [StockApiController::class, 'storeSupplier']);
+        Route::patch('/suppliers/{supplier}', [StockApiController::class, 'updateSupplier']);
+        Route::delete('/suppliers/{supplier}', [StockApiController::class, 'destroySupplier']);
+        Route::get('/purchase-orders', [StockApiController::class, 'purchaseOrders']);
+        Route::post('/purchase-orders', [StockApiController::class, 'storePurchaseOrder']);
+        Route::patch('/purchase-orders/{purchaseOrder}', [StockApiController::class, 'updatePurchaseOrder']);
+        Route::delete('/purchase-orders/{purchaseOrder}', [StockApiController::class, 'destroyPurchaseOrder']);
         Route::post('/sort-options', [AdminApiController::class, 'storeSortOption']);
         Route::put('/sort-options/order', [AdminApiController::class, 'reorderSortOptions']);
         Route::patch('/sort-options/{sortOption}', [AdminApiController::class, 'updateSortOption']);
@@ -84,6 +95,14 @@ Route::prefix('api')->middleware('same-account')->group(function () {
         Route::patch('/orders/{orderNumber}', [AdminApiController::class, 'updateOrder']);
         Route::post('/users', [AdminApiController::class, 'storeUser']);
         Route::patch('/users/{user}', [AdminApiController::class, 'updateUser']);
+        Route::get('/promo-codes', [PromoApiController::class, 'index']);
+        Route::post('/promo-codes', [PromoApiController::class, 'store']);
+        Route::patch('/promo-codes/{promoCode}', [PromoApiController::class, 'update']);
+        Route::delete('/promo-codes/{promoCode}', [PromoApiController::class, 'destroy']);
+        Route::get('/roles', [RoleApiController::class, 'index']);
+        Route::post('/roles', [RoleApiController::class, 'store']);
+        Route::patch('/roles/{role}', [RoleApiController::class, 'update']);
+        Route::delete('/roles/{role}', [RoleApiController::class, 'destroy']);
         Route::post('/payment-methods', [AdminApiController::class, 'storePaymentMethod']);
         Route::patch('/payment-methods/{paymentMethod}', [AdminApiController::class, 'updatePaymentMethod']);
         Route::delete('/payment-methods/{paymentMethod}', [AdminApiController::class, 'destroyPaymentMethod']);

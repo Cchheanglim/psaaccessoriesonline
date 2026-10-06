@@ -3,15 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
+use App\Models\CustomerAddress;
 use App\Models\Order;
 use App\Models\OrderMessage;
-use App\Models\OrderStatus;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\ProductReview;
+use App\Models\PromoCode;
+use App\Models\Role;
 use App\Models\User;
 use App\Support\Inventory;
-use App\Support\Notifier;
 use App\Support\Storefront;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -69,8 +71,12 @@ class StoreApiController extends Controller
             'siteContent' => $catalog['siteContent'],
             'paymentMethods' => $catalog['paymentMethods'],
             'orders' => $orders->map(fn ($o) => Storefront::order($o))->values(),
-            'users' => $user?->isAdmin()
-                ? User::with('customer.defaultAddress', 'customer.tier', 'settings')->orderBy('id')->get()->map(fn ($u) => Storefront::user($u))->values()
+            'users' => $user?->isStaff() && $user->hasPermission('manage_users')
+                ? User::with(['customer.defaultAddress'])->orderBy('id')->get()->map(fn ($u) => Storefront::user($u))->values()
+                : [],
+            'coupons' => Storefront::coupons(),
+            'roles' => $user?->isStaff() && $user->hasPermission('manage_users')
+                ? Role::orderBy('id')->get()->map(fn (Role $r) => ['name' => Role::label($r->name), 'description' => $r->description, 'portal' => $r->name !== 'buyer'])->values()
                 : [],
         ]);
     }
@@ -237,6 +243,7 @@ class StoreApiController extends Controller
             'items' => ['required', 'array', 'min:1', 'max:50'],
             'items.*.id' => ['required', 'string', 'max:64'],
             'items.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
+            'promoCode' => ['nullable', 'string', 'max:30'],
         ], [
             'customerName.required' => 'Recipient name is required.',
             'customerName.min' => 'Recipient name must be at least 2 characters.',
@@ -276,53 +283,56 @@ class StoreApiController extends Controller
 
             $subtotal = 0;
             foreach ($wanted as $line) {
-                $stock = Inventory::lock($line['product']);
-                if ($stock->quantity_on_hand < $line['quantity']) {
-                    throw ValidationException::withMessages(['items' => "Only {$stock->quantity_on_hand} left of \"{$line['product']->title}\"."]);
+                $onHand = Inventory::lock($line['product']);
+                if ($onHand < $line['quantity']) {
+                    throw ValidationException::withMessages(['items' => "Only {$onHand} left of \"{$line['product']->title}\"."]);
                 }
-                $subtotal += round((float) $line['product']->price_usd * $line['quantity'], 2);
+                $subtotal += round($line['product']->sellingPrice() * $line['quantity'], 2);
+            }
+
+            // Pro and Max members get their tier's discount on the items, then a promo code
+            // takes money off what is left (checked again here, the browser only previews it).
+            $memberDiscount = $customer->tier->discountFor($subtotal);
+            $promo = null;
+            $discount = 0.0;
+            if (filled($data['promoCode'] ?? null)) {
+                $promo = PromoCode::where('code', PromoCode::normalize($data['promoCode']))->lockForUpdate()->first()
+                    ?? throw ValidationException::withMessages(['promoCode' => 'We could not find code "'.PromoCode::normalize($data['promoCode']).'". Check the spelling.']);
+                if ($problem = $promo->problemFor($customer, $subtotal)) {
+                    throw ValidationException::withMessages(['promoCode' => $problem]);
+                }
+                $discount = $promo->discountFor($subtotal - $memberDiscount);
             }
 
             $freeItem = Product::whereIn('id', array_keys($wanted))->whereHas('freeDeliveryGroups')->exists();
-            $delivery = Storefront::deliveryFee($subtotal, $freeItem);
-            $total = round($subtotal + $delivery, 2);
+            $delivery = Storefront::deliveryFee($subtotal, $freeItem); // worked out on the items before any discount
+            $total = round($subtotal - $memberDiscount - $discount + $delivery, 2);
+
+            // The order points at the address it ships to (reused when the same one was used before).
+            $address = $this->addressForOrder($customer, $data);
 
             $order = Order::create([
                 'order_number' => $this->newOrderNumber(),
                 'customer_id' => $customer->id,
-                'payment_method_id' => $method->id,
-                'order_status_id' => OrderStatus::idFor('pending_payment'),
-                'address_id' => $customer->defaultAddress?->id,
-                'customer_name' => $data['customerName'],
-                'customer_phone' => $data['phone'],
-                'delivery_address' => $data['address'],
+                'address_id' => $address->id,
                 'delivery_notes' => $data['notes'] ?? null,
-                'latitude' => $data['latitude'] ?? null,
-                'longitude' => $data['longitude'] ?? null,
-                'subtotal_usd' => $subtotal,
-                'discount_usd' => 0,
-                'points_redeemed' => 0,
-                'tax_usd' => 0,
+                'promo_code_id' => $promo?->id,
+                'member_discount_usd' => $memberDiscount,
                 'delivery_fee_usd' => $delivery,
-                'total_usd' => $total,
             ]);
-            $order->statusHistory()->create(['order_status_id' => $order->order_status_id, 'changed_by' => $user->id, 'note' => 'Order placed']);
+            $order->moveTo('pending_payment', $user, 'Order placed');
             $order->payments()->create(['payment_method_id' => $method->id, 'amount_usd' => $total, 'status' => 'pending']);
 
             foreach ($wanted as $line) {
                 $product = $line['product'];
-                $cost = $product->stock?->average_cost_usd;
                 $item = $order->items()->create([
                     'product_id' => $product->id,
-                    'product_title' => $product->title,
-                    'product_image' => $product->primaryImagePath(),
                     'quantity' => $line['quantity'],
-                    'unit_price_usd' => $product->price_usd,
-                    'unit_cost_usd' => $cost,
+                    'unit_price_usd' => $product->sellingPrice(), // the price agreed in this sale (after any product sale)
+                    'unit_cost_usd' => $product->averageCost(), // what it cost the shop at this time
                 ]);
                 Inventory::move($product, 'sale', -$line['quantity'], [
-                    'by' => $user, 'unit_price' => $product->price_usd, 'unit_cost' => $cost,
-                    'order_item_id' => $item->id, 'reason' => "Sold in order {$order->order_number}",
+                    'by' => $user, 'order_item_id' => $item->id, 'reason' => "Sold in order {$order->order_number}",
                 ]);
             }
 
@@ -331,10 +341,45 @@ class StoreApiController extends Controller
 
         Storefront::forgetCatalog(); // stock changed
 
-        Notifier::toStaff($order, 'order_placed', "New order {$order->order_number}",
-            sprintf('%s ordered %d item(s), $%s by %s.', $order->customer_name, $order->items->sum('quantity'), number_format((float) $order->total_usd, 2), Storefront::paymentName($order->payment_method)));
 
         return response()->json(['order' => Storefront::order($order->fresh())], 201);
+    }
+
+    /**
+     * Checkout preview: does this code work for these items, and how much does it take off?
+     * placeOrder checks it again, so this only tells the customer early.
+     */
+    public function checkPromoCode(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'code' => ['required', 'string', 'max:30'],
+            'items' => ['required', 'array', 'min:1', 'max:50'],
+            'items.*.id' => ['required', 'string', 'max:64'],
+            'items.*.quantity' => ['required', 'integer', 'min:1', 'max:99'],
+        ], ['code.required' => 'Type a promo code first.']);
+
+        $promo = PromoCode::findByCode($data['code']);
+        if (! $promo) {
+            throw ValidationException::withMessages(['code' => 'We could not find code "'.PromoCode::normalize($data['code']).'". Check the spelling.']);
+        }
+        $subtotal = collect($data['items'])->sum(function ($line) {
+            $product = Product::findByKey($line['id']);
+
+            return $product && $product->status === 'active' ? round($product->sellingPrice() * $line['quantity'], 2) : 0;
+        });
+        $customer = $request->user()?->customer;
+        if ($problem = $promo->problemFor($customer, (float) $subtotal)) {
+            throw ValidationException::withMessages(['code' => $problem]);
+        }
+        $memberDiscount = $customer ? $customer->tier->discountFor((float) $subtotal) : 0.0;
+
+        return response()->json([
+            'code' => $promo->code,
+            'label' => $promo->label(),
+            'description' => $promo->description,
+            'memberDiscountUSD' => number_format($memberDiscount, 2, '.', ''),
+            'discountUSD' => number_format($promo->discountFor((float) $subtotal - $memberDiscount), 2, '.', ''),
+        ]);
     }
 
     /**
@@ -362,8 +407,6 @@ class StoreApiController extends Controller
         }
         $order->unsetRelation('latestPayment');
 
-        Notifier::toStaff($order, 'slip_uploaded', "Payment slip for {$order->order_number}",
-            "{$order->customer_name} uploaded a slip for $".number_format((float) $order->total_usd, 2).'. Check it and approve.');
 
         return response()->json(['order' => Storefront::order($order->fresh())]);
     }
@@ -459,6 +502,7 @@ class StoreApiController extends Controller
         ]);
 
         $fromStaff = $order->user_id !== $user->id;
+        abort_if($fromStaff && ! $user->hasPermission('manage_messages'), 403, 'Your role does not have the "Customer messages" permission.');
         $body = trim($data['body']);
 
         $order->messages()->create([
@@ -467,18 +511,11 @@ class StoreApiController extends Controller
         ]);
         $this->markThreadRead($request, $order);
 
-        $preview = mb_strimwidth($body, 0, 140, '…');
-        if ($fromStaff) {
-            Notifier::toCustomer($order, 'message', "New message about order {$order->order_number}", $preview,
-                'order-detail.html?order='.rawurlencode($order->order_number).'#messages');
-        } else {
-            Notifier::toStaff($order, 'message', "{$order->customer_name} sent a message ({$order->order_number})", $preview, $user->id);
-        }
 
         return response()->json(['messages' => $this->messageList($order)], 201);
     }
 
-    /** Opening a thread marks the other side's messages, and this order's message notices, as read. */
+    /** Opening a thread marks the other side's messages as read. */
     private function markThreadRead(Request $request, Order $order): void
     {
         $user = $request->user();
@@ -491,8 +528,6 @@ class StoreApiController extends Controller
             ->when($viewerIsCustomer, fn ($q) => $q->where(fn ($q) => $q->where('sender_id', '!=', $user->id)->orWhereNull('sender_id')),
                 fn ($q) => $q->where('sender_id', $order->user_id))
             ->update(['read_at' => now()]);
-        \App\Models\UserNotification::where('user_id', $user->id)->where('order_id', $order->id)
-            ->where('type', 'message')->whereNull('read_at')->update(['read_at' => now()]);
     }
 
     private function messageList(Order $order): array
@@ -589,17 +624,58 @@ class StoreApiController extends Controller
         $address = $customer->defaultAddress;
 
         if (trim((string) $line) === '') {
-            $address?->delete();
+            if ($address) {
+                $this->retireAddress($address);
+            }
 
             return;
         }
-        if ($address) {
+        if ($address && ! $address->orders()->exists()) {
             $address->update(['address_line' => $line]);
-        } else {
-            $customer->addresses()->create([
-                'label' => 'Home', 'recipient_name' => $user->name, 'phone' => $user->phone, 'address_line' => $line, 'is_default' => true,
-            ]);
+
+            return;
         }
+        // An address an order shipped to never changes: save a new one and archive the old.
+        if ($address) {
+            $this->retireAddress($address);
+        }
+        $customer->addresses()->create([
+            'label' => $address?->label ?? 'Home', 'recipient_name' => $address?->recipient_name ?? $user->name,
+            'phone' => $address?->phone ?? $user->phone, 'address_line' => $line, 'is_default' => true,
+        ]);
+    }
+
+    /** Remove an address from the address book: archive it if an order used it, otherwise delete it. */
+    private function retireAddress(CustomerAddress $address): void
+    {
+        if ($address->orders()->exists()) {
+            $address->update(['is_default' => false, 'archived_at' => now()]);
+        } else {
+            $address->delete();
+        }
+    }
+
+    /**
+     * The address an order ships to: the customer's own address with exactly these details if there is
+     * one, otherwise a new one (it becomes the default when the customer has none yet).
+     */
+    private function addressForOrder(Customer $customer, array $data): CustomerAddress
+    {
+        $details = [
+            'recipient_name' => trim($data['customerName']),
+            'phone' => trim($data['phone']),
+            'address_line' => trim($data['address']),
+            'latitude' => isset($data['latitude']) ? round((float) $data['latitude'], 7) : null,
+            'longitude' => isset($data['longitude']) ? round((float) $data['longitude'], 7) : null,
+        ];
+        $same = $customer->addresses()->whereNull('archived_at')->get()->first(fn (CustomerAddress $a) => $a->recipient_name === $details['recipient_name']
+            && $a->phone === $details['phone'] && $a->address_line === $details['address_line']
+            && round((float) $a->latitude, 7) === round((float) $details['latitude'], 7)
+            && round((float) $a->longitude, 7) === round((float) $details['longitude'], 7));
+
+        return $same ?? $customer->addresses()->create($details + [
+            'label' => 'Delivery', 'is_default' => ! $customer->defaultAddress()->exists(),
+        ]);
     }
 
     /** "Sophea Chhum" becomes "Sophea C." so reviews don't publish full names. */

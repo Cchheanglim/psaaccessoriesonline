@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Promo codes — PsaOnline Staff</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="description" content="Codes customers type at checkout for money off." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { sorbet: '#FFA552', cotton: '#F9F3EA', espresso: '#2B1D1D' } } } };</script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
+  <style>
+    .code-chip { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 8px; border: 1px dashed var(--pt-line-strong); background: var(--pt-sunken); font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-size: 13px; font-weight: 700; letter-spacing: .04em; color: var(--pt-ink); }
+    .toggle-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 12px 0; }
+    .toggle-row + .toggle-row { border-top: 1px solid var(--pt-line); }
+    .toggle-row b { display: block; font-size: 14px; }
+    .toggle-row small { display: block; font-size: 12px; color: var(--pt-ink-2); margin-top: 2px; }
+    #promoTable tr.is-selected { background: var(--pt-accent-soft); }
+  </style>
+</head>
+<body class="pt" data-portal="promos">
+  <div class="pt-frame">
+    <main class="pt-main">
+      <div class="pt-head">
+        <div class="pt-head__text">
+          <h1>Promo codes</h1>
+          <p>Codes customers type at checkout for money off their items. Delivery is never discounted, and the server checks every rule again when the order is placed.</p>
+        </div>
+        <div class="pt-head__actions">
+          <button type="button" class="pt-btn pt-btn--primary" id="newPromoBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            New code
+          </button>
+        </div>
+      </div>
+
+      <div class="pt-grid pt-grid--main-side">
+        <section class="pt-panel" aria-labelledby="promoListTitle">
+          <div class="pt-toolbar">
+            <h2 id="promoListTitle" class="sr-only">All codes</h2>
+            <div class="pt-seg" id="promoFilter" aria-label="Show">
+              <button type="button" data-show="live" aria-pressed="true">Live</button>
+              <button type="button" data-show="ended" aria-pressed="false">Ended or off</button>
+              <button type="button" data-show="all" aria-pressed="false">All</button>
+            </div>
+          </div>
+          <div class="pt-table-wrap">
+            <table class="pt-table pt-table--stack" id="promoTable">
+              <thead>
+                <tr>
+                  <th scope="col">Code</th>
+                  <th scope="col">Discount</th>
+                  <th scope="col" class="is-num">Used</th>
+                  <th scope="col">Status</th>
+                  <th scope="col" class="is-end"><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody id="promoBody"><tr><td colspan="5"><span class="pt-skel" style="width:50%"></span></td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <form class="pt-panel pt-sticky" id="promoForm" novalidate aria-labelledby="promoFormTitle">
+          <div class="pt-panel__head">
+            <div>
+              <h2 class="pt-section-title" id="promoFormTitle">New code</h2>
+              <p class="pt-section-sub" id="promoFormSub">Fill this in and customers can use it straight away.</p>
+            </div>
+          </div>
+          <div class="pt-panel__body">
+            <div id="usedNote" class="pt-note" style="margin-bottom:16px" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              <span>Customers have used this code, so its name and discount stay the same. You can still change the dates, limits and description, or turn it off.</span>
+            </div>
+
+            <div class="pt-field">
+              <label class="pt-label" for="promoCode">Code customers type</label>
+              <div style="display:flex;gap:8px">
+                <input id="promoCode" class="pt-input pt-mono" maxlength="30" placeholder="SUMMER10" autocomplete="off" style="text-transform:uppercase;letter-spacing:.04em" />
+                <button type="button" class="pt-btn pt-btn--secondary" id="randomCode" title="Make up a code">Suggest</button>
+              </div>
+              <span class="pt-hint">Letters, numbers, - or _. Capitals don't matter to customers.</span>
+              <span class="pt-error" data-error="code" hidden></span>
+            </div>
+
+            <div class="pt-field">
+              <span class="pt-label" id="typeLabel">Discount</span>
+              <div class="pt-seg" role="radiogroup" aria-labelledby="typeLabel" id="promoType" style="margin-bottom:8px">
+                <button type="button" role="radio" data-type="percent" aria-checked="true" aria-pressed="true">Percent off</button>
+                <button type="button" role="radio" data-type="fixed" aria-checked="false" aria-pressed="false">Dollars off</button>
+              </div>
+              <div class="pt-addon">
+                <span id="unitBefore" hidden>$</span>
+                <input id="promoValue" class="pt-input" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="10" aria-label="Discount amount" />
+                <span id="unitAfter">%</span>
+              </div>
+              <span class="pt-error" data-error="discountValue" hidden></span>
+            </div>
+
+            <div class="pt-field">
+              <label class="pt-label" for="promoDescription">Note for customers <span class="pt-faint">(optional)</span></label>
+              <input id="promoDescription" class="pt-input" maxlength="160" placeholder="Back-to-school week" />
+            </div>
+
+            <div class="pt-field">
+              <label class="pt-label" for="promoMin">Minimum spend on items <span class="pt-faint">(optional)</span></label>
+              <div class="pt-addon"><span>$</span><input id="promoMin" class="pt-input" type="number" min="0" step="0.01" inputmode="decimal" placeholder="No minimum" /></div>
+            </div>
+
+            <div class="pt-row pt-row--2" style="margin-top:16px">
+              <div class="pt-field">
+                <label class="pt-label" for="promoMax">Total uses</label>
+                <input id="promoMax" class="pt-input" type="number" min="1" step="1" inputmode="numeric" placeholder="No limit" />
+              </div>
+              <div class="pt-field">
+                <label class="pt-label" for="promoPerCustomer">Per customer</label>
+                <input id="promoPerCustomer" class="pt-input" type="number" min="1" step="1" inputmode="numeric" placeholder="No limit" />
+              </div>
+            </div>
+
+            <div class="pt-row pt-row--2" style="margin-top:16px">
+              <div class="pt-field">
+                <label class="pt-label" for="promoStarts">Starts</label>
+                <input id="promoStarts" class="pt-input" type="date" />
+              </div>
+              <div class="pt-field">
+                <label class="pt-label" for="promoEnds">Ends after</label>
+                <input id="promoEnds" class="pt-input" type="date" />
+              </div>
+            </div>
+            <span class="pt-hint">Leave the dates empty to start now and never end.</span>
+            <span class="pt-error" data-error="endsAt" hidden></span>
+
+            <div style="margin-top:12px">
+              <div class="toggle-row">
+                <span><b>Customers can use it</b><small>Turn off to stop it working without deleting it.</small></span>
+                <label class="pt-switch"><input type="checkbox" id="promoActive" checked aria-label="Customers can use it"><span></span></label>
+              </div>
+              <div class="toggle-row">
+                <span><b>Show it under "My coupons"</b><small>Signed-in customers see it on their account page. Off: only people you tell can use it.</small></span>
+                <label class="pt-switch"><input type="checkbox" id="promoShow" aria-label="Show it under My coupons"><span></span></label>
+              </div>
+            </div>
+            <span class="pt-error" data-error="form" hidden></span>
+          </div>
+          <div class="pt-panel__foot">
+            <button type="button" class="pt-btn pt-btn--danger" id="deletePromoBtn" style="margin-right:auto" hidden>Delete</button>
+            <button type="button" class="pt-btn pt-btn--ghost" id="cancelEditBtn" hidden>Cancel</button>
+            <button type="submit" class="pt-btn pt-btn--primary" id="savePromoBtn">Create code</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/rbac.js"></script>
+  <script src="assets/js/portal-shell.js"></script>
+  <script>
+    const STATE = {
+      active: ['Live', 'green'], scheduled: ['Starts later', 'sky'], expired: ['Ended', 'grey'],
+      used_up: ['All used', 'amber'], off: ['Off', 'grey']
+    };
+    let promos = [];
+    let show = 'live';
+    let editing = null; // promo id or null for a new one
+    let type = 'percent';
+    const $ = id => document.getElementById(id);
+    const money = v => '$' + Number(v || 0).toFixed(2);
+    const day = iso => iso ? new Date(iso).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+    const dateInput = iso => {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+
+    async function load() {
+      try {
+        ({ promoCodes: promos } = await psaApi('GET', '/api/admin/promo-codes'));
+        if (!promos.some(p => ['active', 'scheduled'].includes(p.state)) && promos.length) setShow('all');
+        render();
+      } catch (err) {
+        $('promoBody').innerHTML = `<tr><td colspan="5"><p class="pt-error">${psaEsc(err.message)}</p></td></tr>`;
+      }
+    }
+
+    function setShow(next) {
+      show = next;
+      document.querySelectorAll('[data-show]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.show === show)));
+    }
+
+    function render() {
+      const rows = promos.filter(p => show === 'all' || (show === 'live' ? ['active', 'scheduled'].includes(p.state) : !['active', 'scheduled'].includes(p.state)));
+      if (!rows.length) {
+        $('promoBody').innerHTML = `<tr><td colspan="5"><div class="pt-empty">
+          <h3>${promos.length ? 'Nothing here' : 'No promo codes yet'}</h3>
+          <p>${promos.length ? 'Switch to another tab to see your other codes.' : 'Create your first code with the form. For example SUMMER10 for 10% off, or WELCOME2 for $2 off orders over $15.'}</p>
+        </div></td></tr>`;
+        return;
+      }
+      $('promoBody').innerHTML = rows.map(p => {
+        const [label, tone] = STATE[p.state] || ['—', 'grey'];
+        const when = p.state === 'scheduled' ? `From ${day(p.startsAt)}` : p.endsAt ? `${p.state === 'expired' ? 'Ended' : 'Until'} ${day(p.endsAt)}` : 'No end date';
+        const rules = [p.minOrderUSD ? `${money(p.minOrderUSD)}+ on items` : null, p.maxUsesPerCustomer ? `${p.maxUsesPerCustomer}× per customer` : null].filter(Boolean).join(' · ');
+        return `
+          <tr class="${p.id === editing ? 'is-selected' : ''}">
+            <td><span class="code-chip">${psaEsc(p.code)}</span><span class="pt-sub">${psaEsc(p.description || when)}${p.description ? ' · ' + psaEsc(when) : ''}</span></td>
+            <td data-label="Discount"><span class="pt-strong">${psaEsc(p.label)}</span><span class="pt-sub">${psaEsc(rules || 'Any order')}</span></td>
+            <td data-label="Used" class="is-num"><span class="pt-strong">${p.uses}${p.maxUses ? ` / ${p.maxUses}` : ''}</span>${Number(p.discountGivenUSD) ? `<span class="pt-sub">${money(p.discountGivenUSD)} off</span>` : ''}</td>
+            <td data-label="Status"><span class="pt-badge pt-badge--${tone}">${label}</span>${p.showToCustomers && p.state === 'active' ? '<span class="pt-sub">In My coupons</span>' : ''}</td>
+            <td class="is-end"><div class="pt-actions"><button type="button" class="pt-btn pt-btn--secondary pt-btn--sm" data-edit="${p.id}">Edit</button></div></td>
+          </tr>`;
+      }).join('');
+    }
+
+    function setType(next) {
+      type = next;
+      document.querySelectorAll('[data-type]').forEach(b => {
+        const on = b.dataset.type === type;
+        b.setAttribute('aria-checked', String(on));
+        b.setAttribute('aria-pressed', String(on));
+      });
+      $('unitBefore').hidden = type !== 'fixed';
+      $('unitAfter').hidden = type !== 'percent';
+      $('promoValue').max = type === 'percent' ? 100 : 10000;
+      $('promoValue').placeholder = type === 'percent' ? '10' : '2.00';
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('[data-error]').forEach(el => { el.hidden = true; el.textContent = ''; });
+      document.querySelectorAll('#promoForm [aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
+    }
+
+    function fill(p) {
+      editing = p ? p.id : null;
+      clearErrors();
+      $('promoFormTitle').textContent = p ? `Edit ${p.code}` : 'New code';
+      $('promoFormSub').textContent = p
+        ? `${p.uses} use${p.uses === 1 ? '' : 's'} so far, ${money(p.discountGivenUSD)} taken off.`
+        : 'Fill this in and customers can use it straight away.';
+      $('promoCode').value = p ? p.code : '';
+      setType(p ? p.discountType : 'percent');
+      $('promoValue').value = p ? p.discountValue : '';
+      $('promoDescription').value = p ? (p.description || '') : '';
+      $('promoMin').value = p && p.minOrderUSD != null ? p.minOrderUSD : '';
+      $('promoMax').value = p && p.maxUses != null ? p.maxUses : '';
+      $('promoPerCustomer').value = p ? (p.maxUsesPerCustomer ?? '') : '1';
+      $('promoStarts').value = p ? dateInput(p.startsAt) : '';
+      $('promoEnds').value = p ? dateInput(p.endsAt) : '';
+      $('promoActive').checked = p ? p.isActive : true;
+      $('promoShow').checked = p ? p.showToCustomers : false;
+
+      const locked = !!(p && p.used);
+      $('usedNote').hidden = !locked;
+      ['promoCode', 'promoValue', 'randomCode'].forEach(id => { $(id).disabled = locked; });
+      document.querySelectorAll('[data-type]').forEach(b => { b.disabled = locked; });
+      $('savePromoBtn').textContent = p ? 'Save changes' : 'Create code';
+      $('cancelEditBtn').hidden = !p;
+      $('deletePromoBtn').hidden = !p;
+      $('deletePromoBtn').textContent = locked ? 'Turn off for good' : 'Delete';
+      render();
+    }
+
+    function payload() {
+      const num = id => ($(id).value === '' ? null : Number($(id).value));
+      const data = {
+        description: $('promoDescription').value.trim() || null,
+        minOrderUSD: num('promoMin'),
+        maxUses: num('promoMax'),
+        maxUsesPerCustomer: num('promoPerCustomer'),
+        startsAt: $('promoStarts').value || null,
+        endsAt: $('promoEnds').value || null,
+        isActive: $('promoActive').checked,
+        showToCustomers: $('promoShow').checked
+      };
+      const p = promos.find(x => x.id === editing);
+      if (!p || !p.used) Object.assign(data, { code: $('promoCode').value.trim(), discountType: type, discountValue: num('promoValue') });
+      return data;
+    }
+
+    function showErrors(err) {
+      const map = { code: 'promoCode', discountValue: 'promoValue', endsAt: 'promoEnds' };
+      const errors = err.errors || {};
+      let shown = false;
+      Object.entries(errors).forEach(([key, list]) => {
+        const slot = document.querySelector(`[data-error="${key}"]`) || document.querySelector('[data-error="form"]');
+        slot.textContent = [].concat(list)[0];
+        slot.hidden = false;
+        if (map[key]) $(map[key]).setAttribute('aria-invalid', 'true');
+        if (!shown && map[key]) { $(map[key]).focus(); shown = true; }
+      });
+      if (!Object.keys(errors).length) {
+        const slot = document.querySelector('[data-error="form"]');
+        slot.textContent = err.message;
+        slot.hidden = false;
+      }
+    }
+
+    async function save(e) {
+      e.preventDefault();
+      clearErrors();
+      const data = payload();
+      if (data.code !== undefined && !data.code) return showErrors({ errors: { code: ['Give the code a name customers will type, like SUMMER10.'] } });
+      if (data.discountValue !== undefined && !(data.discountValue > 0)) return showErrors({ errors: { discountValue: ['How much should it take off?'] } });
+      const btn = $('savePromoBtn');
+      psaSetButtonLoading(btn, true, 'Saving…');
+      try {
+        const res = editing
+          ? await psaApi('PATCH', `/api/admin/promo-codes/${editing}`, data)
+          : await psaApi('POST', '/api/admin/promo-codes', data);
+        promos = res.promoCodes;
+        showRBACToast(editing ? `${psaEsc(res.promoCode.code)} saved.` : `${psaEsc(res.promoCode.code)} is ready. Customers can type it at checkout.`, 'success');
+        if (!['active', 'scheduled'].includes(res.promoCode.state) && show === 'live') setShow('all');
+        fill(editing ? res.promoCode : null);
+      } catch (err) {
+        showErrors(err);
+      } finally {
+        psaSetButtonLoading(btn, false);
+        $('savePromoBtn').textContent = editing ? 'Save changes' : 'Create code';
+      }
+    }
+
+    async function remove() {
+      const p = promos.find(x => x.id === editing);
+      if (!p) return;
+      const msg = p.used
+        ? `Turn off ${p.code}? Customers have used it, so it stays in the list (turned off) for the orders that used it.`
+        : `Delete ${p.code}? Nobody has used it yet.`;
+      if (!confirm(msg)) return;
+      try {
+        const res = await psaApi('DELETE', `/api/admin/promo-codes/${p.id}`);
+        promos = res.promoCodes;
+        showRBACToast(res.turnedOff ? `${psaEsc(p.code)} turned off.` : `${psaEsc(p.code)} deleted.`, 'success');
+        fill(null);
+      } catch (err) {
+        showErrors(err);
+      }
+    }
+
+    function suggestCode() {
+      const words = ['PSA', 'GLOW', 'CUTE', 'SPARK', 'BUNNY', 'BLOOM'];
+      const value = Number($('promoValue').value) || 10;
+      $('promoCode').value = `${words[Math.floor(Math.random() * words.length)]}${type === 'percent' ? Math.round(value) : Math.round(value) + 'OFF'}`;
+      $('promoCode').focus();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (ptDenied()) return;
+      setType('percent');
+      $('promoPerCustomer').value = '1';
+      load();
+      $('promoFilter').addEventListener('click', e => { const b = e.target.closest('[data-show]'); if (b) { setShow(b.dataset.show); render(); } });
+      $('promoBody').addEventListener('click', e => {
+        const b = e.target.closest('[data-edit]');
+        if (!b) return;
+        fill(promos.find(p => p.id === Number(b.dataset.edit)));
+        if (window.innerWidth < 1024) $('promoForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      $('promoType').addEventListener('click', e => { const b = e.target.closest('[data-type]'); if (b && !b.disabled) setType(b.dataset.type); });
+      $('newPromoBtn').addEventListener('click', () => { fill(null); $('promoCode').focus(); });
+      $('cancelEditBtn').addEventListener('click', () => fill(null));
+      $('randomCode').addEventListener('click', suggestCode);
+      $('promoForm').addEventListener('submit', save);
+      $('deletePromoBtn').addEventListener('click', remove);
+    });
+  </script>
+</body>
+</html>

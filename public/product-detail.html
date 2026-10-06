@@ -285,7 +285,11 @@
     loadReviews();
     document.getElementById('productKhmerTitle').textContent = selectedProduct.titleKhmer;
     document.getElementById('productDescription').textContent = selectedProduct.description;
-    document.getElementById('productPriceUSD').textContent = `$${selectedProduct.priceUSD.toFixed(2)}`;
+    document.getElementById('productPriceUSD').innerHTML = psaPriceHtml(selectedProduct, 'lg');
+    if (selectedProduct.onSale && selectedProduct.discountEndsAt) {
+      const ends = new Date(selectedProduct.discountEndsAt).toLocaleDateString([], { day: 'numeric', month: 'long' });
+      document.getElementById('productPriceUSD').insertAdjacentHTML('beforeend', `<span class="block text-sm font-bold text-stone-600 mt-1">Sale ends ${psaEsc(ends)}</span>`);
+    }
     document.getElementById('freeDeliveryNote').classList.toggle('hidden', !selectedProduct.freeDelivery);
 
     function adjustDetailQty(delta) {

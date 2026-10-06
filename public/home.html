@@ -372,7 +372,7 @@
             ${p.titleKhmer ? `<p class="font-khmer mt-0.5 text-sm text-stone-600 line-clamp-1" lang="km">${psaEsc(p.titleKhmer)}</p>` : ''}
             <div class="mt-auto pt-2.5 flex items-center justify-between gap-2">
               <div class="leading-tight min-w-0">
-                <span class="block text-base sm:text-lg font-black text-[#2B1D1D]">${psaEsc(formatPrice(p.priceUSD))}</span>
+                <span class="block text-base sm:text-lg font-black text-[#2B1D1D]">${psaPriceHtml(p)}</span>
               </div>
               <button type="button" onclick="addToCart('${id}', 1)" class="shrink-0 h-11 px-4 rounded-full bg-espresso text-cotton hover:bg-black dark:bg-sorbet dark:text-espresso font-black text-sm cursor-pointer" aria-label="Add ${psaEsc(p.title)} to bag">Add</button>
             </div>

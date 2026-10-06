@@ -7,13 +7,13 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderStatus;
 use App\Models\PaymentMethod;
+use App\Models\Permission;
 use App\Models\Product;
-use App\Models\ShowcaseProduct;
+use App\Models\Role;
 use App\Models\SiteSetting;
 use App\Models\SortOption;
 use App\Models\User;
 use App\Support\Inventory;
-use App\Support\Notifier;
 use App\Support\Storefront;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,8 +23,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Admin portal API. Staff may run fulfilment and edit products;
- * only admins may delete products, cancel orders, manage users or payment methods.
+ * Staff portal API. Every action checks one permission (see Permission::LABELS); which roles
+ * have it is ticked by an admin under Staff & roles. Admins have all of them.
  */
 class AdminApiController extends Controller
 {
@@ -32,7 +32,7 @@ class AdminApiController extends Controller
 
     public function storeProduct(Request $request): JsonResponse
     {
-        $user = $this->requireRole($request, 'staff');
+        $user = $this->requirePermission($request, 'manage_products');
         $data = $this->validateProduct($request);
 
         $product = DB::transaction(function () use ($data, $user) {
@@ -49,9 +49,12 @@ class AdminApiController extends Controller
 
     public function updateProduct(Request $request, string $sku): JsonResponse
     {
-        $user = $this->requireRole($request, 'staff');
+        $user = $this->requirePermission($request, 'manage_products');
         $product = $this->findProduct($sku);
         $data = $this->validateProduct($request, $product);
+        if (array_key_exists('stock', $data) && $data['stock'] !== $product->stock_on_hand) {
+            $this->requirePermission($request, 'manage_stock');
+        }
 
         DB::transaction(function () use ($product, $data, $user) {
             $product->update($data['product']);
@@ -66,7 +69,7 @@ class AdminApiController extends Controller
     /** Products that were ordered or reviewed are archived, so old orders and reviews keep them. */
     public function destroyProduct(Request $request, string $sku): JsonResponse
     {
-        $this->requireRole($request, 'admin');
+        $this->requirePermission($request, 'delete_products');
         $product = $this->findProduct($sku);
         $archived = $product->orderItems()->exists() || $product->reviews()->exists() || $product->purchaseOrderItems()->exists();
 
@@ -86,7 +89,7 @@ class AdminApiController extends Controller
     /** Puts several products into one category at once. */
     public function moveProducts(Request $request): JsonResponse
     {
-        $this->requireRole($request, 'staff');
+        $this->requirePermission($request, 'manage_products');
         $data = $request->validate([
             'products' => ['required', 'array', 'min:1', 'max:500'],
             'products.*' => ['string', 'max:64'],
@@ -110,7 +113,7 @@ class AdminApiController extends Controller
 
     public function storeCategory(Request $request): JsonResponse
     {
-        $this->requireRole($request, 'staff');
+        $this->requirePermission($request, 'manage_products');
         $data = $this->validateCategory($request);
 
         $category = Category::create([
@@ -127,7 +130,7 @@ class AdminApiController extends Controller
     /** Rename, move under another category (or to the top), show or hide. The slug stays, so links keep working. */
     public function updateCategory(Request $request, Category $category): JsonResponse
     {
-        $this->requireRole($request, 'staff');
+        $this->requirePermission($request, 'manage_products');
         $data = $this->validateCategory($request, $category);
 
         $changes = [];
@@ -149,7 +152,7 @@ class AdminApiController extends Controller
     /** Only empty categories can be deleted, so no product is ever left without one. */
     public function destroyCategory(Request $request, Category $category): JsonResponse
     {
-        $this->requireRole($request, 'admin');
+        $this->requirePermission($request, 'delete_products');
 
         $products = $category->products()->count();
         if ($products > 0) {
@@ -169,7 +172,7 @@ class AdminApiController extends Controller
 
     public function storeSortOption(Request $request): JsonResponse
     {
-        $this->requireRole($request, 'staff');
+        $this->requirePermission($request, 'manage_products');
         $data = $this->validateSortOption($request);
 
         $option = DB::transaction(function () use ($data) {
@@ -188,7 +191,7 @@ class AdminApiController extends Controller
     /** Rename, change what it does, show/hide, free delivery on/off, and (groups) which products are in it. */
     public function updateSortOption(Request $request, SortOption $sortOption): JsonResponse
     {
-        $this->requireRole($request, 'staff');
+        $this->requirePermission($request, 'manage_products');
         $data = $this->validateSortOption($request, $sortOption);
 
         DB::transaction(function () use ($sortOption, $data) {
@@ -206,7 +209,7 @@ class AdminApiController extends Controller
 
     public function destroySortOption(Request $request, SortOption $sortOption): JsonResponse
     {
-        $this->requireRole($request, 'admin');
+        $this->requirePermission($request, 'delete_products');
         $sortOption->delete();
         Storefront::forgetCatalog();
 
@@ -216,7 +219,7 @@ class AdminApiController extends Controller
     /** New order of the menu: every option id, first to last. */
     public function reorderSortOptions(Request $request): JsonResponse
     {
-        $this->requireRole($request, 'staff');
+        $this->requirePermission($request, 'manage_products');
         $data = $request->validate(['ids' => ['required', 'array'], 'ids.*' => ['integer', 'distinct', 'exists:sort_options,id']]);
 
         DB::transaction(function () use ($data) {
@@ -291,7 +294,7 @@ class AdminApiController extends Controller
      */
     public function updateSiteContent(Request $request): JsonResponse
     {
-        $user = $this->requireRole($request, 'staff');
+        $user = $this->requirePermission($request, 'manage_products');
         $data = $request->validate([
             'homeHeadline' => ['present', 'nullable', 'string', 'max:90'],
             'homeSubtitle' => ['present', 'nullable', 'string', 'max:220'],
@@ -316,7 +319,7 @@ class AdminApiController extends Controller
      */
     public function updateSocials(Request $request): JsonResponse
     {
-        $user = $this->requireRole($request, 'staff');
+        $user = $this->requirePermission($request, 'manage_products');
         $data = $request->validate([
             'links' => ['present', 'nullable', 'array', 'max:'.count(SiteSetting::SOCIAL_PLATFORMS)],
             'links.*.platform' => ['required', 'distinct', Rule::in(SiteSetting::SOCIAL_PLATFORMS)],
@@ -346,18 +349,18 @@ class AdminApiController extends Controller
     /** Replaces the showcase picks; the first product is the big front card. */
     public function updateShowcase(Request $request): JsonResponse
     {
-        $this->requireRole($request, 'staff');
+        $this->requirePermission($request, 'manage_products');
         $data = $request->validate([
-            'products' => ['present', 'array', 'max:'.ShowcaseProduct::MAX],
+            'products' => ['present', 'array', 'max:'.Product::SHOWCASE_MAX],
             'products.*' => ['string', 'max:64', 'distinct'],
-        ], ['products.max' => 'The showcase holds up to '.ShowcaseProduct::MAX.' products.']);
+        ], ['products.max' => 'The showcase holds up to '.Product::SHOWCASE_MAX.' products.']);
 
         $products = collect($data['products'])->map(fn ($key) => Product::findByKey($key) ?? throw ValidationException::withMessages(['products' => "Product {$key} was not found."]));
 
         DB::transaction(function () use ($products) {
-            ShowcaseProduct::query()->delete();
+            Product::whereNotNull('showcase_position')->update(['showcase_position' => null]);
             foreach ($products->values() as $i => $product) {
-                ShowcaseProduct::create(['product_id' => $product->id, 'sort_order' => $i]);
+                $product->update(['showcase_position' => $i]);
             }
         });
         Storefront::forgetCatalog();
@@ -369,16 +372,17 @@ class AdminApiController extends Controller
 
     public function updateOrder(Request $request, string $orderNumber): JsonResponse
     {
-        $user = $this->requireRole($request, 'staff');
+        $this->requirePermission($request, null);
         $data = $request->validate([
             'action' => ['required', Rule::in(['verify', 'reject', 'dispatch', 'deliver', 'cancel'])],
         ]);
+        $user = $this->requirePermission($request, match ($data['action']) {
+            'verify', 'reject' => 'verify_payments',
+            'dispatch', 'deliver' => 'manage_orders',
+            'cancel' => 'cancel_orders',
+        });
 
         $order = Order::with(Order::PAGE_RELATIONS)->where('order_number', $orderNumber)->firstOrFail();
-
-        if ($data['action'] === 'cancel' && ! $user->isAdmin()) {
-            abort(403, 'Only an Admin can cancel orders.');
-        }
         if ($order->order_status === 'cancelled') {
             abort(422, 'This order was already cancelled.');
         }
@@ -390,10 +394,9 @@ class AdminApiController extends Controller
             ]);
 
             match ($data['action']) {
-                // Whoever approves the order becomes the customer's contact for it.
+                // Whoever approves the order (the first status change after "placed") becomes the customer's contact.
                 'verify' => (function () use ($order, $payment, $user) {
                     $payment->update(['status' => 'verified', 'verified_by' => $user->id, 'paid_at' => $payment->paid_at ?? now()]);
-                    $order->update(['handled_by' => $order->handled_by ?? $user->id]);
                     $order->moveTo('processing', $user, 'Payment verified');
                 })(),
                 'reject' => $payment->update(['status' => 'failed', 'verified_by' => $user->id]),
@@ -403,25 +406,12 @@ class AdminApiController extends Controller
                         $payment->update(['status' => 'verified', 'verified_by' => $user->id, 'paid_at' => $payment->paid_at ?? now()]);
                     }
                     $order->moveTo('delivered', $user);
-                    $this->awardPoints($order);
                 })(),
                 'cancel' => $this->cancelOrder($order, $user),
             };
         });
 
         Storefront::forgetCatalog();
-
-        $order->refresh();
-        $contact = $order->handler ? explode(' ', trim($order->handler->name))[0] : 'our team';
-        [$title, $body] = match ($data['action']) {
-            'verify' => [$order->payment_method === 'cod' ? 'Order confirmed' : 'Payment confirmed', "{$contact} approved order {$order->order_number} and it's being prepared. You can message {$contact} from your order page."],
-            'reject' => ['Please send a new payment slip', "We couldn't verify the slip for {$order->order_number}. Check the amount and upload the correct screenshot."],
-            'dispatch' => ['Out for delivery', "Order {$order->order_number} is on its way to you."],
-            'deliver' => ['Delivered', "Order {$order->order_number} was delivered. Enjoy! You can review your items now."],
-            'cancel' => ['Order cancelled', "Order {$order->order_number} was cancelled. Message us if you have questions."],
-        };
-        Notifier::toCustomer($order, 'order_status', $title, $body,
-            'order-detail.html?order='.rawurlencode($order->order_number).($data['action'] === 'deliver' ? '#review' : ''));
 
         return response()->json(['order' => Storefront::order($order->fresh())]);
     }
@@ -448,36 +438,20 @@ class AdminApiController extends Controller
         foreach ($order->items as $item) {
             if ($item->product) {
                 Inventory::move($item->product, 'return', $item->quantity, [
-                    'by' => $by, 'unit_price' => $item->unit_price_usd, 'unit_cost' => $item->unit_cost_usd,
-                    'order_item_id' => $item->id, 'reason' => "Order {$order->order_number} cancelled",
+                    'by' => $by, 'order_item_id' => $item->id, 'reason' => "Order {$order->order_number} cancelled",
                 ]);
             }
         }
-        // Points spent on this order go back to the customer.
-        if ($order->customer && $order->points_redeemed > 0) {
-            $order->customer->addPoints('adjust', $order->points_redeemed, $order, $by, "Points returned: order {$order->order_number} cancelled");
-        }
         $order->moveTo('cancelled', $by);
-    }
-
-    /** Delivered orders earn loyalty points (1 per whole dollar x the tier's multiplier) and count toward total spent. */
-    private function awardPoints(Order $order): void
-    {
-        $customer = $order->customer?->loadMissing('tier');
-        if (! $customer) {
-            return;
-        }
-        $points = (int) floor((float) $order->total_usd * (float) ($customer->tier?->earn_multiplier ?? 1));
-        $customer->update(['total_spent_usd' => round((float) $customer->total_spent_usd + (float) $order->total_usd, 2)]);
-        $customer->addPoints('earn', $points, $order, null, "Points for delivered order {$order->order_number}");
     }
 
     /* ---------- Users ---------- */
 
     public function storeUser(Request $request): JsonResponse
     {
-        $this->requireRole($request, 'admin');
+        $by = $this->requirePermission($request, 'manage_users');
         $data = $this->validateUser($request);
+        $this->checkRoleChange($by, null, $data['role']);
 
         $user = User::create($data);
         if ($user->role === 'buyer') {
@@ -489,12 +463,13 @@ class AdminApiController extends Controller
 
     public function updateUser(Request $request, User $user): JsonResponse
     {
-        $admin = $this->requireRole($request, 'admin');
+        $by = $this->requirePermission($request, 'manage_users');
         $data = $this->validateUser($request, $user);
 
-        if ($user->is($admin) && (($data['role'] ?? 'admin') !== 'admin' || ($data['status'] ?? 'Active') !== 'Active')) {
-            throw ValidationException::withMessages(['role' => 'You cannot remove your own admin access.']);
+        if ($user->is($by) && (($data['role'] ?? $user->role) !== $user->role || ($data['status'] ?? 'Active') !== 'Active')) {
+            throw ValidationException::withMessages(['role' => 'You cannot change your own role or suspend yourself.']);
         }
+        $this->checkRoleChange($by, $user, $data['role'] ?? null);
         if (empty($data['password'])) {
             unset($data['password']);
         }
@@ -507,11 +482,29 @@ class AdminApiController extends Controller
         return response()->json(['user' => Storefront::user($user->fresh())]);
     }
 
+    /**
+     * People who manage accounts without being an Admin can't touch Admin accounts, can't make anyone
+     * an Admin, and can only hand out roles that can't do more than their own.
+     */
+    private function checkRoleChange(User $by, ?User $target, ?string $role): void
+    {
+        if ($by->isAdmin()) {
+            return;
+        }
+        if ($target?->isAdmin() || $role === 'admin') {
+            abort(403, 'Only an Admin can change Admin accounts or make someone an Admin.');
+        }
+        if ($role !== null && $role !== $target?->role) {
+            $extra = array_diff(Role::permissionsFor(Role::idFor($role)), Role::permissionsFor($by->role_id));
+            abort_if($extra !== [], 403, "That role can do things your role can't, so only an Admin can give it.");
+        }
+    }
+
     /* ---------- Payment methods ---------- */
 
     public function storePaymentMethod(Request $request): JsonResponse
     {
-        $this->requireRole($request, 'admin');
+        $this->requirePermission($request, 'manage_payment_methods');
         $data = $this->validatePaymentMethod($request);
         $data['code'] = $this->uniqueCode($data['name']);
 
@@ -524,7 +517,7 @@ class AdminApiController extends Controller
 
     public function updatePaymentMethod(Request $request, PaymentMethod $paymentMethod): JsonResponse
     {
-        $this->requireRole($request, 'admin');
+        $this->requirePermission($request, 'manage_payment_methods');
         $paymentMethod->update($this->validatePaymentMethod($request, partial: true));
 
         Storefront::forgetCatalog();
@@ -534,7 +527,7 @@ class AdminApiController extends Controller
 
     public function destroyPaymentMethod(Request $request, PaymentMethod $paymentMethod): JsonResponse
     {
-        $this->requireRole($request, 'admin');
+        $this->requirePermission($request, 'manage_payment_methods');
         if (in_array($paymentMethod->code, Storefront::PAYMENT_CODES, true)) {
             abort(422, 'Built-in checkout methods cannot be deleted. Turn it off instead.');
         }
@@ -546,11 +539,16 @@ class AdminApiController extends Controller
 
     /* ---------- Helpers ---------- */
 
-    private function requireRole(Request $request, string $role): User
+    /** A signed-in, active portal account whose role has this permission ticked (null: any portal account). */
+    private function requirePermission(Request $request, ?string $permission): User
     {
         $user = $request->user();
         abort_unless($user, 401, 'Please log in first.');
-        abort_unless($role === 'admin' ? $user->isAdmin() : $user->isStaff(), 403, 'Your role does not allow this.');
+        abort_unless($user->isStaff() && $user->status !== 'Suspended', 403, 'Your role does not allow this.');
+        if ($permission !== null && ! $user->hasPermission($permission)) {
+            $label = Permission::LABELS[$permission][0] ?? $permission;
+            abort(403, "Your role doesn't have the \"{$label}\" permission. Ask an Admin to tick it under Staff & roles.");
+        }
 
         return $user;
     }
@@ -572,6 +570,8 @@ class AdminApiController extends Controller
             'category' => [$partial ? 'sometimes' : 'required_without:categoryId', 'string', 'max:50'],
             'categoryLabel' => ['sometimes', 'nullable', 'string', 'max:100'],
             'priceUSD' => [$req, 'numeric', 'min:0.01', 'max:100000'],
+            'discountPercent' => ['sometimes', 'nullable', 'numeric', 'min:1', 'max:90'],
+            'discountEndsAt' => ['sometimes', 'nullable', 'date', 'after_or_equal:today'],
             'stock' => [$req, 'integer', 'min:0', 'max:1000000'],
             'badge' => ['sometimes', 'nullable', 'string', 'max:60'],
             'description' => ['sometimes', 'nullable', 'string', 'max:5000'],
@@ -586,6 +586,9 @@ class AdminApiController extends Controller
             'category.required_without' => 'Product category is required.',
             'priceUSD.required' => 'Price in USD is required.',
             'priceUSD.min' => 'Price must be greater than $0.00.',
+            'discountPercent.min' => 'A sale needs at least 1% off.',
+            'discountPercent.max' => 'A sale can take at most 90% off.',
+            'discountEndsAt.after_or_equal' => 'The sale end date is already past.',
             'stock.required' => 'Stock quantity is required.',
             'stock.min' => 'Stock quantity cannot be negative.',
         ]);
@@ -599,12 +602,26 @@ class AdminApiController extends Controller
         if (isset($data['priceUSD'])) {
             $out['product']['price_usd'] = round((float) $data['priceUSD'], 2);
         }
+        if (array_key_exists('discountPercent', $data)) {
+            $out['product']['discount_percent'] = $data['discountPercent'] === null ? null : round((float) $data['discountPercent'], 2);
+            if ($data['discountPercent'] === null) {
+                $out['product']['discount_ends_at'] = null; // no sale, no end date
+            }
+        }
+        if (array_key_exists('discountEndsAt', $data) && ($out['product']['discount_percent'] ?? $product?->discount_percent) !== null) {
+            // A date alone means "until the end of that day".
+            $out['product']['discount_ends_at'] = $data['discountEndsAt'] === null ? null
+                : (preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['discountEndsAt']) ? \Illuminate\Support\Carbon::parse($data['discountEndsAt'])->endOfDay() : $data['discountEndsAt']);
+        }
         if (isset($data['categoryId'])) {
             $out['product']['category_id'] = (int) $data['categoryId'];
         } elseif (isset($data['category'])) {
             $out['product']['category_id'] = $this->categoryFor($data['category'], $data['categoryLabel'] ?? null)->id;
         }
-        foreach (['description' => 'description', 'specifications' => 'specifications'] as $in => $column) {
+        if (array_key_exists('specifications', $data)) {
+            $out['specifications'] = $data['specifications'];
+        }
+        foreach (['description' => 'description'] as $in => $column) {
             if (array_key_exists($in, $data)) {
                 $out['detail'][$column] = $data[$in];
             }
@@ -633,10 +650,19 @@ class AdminApiController extends Controller
                 $product->images()->create(['image_path' => $path, 'is_primary' => $i === 0, 'sort_order' => $i]);
             }
         }
+        // One row per fact (1NF): Material = Stainless steel, Size = 3 cm ...
+        if (array_key_exists('specifications', $data)) {
+            $product->specifications()->delete();
+            $i = 0;
+            foreach ($data['specifications'] as $name => $value) {
+                $name = mb_substr(trim((string) $name), 0, 100);
+                if ($name !== '' && trim((string) $value) !== '') {
+                    $product->specifications()->create(['name' => $name, 'value' => trim((string) $value), 'sort_order' => $i++]);
+                }
+            }
+        }
         if (array_key_exists('stock', $data)) {
             Inventory::setQuantity($product, $data['stock'], $by);
-        } else {
-            Inventory::lock($product); // makes sure the stock row exists
         }
     }
 
@@ -718,7 +744,7 @@ class AdminApiController extends Controller
             'name' => [$req, 'string', 'min:2', 'max:100'],
             'email' => [$req, 'email', 'max:255', Rule::unique('users', 'email')->ignore($user?->id)],
             'phone' => ['sometimes', 'nullable', 'string', 'min:8', 'max:30', 'regex:/^[+0-9\s\-()]+$/', Rule::unique('users', 'phone')->ignore($user?->id)],
-            'role' => [$req, Rule::in(['Admin', 'Staff', 'Buyer'])],
+            'role' => [$req, 'string', Rule::in(Role::query()->pluck('name')->flatMap(fn ($n) => [$n, Role::label($n)])->all())],
             'status' => ['sometimes', Rule::in(['Active', 'Suspended'])],
             'password' => [$user ? 'nullable' : 'required', 'string', 'min:6', 'max:255'],
         ], [
@@ -729,6 +755,7 @@ class AdminApiController extends Controller
             'email.unique' => 'This email address is already assigned to another user.',
             'phone.regex' => 'Please enter a valid phone number.',
             'role.required' => 'Please select a role for this user.',
+            'role.in' => 'That role does not exist any more. Pick another one.',
             'password.required' => 'Password is required for new accounts.',
             'password.min' => 'Password must be at least 6 characters.',
         ]);

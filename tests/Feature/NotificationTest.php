@@ -92,8 +92,23 @@ class NotificationTest extends TestCase
         $this->actingAs($buyer)->getJson('/api/notifications')->assertJsonPath('unreadMessages', 1)->assertJsonPath('items.0.type', 'message');
         $this->actingAs($buyer)->getJson('/api/bootstrap')->assertJsonPath('orders.0.unreadReplies', 1);
 
-        $this->actingAs($buyer)->postJson('/api/notifications/read')->assertOk();
-        $this->actingAs($buyer)->getJson('/api/notifications')->assertJsonPath('unread', 0);
+        // Opening the bell: the browser remembers when, and sends it back as ?since=
+        $seen = now()->addSecond()->toIso8601String();
+        $this->actingAs($buyer)->getJson('/api/notifications?since='.urlencode($seen))->assertJsonPath('unread', 0)->assertJsonPath('items.0.read', true);
+        $this->assertSame(0, \Illuminate\Support\Facades\Schema::hasTable('user_notifications') ? 1 : 0); // nothing stored for the bell
+    }
+
+    public function test_custom_roles_get_the_notifications_their_permissions_cover(): void
+    {
+        $admin = $this->user('admin', 'Vanna Chea');
+        $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'Rider', 'permissions' => ['manage_orders']])->assertCreated();
+        $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'Packer', 'permissions' => ['manage_products']])->assertCreated();
+        $rider = $this->user('rider', 'Rider Dara');
+        $packer = $this->user('packer', 'Packer Sok');
+
+        $number = $this->placeOrder($this->user('buyer', 'Dara Sok'));
+        $this->actingAs($rider)->getJson('/api/notifications')->assertJsonPath('items.0.title', "New order {$number}");
+        $this->actingAs($packer)->getJson('/api/notifications')->assertJsonPath('unread', 0)->assertJsonCount(0, 'items');
     }
 
     public function test_only_staff_see_the_inbox_and_guests_have_no_bell(): void

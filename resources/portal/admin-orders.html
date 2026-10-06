@@ -1,337 +1,203 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Manage Orders & Slips — PsaOnline Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Orders — PsaOnline Staff</title>
   <link rel="icon" href="/favicon.ico" sizes="32x32" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <meta name="description" content="View orders, verify payment slips, and manage express deliveries." />
+  <meta name="description" content="Check payments, send orders out and mark them delivered." />
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            sorbet: '#FFA552',
-            cotton: '#F9F3EA',
-            espresso: '#2B1D1D'
-          }
-        }
-      }
-    };
-  </script>
+  <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { sorbet: '#FFA552', cotton: '#F9F3EA', espresso: '#2B1D1D' } } } };</script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
 </head>
-<body class="bg-[#FDFBF7] dark:bg-[#121215] text-[#2B1D1D] dark:text-[#F4F4F6] font-sans antialiased min-h-screen flex flex-col selection:bg-[#FFA552] selection:text-white pb-mobile-nav">
-
-  <!-- Admin Top Navigation Bar with RBAC Role Switcher -->
-  <header class="bg-[#FDFBF7]/95 dark:bg-[#121215]/95 backdrop-blur-md border-b border-[#EFE4D6] dark:border-[#2D2D38] sticky top-0 z-40 transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-4 sm:gap-6">
-        
-        <!-- Logo -->
-        <a href="dashboard-admin.html" class="flex items-center gap-2.5 sm:gap-3 group" title="PsaOnline Studio Operations">
-          <img 
-            src="assets/images/psa-accessories-online-logo.svg" 
-            alt="Psa Accessories Online" 
-            class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
-          />
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-base sm:text-lg font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">Psa<span class="text-[#FFA552]">Online</span></span>
-              <span data-hide-mobile class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black px-1.5 py-0.5 rounded bg-[#FFA552]/10 border border-[#FFA552]/40">Studio Ops</span>
-            </div>
-            <div data-hide-mobile class="text-[10px] text-stone-500 dark:text-stone-400 font-bold mt-0.5">Order Fulfillment & Courier Dispatch</div>
-          </div>
-        </a>
-
-        <!-- Desktop Nav Items -->
-        <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-stone-600 dark:text-stone-300">
-          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition">Reports & KPIs</a>
-          <a href="admin-orders.html" class="px-3 py-1.5 rounded-full bg-[#2B1D1D] text-white dark:bg-[#FFA552] dark:text-[#2B1D1D] shadow-xs">Orders & Slips</a>
-          <a href="admin-messages.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition">Messages <span class="psa-inbox-count hidden ml-1 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-rose-600 text-white text-xs font-black"></span></a>
-          <a href="admin-products.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition">Drops & Stock</a>
-          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition rbac-admin-only">KHQR Gateways</a>
-          <a href="admin-users.html" class="px-3 py-1.5 rounded-full hover:bg-[#F9F3EA] dark:hover:bg-[#20202A] hover:text-[#2B1D1D] transition rbac-admin-only">Staff & RBAC</a>
-        </nav>
-      </div>
-
-      <!-- Action Items: RBAC Switcher, Theme & Storefront -->
-      <div class="flex items-center gap-2 sm:gap-3">
-        
-        <a href="home.html" target="_blank" class="hidden sm:inline-flex items-center gap-1 text-xs text-[#FFA552] font-black hover:underline transition">
-          <span>Storefront</span>
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-        </a>
-
-        <!-- Dark / Light Theme Toggle -->
-        <button 
-          type="button" 
-          onclick="toggleTheme()" 
-          class="theme-toggle-btn p-2 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white transition-all shadow-xs cursor-pointer" 
-          title="Toggle Theme"
-        >
-          <svg class="w-4 h-4 text-stone-700 dark:text-stone-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-        </button>
-
-        <div class="h-6 w-px bg-[#EFE4D6] dark:bg-[#2D2D38] hidden sm:block"></div>
-
-        <!-- RBAC Interactive Role Switcher Pill -->
-        <div class="relative group rbac-dropdown-container">
-          <button 
-            type="button" 
-            id="rbacRoleSelectorBtn"
-            onclick="toggleRbacDropdown(event)"
-            class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#32323D] hover:border-[#FFA552] transition shadow-xs cursor-pointer"
-          >
-            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-[#FFA552] to-[#2B1D1D] text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
-              SO
-            </div>
-            <div class="hidden sm:block text-left text-xs leading-tight">
-              <div class="font-extrabold text-[#2B1D1D] dark:text-white rbac-current-name">Sokha Ouk</div>
-              <div class="flex items-center gap-1 mt-0.5">
-                <span data-hide-mobile class="rbac-role-badge">Admin</span>
-                <svg class="w-3 h-3 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-              </div>
-            </div>
-          </button>
-
-          <!-- Dropdown Menu to test and switch roles with 1 click -->
-          <div class="rbac-dropdown-menu absolute right-0 top-full w-72 bg-white dark:bg-[#1A1A22] rounded-2xl border border-stone-200 dark:border-[#32323D] shadow-2xl p-2 hidden group-hover:block transition-all z-50">
-            <div class="px-3 py-2 border-b border-[#F9F3EA] dark:border-[#2D2D38]">
-              <div class="text-[10px] font-black uppercase text-[#FFA552] tracking-wider flex items-center justify-between">
-                <span>RBAC Role Switcher</span>
-                <span class="text-[9px] text-stone-400 font-mono">Live Session</span>
-              </div>
-              <div class="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">Switch role to test access boundaries:</div>
-            </div>
-            <div class="py-1 space-y-1">
-              <button type="button" onclick="switchUserRole('Admin')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs flex items-center justify-between transition cursor-pointer">
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-md bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[11px]">A</span>
-                  <div>
-                    <div class="font-bold text-[#2B1D1D] dark:text-white">Admin (Studio Lead)</div>
-                    <div class="text-[10px] text-stone-400">Full reports, CSV exports &amp; roles</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-purple-600">Select</span>
-              </button>
-              <button type="button" onclick="switchUserRole('Staff')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-blue-50 dark:hover:bg-blue-950/40 text-xs flex items-center justify-between transition cursor-pointer">
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[11px]">S</span>
-                  <div>
-                    <div class="font-bold text-[#2B1D1D] dark:text-white">Staff (Dispatch Team)</div>
-                    <div class="text-[10px] text-stone-400">Verify slips &amp; orders</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-blue-600">Select</span>
-              </button>
-              <button type="button" onclick="switchUserRole('Buyer')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs flex items-center justify-between transition cursor-pointer">
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[11px]">B</span>
-                  <div>
-                    <div class="font-bold text-[#2B1D1D] dark:text-white">Buyer (Customer)</div>
-                    <div class="text-[10px] text-stone-400">Test 403 access restriction</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-emerald-600">Select</span>
-              </button>
-            </div>
-            <div class="pt-2 border-t border-[#F9F3EA] dark:border-[#2D2D38] px-3 py-1.5 flex items-center justify-between text-[10px]">
-              <a href="admin-users.html" class="text-[#FFA552] font-bold hover:underline">Manage All Roles &rarr;</a>
-              <button onclick="openRBACMatrixModal()" class="text-stone-400 hover:text-[#FFA552] underline cursor-pointer">Security Matrix</button>
-            </div>
-            <div class="pt-2 mt-1 border-t border-[#F9F3EA] dark:border-[#2D2D38] flex items-center justify-between gap-2 px-2 pb-1">
-              <a data-hide-mobile href="home.html" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-stone-700 dark:text-stone-200 bg-stone-100 dark:bg-[#252530] hover:bg-stone-200 flex items-center justify-center gap-1.5 transition">
-                <span>Exit to Store</span>
-              </a>
-              <button type="button" data-rbac-logout onclick="logoutSession()" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 hover:bg-red-100 border border-red-200/70 flex items-center justify-center gap-1.5 transition cursor-pointer">
-                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                <span>Log Out</span>
-              </button>
-            </div>
-          </div>
+<body class="pt" data-portal="orders">
+  <div class="pt-frame">
+    <main class="pt-main">
+      <div class="pt-head">
+        <div class="pt-head__text">
+          <h1>Orders</h1>
+          <p>Check payments, send orders out and mark them delivered. Open an order to see its items, the customer's pin and messages.</p>
         </div>
-
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 flex-1 w-full space-y-6">
-    <div class="reveal-init flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div>
-        <div class="text-xs font-bold text-stone-500 dark:text-stone-400 mb-1 flex items-center gap-1.5">
-          <a href="dashboard-admin.html" class="text-[#FFA552] hover:underline font-bold">&larr; Back to Executive Report</a>
-          <span>/</span>
-          <span>Orders &amp; Bank Proof Slips</span>
+        <div class="pt-head__actions">
+          <label class="pt-search" style="width:300px;max-width:100%">
+            <span class="sr-only">Search orders</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="orderSearch" type="search" class="pt-input" placeholder="Order number, name or phone" autocomplete="off" />
+          </label>
         </div>
-        <h1 class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white">Customer Orders &amp; Bakong Slips</h1>
-        <p class="text-xs text-stone-500 dark:text-stone-400 mt-0.5">Verify Bakong universal transfer proofs, assign city couriers, and track deliveries.</p>
       </div>
 
-      <div class="flex items-center gap-2">
-        <a href="dashboard-admin.html" class="px-3.5 py-2 rounded-xl bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#32323D] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-xs font-bold text-[#2B1D1D] dark:text-white transition shadow-xs flex items-center gap-1.5">
-          <span>&larr; Back to Report</span>
-        </a>
-        <a href="home.html" class="px-3.5 py-2 rounded-xl bg-stone-100 dark:bg-[#252530] hover:bg-stone-200 text-xs font-bold text-[#2B1D1D] dark:text-white transition flex items-center gap-1.5">
-          <span>Exit to Store</span>
-        </a>
-      </div>
-    </div>
+      <section class="pt-panel" aria-labelledby="ordersHeading">
+        <h2 id="ordersHeading" class="sr-only">Order list</h2>
+        <div class="pt-toolbar">
+          <div class="pt-seg" role="tablist" aria-label="Show orders" id="orderFilters"></div>
+        </div>
+        <div class="pt-table-wrap">
+          <table class="pt-table pt-table--stack">
+            <thead>
+              <tr>
+                <th scope="col">Order</th>
+                <th scope="col">Customer</th>
+                <th scope="col" class="is-num">Total</th>
+                <th scope="col">Payment</th>
+                <th scope="col">Status</th>
+                <th scope="col" class="is-end"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody">
+              <tr><td colspan="6"><span class="pt-skel" style="width:40%"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
 
-    <div class="reveal-init delay-100 bg-white dark:bg-[#1A1A22] rounded-3xl border border-[#EFE4D6] dark:border-[#2D2D38] p-6 shadow-sm space-y-4">
-      <div class="overflow-x-auto">
-        <table class="psa-stack-table w-full text-left text-xs">
-          <thead>
-            <tr class="text-stone-400 border-b border-[#F9F3EA] dark:border-[#272732]">
-              <th class="py-2.5 px-3">Order Number</th>
-              <th class="py-2.5 px-3">Buyer & Contact</th>
-              <th class="py-2.5 px-3">District Delivery Address</th>
-              <th class="py-2.5 px-3">Total (USD)</th>
-              <th class="py-2.5 px-3">Payment Method</th>
-              <th class="py-2.5 px-3">Slip Status</th>
-              <th class="py-2.5 px-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="ordersTableBody" class="divide-y divide-[#F9F3EA] dark:divide-[#252530]">
-            <tr><td colspan="7" class="py-8 px-3 text-center text-stone-400">Loading orders&hellip;</td></tr>
-          </tbody>
-        </table>
-      </div>
+  <dialog id="slipDialog" class="pt-dialog" aria-labelledby="slipTitle">
+    <div class="pt-dialog__head">
+      <h2 id="slipTitle">Payment slip</h2>
+      <button type="button" class="pt-btn pt-btn--ghost pt-btn--icon" data-close-slip aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
     </div>
-  </main>
-
-  <!-- Admin Portal Footer -->
-  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-xs text-stone-500 dark:text-stone-400 no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline Operations Portal &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
+    <div class="pt-panel__body" id="slipHolder"></div>
+  </dialog>
 
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
+  <script src="assets/js/portal-shell.js"></script>
   <script>
-    const ORDER_TONES = {
-      'Payment Pending': 'bg-stone-100 text-stone-700 border-stone-200 dark:bg-stone-800 dark:text-stone-300',
-      'Slip Uploaded': 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300',
-      'Paid (demo)': 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/50 dark:text-amber-300',
-      'Payment Failed': 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300',
-      'Processing': 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/50 dark:text-sky-300',
-      'Out for delivery': 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300',
-      'Delivered': 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300',
-      'Cancelled': 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/50 dark:text-red-300'
+    const FILTERS = [
+      { id: 'action', label: 'Needs action', match: o => nextStep(o) !== null },
+      { id: 'pending_payment', label: 'Awaiting payment', match: o => o.orderStatus === 'pending_payment' },
+      { id: 'processing', label: 'Preparing', match: o => o.orderStatus === 'processing' },
+      { id: 'out_for_delivery', label: 'Out for delivery', match: o => o.orderStatus === 'out_for_delivery' },
+      { id: 'delivered', label: 'Delivered', match: o => o.orderStatus === 'delivered' },
+      { id: 'cancelled', label: 'Cancelled', match: o => o.orderStatus === 'cancelled' },
+      { id: 'all', label: 'All', match: () => true }
+    ];
+    const STATUS_TONE = {
+      'Payment Pending': 'amber', 'Slip Uploaded': 'amber', 'Paid (demo)': 'amber', 'Payment Failed': 'red',
+      'Processing': 'violet', 'Out for delivery': 'sky', 'Delivered': 'green', 'Cancelled': 'red', 'Refunded': 'grey'
     };
+    let filter = 'action';
+    let query = '';
 
-    function adminOrders() {
-      return PSA.online ? PSA.orders : JSON.parse(localStorage.getItem('psa_orders') || '[]');
+    const money = v => '$' + Number(v || 0).toFixed(2);
+    const orders = () => (PSA.online ? PSA.orders : JSON.parse(localStorage.getItem('psa_orders') || '[]'));
+
+    // The one next step for an order, if this role is allowed to take it (the server checks the same rules).
+    function nextStep(o) {
+      const cod = o.paymentCode === 'cod';
+      if (o.orderStatus === 'pending_payment') {
+        if (!ptCan('verify_payments')) return null;
+        if (cod) return { action: 'verify', label: 'Confirm order' };
+        if (o.slipUploaded || o.paymentStatus === 'paid_demo') return { action: 'verify', label: 'Approve payment' };
+        return null; // waiting for the customer's slip
+      }
+      if (o.orderStatus === 'processing' && ptCan('manage_orders')) return { action: 'dispatch', label: 'Send out' };
+      if (o.orderStatus === 'out_for_delivery' && ptCan('manage_orders')) return { action: 'deliver', label: 'Mark delivered' };
+      return null;
     }
 
-    // Which buttons make sense for an order right now
-    function orderActions(o) {
-      const actions = [];
-      const isCod = o.paymentCode === 'cod';
-      if (o.orderStatus === 'pending_payment' || !o.orderStatus) {
-        if (isCod) actions.push(['dispatch', 'Dispatch 🛵', 'primary']);
-        else {
-          actions.push(['verify', o.slipUploaded || o.paymentStatus === 'paid_demo' ? 'Verify Payment' : 'Mark Paid', 'primary']);
-          if (o.paymentStatus !== 'failed') actions.push(['reject', 'Reject Slip', 'plain']);
-        }
-      } else if (o.orderStatus === 'processing') {
-        actions.push(['dispatch', 'Dispatch 🛵', 'primary']);
-      } else if (o.orderStatus === 'out_for_delivery') {
-        actions.push(['deliver', 'Mark Delivered', 'primary']);
-      }
-      if (hasPermission('canCancelOrders') && !['delivered', 'cancelled'].includes(o.orderStatus)) {
-        actions.push(['cancel', 'Cancel', 'danger']);
-      }
-      return actions;
-    }
-
-    const BUTTON_TONES = {
-      primary: 'bg-[#FFA552] hover:bg-[#E88C35] text-white shadow-xs',
-      plain: 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-[#2B1D1D] dark:text-white',
-      danger: 'bg-red-50 hover:bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300'
-    };
-
-    function renderOrdersTable() {
-      const tbody = document.getElementById('ordersTableBody');
-      const orders = adminOrders();
-      if (!orders.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="py-8 px-3 text-center text-stone-400">No orders yet. They will appear here as soon as a customer checks out.</td></tr>';
-        return;
-      }
-      tbody.innerHTML = orders.map(o => {
-        const id = psaEsc(o.id);
-        const tone = ORDER_TONES[o.status] || ORDER_TONES['Payment Pending'];
-        const slipButton = o.slipImage && o.slipImage.startsWith('data:image/')
-          ? `<button type="button" onclick="showSlip('${id}')" class="block mt-1 text-[10px] font-bold text-[#FFA552] hover:underline cursor-pointer">View slip</button>` : '';
-        const buttons = PSA.online ? orderActions(o).map(([action, label, kind]) =>
-          `<button type="button" onclick="updateOrder('${id}', '${action}')" class="px-3 py-1.5 rounded-xl font-black text-[11px] transition cursor-pointer ${BUTTON_TONES[kind]}">${label}</button>`).join('') : '';
-        return `
-            <tr class="hover:bg-stone-50/50 dark:hover:bg-[#20202A]/50 transition">
-              <td class="py-3 px-3 font-mono font-black text-[#2B1D1D] dark:text-white">#${id}<div class="font-sans font-normal text-[10px] text-stone-400">${psaEsc(o.date || '')}</div></td>
-              <td class="py-3 px-3">
-                <div class="font-bold text-[#2B1D1D] dark:text-white">${psaEsc(o.customerName)}</div>
-                <div class="text-[11px] text-[#FFA552] font-bold">${psaEsc(o.phone)}</div>
-              </td>
-              <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate" title="${psaEsc(o.address)}">${psaEsc(o.address)}</td>
-              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$${psaEsc(o.totalUSD)}</td>
-              <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">${psaEsc(o.paymentMethod)}</td>
-              <td class="py-3 px-3">
-                <span class="px-2 py-0.5 rounded-full font-black text-[10px] border ${tone}">${psaEsc(o.status)}</span>
-                ${slipButton}
-              </td>
-              <td class="py-3 px-3 text-right">
-                <div class="flex items-center justify-end gap-1.5 flex-wrap">
-                  ${buttons}
-                  <a href="order-detail--admin-payment-submitted.html?order=${encodeURIComponent(o.id)}" class="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-[#2B1D1D] dark:text-white font-black text-[11px] transition">View</a>
-                </div>
-              </td>
-            </tr>`;
+    function renderFilters() {
+      const list = orders();
+      document.getElementById('orderFilters').innerHTML = FILTERS.map(f => {
+        const n = list.filter(f.match).length;
+        const hot = f.id === 'action' && n > 0;
+        return `<button type="button" role="tab" data-filter="${f.id}" aria-selected="${f.id === filter}">${f.label}${f.id !== 'all' ? `<em class="${hot ? 'is-hot' : ''}">${n}</em>` : ''}</button>`;
       }).join('');
     }
 
-    async function updateOrder(orderId, action) {
-      if (action === 'cancel' && !confirm(`Cancel order ${orderId}? Its items go back into stock.`)) return;
+    function render() {
+      renderFilters();
+      const f = FILTERS.find(x => x.id === filter);
+      const q = query.trim().toLowerCase();
+      const rows = orders().filter(f.match).filter(o => !q
+        || String(o.id).toLowerCase().includes(q)
+        || String(o.customerName || '').toLowerCase().includes(q)
+        || String(o.phone || '').replace(/\s/g, '').includes(q.replace(/\s/g, '')));
+      const body = document.getElementById('ordersBody');
+
+      if (!rows.length) {
+        const empty = !orders().length
+          ? ['No orders yet', 'Orders show up here as soon as a customer checks out.']
+          : filter === 'action' && !q
+            ? ['Nothing waiting on you', 'Every order that needs a payment check, sending out or delivering is done. New ones appear here.']
+            : ['No orders match', 'Try another tab or search for a different name, phone or order number.'];
+        body.innerHTML = `<tr><td colspan="6"><div class="pt-empty"><h3>${empty[0]}</h3><p>${empty[1]}</p></div></td></tr>`;
+        return;
+      }
+
+      body.innerHTML = rows.map(o => {
+        const id = psaEsc(o.id);
+        const href = `order-detail--admin-payment-submitted.html?order=${encodeURIComponent(o.id)}`;
+        const step = nextStep(o);
+        const items = (o.items || []).reduce((n, i) => n + Number(i.quantity || 0), 0);
+        const slip = typeof o.slipImage === 'string' && /^(data:image\/|https?:\/\/)/.test(o.slipImage);
+        return `
+          <tr>
+            <td><a href="${href}" class="pt-strong pt-mono" style="text-decoration:none">${id}</a><span class="pt-sub">${psaEsc(o.date || '')}</span></td>
+            <td><span class="pt-strong">${psaEsc(o.customerName)}</span><span class="pt-sub">${psaEsc(o.phone || '')}</span></td>
+            <td data-label="Total" class="is-num"><span class="pt-strong">${money(o.totalUSD)}</span><span class="pt-sub">${items} item${items === 1 ? '' : 's'}${o.promoCode ? ` · ${psaEsc(o.promoCode)}` : ''}</span></td>
+            <td data-label="Payment"><span>${psaEsc(o.paymentMethod || '—')}</span>${slip ? `<button type="button" class="pt-sub" data-slip="${id}" style="color:var(--pt-accent-ink);font-weight:700;background:none;border:0;padding:0;cursor:pointer">View slip</button>` : ''}</td>
+            <td data-label="Status"><span class="pt-badge pt-badge--${STATUS_TONE[o.status] || 'grey'}">${psaEsc(o.status)}</span></td>
+            <td class="is-end"><div class="pt-actions">
+              ${step && PSA.online ? `<button type="button" class="pt-btn pt-btn--primary pt-btn--sm" data-step="${step.action}" data-order="${id}">${step.label}</button>` : ''}
+              <a class="pt-btn pt-btn--secondary pt-btn--sm" href="${href}">Open</a>
+            </div></td>
+          </tr>`;
+      }).join('');
+    }
+
+    async function runStep(button) {
+      const id = button.dataset.order;
+      psaSetButtonLoading(button, true, 'Saving…');
       try {
-        const { order } = await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(orderId)}`, { action });
+        const { order } = await psaApi('PATCH', `/api/admin/orders/${encodeURIComponent(id)}`, { action: button.dataset.step });
         PSA.orders = PSA.orders.map(o => (o.id === order.id ? order : o));
-        localStorage.setItem('psa_orders', JSON.stringify(PSA.orders));
-        renderOrdersTable();
-        showRBACToast(`Order ${psaEsc(order.id)} is now "${psaEsc(order.status)}".`, 'success');
+        render();
+        showRBACToast(`Order ${psaEsc(order.id)} is now ${psaEsc(order.status.toLowerCase())}.`, 'success');
       } catch (err) {
+        psaSetButtonLoading(button, false);
         showRBACToast(psaEsc(err.message), 'danger');
       }
     }
 
-    function showSlip(orderId) {
-      const order = adminOrders().find(o => o.id === orderId);
-      if (!order) return;
-      const overlay = document.createElement('div');
-      overlay.className = 'fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer';
-      overlay.onclick = () => overlay.remove();
-      const img = document.createElement('img');
-      img.src = order.slipImage;
-      img.alt = `Payment slip for ${orderId}`;
-      img.className = 'max-h-[85vh] max-w-full rounded-2xl shadow-2xl bg-white';
-      overlay.appendChild(img);
-      document.body.appendChild(overlay);
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
-      if (!enforcePageRBAC('canAccessAdminPortal')) return;
-      renderOrdersTable();
+      if (ptDenied()) return;
+      const wanted = new URLSearchParams(location.search).get('show');
+      if (FILTERS.some(f => f.id === wanted)) filter = wanted;
+      else if (!orders().some(o => nextStep(o))) filter = 'all';
+      render();
+
+      document.getElementById('orderFilters').addEventListener('click', e => {
+        const b = e.target.closest('[data-filter]');
+        if (!b) return;
+        filter = b.dataset.filter;
+        render();
+      });
+      document.getElementById('orderSearch').addEventListener('input', e => { query = e.target.value; render(); });
+      document.getElementById('ordersBody').addEventListener('click', e => {
+        const step = e.target.closest('[data-step]');
+        if (step) return runStep(step);
+        const slip = e.target.closest('[data-slip]');
+        if (slip) {
+          const o = orders().find(x => x.id === slip.dataset.slip);
+          document.getElementById('slipTitle').textContent = `Payment slip · ${o.id}`;
+          const img = document.createElement('img');
+          img.src = o.slipImage;
+          img.alt = `Payment slip for order ${o.id}`;
+          img.style.cssText = 'max-height:70vh;margin:0 auto;border-radius:10px';
+          document.getElementById('slipHolder').replaceChildren(img);
+          document.getElementById('slipDialog').showModal();
+        }
+      });
+      const dlg = document.getElementById('slipDialog');
+      dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-close-slip]')) dlg.close(); });
     });
   </script>
 </body>

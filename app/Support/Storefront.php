@@ -3,11 +3,14 @@
 namespace App\Support;
 
 use App\Models\Category;
+use App\Models\Customer;
+use App\Models\LoyaltyTier;
 use App\Models\Order;
 use App\Models\OrderMessage;
 use App\Models\PaymentMethod;
 use App\Models\Product;
-use App\Models\ShowcaseProduct;
+use App\Models\PromoCode;
+use App\Models\Role;
 use App\Models\SiteSetting;
 use App\Models\SortOption;
 use App\Models\User;
@@ -38,7 +41,7 @@ class Storefront
     ];
 
     /** Relations a product card needs. */
-    public const PRODUCT_RELATIONS = ['category.parent', 'detail', 'images', 'stock', 'freeDeliveryGroups'];
+    public const PRODUCT_RELATIONS = ['category.parent', 'detail', 'images', 'specifications', 'freeDeliveryGroups'];
 
     /** Delivery in Phnom Penh: $1.50, free from $15 or when the bag has a free-delivery item. */
     public const DELIVERY_FEE = 1.50;
@@ -61,6 +64,7 @@ class Storefront
             $products = Product::query()
                 ->with(self::PRODUCT_RELATIONS)
                 ->withAvg('reviews', 'rating')->withCount('reviews')
+                ->withSum('stockMovements', 'quantity_change')
                 ->when(! $includeHidden, fn ($q) => $q->where('status', 'active')->whereHas('category', fn ($c) => $c
                     ->where('is_active', true)
                     ->where(fn ($c) => $c->whereNull('parent_id')->orWhereHas('parent', fn ($p) => $p->where('is_active', true)))))
@@ -68,8 +72,8 @@ class Storefront
                 ->get()->map(fn ($p) => self::product($p))->all();
 
             $shown = array_flip(array_column($products, 'id'));
-            $showcase = ShowcaseProduct::with('product:id,sku')->orderBy('sort_order')->orderBy('id')->get()
-                ->map(fn ($s) => $s->product->sku ?: 'db-'.$s->product->id)
+            $showcase = Product::whereNotNull('showcase_position')->orderBy('showcase_position')->get(['id', 'sku'])
+                ->map(fn ($p) => $p->sku ?: 'db-'.$p->id)
                 ->filter(fn ($id) => isset($shown[$id]))->values()->all();
 
             $sortOptions = SortOption::with('products:id,sku')
@@ -101,6 +105,35 @@ class Storefront
             ->filter(fn ($c) => $includeHidden || ($c->is_active && (! $c->parent_id || ($active[$c->parent_id] ?? false))))
             ->map(fn ($c) => self::category($c))
             ->values()->all();
+    }
+
+    /** A customer's points, tier (Plus / Pro / Max), how far to the next tier, and recent history. */
+    public static function loyalty(Customer $customer): array
+    {
+        $membership = $customer->membership; // from the customer's orders
+        $tier = $customer->tier;
+        $lowest = LoyaltyTier::lowest();
+        $next = LoyaltyTier::where('min_spend_usd', '>', $tier->min_spend_usd)->orderBy('min_spend_usd')->first();
+        $usd = fn ($v) => number_format((float) $v, 2, '.', '');
+
+        return [
+            'tier' => $tier->name,
+            'discountPercent' => (float) $tier->discount_percent,
+            'spendUSD' => $usd($membership['spend']),
+            'tierFromUSD' => $usd($tier->min_spend_usd),
+            'nextTier' => $next?->name,
+            'nextTierAtUSD' => $next ? $usd($next->min_spend_usd) : null,
+            'spendToNextUSD' => $next ? $usd(max(0, (float) $next->min_spend_usd - $membership['spend'])) : null,
+            'lastOrderAt' => optional($membership['lastOrderAt'])->toIso8601String(),
+            // Pro and Max end on this day unless the customer orders again
+            'expiresAt' => $tier->isNot($lowest) ? optional($membership['expiresAt'])->toIso8601String() : null,
+            'lapseDays' => LoyaltyTier::LAPSE_DAYS,
+            'totalSpentUSD' => $usd($customer->total_spent_usd),
+            'tiers' => LoyaltyTier::orderBy('min_spend_usd')->get()->map(fn ($t) => [
+                'name' => $t->name, 'minSpendUSD' => (float) $t->min_spend_usd,
+                'discountPercent' => (float) $t->discount_percent,
+            ])->all(),
+        ];
     }
 
     /** Home page text staff changed (null = the page keeps its own text). */
@@ -161,7 +194,7 @@ class Storefront
         $category = $p->category;
         $root = $category?->root();
         $gallery = $p->images->pluck('image_path')->values()->all();
-        $stock = (int) ($p->stock?->quantity_on_hand ?? 0);
+        $stock = $p->stock_on_hand; // SUM of its stock movements
 
         return [
             'id' => $p->sku ?: 'db-'.$p->id,
@@ -171,7 +204,12 @@ class Storefront
             'category' => $root?->slug,
             'categoryLabel' => $category?->name ?? ucfirst((string) $root?->slug),
             'categoryId' => $category?->id,
-            'priceUSD' => (float) $p->price_usd,
+            'priceUSD' => $p->sellingPrice(), // what customers pay now (sale included)
+            'basePriceUSD' => (float) $p->price_usd, // the normal price staff set
+            'originalPriceUSD' => $p->activeDiscountPercent() !== null ? (float) $p->price_usd : null, // crossed out while on sale
+            'discountPercent' => $p->discount_percent !== null ? (float) $p->discount_percent : null,
+            'discountEndsAt' => optional($p->discount_ends_at)->toIso8601String(),
+            'onSale' => $p->activeDiscountPercent() !== null,
             'inStock' => $stock > 0,
             'stock' => $stock,
             'rating' => round((float) $p->reviews_avg_rating, 1),
@@ -180,7 +218,7 @@ class Storefront
             'image' => $p->primaryImagePath(),
             'gallery' => $gallery,
             'description' => $p->detail?->description,
-            'specifications' => (object) ($p->detail?->specifications ?: []),
+            'specifications' => (object) $p->specifications->pluck('value', 'name')->all(),
             'status' => $p->status,
             'freeDelivery' => $p->freeDeliveryGroups->isNotEmpty(),
         ];
@@ -188,8 +226,8 @@ class Storefront
 
     public static function user(User $u): array
     {
-        $role = ucfirst((string) $u->role);
-        $u->loadMissing('customer.defaultAddress', 'customer.tier', 'settings');
+        $role = Role::label($u->role);
+        $u->loadMissing('customer.defaultAddress', 'roleRecord');
         $customer = $u->customer;
 
         return [
@@ -204,27 +242,10 @@ class Storefront
             'address' => $customer?->defaultAddress?->address_line,
             'status' => $u->status ?: 'Active',
             'created' => optional($u->created_at)->format('d M Y'),
-            'department' => [
-                'Admin' => 'Studio Management & Finance',
-                'Staff' => 'Fulfillment & Catalog Operations',
-            ][$role] ?? 'Customer',
-            'description' => [
-                'Admin' => 'Full access: reports, payments, catalog and team roles.',
-                'Staff' => 'Verifies payment slips, dispatches orders and manages stock.',
-            ][$role] ?? 'Registered PsaOnline shopper.',
-            'loyalty' => $customer ? [
-                'points' => (int) $customer->loyalty_points,
-                'tier' => $customer->tier?->name,
-                'totalSpentUSD' => number_format((float) $customer->total_spent_usd, 2, '.', ''),
-            ] : null,
-            'settings' => $u->settings ? [
-                'theme' => $u->settings->theme,
-                'language' => $u->settings->language,
-                'currency' => $u->settings->currency,
-                'notifyOrders' => $u->settings->notify_orders,
-                'notifyPromotions' => $u->settings->notify_promotions,
-                'notifyPriceDrops' => $u->settings->notify_price_drops,
-            ] : null,
+            'department' => $u->isStaff() ? $role.' team' : 'Customer',
+            'description' => $u->roleRecord?->description ?: 'Registered PsaOnline shopper.',
+            'permissions' => $u->permissionNames(),
+            'loyalty' => $customer ? self::loyalty($customer) : null,
         ];
     }
 
@@ -247,15 +268,17 @@ class Storefront
             'longitude' => $o->longitude,
             'items' => $o->items->map(fn ($i) => [
                 'id' => $i->product?->sku ?? ($i->product_id ? 'db-'.$i->product_id : null),
-                'title' => $i->product_title,
-                'image' => $i->product_image,
+                'title' => $i->product?->title,
+                'image' => $i->product?->primaryImagePath(),
                 'priceUSD' => (float) $i->unit_price_usd,
                 'quantity' => (int) $i->quantity,
             ])->all(),
-            'subtotalUSD' => number_format((float) $o->subtotal_usd, 2, '.', ''),
-            'discountUSD' => number_format((float) $o->discount_usd, 2, '.', ''),
+            'subtotalUSD' => number_format($o->subtotal_usd, 2, '.', ''),
+            'memberDiscountUSD' => number_format((float) $o->member_discount_usd, 2, '.', ''),
+            'discountUSD' => number_format($o->promo_discount_usd, 2, '.', ''),
+            'promoCode' => $o->promoCode?->code,
             'deliveryUSD' => number_format((float) $o->delivery_fee_usd, 2, '.', ''),
-            'totalUSD' => number_format((float) $o->total_usd, 2, '.', ''),
+            'totalUSD' => number_format($o->total_usd, 2, '.', ''),
             'status' => self::statusLabel($o),
             'paymentMethod' => self::paymentName($o->payment_method),
             'paymentCode' => $o->payment_method,
@@ -271,6 +294,23 @@ class Storefront
             'handledBy' => $o->handler?->name,
             'handledById' => $o->handled_by ? (string) $o->handled_by : null,
         ];
+    }
+
+    /** Promo codes staff chose to show customers under "My coupons" that can be used now. */
+    public static function coupons(): array
+    {
+        return PromoCode::where('is_active', true)->where('show_to_customers', true)
+            ->where(fn ($q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+            ->orderBy('ends_at')->orderByDesc('id')->limit(20)->get()
+            ->filter(fn (PromoCode $p) => $p->state() === 'active')
+            ->map(fn (PromoCode $p) => [
+                'code' => $p->code,
+                'label' => $p->label(),
+                'description' => $p->description,
+                'minOrderUSD' => $p->min_order_usd !== null ? (float) $p->min_order_usd : null,
+                'endsAt' => optional($p->ends_at)->toIso8601String(),
+            ])->values()->all();
     }
 
     /** Display name for a payment code: built-in label, else the admin-created method's name. */
