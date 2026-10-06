@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>About Us — PsaOnline Gen-Z Accessories Studio</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Discover PsaOnline: Phnom Penh's viral Gen-Z streetwear accessories marketplace featuring Y2K jewelry, shades, cloud bags, and Bakong KHQR checkout." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -63,10 +66,6 @@
           <span class="hidden sm:inline font-bold">Dark</span>
         </button>
 
-        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
-          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD</button>
-          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-white">KHR</button>
-        </div>
 
         <a href="cart.html" class="relative p-2.5 rounded-full bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white transition-transform hover:scale-105" title="Bag">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
@@ -129,7 +128,7 @@
         <ul class="space-y-3 text-xs sm:text-sm text-stone-600 dark:text-stone-300">
           <li class="flex items-start gap-2.5">
             <span class="w-5 h-5 rounded-full bg-[#FFA552] text-white flex items-center justify-center font-black shrink-0 text-xs mt-0.5">✓</span>
-            <div><strong class="text-[#2B1D1D] dark:text-white">Dual Currency (USD &amp; KHR):</strong> Live prices shown in both dollars and Cambodian Riel at 1 USD = 4,100 KHR.</div>
+            <div><strong class="text-[#2B1D1D] dark:text-white">Clear Prices in USD:</strong> Every price is shown in US dollars, with no conversions or surprises.</div>
           </li>
           <li class="flex items-start gap-2.5">
             <span class="w-5 h-5 rounded-full bg-[#FFA552] text-white flex items-center justify-center font-black shrink-0 text-xs mt-0.5">✓</span>
@@ -292,8 +291,8 @@
         <div class="space-y-2">
           <div class="font-bold text-[#2B1D1D] dark:text-white">Contact &amp; Support</div>
           <p class="font-mono text-xs bg-[#F9F3EA] dark:bg-[#15151C] p-2.5 rounded-xl border border-[#EFE4D6] dark:border-[#272732] text-stone-700 dark:text-stone-300">
-            Telegram: @psaonline_support<br />
-            Instagram: @psaonline_kh
+            <span data-psa-handle="telegram">Telegram: @psaonline_support</span><br />
+            <span data-psa-handle="instagram">Instagram: @psaonline_kh</span>
           </p>
         </div>
       </div>
@@ -341,32 +340,7 @@
         <!-- Col 3: Visit Us (Socials) -->
         <div class="space-y-2">
           <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Visit Us (Socials)</div>
-          <ul class="text-xs space-y-2 font-medium">
-            <li>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">IG</span>
-                <span>Instagram (@psaonline_kh)</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">TikTok</span>
-                <span>TikTok (@psaonline)</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">FB</span>
-                <span>Facebook Page</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://t.me/psaonline_support" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">TG</span>
-                <span>Telegram (@psaonline_support)</span>
-              </a>
-            </li>
-          </ul>
+          <ul class="text-xs space-y-2 font-medium" data-psa-socials="compact"></ul>
         </div>
 
         <!-- Col 4: Payments Accepted -->

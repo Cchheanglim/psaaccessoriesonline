@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Pay for Your Order | PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Scan the shop's payment QR, then upload your transfer slip." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -48,6 +51,8 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const orderId = params.get('order') || '';
+    // This is the customer's view. Staff and admins handle orders (and reply to messages) on the staff order page.
+    if (psaIsStaffAccount()) location.replace(`order-detail--admin-payment-submitted.html${orderId ? '?order=' + encodeURIComponent(orderId) : ''}`);
     const page = document.getElementById('payPage');
     const card = 'rounded-3xl bg-white dark:bg-[#1A1A22] border border-[#EFE4D6] dark:border-[#2D2D38] p-5 sm:p-7';
     let slipDataUrl = null;
@@ -94,7 +99,6 @@
           <div class="mt-5 inline-flex flex-col items-center rounded-2xl bg-cotton dark:bg-[#252530] px-6 py-4">
             <span class="text-sm font-bold text-stone-600">Amount to pay</span>
             <span class="text-4xl font-black tabular-nums">$${Number(order.totalUSD).toFixed(2)}</span>
-            <span class="text-base font-bold text-stone-600 tabular-nums">or ${psaEsc(order.totalKHR)} ៛</span>
           </div>
         </section>
 

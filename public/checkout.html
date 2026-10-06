@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Checkout — PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Complete your accessories order with Bakong KHQR, ABA Mobile, or Cash on Delivery." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -250,7 +253,7 @@
             <div class="flex flex-wrap gap-2 text-[10px] font-bold text-slate-300"><span class="rounded-full border border-slate-600 px-2.5 py-1">Verified by Visa</span><span class="rounded-full border border-slate-600 px-2.5 py-1">Mastercard ID Check</span><span class="rounded-full border border-slate-600 px-2.5 py-1">PCI-DSS Compliant &amp; 256-Bit SSL Encrypted</span></div>
           </div>
 
-          <div id="acledaInfo" class="payment-info-panel rounded-2xl p-4 text-xs text-slate-300 leading-relaxed" hidden>Your amount will be shown in USD and KHR. This prototype uses a demo QR payload; live KHQR issuance and automatic bank verification require an ACLEDA/Bakong merchant integration.</div>
+          <div id="acledaInfo" class="payment-info-panel rounded-2xl p-4 text-xs text-slate-300 leading-relaxed" hidden>Your amount is shown in US dollars. This prototype uses a demo QR payload; live KHQR issuance and automatic bank verification require an ACLEDA/Bakong merchant integration.</div>
         </div>
 
       </div>
@@ -273,17 +276,12 @@
               <span>Express Delivery</span>
               <span class="font-bold text-[#FFA552]" id="coDelivery">$1.50</span>
             </div>
-            <div class="flex justify-between text-[11px] text-stone-400">
-              <span>Exchange Rate</span>
-              <span>1 USD = 4,100 KHR</span>
-            </div>
           </div>
 
           <div class="border-t checkout-divider pt-4 flex justify-between items-baseline">
             <span class="text-sm font-black text-[#2B1D1D]">Total Due</span>
             <div class="text-right">
               <div class="checkout-total text-2xl font-black tracking-tight" id="coTotalUSD">$0.00</div>
-              <div class="text-xs text-[#FFA552] font-bold khmer-font" id="coTotalKHR">0 ៛</div>
             </div>
           </div>
 
@@ -305,7 +303,7 @@
       <div id="acledaPaymentDialog" class="payment-dialog" hidden>
         <section class="payment-dialog-card space-y-4" role="dialog" aria-modal="true" aria-labelledby="acledaDialogTitle">
           <div class="flex items-start justify-between gap-4"><div><p class="text-[10px] font-bold uppercase text-amber-400">ACLEDA Mobile • Demo</p><h2 id="acledaDialogTitle" class="text-lg font-black mt-1">KHQR payment request</h2></div><button type="button" onclick="closePaymentDialog('acledaPaymentDialog')" class="text-slate-400 hover:text-white text-xl" aria-label="Close">&times;</button></div>
-          <div class="grid grid-cols-2 gap-3 rounded-xl bg-[#151922] p-3 text-sm"><div><p class="text-[10px] text-slate-400">USD</p><strong id="acledaAmountUsd">$0.00</strong></div><div><p class="text-[10px] text-slate-400">KHR</p><strong id="acledaAmountKhr">0 ៛</strong></div></div>
+          <div class="rounded-xl bg-[#151922] p-3 text-sm"><p class="text-[10px] text-slate-400">Amount (USD)</p><strong id="acledaAmountUsd">$0.00</strong></div>
           <div id="acledaQrCode" class="mx-auto flex h-48 w-48 items-center justify-center rounded-xl bg-white p-2" aria-label="Demonstration QR code"></div>
           <p class="text-center text-[10px] text-amber-300">Demo QR only. It cannot initiate a bank transfer.</p>
           <a id="acledaDeepLink" href="acledamobile://" class="block rounded-xl bg-amber-500 px-4 py-3 text-center text-xs font-black text-slate-950 hover:bg-amber-400">Open in ACLEDA ToanChet App</a>
@@ -418,7 +416,6 @@
           id: 'genz-01',
           title: 'Silver Chrome Star Pendant Necklace',
           priceUSD: 6.50,
-          priceKHR: 26650,
           image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80',
           categoryLabel: 'Y2K Jewelry',
           quantity: 1
@@ -444,28 +441,26 @@
         `;
       }).join('');
 
-      const delivery = subtotal >= 15 ? 0 : 1.50;
+      const delivery = psaDeliveryFee(cart, subtotal);
       const total = subtotal + delivery;
-      const totalKHR = Math.round(total * EXCHANGE_RATE);
 
       document.getElementById('coSubtotal').textContent = `$${subtotal.toFixed(2)}`;
-      document.getElementById('coDelivery').textContent = delivery === 0 ? 'FREE' : '$1.50';
+      document.getElementById('coDelivery').textContent = psaDeliveryLabel(cart, subtotal);
       document.getElementById('coTotalUSD').textContent = `$${total.toFixed(2)}`;
-      document.getElementById('coTotalKHR').textContent = `${totalKHR.toLocaleString()} ៛`;
     }
 
     function getCheckoutAmounts() {
       const cart = getCart();
       const subtotal = cart.reduce((sum, item) => sum + item.priceUSD * item.quantity, 0);
-      const delivery = subtotal >= 15 ? 0 : 1.50;
+      const delivery = psaDeliveryFee(cart, subtotal);
       const totalUsd = (subtotal + delivery).toFixed(2);
-      return { cart, subtotalUsd: subtotal.toFixed(2), deliveryUsd: delivery.toFixed(2), totalUsd, totalKhr: Math.round(Number(totalUsd) * EXCHANGE_RATE).toLocaleString() };
+      return { cart, subtotalUsd: subtotal.toFixed(2), deliveryUsd: delivery.toFixed(2), totalUsd };
     }
 
     // Live mode: the order is created in the database (prices and stock are checked by the server).
     // Demo mode (no server): it is kept in this browser only, as before.
     async function saveCheckoutOrder(paymentMethod, status = 'Payment Pending') {
-      const { cart, subtotalUsd, deliveryUsd, totalUsd, totalKhr } = getCheckoutAmounts();
+      const { cart, subtotalUsd, deliveryUsd, totalUsd } = getCheckoutAmounts();
 
       if (PSA.online) {
         const pos = checkoutPin ? checkoutPin.getLatLng() : null;
@@ -500,7 +495,6 @@
         subtotalUSD: subtotalUsd,
         deliveryUSD: deliveryUsd,
         totalUSD: totalUsd,
-        totalKHR: totalKhr,
         status,
         paymentMethod: paymentLabels[paymentMethod]
       };
@@ -674,10 +668,9 @@
     function openAcledaPayment(order) {
       activeAcledaOrderId = order.id;
       document.getElementById('acledaAmountUsd').textContent = `$${Number(order.totalUSD).toFixed(2)}`;
-      document.getElementById('acledaAmountKhr').textContent = `${order.totalKHR} ៛`;
       document.getElementById('acledaVerifyStatus').textContent = 'Automatic status check • Awaiting provider';
       document.getElementById('simulateAcledaPaid').hidden = false;
-      const payload = `DEMO|ACLEDA-KHQR|${order.id}|USD:${order.totalUSD}|KHR:${order.totalKHR.replace(/,/g, '')}`;
+      const payload = `DEMO|ACLEDA-KHQR|${order.id}|USD:${order.totalUSD}`;
       const qrContainer = document.getElementById('acledaQrCode');
       qrContainer.replaceChildren();
       if (window.QRCode) new QRCode(qrContainer, { text: payload, width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M });
@@ -744,7 +737,7 @@
       }
       updateSavedOrderStatus(order.id, 'Paid (demo)');
       const dialogCard = document.querySelector('#visaOtpDialog .payment-dialog-card');
-      dialogCard.innerHTML = `<div class="space-y-4 text-center"><div class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-950 text-emerald-300 text-xl">✓</div><p class="text-[10px] font-bold uppercase text-emerald-300">Demo transaction approved</p><h2 class="text-lg font-black">Order ${order.id}</h2><p class="text-sm text-slate-300">Visa / Mastercard • $${Number(order.totalUSD).toFixed(2)} (${order.totalKHR} KHR)</p><p class="text-[11px] text-slate-400">No charge was made. This is a simulated 3D Secure result.</p><button type="button" onclick="window.location.href='order-detail.html?order=${order.id}&status=demo-approved&method=visa'" class="w-full rounded-xl bg-amber-500 px-4 py-3 text-xs font-black text-slate-950">View order</button></div>`;
+      dialogCard.innerHTML = `<div class="space-y-4 text-center"><div class="mx-auto grid h-12 w-12 place-items-center rounded-full bg-emerald-950 text-emerald-300 text-xl">✓</div><p class="text-[10px] font-bold uppercase text-emerald-300">Demo transaction approved</p><h2 class="text-lg font-black">Order ${order.id}</h2><p class="text-sm text-slate-300">Visa / Mastercard • $${Number(order.totalUSD).toFixed(2)}</p><p class="text-[11px] text-slate-400">No charge was made. This is a simulated 3D Secure result.</p><button type="button" onclick="window.location.href='order-detail.html?order=${order.id}&status=demo-approved&method=visa'" class="w-full rounded-xl bg-amber-500 px-4 py-3 text-xs font-black text-slate-950">View order</button></div>`;
     }
 
     function closePaymentDialog(id) {

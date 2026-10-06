@@ -57,9 +57,9 @@ class NotificationController extends Controller
         $user = $request->user();
         abort_unless($user?->isStaff(), 403, 'Staff only.');
 
-        $orders = Order::with('handler:id,name')
+        $orders = Order::with(Order::PAGE_RELATIONS)
             ->whereHas('messages')
-            ->withCount(['messages as unread_count' => fn ($q) => $q->where('from_staff', false)->whereNull('read_at')])
+            ->withCount(['messages as unread_count' => fn ($q) => $q->fromCustomer()->whereNull('read_at')])
             ->withMax('messages', 'created_at')
             ->orderByDesc('messages_max_created_at')
             ->limit(100)
@@ -77,7 +77,7 @@ class NotificationController extends Controller
                 'mine' => $o->handled_by === $user->id,
                 'unread' => (int) $o->unread_count,
                 'lastMessage' => mb_strimwidth((string) $last->get($o->id)?->body, 0, 120, '…'),
-                'lastFromStaff' => (bool) $last->get($o->id)?->from_staff,
+                'lastFromStaff' => (bool) $last->get($o->id)?->isFromStaff($o),
                 'lastAt' => optional($last->get($o->id)?->created_at)->toIso8601String(),
             ])->values()->all(),
         ]);
@@ -89,13 +89,14 @@ class NotificationController extends Controller
         $user = $request->user();
 
         if ($user->isStaff()) {
-            return OrderMessage::where('from_staff', false)->whereNull('read_at')
-                ->whereHas('order', fn ($q) => $q->where(fn ($q) => $q->whereNull('handled_by')->orWhere('handled_by', $user->id))->where('user_id', '!=', $user->id))
+            return OrderMessage::fromCustomer()->whereNull('read_at')
+                ->whereHas('order', fn ($q) => $q->where(fn ($q) => $q->whereNull('handled_by')->orWhere('handled_by', $user->id))
+                    ->whereHas('customer', fn ($c) => $c->where('user_id', '!=', $user->id)))
                 ->count();
         }
 
-        return OrderMessage::where('from_staff', true)->whereNull('read_at')
-            ->whereHas('order', fn ($q) => $q->where('user_id', $user->id))
+        return OrderMessage::fromStaff()->whereNull('read_at')
+            ->whereHas('order.customer', fn ($q) => $q->where('user_id', $user->id))
             ->count();
     }
 }

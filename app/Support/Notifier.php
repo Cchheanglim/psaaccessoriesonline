@@ -15,12 +15,13 @@ class Notifier
 {
     public static function toCustomer(Order $order, string $type, string $title, ?string $body = null, ?string $link = null): void
     {
-        if (! $order->user_id) {
+        $customerUserId = $order->loadMissing('customer')->user_id;
+        if (! $customerUserId) {
             return;
         }
 
         UserNotification::create([
-            'user_id' => $order->user_id,
+            'user_id' => $customerUserId,
             'order_id' => $order->id,
             'type' => $type,
             'title' => $title,
@@ -33,13 +34,15 @@ class Notifier
     {
         $recipients = $order->handled_by
             ? [$order->handled_by]
-            : User::whereIn('role', ['staff', 'admin'])->where(fn ($q) => $q->whereNull('status')->orWhere('status', 'Active'))->pluck('id')->all();
+            : User::whereHas('roleRecord', fn ($q) => $q->whereIn('name', ['staff', 'admin']))
+                ->where(fn ($q) => $q->whereNull('status')->orWhere('status', 'Active'))->pluck('id')->all();
 
         $link = 'order-detail--admin-payment-submitted.html?order='.rawurlencode($order->order_number);
         $now = now();
         $rows = [];
+        $customerUserId = $order->loadMissing('customer')->user_id;
         foreach (array_unique($recipients) as $userId) {
-            if ($userId === $exceptUserId || $userId === $order->user_id) {
+            if ($userId === $exceptUserId || $userId === $customerUserId) {
                 continue;
             }
             $rows[] = [

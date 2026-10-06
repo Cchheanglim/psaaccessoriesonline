@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>My account | PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Track your PsaOnline orders, saved items and recently viewed products." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -633,8 +636,7 @@
       const idQ = encodeURIComponent(id);
       const items = Array.isArray(ord.items) ? ord.items : [];
       const payHref = 'order-detail--buyer-pending.html?order=' + idQ +
-        '&usd=' + encodeURIComponent(ord.totalUSD != null ? ord.totalUSD : '') +
-        '&khr=' + encodeURIComponent(ord.totalKHR != null ? ord.totalKHR : '');
+        '&usd=' + encodeURIComponent(ord.totalUSD != null ? ord.totalUSD : '');
       const btnBase = 'inline-flex items-center justify-center h-9 px-4 rounded-lg text-sm font-bold ' + FOCUS;
 
       return `
@@ -663,7 +665,6 @@
             <div class="text-sm">
               <span class="text-stone-500">Total</span>
               <span class="font-extrabold text-[#2B1D1D] tabular-nums">$${esc(ord.totalUSD)}</span>
-              <span class="text-stone-500 tabular-nums">(${esc(ord.totalKHR)} ៛)</span>
             </div>
             <div class="flex items-center gap-2">
               ${orderGroup(ord) === 'pending' && ord.paymentCode !== 'cod' ? `<a href="${payHref}" class="${btnBase} bg-[#FFA552] hover:bg-[#E88C35] text-stone-900">Pay now</a>` : ''}
@@ -794,7 +795,7 @@
           </a>
           <div class="p-3 flex flex-col gap-2 flex-1">
             <a href="product-detail.html?id=${encodeURIComponent(p.id)}" class="text-sm font-semibold text-[#2B1D1D] line-clamp-2 min-h-[2.5rem] hover:underline ${FOCUS}">${esc(p.title)}</a>
-            <div class="text-sm font-extrabold text-[#2B1D1D] tabular-nums">${esc(formatPrice(p.priceUSD, p.priceKHR))}</div>
+            <div class="text-sm font-extrabold text-[#2B1D1D] tabular-nums">${esc(formatPrice(p.priceUSD))}</div>
             <div class="flex gap-2 mt-auto">
               <button type="button" data-add="${esc(p.id)}" ${p.inStock === false ? 'disabled' : ''} class="flex-1 h-9 rounded-lg bg-[#FFA552] hover:bg-[#E88C35] disabled:opacity-50 disabled:cursor-not-allowed text-stone-900 text-xs font-bold cursor-pointer ${FOCUS}">${p.inStock === false ? 'Sold out' : 'Add to Bag'}</button>
               <button type="button" data-wish="${esc(p.id)}" data-wishlist-id="${esc(p.id)}" class="w-9 h-9 shrink-0 rounded-lg border border-[#EFE4D6] dark:border-[#2D2D38] text-stone-400 flex items-center justify-center cursor-pointer ${FOCUS}" aria-label="Save to Wishlist" title="Save to Wishlist">

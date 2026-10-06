@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Your Wishlist & Saved Drops — PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="View and manage your saved Gen-Z streetwear accessories, cyber Y2K jewelry, shades, and cloud bags." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -65,11 +68,6 @@
           <span class="hidden sm:inline font-bold">Dark</span>
         </button>
 
-        <!-- Currency -->
-        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
-          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD</button>
-          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-white">KHR</button>
-        </div>
 
         <!-- Wishlist Button (Active state on this page) -->
         <a href="wishlist.html" class="relative p-2.5 rounded-full bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-900 text-rose-500 transition-transform hover:scale-105" title="Wishlist">
@@ -192,32 +190,7 @@
 
         <div class="space-y-2">
           <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Visit Us (Socials)</div>
-          <ul class="text-xs space-y-2 font-medium">
-            <li>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">IG</span>
-                <span>Instagram (@psaonline_kh)</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">TikTok</span>
-                <span>TikTok (@psaonline)</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">FB</span>
-                <span>Facebook Page</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">X</span>
-                <span>X / Twitter (@psaonline)</span>
-              </a>
-            </li>
-          </ul>
+          <ul class="text-xs space-y-2 font-medium" data-psa-socials="compact"></ul>
         </div>
 
         <div class="space-y-2">
@@ -371,8 +344,7 @@
 
             <div class="pt-2 border-t border-[#F9F3EA] dark:border-[#2D2D38] flex items-baseline justify-between">
               <div>
-                <span class="text-xs sm:text-sm font-black text-[#2B1D1D] dark:text-white">${formatPrice(item.priceUSD, item.priceKHR)}</span>
-                <span class="text-[10px] text-[#FFA552] block sm:inline sm:ml-1 font-bold">${item.priceKHR.toLocaleString()} ៛</span>
+                <span class="text-xs sm:text-sm font-black text-[#2B1D1D] dark:text-white">${formatPrice(item.priceUSD)}</span>
               </div>
               <div class="flex items-center gap-2">
                 <button 

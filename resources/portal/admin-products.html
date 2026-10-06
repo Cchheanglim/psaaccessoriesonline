@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Product Inventory — PsaOnline Admin</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
@@ -167,6 +170,16 @@
       </div>
     </div>
 
+    <!-- Sections -->
+    <div class="flex gap-1 border-b border-gray-200 overflow-x-auto" role="tablist" aria-label="Catalog sections">
+      <button type="button" role="tab" id="tab-products" data-tab="products" aria-controls="panel-products" class="catalog-tab h-11 px-4 -mb-px border-b-2 text-sm font-bold transition cursor-pointer">Products</button>
+      <button type="button" role="tab" id="tab-categories" data-tab="categories" aria-controls="panel-categories" class="catalog-tab h-11 px-4 -mb-px border-b-2 text-sm font-bold transition cursor-pointer">Categories</button>
+      <button type="button" role="tab" id="tab-showcase" data-tab="showcase" aria-controls="panel-showcase" class="catalog-tab h-11 px-4 -mb-px border-b-2 text-sm font-bold transition cursor-pointer">Home showcase</button>
+      <button type="button" role="tab" id="tab-sorting" data-tab="sorting" aria-controls="panel-sorting" class="catalog-tab h-11 px-4 -mb-px border-b-2 text-sm font-bold transition cursor-pointer">Sort By</button>
+      <button type="button" role="tab" id="tab-socials" data-tab="socials" aria-controls="panel-socials" class="catalog-tab h-11 px-4 -mb-px border-b-2 text-sm font-bold transition cursor-pointer">Social media</button>
+    </div>
+
+    <section id="panel-products" role="tabpanel" aria-labelledby="tab-products" class="space-y-4">
     <!-- Filter & Search Toolbar -->
     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
       
@@ -195,12 +208,24 @@
 
     </div>
 
+    <!-- Move the ticked products to a category -->
+    <div id="bulkBar" class="hidden sticky top-2 z-20 bg-slate-900 text-white rounded-xl px-4 py-3 shadow-lg flex flex-col sm:flex-row sm:items-center gap-3" role="region" aria-label="Selected products">
+      <div class="text-sm font-bold flex-1"><span id="bulkCount">0</span> selected</div>
+      <label for="bulkCategory" class="text-xs font-semibold text-slate-300">Move to</label>
+      <select id="bulkCategory" class="h-10 px-3 rounded-lg text-sm text-gray-900 bg-white min-w-[14rem]"></select>
+      <div class="flex gap-2">
+        <button type="button" id="bulkMoveBtn" class="h-10 px-4 rounded-lg bg-orange-500 hover:bg-orange-400 text-slate-900 text-sm font-black cursor-pointer">Move</button>
+        <button type="button" id="bulkClearBtn" class="h-10 px-3 rounded-lg border border-slate-600 hover:bg-slate-800 text-sm font-semibold cursor-pointer">Clear</button>
+      </div>
+    </div>
+
     <!-- Products Table -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
         <table class="psa-stack-table w-full text-left text-sm text-gray-600">
           <thead class="bg-gray-50 text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-200">
             <tr>
+              <th class="pl-5 pr-1 py-3 w-8"><input type="checkbox" id="selectAll" class="w-4 h-4 accent-orange-600 cursor-pointer" aria-label="Select all shown products" /></th>
               <th class="px-5 py-3 font-semibold">Product</th>
               <th class="px-5 py-3 font-semibold">Category</th>
               <th class="px-5 py-3 font-semibold">Price</th>
@@ -210,23 +235,136 @@
             </tr>
           </thead>
           <tbody id="productsTableBody" class="divide-y divide-gray-100">
-            <tr><td colspan="6" class="px-5 py-10 text-center text-xs text-gray-400">Loading products&hellip;</td></tr>
+            <tr><td colspan="7" class="px-5 py-10 text-center text-xs text-gray-400">Loading products&hellip;</td></tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Pagination -->
-      <div class="p-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-        <div>Showing <span class="font-semibold text-gray-900">1</span> to <span class="font-semibold text-gray-900">5</span> of 24 products</div>
-        <div class="flex items-center gap-1">
-          <button class="px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-600 font-medium disabled:opacity-40" disabled>Previous</button>
-          <button class="px-3 py-1.5 rounded bg-orange-600 text-white font-semibold">1</button>
-          <button class="px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 font-medium">2</button>
-          <button class="px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 font-medium">3</button>
-          <button class="px-3 py-1.5 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 font-medium">Next</button>
+      <div class="p-4 bg-gray-50 border-t border-gray-200 text-xs text-gray-500" id="productsCount" aria-live="polite"></div>
+    </div>
+    </section>
+
+    <!-- Categories -->
+    <section id="panel-categories" role="tabpanel" aria-labelledby="tab-categories" class="hidden space-y-4">
+      <form id="newCategoryForm" class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm grid gap-3 sm:grid-cols-[1fr_16rem_auto] sm:items-end" novalidate>
+        <div class="space-y-1">
+          <label for="newCategoryName" class="text-xs font-bold text-gray-700">New category name</label>
+          <input id="newCategoryName" type="text" maxlength="60" placeholder="e.g. Back to School" class="w-full h-11 px-3 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+        </div>
+        <div class="space-y-1">
+          <label for="newCategoryParent" class="text-xs font-bold text-gray-700">Put it inside</label>
+          <select id="newCategoryParent" class="w-full h-11 px-3 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"></select>
+        </div>
+        <button type="submit" id="newCategoryBtn" class="h-11 px-5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold cursor-pointer">Add category</button>
+        <p id="newCategoryError" class="hidden sm:col-span-3 text-xs font-bold text-red-600" role="alert"></p>
+      </form>
+      <p class="text-xs text-gray-500">Hidden categories (and everything in them) disappear from the shop for customers; staff still see them here. A category can only be deleted once it is empty. To fill a category, tick products on the Products tab and use <strong>Move to</strong>.</p>
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100" id="categoryList" aria-live="polite"></div>
+    </section>
+
+    <!-- Shop "Sort By" menu -->
+    <section id="panel-sorting" role="tabpanel" aria-labelledby="tab-sorting" class="hidden">
+      <div class="grid gap-6 lg:grid-cols-[1fr_28rem]">
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base font-black text-gray-900">The shop's Sort By menu</h2>
+              <p class="text-xs text-gray-500">Customers see these in this order; the first one is used when the shop opens. A hand-picked group shows only its products, e.g. "New Drop" or "Free Delivery".</p>
+            </div>
+            <button type="button" id="sortAddBtn" class="h-10 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold cursor-pointer">+ Add option</button>
+          </div>
+          <ol id="sortList" class="space-y-2" aria-label="Sort By options"></ol>
+        </div>
+        <div>
+          <form id="sortEditor" class="lg:sticky lg:top-6 bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-4" novalidate></form>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- Social media accounts -->
+    <section id="panel-socials" role="tabpanel" aria-labelledby="tab-socials" class="hidden">
+      <form id="socialsForm" class="grid gap-6 lg:grid-cols-[1fr_22rem]" novalidate>
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-4">
+          <div>
+            <h2 class="text-base font-black text-gray-900">Social media accounts</h2>
+            <p class="text-xs text-gray-500">Shown in the footer of every page. Leave both boxes empty to hide a platform. The Telegram account is also used for every "message us on Telegram" link.</p>
+          </div>
+          <div id="socialRows" class="divide-y divide-gray-100"></div>
+          <p id="socialsError" class="hidden text-xs font-bold text-red-600" role="alert"></p>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="submit" id="socialsSaveBtn" class="h-10 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Save accounts</button>
+            <button type="button" id="socialsResetBtn" class="h-10 px-3 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 cursor-pointer">Use the original accounts</button>
+            <span id="socialsDirty" class="hidden text-xs font-bold text-amber-700">Unsaved changes</span>
+          </div>
+        </div>
+        <div>
+          <div class="lg:sticky lg:top-6 rounded-2xl bg-[#F9F3EA] border border-[#EFE4D6] p-5">
+            <div class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Footer preview</div>
+            <ul id="socialsPreview" class="space-y-2" data-psa-socials-preview></ul>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Home showcase -->
+    <section id="panel-showcase" role="tabpanel" aria-labelledby="tab-showcase" class="hidden space-y-6">
+      <form id="homeTextForm" class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm grid gap-5 lg:grid-cols-[1fr_26rem]" novalidate>
+        <div class="space-y-3">
+          <div>
+            <h2 class="text-base font-black text-gray-900">Home headline</h2>
+            <p class="text-xs text-gray-500">Change it for an event or holiday. Put the words you want highlighted in orange between stars, like <code class="px-1 rounded bg-gray-100">Happy *Water Festival!*</code> Fonts, sizes and colors stay the same.</p>
+          </div>
+          <div class="space-y-1">
+            <div class="flex justify-between"><label for="homeHeadline" class="text-xs font-bold text-gray-700">Headline</label><span id="homeHeadlineCount" class="text-xs text-gray-500"></span></div>
+            <input id="homeHeadline" type="text" maxlength="90" class="w-full h-11 px-3 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+          </div>
+          <div class="space-y-1">
+            <div class="flex justify-between"><label for="homeSubtitle" class="text-xs font-bold text-gray-700">Line under it</label><span id="homeSubtitleCount" class="text-xs text-gray-500"></span></div>
+            <textarea id="homeSubtitle" rows="3" maxlength="220" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+          </div>
+          <p id="homeTextError" class="hidden text-xs font-bold text-red-600" role="alert"></p>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="submit" id="homeTextSaveBtn" class="h-10 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Save headline</button>
+            <button type="button" id="homeTextResetBtn" class="h-10 px-3 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-xs font-bold text-gray-700 cursor-pointer">Use the original text</button>
+            <span id="homeTextDirty" class="hidden text-xs font-bold text-amber-700">Unsaved changes</span>
+          </div>
+        </div>
+        <div class="rounded-2xl bg-[#F9F3EA] border border-[#EFE4D6] p-5">
+          <div class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Preview</div>
+          <div id="homeTextPreview" class="text-3xl sm:text-4xl leading-[1.05] font-black text-[#2B1D1D] tracking-tight text-balance"></div>
+          <p id="homeSubtitlePreview" class="mt-3 text-sm text-[#4A3333] leading-relaxed font-medium"></p>
+        </div>
+      </form>
+
+      <div class="grid gap-6 lg:grid-cols-[1fr_26rem]">
+        <div class="space-y-4">
+          <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 class="text-base font-black text-gray-900">On the home page</h2>
+                <p class="text-xs text-gray-500">Up to 6 products. The first one is the big front card; customers can bring the others forward.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="showcaseDirty" class="hidden text-xs font-bold text-amber-700">Unsaved changes</span>
+                <button type="button" id="showcaseSaveBtn" class="h-10 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Save showcase</button>
+              </div>
+            </div>
+            <ol id="showcasePicks" class="space-y-2" aria-label="Showcase order"></ol>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3">
+            <label for="showcaseSearch" class="text-sm font-black text-gray-900 block">Add a product</label>
+            <input id="showcaseSearch" type="search" placeholder="Search by name, category or SKU" class="w-full h-11 px-3 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+            <ul id="showcaseResults" class="max-h-80 overflow-y-auto divide-y divide-gray-100"></ul>
+          </div>
+        </div>
+        <div>
+          <div class="lg:sticky lg:top-6 rounded-2xl bg-[#F9F3EA] border border-[#EFE4D6] p-6">
+            <div class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">Live preview</div>
+            <div id="showcasePreview"></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
   </main>
 
@@ -297,10 +435,24 @@
     }
 
     function fillCategoryFilter() {
-      const seen = new Map();
-      adminProducts().forEach(p => { if (!seen.has(p.category)) seen.set(p.category, p.categoryLabel || p.category); });
-      categoryFilter.innerHTML = '<option value="all">All Categories</option>' +
-        [...seen].map(([value, label]) => `<option value="${psaEsc(value)}">${psaEsc(label)}</option>`).join('');
+      const keep = categoryFilter.value;
+      if (!PSA.online || !Array.isArray(PSA.categories)) {
+        const seen = new Map();
+        adminProducts().forEach(p => { if (!seen.has(p.category)) seen.set(p.category, p.categoryLabel || p.category); });
+        categoryFilter.innerHTML = '<option value="all">All Categories</option>' +
+          [...seen].map(([value, label]) => `<option value="slug:${psaEsc(value)}">${psaEsc(label)}</option>`).join('');
+      } else {
+        categoryFilter.innerHTML = '<option value="all">All Categories</option>' + categoryOptions();
+      }
+      if ([...categoryFilter.options].some(o => o.value === keep)) categoryFilter.value = keep;
+    }
+
+    function matchesCategory(p, value) {
+      if (value === 'all') return true;
+      if (value.startsWith('slug:')) return p.category === value.slice(5);
+      const id = Number(value);
+      const cat = (PSA.categories || []).find(c => c.id === p.categoryId);
+      return p.categoryId === id || (cat && cat.parentId === id);
     }
 
     function renderProductsTable() {
@@ -311,16 +463,21 @@
 
       const list = adminProducts().filter(p => {
         const haystack = `${p.title} ${p.titleKhmer || ''} ${p.id}`.toLowerCase();
-        return (!q || haystack.includes(q)) && (cat === 'all' || p.category === cat) && (stk === 'all' || stockKey(p) === stk);
+        return (!q || haystack.includes(q)) && matchesCategory(p, cat) && (stk === 'all' || stockKey(p) === stk);
       });
+      shownIds = list.map(p => p.id);
+      const total = adminProducts().length;
+      document.getElementById('productsCount').textContent = list.length === total ? `${total} products` : `Showing ${list.length} of ${total} products`;
+      updateBulkBar();
 
       if (!list.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="px-5 py-10 text-center text-xs text-gray-400">No products match these filters.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="px-5 py-10 text-center text-xs text-gray-400">No products match these filters.</td></tr>';
         return;
       }
 
       tbody.innerHTML = list.map(p => `
             <tr class="product-row hover:bg-gray-50/80 transition-colors">
+              <td class="pl-5 pr-1 py-4"><input type="checkbox" class="row-check w-4 h-4 accent-orange-600 cursor-pointer" value="${psaEsc(p.id)}" ${selected.has(p.id) ? 'checked' : ''} aria-label="Select ${psaEsc(p.title)}" /></td>
               <td class="px-5 py-4">
                 <div class="flex items-center gap-3">
                   <div class="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
@@ -333,7 +490,7 @@
                 </div>
               </td>
               <td class="px-5 py-4 text-xs text-gray-600">${psaEsc(p.categoryLabel || p.category)}</td>
-              <td class="px-5 py-4 font-semibold text-xs text-gray-900">$${Number(p.priceUSD).toFixed(2)} <span class="text-[10px] text-gray-400 font-normal block">${Number(p.priceKHR).toLocaleString()} ៛</span></td>
+              <td class="px-5 py-4 font-semibold text-xs text-gray-900">$${Number(p.priceUSD).toFixed(2)}</td>
               <td class="px-5 py-4">${stockChip(p)}</td>
               <td class="px-5 py-4">${visibilityChip(p.status)}</td>
               <td class="px-5 py-4 text-right">
@@ -349,6 +506,8 @@
             </tr>`).join('');
     }
 
+    const selected = new Set();
+    let shownIds = [];
     searchInput.addEventListener('input', renderProductsTable);
     categoryFilter.addEventListener('change', renderProductsTable);
     stockFilter.addEventListener('change', renderProductsTable);
@@ -398,7 +557,11 @@
       if (!enforcePageRBAC('canAccessAdminPortal')) return;
       fillCategoryFilter();
       renderProductsTable();
+      initCatalogTabs();
+      renderCategoryPanel();
+      initShowcasePanel();
     });
   </script>
+  <script src="assets/js/admin-catalog.js"></script>
 </body>
 </html>

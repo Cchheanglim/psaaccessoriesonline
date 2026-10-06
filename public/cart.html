@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Your Shopping Bag — PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="View items in your bag, update quantities, and proceed to Bakong KHQR checkout." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -76,17 +79,12 @@
               <span>Courier Delivery (Phnom Penh)</span>
               <span class="font-bold text-[#FFA552]" id="summaryDelivery">$1.50</span>
             </div>
-            <div class="flex justify-between text-[11px] text-stone-400">
-              <span>Exchange Rate</span>
-              <span>1 USD = 4,100 KHR</span>
-            </div>
           </div>
 
           <div class="border-t border-[#F9F3EA] pt-4 flex justify-between items-baseline">
             <span class="text-sm font-black text-[#2B1D1D]">Estimated Total</span>
             <div class="text-right">
               <div class="text-2xl font-black text-[#2B1D1D] tracking-tight" id="summaryTotalUSD">$0.00</div>
-              <div class="text-xs text-[#FFA552] font-bold khmer-font" id="summaryTotalKHR">0 ៛</div>
             </div>
           </div>
 
@@ -177,7 +175,6 @@
         document.getElementById('checkoutLinkBtn').classList.add('opacity-50', 'pointer-events-none');
         document.getElementById('summarySubtotal').textContent = '$0.00';
         document.getElementById('summaryTotalUSD').textContent = '$0.00';
-        document.getElementById('summaryTotalKHR').textContent = '0 ៛';
         document.getElementById('cartCountSummary').textContent = '0';
         return;
       }
@@ -202,7 +199,7 @@
                 <h4 class="text-sm sm:text-base font-extrabold text-[#2B1D1D] leading-snug line-clamp-2"><a href="product-detail.html?id=${encodeURIComponent(item.id)}" class="hover:underline">${psaEsc(item.title)}</a></h4>
                 <div class="text-sm sm:text-base font-black text-[#2B1D1D] shrink-0 tabular-nums">$${itemTotal.toFixed(2)}</div>
               </div>
-              <div class="text-sm text-stone-600 mt-0.5">${formatPrice(item.priceUSD, item.priceKHR)} each</div>
+              <div class="text-sm text-stone-600 mt-0.5">${formatPrice(item.priceUSD)} each</div>
               <div class="mt-auto pt-2 flex items-center justify-between gap-2">
                 <div class="flex items-center border border-[#EFE4D6] rounded-xl bg-[#F9F3EA] p-0.5" role="group" aria-label="Quantity of ${psaEsc(item.title)}">
                   <button type="button" onclick="updateCartQuantity('${item.id}', -1)" class="w-10 h-10 rounded-lg text-[#2B1D1D] hover:bg-white font-black text-lg flex items-center justify-center cursor-pointer" aria-label="One less">&minus;</button>
@@ -216,14 +213,12 @@
         `;
       }).join('');
 
-      const deliveryFee = subtotal >= 15 ? 0 : 1.50;
+      const deliveryFee = psaDeliveryFee(cart, subtotal);
       const total = subtotal + deliveryFee;
-      const totalKHR = Math.round(total * EXCHANGE_RATE);
 
-      document.getElementById('summaryDelivery').textContent = deliveryFee === 0 ? 'FREE (Over $15)' : '$1.50';
+      document.getElementById('summaryDelivery').textContent = psaDeliveryLabel(cart, subtotal);
       document.getElementById('summarySubtotal').textContent = `$${subtotal.toFixed(2)}`;
       document.getElementById('summaryTotalUSD').textContent = `$${total.toFixed(2)}`;
-      document.getElementById('summaryTotalKHR').textContent = `${totalKHR.toLocaleString()} ៛`;
       document.getElementById('cartCountSummary').textContent = totalCount;
     }
 

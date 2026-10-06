@@ -20,6 +20,15 @@
         ],
         "createdAt": "2026-10-03T13:54:47.644Z",
         "reason": "Claude: static scan can't resolve Tailwind CDN sizes and reports 11px for everything; rendered sizes are 12px+ (verified in desktop and 390px screenshots)"
+      },
+      {
+        "rule": "gray-on-color",
+        "value": "*",
+        "files": [
+          "public/assets/js/admin-catalog.js"
+        ],
+        "createdAt": "2026-10-06T08:46:57.824Z",
+        "reason": "Claude: static scan pairs hover:bg-orange-50/red-50 with resting text-gray-*; every flagged button also swaps to hover:text-orange-800/red-700, so gray never sits on the tint"
       }
     ]
   }

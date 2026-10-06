@@ -4,32 +4,38 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Product Editor — PsaOnline Admin</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
 
   <!-- Admin Top Bar -->
   <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-6">
-        <a href="dashboard-admin.html" class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded bg-orange-600 flex items-center justify-center text-white font-black text-base">P</div>
-          <span class="text-lg font-black text-gray-900 tracking-tight">PsaOnline <span data-hide-mobile class="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200 uppercase tracking-widest ml-1">Admin Ops</span></span>
+      <div class="flex items-center gap-6 min-w-0">
+        <a href="dashboard-admin.html" class="flex items-center gap-2.5 shrink-0" title="PsaOnline Studio Operations">
+          <img src="assets/images/psa-accessories-online-logo.svg" alt="PsaOnline" class="h-10 w-auto object-contain" />
+          <span class="flex items-center gap-1.5 whitespace-nowrap">
+            <span class="text-lg font-black text-gray-900 tracking-tight leading-none">Psa<span class="text-orange-500">Online</span></span>
+            <span data-hide-mobile class="hidden sm:inline text-[10px] uppercase tracking-widest text-orange-700 font-black px-1.5 py-0.5 rounded bg-orange-50 border border-orange-200">Admin Ops</span>
+          </span>
         </a>
 
-        <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-gray-600">
+        <nav class="hidden xl:flex items-center gap-1 text-sm font-medium text-gray-600 whitespace-nowrap">
           <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Overview</a>
           <a href="admin-orders.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Orders</a>
-          <a href="admin-messages.html" class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 font-semibold">Messages <span class="psa-inbox-count hidden ml-1 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-rose-600 text-white text-xs font-black"></span></a>
+          <a href="admin-messages.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Messages <span class="psa-inbox-count hidden ml-1 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-rose-600 text-white text-xs font-black"></span></a>
           <a href="admin-products.html" class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 font-semibold">Products</a>
           <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Payment Methods</a>
           <a href="admin-users.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Staff & Users</a>
         </nav>
       </div>
 
-      <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0 whitespace-nowrap">
         <a href="admin-products.html" class="px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs text-gray-700 font-bold transition">&larr; Back to Products</a>
-        <a href="dashboard-admin.html" class="hidden sm:inline-flex px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-xs text-orange-600 font-bold transition">Exit to Report</a>
         <a href="login.html?logout=1" class="px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-xs text-red-600 font-bold transition">Log Out</a>
       </div>
     </div>
@@ -39,7 +45,7 @@
   <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
 
     <!-- Header -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-start justify-between gap-4">
       <div>
         <div class="text-xs text-gray-500 mb-1 flex items-center gap-1.5">
           <a href="admin-products.html" class="hover:text-orange-600">Products</a>
@@ -48,7 +54,7 @@
         </div>
         <h1 class="text-2xl font-black text-gray-900 tracking-tight">Product Details & Specifications</h1>
       </div>
-      <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
+      <span class="shrink-0 whitespace-nowrap px-2.5 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
         <span id="formModeLabel">New Product</span>
       </span>
     </div>
@@ -105,6 +111,17 @@
               <option value="gifts">Gift Sets</option>
               <option value="eyewear">Shades &amp; Eyewear</option>
             </select>
+            <button type="button" id="newCategoryToggle" class="hidden text-xs font-bold text-orange-700 hover:underline cursor-pointer" aria-expanded="false" aria-controls="newCategoryBox">+ New category</button>
+            <div id="newCategoryBox" class="hidden mt-2 p-3 rounded-lg border border-orange-200 bg-orange-50/50 space-y-2">
+              <label for="pfNewCategoryName" class="text-xs font-bold text-gray-700 block">New category name</label>
+              <input id="pfNewCategoryName" type="text" maxlength="60" placeholder="e.g. Back to School" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
+              <label for="pfNewCategoryParent" class="text-xs font-bold text-gray-700 block">Put it inside</label>
+              <select id="pfNewCategoryParent" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"></select>
+              <div class="flex items-center gap-2">
+                <button type="button" id="pfNewCategoryAdd" class="px-3 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold cursor-pointer">Add and select it</button>
+                <span id="pfNewCategoryError" class="text-xs font-bold text-red-600" role="alert"></span>
+              </div>
+            </div>
           </div>
 
           <!-- Stall / Market Location -->
@@ -128,6 +145,7 @@
               name="description"
               rows="4"
               required
+              placeholder="What it is, what it's made of, its size, and who it makes a good gift for."
               class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
             ></textarea>
           </div>
@@ -143,7 +161,7 @@
           <div class="space-y-1.5">
             <label for="priceUSD" class="text-xs font-bold text-gray-700">Price in USD ($) <span class="text-red-500">*</span></label>
             <div class="relative">
-              <span class="absolute left-3 top-2.5 text-gray-400 text-sm font-semibold">$</span>
+              <span class="absolute left-3 inset-y-0 flex items-center text-gray-500 text-sm font-semibold pointer-events-none" aria-hidden="true">$</span>
               <input
                 type="number"
                 step="0.01"
@@ -151,10 +169,11 @@
                 id="priceUSD"
                 name="price"
                 required
+                placeholder="0.00"
+                inputmode="decimal"
                 class="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 font-semibold"
               />
             </div>
-            <div class="text-[11px] text-gray-400" id="khrEquivalentHint">&asymp; 0 KHR (Exchange: 4,100)</div>
           </div>
 
           <!-- Stock Quantity -->
@@ -193,14 +212,14 @@
 
       <!-- Dynamic Product Specifications (Per Brief Specification) -->
       <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+        <div class="flex items-start justify-between gap-3 border-b border-gray-100 pb-3">
           <div>
-            <h2 class="text-base font-bold text-gray-900">Dynamic Specifications</h2>
-            <p class="text-xs text-gray-500">Custom key-value pairs (origin, harvest year, certification, packaging)</p>
+            <h2 class="text-base font-bold text-gray-900">Product Details</h2>
+            <p class="text-xs text-gray-500">Extra facts shown on the product page, like material, size, colour or pack quantity.</p>
           </div>
-          <button type="button" onclick="addSpecRow()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 hover:bg-orange-100 text-xs font-semibold transition-colors">
+          <button type="button" onclick="addSpecRow()" class="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-orange-50 text-orange-700 hover:bg-orange-100 text-xs font-semibold transition-colors cursor-pointer">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            Add Spec Row
+            Add detail
           </button>
         </div>
 
@@ -264,25 +283,66 @@
   <script src="assets/js/rbac.js"></script>
   <!-- Interactive JavaScript -->
   <script>
-    // Price KHR calculation
     const priceInput = document.getElementById('priceUSD');
-    const khrHint = document.getElementById('khrEquivalentHint');
 
-    priceInput.addEventListener('input', () => {
-      const val = parseFloat(priceInput.value) || 0;
-      const khr = Math.round(val * 4100).toLocaleString();
-      khrHint.innerHTML = `&asymp; ${khr} KHR (Exchange: 4,100)`;
-    });
+    // Categories come from the database (with sub-categories), so new ones show up here.
+    // Without the server the built-in list above is used.
+    const liveCategories = PSA.online && Array.isArray(PSA.categories) && PSA.categories.length > 0;
+    function fillCategorySelect(selectId) {
+      const select = document.getElementById('categorySelect');
+      const tree = PSA.categories.filter(c => !c.parentId).sort((a, b) => a.name.localeCompare(b.name));
+      const label = c => `${psaEsc(c.name)}${c.isActive ? '' : ' (hidden)'}`;
+      select.innerHTML = '<option value="">Choose a category…</option>' + tree.map(t => `<option value="${t.id}">${label(t)}</option>` +
+        PSA.categories.filter(c => c.parentId === t.id).sort((a, b) => a.name.localeCompare(b.name))
+          .map(c => `<option value="${c.id}">&nbsp;&nbsp;&nbsp;↳ ${label(c)}</option>`).join('')).join('');
+      if (selectId) select.value = String(selectId);
+      document.getElementById('pfNewCategoryParent').innerHTML = '<option value="">Nothing (new top-level category)</option>' +
+        tree.map(t => `<option value="${t.id}">${label(t)}</option>`).join('');
+    }
+    if (liveCategories) {
+      fillCategorySelect();
+      const toggle = document.getElementById('newCategoryToggle');
+      const box = document.getElementById('newCategoryBox');
+      toggle.classList.remove('hidden');
+      toggle.addEventListener('click', () => {
+        const open = box.classList.toggle('hidden') === false;
+        toggle.setAttribute('aria-expanded', String(open));
+        if (open) document.getElementById('pfNewCategoryName').focus();
+      });
+      document.getElementById('pfNewCategoryAdd').addEventListener('click', async () => {
+        const nameEl = document.getElementById('pfNewCategoryName');
+        const errorEl = document.getElementById('pfNewCategoryError');
+        const name = nameEl.value.trim();
+        errorEl.textContent = '';
+        if (name.length < 2) { errorEl.textContent = 'At least 2 characters.'; nameEl.focus(); return; }
+        const parent = document.getElementById('pfNewCategoryParent').value;
+        const btn = document.getElementById('pfNewCategoryAdd');
+        psaSetButtonLoading(btn, true, 'Adding…');
+        try {
+          const res = await psaApi('POST', '/api/admin/categories', { name, parentId: parent ? Number(parent) : null });
+          PSA.categories = res.categories;
+          fillCategorySelect(res.category.id);
+          nameEl.value = '';
+          box.classList.add('hidden');
+          toggle.setAttribute('aria-expanded', 'false');
+          document.getElementById('categorySelect').focus();
+        } catch (err) {
+          errorEl.textContent = err.message;
+        } finally {
+          psaSetButtonLoading(btn, false);
+        }
+      });
+    }
 
     // Dynamic specification rows
     function addSpecRow() {
       const container = document.getElementById('specificationsList');
       const div = document.createElement('div');
-      div.className = 'spec-row flex items-center gap-3';
+      div.className = 'spec-row grid grid-cols-[1fr_auto] sm:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_auto] gap-2 sm:gap-3 items-center';
       div.innerHTML = `
-        <input type="text" name="spec_key[]" placeholder="Specification name (e.g. Material)" class="w-1/3 px-3 py-2 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
-        <input type="text" name="spec_val[]" placeholder="Specification value (e.g. 100% Silk)" class="flex-1 px-3 py-2 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
-        <button type="button" onclick="removeSpecRow(this)" class="p-2 text-gray-400 hover:text-red-600 transition-colors" title="Delete Row">
+        <input type="text" name="spec_key[]" placeholder="Detail, e.g. Material" aria-label="Detail name" maxlength="60" class="min-w-0 h-10 px-3 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+        <input type="text" name="spec_val[]" placeholder="Value, e.g. Stainless steel" aria-label="Detail value" maxlength="255" class="min-w-0 h-10 px-3 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 col-start-1 sm:col-start-auto" />
+        <button type="button" onclick="removeSpecRow(this)" class="w-10 h-10 grid place-items-center rounded-lg text-gray-500 hover:text-red-700 hover:bg-red-50 transition-colors row-start-1 col-start-2 sm:row-start-auto sm:col-start-auto cursor-pointer" title="Remove this detail" aria-label="Remove this detail">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
         </button>
       `;
@@ -336,10 +396,14 @@
       document.getElementById('productName').value = p.title || '';
       document.getElementById('khmerName').value = p.titleKhmer || '';
       const select = document.getElementById('categorySelect');
-      if (p.category && ![...select.options].some(o => o.value === p.category)) {
-        select.add(new Option(p.categoryLabel || p.category, p.category));
+      if (liveCategories && p.categoryId) {
+        select.value = String(p.categoryId);
+      } else {
+        if (p.category && ![...select.options].some(o => o.value === p.category)) {
+          select.add(new Option(p.categoryLabel || p.category, p.category));
+        }
+        select.value = p.category || 'apparel';
       }
-      select.value = p.category || 'apparel';
       document.getElementById('stallLocation').value = p.badge || '';
       document.getElementById('productDescription').value = p.description || '';
       priceInput.value = Number(p.priceUSD || 0).toFixed(2);
@@ -392,11 +456,14 @@
         if (key) specifications[key] = val;
       });
       const category = document.getElementById('categorySelect').value;
+      const categoryFields = liveCategories ? { categoryId: Number(category) } : {
+        category,
+        categoryLabel: editingProduct && editingProduct.category === category ? editingProduct.categoryLabel : (categoryLabels[category] || category)
+      };
       const payload = {
         title: document.getElementById('productName').value.trim(),
         titleKhmer: document.getElementById('khmerName').value.trim() || null,
-        category,
-        categoryLabel: editingProduct && editingProduct.category === category ? editingProduct.categoryLabel : (categoryLabels[category] || category),
+        ...categoryFields,
         badge: document.getElementById('stallLocation').value.trim() || null,
         description: document.getElementById('productDescription').value.trim(),
         priceUSD: Number(priceInput.value),

@@ -1,18 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BuyerDashboardController;
-use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AdminOrderController;
-use App\Http\Controllers\Admin\AdminProductController;
-use App\Http\Controllers\Admin\AdminUserController;
-use App\Http\Controllers\Admin\AdminPaymentMethodController;
 use App\Http\Controllers\Api\StoreApiController;
 use App\Http\Controllers\Api\AdminApiController;
 use App\Http\Controllers\Api\ChatAssistantController;
@@ -45,13 +33,13 @@ Route::get('/{page}.html', fn (string $page) => response()->file(resource_path("
     'Cache-Control' => 'no-store, private',
 ]))->whereIn('page', $portalPages)->middleware('staff');
 
-// About & legal pages (named so the old Blade layout can link to them)
+// About & legal pages
 Route::get('/about', fn () => response()->file(public_path('about.html')))->name('about');
 Route::get('/privacy', fn () => response()->file(public_path('privacy.html')))->name('privacy');
 Route::get('/terms', fn () => response()->file(public_path('terms.html')))->name('terms');
 
 // JSON API used by public/assets/js/store.js (session cookie + CSRF header)
-Route::prefix('api')->group(function () {
+Route::prefix('api')->middleware('same-account')->group(function () {
     Route::get('/bootstrap', [StoreApiController::class, 'bootstrap']);
     Route::post('/auth/login', [StoreApiController::class, 'login'])->middleware('throttle:10,1');
     Route::post('/auth/register', [StoreApiController::class, 'register'])->middleware('throttle:10,1');
@@ -80,81 +68,25 @@ Route::prefix('api')->group(function () {
 
     Route::prefix('admin')->group(function () {
         Route::post('/products', [AdminApiController::class, 'storeProduct']);
+        Route::post('/products/move', [AdminApiController::class, 'moveProducts']);
         Route::patch('/products/{sku}', [AdminApiController::class, 'updateProduct']);
         Route::delete('/products/{sku}', [AdminApiController::class, 'destroyProduct']);
+        Route::post('/categories', [AdminApiController::class, 'storeCategory']);
+        Route::patch('/categories/{category}', [AdminApiController::class, 'updateCategory']);
+        Route::delete('/categories/{category}', [AdminApiController::class, 'destroyCategory']);
+        Route::put('/showcase', [AdminApiController::class, 'updateShowcase']);
+        Route::put('/site-content', [AdminApiController::class, 'updateSiteContent']);
+        Route::put('/socials', [AdminApiController::class, 'updateSocials']);
+        Route::post('/sort-options', [AdminApiController::class, 'storeSortOption']);
+        Route::put('/sort-options/order', [AdminApiController::class, 'reorderSortOptions']);
+        Route::patch('/sort-options/{sortOption}', [AdminApiController::class, 'updateSortOption']);
+        Route::delete('/sort-options/{sortOption}', [AdminApiController::class, 'destroySortOption']);
         Route::patch('/orders/{orderNumber}', [AdminApiController::class, 'updateOrder']);
         Route::post('/users', [AdminApiController::class, 'storeUser']);
         Route::patch('/users/{user}', [AdminApiController::class, 'updateUser']);
         Route::post('/payment-methods', [AdminApiController::class, 'storePaymentMethod']);
         Route::patch('/payment-methods/{paymentMethod}', [AdminApiController::class, 'updatePaymentMethod']);
         Route::delete('/payment-methods/{paymentMethod}', [AdminApiController::class, 'destroyPaymentMethod']);
-    });
-});
-
-// Old Blade versions of the shop and admin (before the HTML storefront). Kept under /legacy so their
-// route names still work, while /products, /cart, /login... serve the real pages below.
-Route::prefix('legacy')->group(function () {
-    // Product Drops & Catalog
-    Route::prefix('products')->name('products.')->group(function () {
-        Route::get('/', [ProductController::class, 'index'])->name('index');
-        Route::get('/{id}', [ProductController::class, 'show'])->name('show');
-    });
-
-    // Shopping Bag
-    Route::prefix('cart')->name('cart.')->group(function () {
-        Route::get('/', [CartController::class, 'index'])->name('index');
-        Route::post('/add', [CartController::class, 'add'])->name('add');
-        Route::patch('/update/{id}', [CartController::class, 'update'])->name('update');
-        Route::delete('/remove/{id}', [CartController::class, 'remove'])->name('remove');
-    });
-
-    // Checkout & Bakong KHQR
-    Route::prefix('checkout')->name('checkout.')->middleware('auth')->group(function () {
-        Route::get('/', [CheckoutController::class, 'index'])->name('index');
-        Route::post('/', [CheckoutController::class, 'store'])->name('store');
-    });
-
-    // Orders & Verification
-    Route::prefix('orders')->name('orders.')->middleware('auth')->group(function () {
-        Route::get('/{id}', [OrderController::class, 'show'])->name('show');
-        Route::get('/{id}/pending', [OrderController::class, 'pending'])->name('pending');
-        Route::post('/{id}/slip', [OrderController::class, 'uploadSlip'])->name('upload-slip');
-    });
-
-    // Buyer Account & Profile
-    Route::get('/dashboard', [BuyerDashboardController::class, 'index'])->middleware('auth')->name('buyer.dashboard');
-
-    // Authentication Routes
-    Route::middleware('guest')->group(function () {
-        Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-        Route::post('/login', [AuthController::class, 'login']);
-        Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-        Route::post('/register', [AuthController::class, 'register']);
-    });
-
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-    // Admin Operations Portal Routes
-    Route::prefix('admin')->name('admin.')->middleware('staff')->group(function () {
-        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/dashboard', [AdminDashboardController::class, 'index']);
-
-        // Order Fulfillment & Payment Verification
-        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
-        Route::get('/orders/{id}/review', [AdminOrderController::class, 'showReview'])->name('orders.review');
-        Route::post('/orders/{id}/verify', [AdminOrderController::class, 'verifyPayment'])->name('orders.verify');
-        Route::patch('/orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
-
-        // Product Drops Inventory
-        Route::resource('products', AdminProductController::class);
-
-        // Users & Staff Access
-        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
-        Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
-
-        // Payment Methods Configuration
-        Route::get('/payment-methods', [AdminPaymentMethodController::class, 'index'])->name('payment-methods.index');
-        Route::post('/payment-methods/{id}/toggle', [AdminPaymentMethodController::class, 'toggle'])->name('payment-methods.toggle');
     });
 });
 

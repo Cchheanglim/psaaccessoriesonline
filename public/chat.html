@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Customer Service & Live Chat — PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Chat with PsaOnline support and Gen-Z streetwear accessories merchants in Phnom Penh for orders, sizing, and KHQR payment support." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -248,7 +251,7 @@
 
             <div class="flex items-center justify-between text-[10px] text-stone-400 px-1">
               <span>Press <kbd class="px-1 py-0.5 rounded bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700">Enter</kbd> to send</span>
-              <span>1 USD = 4,100 KHR &bull; Delivery in Phnom Penh</span>
+              <span>Prices in USD &bull; Delivery in Phnom Penh</span>
             </div>
           </form>
         </div>
@@ -677,12 +680,12 @@
 
       // Payment
       if (/khqr|bakong|pay|qr|aba|acleda|wing|transfer|slip|cash|cod/.test(q)) {
-        return 'After you place an order, the payment page shows our QR code and account details. Scan it with any Cambodian banking app (ABA, ACLEDA, Wing and others), then upload your transfer slip and we check it. Prefer cash? Choose Cash on Delivery at checkout and pay the courier. Prices are fixed at $1 = 4,100 ៛.';
+        return 'After you place an order, the payment page shows our QR code and account details. Scan it with any Cambodian banking app (ABA, ACLEDA, Wing and others), then upload your transfer slip and we check it. Prefer cash? Choose Cash on Delivery at checkout and pay the courier. All prices are in US dollars.';
       }
 
       // Delivery
       if (/deliver|ship|phnom penh|fee|courier|rider|when/.test(q)) {
-        return 'We deliver within Phnom Penh. Delivery is $1.50, and free on orders of $15 (61,500 ៛) or more. For a specific time, ask from your order page under "Messages with the shop".';
+        return 'We deliver within Phnom Penh. Delivery is $1.50, and free on orders of $15 or more. For a specific time, ask from your order page under "Messages with the shop".';
       }
 
       // Order status

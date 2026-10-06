@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderMessage;
+use App\Models\OrderStatus;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\ProductReview;
 use App\Models\User;
+use App\Support\Inventory;
 use App\Support\Notifier;
 use App\Support\Storefront;
 use Illuminate\Http\JsonResponse;
@@ -44,13 +46,13 @@ class StoreApiController extends Controller
         // The catalog is the same for every visitor, so keep it briefly (Supabase round trips are slow).
         $catalog = Storefront::catalog($isStaff);
 
-        $orders = (! $isStaff && ! $user && ! $guestOrders) ? collect() : Order::with(['items', 'handler:id,name'])
-            ->withCount(['messages', 'reviews', 'messages as unread_replies_count' => fn ($q) => $q->where('from_staff', true)->whereNull('read_at')])
+        $orders = (! $isStaff && ! $user && ! $guestOrders) ? collect() : Order::with(Order::PAGE_RELATIONS)
+            ->withCount(['messages', 'reviews', 'messages as unread_replies_count' => fn ($q) => $q->fromStaff()->whereNull('read_at')])
             ->when(! $isStaff, function ($q) use ($user, $guestOrders) {
                 $q->where(function ($q) use ($user, $guestOrders) {
                     $q->whereIn('order_number', $guestOrders);
                     if ($user) {
-                        $q->orWhere('user_id', $user->id);
+                        $q->orWhereHas('customer', fn ($c) => $c->where('user_id', $user->id));
                     }
                 });
             })
@@ -61,10 +63,14 @@ class StoreApiController extends Controller
             'csrf' => csrf_token(),
             'user' => $user ? Storefront::user($user) : null,
             'products' => $catalog['products'],
+            'categories' => $catalog['categories'],
+            'showcase' => $catalog['showcase'],
+            'sortOptions' => $catalog['sortOptions'],
+            'siteContent' => $catalog['siteContent'],
             'paymentMethods' => $catalog['paymentMethods'],
             'orders' => $orders->map(fn ($o) => Storefront::order($o))->values(),
             'users' => $user?->isAdmin()
-                ? User::orderBy('id')->get()->map(fn ($u) => Storefront::user($u))->values()
+                ? User::with('customer.defaultAddress', 'customer.tier', 'settings')->orderBy('id')->get()->map(fn ($u) => Storefront::user($u))->values()
                 : [],
         ]);
     }
@@ -104,9 +110,10 @@ class StoreApiController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:100'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['required', 'string', 'min:8', 'max:30', 'regex:/^[+0-9\s\-()]+$/'],
+            'phone' => ['required', 'string', 'min:8', 'max:30', 'regex:/^[+0-9\s\-()]+$/', 'unique:users,phone'],
             'password' => ['required', 'string', 'min:6', 'max:255'],
         ], [
+            'phone.unique' => 'This phone number is already registered.',
             'name.required' => 'Full name is required.',
             'name.min' => 'Full name must be at least 2 characters.',
             'email.required' => 'Email address is required.',
@@ -126,6 +133,7 @@ class StoreApiController extends Controller
             'password' => $data['password'],
             'role' => 'buyer',
         ]);
+        $user->customerProfile();
 
         Auth::login($user, true);
         $request->session()->regenerate();
@@ -147,7 +155,7 @@ class StoreApiController extends Controller
         $data = $request->validate([
             'name' => ['sometimes', 'required', 'string', 'min:2', 'max:100'],
             'email' => ['sometimes', 'required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'phone' => ['sometimes', 'nullable', 'string', 'min:8', 'max:30', 'regex:/^[+0-9\s\-()]+$/'],
+            'phone' => ['sometimes', 'nullable', 'string', 'min:8', 'max:30', 'regex:/^[+0-9\s\-()]+$/', Rule::unique('users', 'phone')->ignore($user->id)],
             'address' => ['sometimes', 'nullable', 'string', 'min:5', 'max:255'],
             'photo' => ['sometimes', 'nullable', 'string', 'max:3000000', Storefront::imageRule()],
             'banner' => ['sometimes', 'nullable', 'string', 'max:4000000', Storefront::imageRule()],
@@ -158,18 +166,28 @@ class StoreApiController extends Controller
             'email.email' => 'Please enter a valid email address.',
             'email.unique' => 'This email is already in use by another account.',
             'phone.regex' => 'Please enter a valid phone number.',
+            'phone.unique' => 'This phone number is already used by another account.',
             'address.min' => 'Delivery address must be at least 5 characters.',
         ]);
 
         if (array_key_exists('photo', $data)) {
-            $data['avatar'] = $data['photo'];
+            $data['avatar_url'] = $data['photo'];
             unset($data['photo']);
+        }
+        if (array_key_exists('banner', $data)) {
+            $data['banner_url'] = $data['banner'];
+            unset($data['banner']);
         }
         if (isset($data['email'])) {
             $data['email'] = Str::lower($data['email']);
         }
+        if (array_key_exists('address', $data)) {
+            $this->saveDefaultAddress($user, $data['address']);
+            unset($data['address']);
+        }
 
         $user->update($data);
+        $user->unsetRelation('customer');
 
         return response()->json(['user' => Storefront::user($user)]);
     }
@@ -199,11 +217,14 @@ class StoreApiController extends Controller
 
     /**
      * Place an order. Prices and stock come from the database, never from the browser.
-     * Only signed-in accounts may order.
+     * Only signed-in customer accounts may order (staff and admins run the shop).
      */
     public function placeOrder(Request $request): JsonResponse
     {
         $user = $this->requireUser($request);
+        // Staff and admin accounts run the shop; buying is for customer accounts, so sales,
+        // stock and loyalty points only ever come from real customers.
+        abort_if($user->isStaff(), 403, 'Staff and admin accounts can\'t place orders. Sign in with a customer account to shop.');
 
         $data = $request->validate([
             'customerName' => ['required', 'string', 'min:2', 'max:100'],
@@ -239,44 +260,39 @@ class StoreApiController extends Controller
             throw ValidationException::withMessages(['paymentMethod' => 'This payment method is currently turned off.']);
         }
 
-        $order = DB::transaction(function () use ($data, $code, $user) {
-            $subtotal = 0;
-            $lines = [];
+        $method ??= PaymentMethod::create(['code' => $code, 'name' => Storefront::PAYMENT_LABELS[$code], 'type' => 'other', 'is_active' => true]);
+        $customer = $user->customerProfile();
 
+        $order = DB::transaction(function () use ($data, $method, $user, $customer) {
+            // Merge repeated lines for the same product, then check every product before writing anything.
+            $wanted = [];
             foreach ($data['items'] as $line) {
-                $product = Product::where('sku', $line['id'])
-                    ->orWhere('id', ctype_digit($line['id']) ? (int) $line['id'] : 0)
-                    ->lockForUpdate()
-                    ->first();
-
+                $product = Product::findByKey($line['id']);
                 if (! $product || $product->status !== 'active') {
                     throw ValidationException::withMessages(['items' => 'One of the items in your bag is no longer available.']);
                 }
-                if ($product->stock < $line['quantity']) {
-                    throw ValidationException::withMessages(['items' => "Only {$product->stock} left of \"{$product->title}\"."]);
-                }
-
-                $product->decrement('stock', $line['quantity']);
-                $lineTotal = round((float) $product->price_usd * $line['quantity'], 2);
-                $subtotal += $lineTotal;
-                $lines[] = [
-                    'product_id' => $product->sku ?: (string) $product->id,
-                    'product_title' => $product->title,
-                    'product_image' => $product->image,
-                    'price_usd' => $product->price_usd,
-                    'price_khr' => $product->price_khr,
-                    'quantity' => $line['quantity'],
-                    'total_usd' => $lineTotal,
-                    'total_khr' => (int) $product->price_khr * $line['quantity'],
-                ];
+                $wanted[$product->id] = ['product' => $product, 'quantity' => ($wanted[$product->id]['quantity'] ?? 0) + $line['quantity']];
             }
 
-            $delivery = $subtotal >= 15 ? 0 : 1.50;
+            $subtotal = 0;
+            foreach ($wanted as $line) {
+                $stock = Inventory::lock($line['product']);
+                if ($stock->quantity_on_hand < $line['quantity']) {
+                    throw ValidationException::withMessages(['items' => "Only {$stock->quantity_on_hand} left of \"{$line['product']->title}\"."]);
+                }
+                $subtotal += round((float) $line['product']->price_usd * $line['quantity'], 2);
+            }
+
+            $freeItem = Product::whereIn('id', array_keys($wanted))->whereHas('freeDeliveryGroups')->exists();
+            $delivery = Storefront::deliveryFee($subtotal, $freeItem);
             $total = round($subtotal + $delivery, 2);
 
             $order = Order::create([
                 'order_number' => $this->newOrderNumber(),
-                'user_id' => $user->id,
+                'customer_id' => $customer->id,
+                'payment_method_id' => $method->id,
+                'order_status_id' => OrderStatus::idFor('pending_payment'),
+                'address_id' => $customer->defaultAddress?->id,
                 'customer_name' => $data['customerName'],
                 'customer_phone' => $data['phone'],
                 'delivery_address' => $data['address'],
@@ -284,16 +300,31 @@ class StoreApiController extends Controller
                 'latitude' => $data['latitude'] ?? null,
                 'longitude' => $data['longitude'] ?? null,
                 'subtotal_usd' => $subtotal,
-                'subtotal_khr' => (int) round($subtotal * Storefront::EXCHANGE_RATE),
+                'discount_usd' => 0,
+                'points_redeemed' => 0,
+                'tax_usd' => 0,
                 'delivery_fee_usd' => $delivery,
-                'delivery_fee_khr' => (int) round($delivery * Storefront::EXCHANGE_RATE),
                 'total_usd' => $total,
-                'total_khr' => (int) round($total * Storefront::EXCHANGE_RATE),
-                'payment_method' => $code,
-                'payment_status' => 'pending',
-                'order_status' => 'pending_payment',
             ]);
-            $order->items()->createMany($lines);
+            $order->statusHistory()->create(['order_status_id' => $order->order_status_id, 'changed_by' => $user->id, 'note' => 'Order placed']);
+            $order->payments()->create(['payment_method_id' => $method->id, 'amount_usd' => $total, 'status' => 'pending']);
+
+            foreach ($wanted as $line) {
+                $product = $line['product'];
+                $cost = $product->stock?->average_cost_usd;
+                $item = $order->items()->create([
+                    'product_id' => $product->id,
+                    'product_title' => $product->title,
+                    'product_image' => $product->primaryImagePath(),
+                    'quantity' => $line['quantity'],
+                    'unit_price_usd' => $product->price_usd,
+                    'unit_cost_usd' => $cost,
+                ]);
+                Inventory::move($product, 'sale', -$line['quantity'], [
+                    'by' => $user, 'unit_price' => $product->price_usd, 'unit_cost' => $cost,
+                    'order_item_id' => $item->id, 'reason' => "Sold in order {$order->order_number}",
+                ]);
+            }
 
             return $order;
         });
@@ -303,7 +334,7 @@ class StoreApiController extends Controller
         Notifier::toStaff($order, 'order_placed', "New order {$order->order_number}",
             sprintf('%s ordered %d item(s), $%s by %s.', $order->customer_name, $order->items->sum('quantity'), number_format((float) $order->total_usd, 2), Storefront::paymentName($order->payment_method)));
 
-        return response()->json(['order' => Storefront::order($order->load('items'))], 201);
+        return response()->json(['order' => Storefront::order($order->fresh())], 201);
     }
 
     /**
@@ -317,15 +348,24 @@ class StoreApiController extends Controller
             'slip' => ['nullable', 'string', 'max:3000000', Storefront::imageRule()],
         ]);
 
-        $order->update([
-            'payment_slip_url' => $data['slip'] ?? $order->payment_slip_url ?? 'submitted-without-image',
-            'payment_status' => 'slip_uploaded',
-        ]);
+        abort_unless($order->order_status === 'pending_payment', 422, 'This order is no longer waiting for payment.');
+        $payment = $order->latestPayment;
+
+        if (! $payment || in_array($payment->status, ['failed', 'refunded'], true)) {
+            // A rejected slip stays on record; the new slip is a new payment attempt.
+            $order->payments()->create([
+                'payment_method_id' => $order->payment_method_id, 'amount_usd' => $order->total_usd,
+                'status' => 'slip_uploaded', 'slip_url' => $data['slip'] ?? null,
+            ]);
+        } else {
+            $payment->update(['status' => 'slip_uploaded', 'slip_url' => $data['slip'] ?? $payment->slip_url]);
+        }
+        $order->unsetRelation('latestPayment');
 
         Notifier::toStaff($order, 'slip_uploaded', "Payment slip for {$order->order_number}",
             "{$order->customer_name} uploaded a slip for $".number_format((float) $order->total_usd, 2).'. Check it and approve.');
 
-        return response()->json(['order' => Storefront::order($order->load('items'))]);
+        return response()->json(['order' => Storefront::order($order->fresh())]);
     }
 
     /**
@@ -340,9 +380,9 @@ class StoreApiController extends Controller
             abort(422, 'This order cannot be marked as paid.');
         }
 
-        $order->update(['payment_status' => 'paid_demo']);
+        $order->latestPayment->update(['status' => 'paid_demo']);
 
-        return response()->json(['order' => Storefront::order($order->load('items'))]);
+        return response()->json(['order' => Storefront::order($order->fresh())]);
     }
 
     /**
@@ -418,12 +458,11 @@ class StoreApiController extends Controller
             'body.max' => 'Messages can be up to 2,000 characters.',
         ]);
 
-        $fromStaff = $user->isStaff() && $order->user_id !== $user->id;
+        $fromStaff = $order->user_id !== $user->id;
         $body = trim($data['body']);
 
         $order->messages()->create([
-            'user_id' => $user->id,
-            'from_staff' => $fromStaff,
+            'sender_id' => $user->id,
             'body' => $body,
         ]);
         $this->markThreadRead($request, $order);
@@ -446,23 +485,31 @@ class StoreApiController extends Controller
         if (! $user) {
             return;
         }
-        $viewerIsStaff = $user->isStaff() && $order->user_id !== $user->id;
-        $order->messages()->where('from_staff', ! $viewerIsStaff)->whereNull('read_at')->update(['read_at' => now()]);
+        // The viewer reads the other side's messages: the customer reads staff replies, staff read the customer's.
+        $viewerIsCustomer = $order->user_id === $user->id;
+        OrderMessage::where('order_id', $order->id)->whereNull('read_at')
+            ->when($viewerIsCustomer, fn ($q) => $q->where(fn ($q) => $q->where('sender_id', '!=', $user->id)->orWhereNull('sender_id')),
+                fn ($q) => $q->where('sender_id', $order->user_id))
+            ->update(['read_at' => now()]);
         \App\Models\UserNotification::where('user_id', $user->id)->where('order_id', $order->id)
             ->where('type', 'message')->whereNull('read_at')->update(['read_at' => now()]);
     }
 
     private function messageList(Order $order): array
     {
-        return $order->messages()->with('user:id,name')->orderBy('created_at')->orderBy('id')->get()
-            ->map(fn (OrderMessage $m) => [
-                'id' => $m->id,
-                'body' => $m->body,
-                'fromStaff' => $m->from_staff,
-                'author' => $m->from_staff ? 'PsaOnline' : ($m->user?->name ?? $order->customer_name),
-                'staffName' => $m->from_staff ? $m->user?->name : null,
-                'createdAt' => $m->created_at?->toIso8601String(),
-            ])->all();
+        return $order->messages()->with('sender:id,name')->orderBy('created_at')->orderBy('id')->get()
+            ->map(function (OrderMessage $m) use ($order) {
+                $fromStaff = $m->isFromStaff($order);
+
+                return [
+                    'id' => $m->id,
+                    'body' => $m->body,
+                    'fromStaff' => $fromStaff,
+                    'author' => $fromStaff ? 'PsaOnline' : ($m->sender?->name ?? $order->customer_name),
+                    'staffName' => $fromStaff ? $m->sender?->name : null,
+                    'createdAt' => $m->created_at?->toIso8601String(),
+                ];
+            })->all();
     }
 
     /* ---------- Reviews ---------- */
@@ -488,54 +535,71 @@ class StoreApiController extends Controller
             'reviews.*.rating.between' => 'Ratings go from 1 to 5 stars.',
         ]);
 
-        $skus = $order->items->pluck('product_id')->all();
+        $order->loadMissing('items.product:id,sku');
+        $productIds = []; // storefront id (SKU) => product id, for this order's items
+        foreach ($order->items as $item) {
+            if ($item->product_id) {
+                $productIds[$item->product?->sku ?? 'db-'.$item->product_id] = $item->product_id;
+            }
+        }
         foreach ($data['reviews'] as $review) {
-            if (! in_array($review['id'], $skus, true)) {
+            if (! isset($productIds[$review['id']])) {
                 throw ValidationException::withMessages(['reviews' => 'One of those items is not in this order.']);
             }
         }
 
-        DB::transaction(function () use ($data, $order, $user) {
+        DB::transaction(function () use ($data, $order, $productIds) {
             foreach ($data['reviews'] as $review) {
                 ProductReview::updateOrCreate(
-                    ['order_id' => $order->id, 'product_sku' => $review['id']],
-                    ['user_id' => $user->id, 'rating' => $review['rating'], 'comment' => trim($review['comment'] ?? '') ?: null],
+                    ['order_id' => $order->id, 'product_id' => $productIds[$review['id']]],
+                    ['customer_id' => $order->customer_id, 'rating' => $review['rating'], 'comment' => trim($review['comment'] ?? '') ?: null],
                 );
-                $this->refreshProductRating($review['id']);
             }
         });
 
         Storefront::forgetCatalog();
 
-        return response()->json(['order' => Storefront::order($order->refresh()->load('items'))]);
+        return response()->json(['order' => Storefront::order($order->fresh())]);
     }
 
     /** Public list of reviews for a product page. */
     public function productReviews(string $sku): JsonResponse
     {
-        $query = ProductReview::where('product_sku', $sku);
+        $product = Product::findByKey($sku);
+        $query = ProductReview::where('product_id', $product?->id ?? 0);
         $count = (clone $query)->count();
 
         return response()->json([
             'average' => $count ? round((float) (clone $query)->avg('rating'), 1) : null,
             'count' => $count,
-            'reviews' => (clone $query)->with('user:id,name')->latest()->limit(30)->get()
+            'reviews' => (clone $query)->with('customer.user:id,name')->latest()->limit(30)->get()
                 ->map(fn (ProductReview $r) => [
                     'rating' => $r->rating,
                     'comment' => $r->comment,
-                    'author' => $this->shortName($r->user?->name),
+                    'author' => $this->shortName($r->customer?->user?->name),
                     'date' => $r->created_at?->timezone(config('app.timezone'))->format('d M Y'),
                 ])->all(),
         ]);
     }
 
-    private function refreshProductRating(string $sku): void
+    /** The profile's delivery address is the customer's default saved address. */
+    private function saveDefaultAddress(User $user, ?string $line): void
     {
-        $reviews = ProductReview::where('product_sku', $sku);
-        Product::where('sku', $sku)->update([
-            'rating' => round((float) (clone $reviews)->avg('rating'), 1),
-            'review_count' => (clone $reviews)->count(),
-        ]);
+        $customer = $user->customerProfile();
+        $address = $customer->defaultAddress;
+
+        if (trim((string) $line) === '') {
+            $address?->delete();
+
+            return;
+        }
+        if ($address) {
+            $address->update(['address_line' => $line]);
+        } else {
+            $customer->addresses()->create([
+                'label' => 'Home', 'recipient_name' => $user->name, 'phone' => $user->phone, 'address_line' => $line, 'is_default' => true,
+            ]);
+        }
     }
 
     /** "Sophea Chhum" becomes "Sophea C." so reviews don't publish full names. */
@@ -551,7 +615,7 @@ class StoreApiController extends Controller
 
     private function ownOrder(Request $request, string $orderNumber): Order
     {
-        $order = Order::where('order_number', $orderNumber)->firstOrFail();
+        $order = Order::with(Order::PAGE_RELATIONS)->where('order_number', $orderNumber)->firstOrFail();
         $user = $request->user();
         $isOwner = ($user && $order->user_id === $user->id)
             || in_array($orderNumber, $request->session()->get('guest_orders', []), true);

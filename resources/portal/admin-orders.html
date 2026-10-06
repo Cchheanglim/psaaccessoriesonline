@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Manage Orders & Slips — PsaOnline Admin</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="View orders, verify payment slips, and manage express deliveries." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -188,7 +191,7 @@
               <th class="py-2.5 px-3">Order Number</th>
               <th class="py-2.5 px-3">Buyer & Contact</th>
               <th class="py-2.5 px-3">District Delivery Address</th>
-              <th class="py-2.5 px-3">Total (USD / KHR)</th>
+              <th class="py-2.5 px-3">Total (USD)</th>
               <th class="py-2.5 px-3">Payment Method</th>
               <th class="py-2.5 px-3">Slip Status</th>
               <th class="py-2.5 px-3 text-right">Actions</th>
@@ -283,7 +286,7 @@
                 <div class="text-[11px] text-[#FFA552] font-bold">${psaEsc(o.phone)}</div>
               </td>
               <td class="py-3 px-3 text-stone-600 dark:text-stone-300 max-w-xs truncate" title="${psaEsc(o.address)}">${psaEsc(o.address)}</td>
-              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$${psaEsc(o.totalUSD)} <span class="text-[10px] text-[#FFA552] font-semibold">(${psaEsc(o.totalKHR)} ៛)</span></td>
+              <td class="py-3 px-3 font-black text-[#2B1D1D] dark:text-white">$${psaEsc(o.totalUSD)}</td>
               <td class="py-3 px-3 font-bold text-stone-700 dark:text-stone-300">${psaEsc(o.paymentMethod)}</td>
               <td class="py-3 px-3">
                 <span class="px-2 py-0.5 rounded-full font-black text-[10px] border ${tone}">${psaEsc(o.status)}</span>

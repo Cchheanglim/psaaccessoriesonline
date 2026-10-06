@@ -3,7 +3,6 @@
  * Sorbet Orange (#FFA552), Cotton Beige (#F9F3EA), Deep Espresso (#2B1D1D) & Clean White (#FFFFFF)
  */
 
-const EXCHANGE_RATE = 4100; // 1 USD = 4,100 KHR
 
 // Show clean addresses (/products instead of /products.html, / for the home page) without reloading.
 // The server answers both forms, so old .html links and bookmarks keep working.
@@ -54,7 +53,8 @@ async function psaApi(method, url, body) {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'X-CSRF-TOKEN': PSA.csrf,
-      'X-Requested-With': 'XMLHttpRequest'
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-PSA-User': PSA.user ? String(PSA.user.id) : ''
     },
     body: body === undefined ? undefined : JSON.stringify(body)
   });
@@ -63,15 +63,96 @@ async function psaApi(method, url, body) {
   if (!res.ok) {
     const firstError = data && data.errors ? Object.values(data.errors)[0] : null;
     const message = (firstError && firstError[0]) || (data && data.message) || `Request failed (${res.status})`;
-    const err = new Error(res.status === 419 ? 'Your session expired. Refresh the page and try again.' : message);
+    // Signing in elsewhere also ends this tab's session (419): say why when another tab already told us.
+    const switched = res.status === 409 || (res.status === 419 && document.getElementById('psaAccountChanged'));
+    const err = new Error(switched ? 'You signed in as a different account in another tab. Reload this page to continue as that account.'
+      : res.status === 419 ? 'Your session expired. Refresh the page and try again.' : message);
     err.status = res.status;
     err.errors = data && data.errors ? data.errors : null;
+    if (res.status === 409 && data && data.accountChanged) psaShowAccountChanged();
     throw err;
   }
   // Signing in/out starts a new session with a new CSRF token; keep using the fresh one.
   if (data && typeof data.csrf === 'string') PSA.csrf = data.csrf;
+  if (/\/api\/auth\/(login|register)$/.test(url) && data && data.user) psaAccountSwitched(data.user);
+  if (/\/api\/auth\/logout$/.test(url)) psaAccountSwitched(null);
   return data;
 }
+
+// ---------- One account per browser ----------
+// The browser keeps one sign-in for the whole site, so signing in as someone else in one tab changes
+// it for every open tab. This tab keeps showing the old account, so it is told to reload; the server
+// also refuses changes sent as the old account (EnsureSameAccount).
+function psaAccountSwitched(user) {
+  PSA.user = user;
+  try { localStorage.setItem('psa_auth_user', JSON.stringify({ id: user ? String(user.id) : '', at: Date.now() })); } catch (e) { /* storage unavailable */ }
+}
+
+window.addEventListener('storage', e => {
+  if (e.key !== 'psa_auth_user' || !e.newValue || !PSA.online) return;
+  let id = '';
+  try { id = String(JSON.parse(e.newValue).id || ''); } catch (err) { return; }
+  if (id !== (PSA.user ? String(PSA.user.id) : '')) psaShowAccountChanged();
+});
+
+function psaShowAccountChanged() {
+  if (document.getElementById('psaAccountChanged')) return;
+  const bar = document.createElement('div');
+  bar.id = 'psaAccountChanged';
+  bar.setAttribute('role', 'alert');
+  bar.className = 'fixed inset-x-0 top-0 z-[100] bg-[#2B1D1D] text-[#F9F3EA] px-4 py-3 shadow-lg';
+  bar.innerHTML = `<div class="max-w-5xl mx-auto flex flex-col sm:flex-row sm:items-center gap-3">
+      <p class="flex-1 text-base font-bold">You signed in or out as a different account in another tab. Reload this page before you continue, so nothing is sent under the wrong account.</p>
+      <button type="button" class="h-11 px-5 rounded-xl bg-[#FFA552] text-[#2B1D1D] font-black cursor-pointer">Reload page</button>
+    </div>`;
+  bar.querySelector('button').addEventListener('click', () => location.reload());
+  (document.body || document.documentElement).appendChild(bar);
+}
+
+// ---------- Staff accounts don't shop ----------
+// Staff and admins run the shop; buying, the bag and the wishlist are for customer accounts.
+function psaIsStaffAccount() {
+  return !!(PSA.online && PSA.user && PSA.user.role !== 'Buyer');
+}
+
+const PSA_STAFF_SHOPPING_MESSAGE = 'Shopping is turned off for staff and admin accounts. Sign in with a customer account to buy or save items.';
+
+function psaShowStaffShoppingToast() {
+  let toast = document.getElementById('psaStaffToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'psaStaffToast';
+    toast.setAttribute('role', 'status');
+    toast.className = 'fixed bottom-20 md:bottom-8 right-4 md:right-8 z-50 max-w-sm rounded-2xl border-2 border-[#FFA552] bg-white dark:bg-[#1E1E26] p-4 shadow-2xl text-sm font-bold text-[#2B1D1D] transition-opacity duration-300';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = PSA_STAFF_SHOPPING_MESSAGE;
+  toast.style.opacity = '1';
+  clearTimeout(psaShowStaffShoppingToast.timer);
+  psaShowStaffShoppingToast.timer = setTimeout(() => { toast.style.opacity = '0'; }, 4200);
+}
+
+// On the bag, checkout and wishlist pages: a notice at the top, and checkout can't be placed.
+function psaStaffShoppingNotice() {
+  if (!psaIsStaffAccount()) return;
+  const main = document.querySelector('main');
+  if (!main || document.getElementById('psaStaffNotice')) return;
+  const note = document.createElement('div');
+  note.id = 'psaStaffNotice';
+  note.setAttribute('role', 'note');
+  note.className = 'rounded-2xl border-2 border-[#FFA552] bg-[#FFF4E8] dark:bg-[#2A2118] px-4 py-3 text-base font-bold text-[#2B1D1D]';
+  note.innerHTML = `${psaEsc(PSA_STAFF_SHOPPING_MESSAGE)} <a href="dashboard-admin.html" class="underline underline-offset-2">Go to the admin dashboard</a>`;
+  main.prepend(note);
+  const placeBtn = document.getElementById('placeOrderBtn');
+  if (placeBtn) {
+    placeBtn.disabled = true;
+    placeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (['cart.html', 'checkout.html', 'wishlist.html'].includes(psaPageName())) psaStaffShoppingNotice();
+});
 
 // =========================================================================
 // SHARED FORM VALIDATION & FEEDBACK HELPERS
@@ -456,7 +537,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Graphic Tees",
     "priceUSD": 9,
-    "priceKHR": 36900,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -481,7 +561,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Graphic Tees",
     "priceUSD": 10,
-    "priceKHR": 41000,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -506,7 +585,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Graphic Tees",
     "priceUSD": 9.5,
-    "priceKHR": 38950,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -531,7 +609,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "hair",
     "categoryLabel": "Hair Essentials",
     "priceUSD": 8,
-    "priceKHR": 32800,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -556,7 +633,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "beauty",
     "categoryLabel": "Body Mist",
     "priceUSD": 14,
-    "priceKHR": 57400,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -581,7 +657,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "hair",
     "categoryLabel": "Scrunchies and Clips",
     "priceUSD": 5.5,
-    "priceKHR": 22550,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -606,7 +681,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "hair",
     "categoryLabel": "Claw Clips",
     "priceUSD": 6,
-    "priceKHR": 24600,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -631,7 +705,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "hair",
     "categoryLabel": "Claw Clips",
     "priceUSD": 2.5,
-    "priceKHR": 10250,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -656,7 +729,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "bags",
     "categoryLabel": "Mini Pouches",
     "priceUSD": 5.5,
-    "priceKHR": 22550,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -681,7 +753,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "accessories",
     "categoryLabel": "Phone Cases",
     "priceUSD": 6,
-    "priceKHR": 24600,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -706,7 +777,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "watches",
     "categoryLabel": "Statement Watches",
     "priceUSD": 28,
-    "priceKHR": 114800,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -731,7 +801,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "watches",
     "categoryLabel": "Statement Watches",
     "priceUSD": 26,
-    "priceKHR": 106600,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -756,7 +825,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "watches",
     "categoryLabel": "Everyday Watches",
     "priceUSD": 22,
-    "priceKHR": 90200,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -781,7 +849,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "watches",
     "categoryLabel": "Everyday Watches",
     "priceUSD": 25,
-    "priceKHR": 102500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -806,7 +873,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Men's Shirts",
     "priceUSD": 14,
-    "priceKHR": 57400,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -831,7 +897,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Men's Shirts",
     "priceUSD": 14,
-    "priceKHR": 57400,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -856,7 +921,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Polos",
     "priceUSD": 16,
-    "priceKHR": 65600,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -881,7 +945,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Men's Shirts",
     "priceUSD": 15,
-    "priceKHR": 61500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -906,7 +969,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Men's Shirts",
     "priceUSD": 15,
-    "priceKHR": 61500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -931,7 +993,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "hair",
     "categoryLabel": "Scrunchies and Clips",
     "priceUSD": 5,
-    "priceKHR": 20500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -956,7 +1017,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "jewelry",
     "categoryLabel": "Charm Jewelry",
     "priceUSD": 9,
-    "priceKHR": 36900,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -981,7 +1041,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "charms",
     "categoryLabel": "Bag Charms",
     "priceUSD": 4.5,
-    "priceKHR": 18450,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1006,7 +1065,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "charms",
     "categoryLabel": "Plush Charms",
     "priceUSD": 5.5,
-    "priceKHR": 22550,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1031,7 +1089,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "charms",
     "categoryLabel": "Plush Charms",
     "priceUSD": 6,
-    "priceKHR": 24600,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1056,7 +1113,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "gifts",
     "categoryLabel": "Gift Sets",
     "priceUSD": 22,
-    "priceKHR": 90200,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1081,7 +1137,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "hats",
     "categoryLabel": "Caps and Hats",
     "priceUSD": 11,
-    "priceKHR": 45100,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1106,7 +1161,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "socks",
     "categoryLabel": "Socks",
     "priceUSD": 4,
-    "priceKHR": 16400,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1131,7 +1185,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "socks",
     "categoryLabel": "Socks",
     "priceUSD": 8,
-    "priceKHR": 32800,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1156,7 +1209,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "bags",
     "categoryLabel": "Shoulder Bags",
     "priceUSD": 24,
-    "priceKHR": 98400,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1181,7 +1233,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "bags",
     "categoryLabel": "Crossbody Bags",
     "priceUSD": 20,
-    "priceKHR": 82000,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1206,7 +1257,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "bags",
     "categoryLabel": "Shoulder Bags",
     "priceUSD": 26,
-    "priceKHR": 106600,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1231,7 +1281,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "charms",
     "categoryLabel": "Phone Charms",
     "priceUSD": 4.5,
-    "priceKHR": 18450,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1256,7 +1305,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "plush",
     "categoryLabel": "Plush & Crochet",
     "priceUSD": 12,
-    "priceKHR": 49200,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1280,7 +1328,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "plush",
     "categoryLabel": "Plush & Crochet",
     "priceUSD": 15,
-    "priceKHR": 61500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1304,7 +1351,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "gifts",
     "categoryLabel": "Gift Sets",
     "priceUSD": 25,
-    "priceKHR": 102500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1328,7 +1374,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "gifts",
     "categoryLabel": "Gift Sets",
     "priceUSD": 25,
-    "priceKHR": 102500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1352,7 +1397,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "accessories",
     "categoryLabel": "Phone & Tech",
     "priceUSD": 45,
-    "priceKHR": 184500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1376,7 +1420,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "charms",
     "categoryLabel": "Bag & Phone Charms",
     "priceUSD": 7,
-    "priceKHR": 28700,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1400,7 +1443,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "beauty",
     "categoryLabel": "Beauty",
     "priceUSD": 16,
-    "priceKHR": 65600,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1424,7 +1466,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "shoes",
     "categoryLabel": "Shoes",
     "priceUSD": 18,
-    "priceKHR": 73800,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1448,7 +1489,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "charms",
     "categoryLabel": "Bag & Phone Charms",
     "priceUSD": 5,
-    "priceKHR": 20500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1472,7 +1512,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "bags",
     "categoryLabel": "Shoulder Bags",
     "priceUSD": 26,
-    "priceKHR": 106600,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1496,7 +1535,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "beauty",
     "categoryLabel": "Beauty",
     "priceUSD": 5,
-    "priceKHR": 20500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1520,7 +1558,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "beauty",
     "categoryLabel": "Beauty",
     "priceUSD": 78,
-    "priceKHR": 319800,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1544,7 +1581,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Graphic Tees",
     "priceUSD": 10,
-    "priceKHR": 41000,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1568,7 +1604,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Suits",
     "priceUSD": 48,
-    "priceKHR": 196800,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1592,7 +1627,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Men's Shirts",
     "priceUSD": 14,
-    "priceKHR": 57400,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1616,7 +1650,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "hats",
     "categoryLabel": "Caps & Hats",
     "priceUSD": 9,
-    "priceKHR": 36900,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1640,7 +1673,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "charms",
     "categoryLabel": "Bag & Phone Charms",
     "priceUSD": 12,
-    "priceKHR": 49200,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1664,7 +1696,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "bags",
     "categoryLabel": "Backpacks",
     "priceUSD": 28,
-    "priceKHR": 114800,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1688,7 +1719,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "jewelry",
     "categoryLabel": "Charm Jewelry",
     "priceUSD": 8,
-    "priceKHR": 32800,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1712,7 +1742,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "jewelry",
     "categoryLabel": "Charm Jewelry",
     "priceUSD": 6,
-    "priceKHR": 24600,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1736,7 +1765,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "accessories",
     "categoryLabel": "Phone & Tech",
     "priceUSD": 7,
-    "priceKHR": 28700,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1760,7 +1788,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "hats",
     "categoryLabel": "Caps and Hats",
     "priceUSD": 11,
-    "priceKHR": 45100,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1784,7 +1811,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Jackets",
     "priceUSD": 35,
-    "priceKHR": 143500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1808,7 +1834,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "hats",
     "categoryLabel": "Caps & Hats",
     "priceUSD": 13,
-    "priceKHR": 53300,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1832,7 +1857,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "plush",
     "categoryLabel": "Plush & Crochet",
     "priceUSD": 18,
-    "priceKHR": 73800,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1856,7 +1880,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "plush",
     "categoryLabel": "Plush & Crochet",
     "priceUSD": 12,
-    "priceKHR": 49200,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1880,7 +1903,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "plush",
     "categoryLabel": "Plush & Crochet",
     "priceUSD": 11,
-    "priceKHR": 45100,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1904,7 +1926,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "shoes",
     "categoryLabel": "Shoes",
     "priceUSD": 28,
-    "priceKHR": 114800,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1928,7 +1949,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "shoes",
     "categoryLabel": "Shoes",
     "priceUSD": 32,
-    "priceKHR": 131200,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1952,7 +1972,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "shoes",
     "categoryLabel": "Shoes",
     "priceUSD": 22,
-    "priceKHR": 90200,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -1976,7 +1995,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "hair",
     "categoryLabel": "Scrunchies and Clips",
     "priceUSD": 5,
-    "priceKHR": 20500,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -2000,7 +2018,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "plush",
     "categoryLabel": "Plush & Crochet",
     "priceUSD": 12,
-    "priceKHR": 49200,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -2024,7 +2041,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Tees & Tops",
     "priceUSD": 12,
-    "priceKHR": 49200,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -2048,7 +2064,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Tees & Tops",
     "priceUSD": 13,
-    "priceKHR": 53300,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -2072,7 +2087,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Tees & Tops",
     "priceUSD": 13,
-    "priceKHR": 53300,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -2096,7 +2110,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Tees & Tops",
     "priceUSD": 14,
-    "priceKHR": 57400,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -2120,7 +2133,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "apparel",
     "categoryLabel": "Jeans",
     "priceUSD": 24,
-    "priceKHR": 98400,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -2144,7 +2156,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "eyewear",
     "categoryLabel": "Eyewear",
     "priceUSD": 9,
-    "priceKHR": 36900,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -2168,7 +2179,6 @@ const ACCESSORIES_PRODUCTS = [
     "category": "shoes",
     "categoryLabel": "Slippers",
     "priceUSD": 9,
-    "priceKHR": 36900,
     "inStock": true,
     "rating": 0,
     "reviewsCount": 0,
@@ -2201,7 +2211,7 @@ if (PSA.online) {
     const bag = JSON.parse(localStorage.getItem('psa_cart') || '[]');
     const fresh = bag.flatMap(item => {
       const p = ACCESSORIES_PRODUCTS.find(x => x.id === item.id);
-      return p ? [{ ...item, title: p.title, priceUSD: p.priceUSD, priceKHR: p.priceKHR, image: p.image, categoryLabel: p.categoryLabel }] : [];
+      return p ? [{ ...item, title: p.title, priceUSD: p.priceUSD, image: p.image, categoryLabel: p.categoryLabel }] : [];
     });
     localStorage.setItem('psa_cart', JSON.stringify(fresh));
   } catch (e) {
@@ -2209,8 +2219,56 @@ if (PSA.online) {
   }
 }
 
-// Active Currency State
-let CURRENT_CURRENCY = localStorage.getItem('psa_currency') || 'USD';
+// Prices are in US dollars only (riel was removed in Oct 2026).
+const CURRENT_CURRENCY = 'USD';
+try { localStorage.removeItem('psa_currency'); } catch (e) { /* storage unavailable */ }
+
+// Delivery in Phnom Penh: $1.50, free from $15, or when the bag has any free-delivery item
+// (staff mark items free delivery with a Sort By group). The server applies the same rule.
+const PSA_DELIVERY_FEE = 1.5;
+const PSA_FREE_DELIVERY_FROM = 15;
+function psaCartHasFreeDeliveryItem(cart) {
+  return (cart || []).some(item => {
+    const p = ACCESSORIES_PRODUCTS.find(x => x.id === item.id);
+    return !!(p && p.freeDelivery);
+  });
+}
+function psaDeliveryFee(cart, subtotal) {
+  return psaCartHasFreeDeliveryItem(cart) || subtotal >= PSA_FREE_DELIVERY_FROM ? 0 : PSA_DELIVERY_FEE;
+}
+function psaDeliveryLabel(cart, subtotal) {
+  if (psaCartHasFreeDeliveryItem(cart)) return 'FREE (free-delivery item)';
+  return subtotal >= PSA_FREE_DELIVERY_FROM ? 'FREE (over $15)' : '$1.50';
+}
+
+// The shop's Sort By menu. Staff edit it in Drops & Stock > Sort By; without the server
+// the built-in four are used. A 'group' shows only its hand-picked products.
+const PSA_SORT_RULES = {
+  featured: null,
+  price_asc: (a, b) => a.priceUSD - b.priceUSD,
+  price_desc: (a, b) => b.priceUSD - a.priceUSD,
+  rating: (a, b) => b.rating - a.rating,
+  newest: (a, b) => (b.dbId || 0) - (a.dbId || 0),
+  name: (a, b) => a.title.localeCompare(b.title)
+};
+function psaSortOptions() {
+  if (PSA.online && Array.isArray(PSA.sortOptions) && PSA.sortOptions.length) return PSA.sortOptions.filter(o => o.isActive !== false);
+  return [
+    { id: 'featured', label: '✨ Trending Picks', type: 'sort', sortKey: 'featured' },
+    { id: 'price_asc', label: 'Price: Low to High ($)', type: 'sort', sortKey: 'price_asc' },
+    { id: 'price_desc', label: 'Price: High to Low ($)', type: 'sort', sortKey: 'price_desc' },
+    { id: 'rating', label: 'Top Rated (★)', type: 'sort', sortKey: 'rating' }
+  ];
+}
+function psaApplySortOption(list, option) {
+  if (!option) return list;
+  if (option.type === 'group') {
+    const order = new Map((option.products || []).map((id, i) => [id, i]));
+    return list.filter(p => order.has(p.id));
+  }
+  const rule = PSA_SORT_RULES[option.sortKey];
+  return rule ? [...list].sort(rule) : list;
+}
 
 // Cart Helper Functions
 function getCart() {
@@ -2227,6 +2285,7 @@ function saveCart(cart) {
 }
 
 function addToCart(productId, qty = 1) {
+  if (psaIsStaffAccount()) { psaShowStaffShoppingToast(); return; }
   const product = ACCESSORIES_PRODUCTS.find(p => p.id === productId);
   if (!product) return;
 
@@ -2240,7 +2299,6 @@ function addToCart(productId, qty = 1) {
       id: product.id,
       title: product.title,
       priceUSD: product.priceUSD,
-      priceKHR: product.priceKHR,
       image: product.image,
       categoryLabel: product.categoryLabel,
       quantity: qty
@@ -2317,46 +2375,8 @@ function updateCartBadge() {
   });
 }
 
-// Currency Switcher
-function setCurrency(currency) {
-  CURRENT_CURRENCY = currency;
-  localStorage.setItem('psa_currency', currency);
-
-  document.querySelectorAll('.currency-toggle-btn').forEach(btn => {
-    if (btn.dataset.currency === currency) {
-      btn.classList.add('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
-      btn.classList.remove('text-[#2B1D1D]');
-    } else {
-      btn.classList.remove('bg-[#2B1D1D]', 'text-white', 'shadow-xs');
-      btn.classList.add('text-[#2B1D1D]');
-    }
-  });
-
-  // Re-render any dynamic prices
-  if (typeof renderCatalog === 'function') renderCatalog();
-  if (typeof renderCartPage === 'function') renderCartPage();
-  if (typeof updateCheckoutSummary === 'function') updateCheckoutSummary();
-  if (typeof renderHomeProducts === 'function' && typeof activeFilter !== 'undefined') {
-    renderHomeProducts(activeFilter);
-  }
-  if (currentQuickViewProduct) {
-    const p1 = document.getElementById('quickViewPricePrimary');
-    const p2 = document.getElementById('quickViewPriceSecondary');
-    if (p1 && p2) {
-      p1.textContent = formatPrice(currentQuickViewProduct.priceUSD, currentQuickViewProduct.priceKHR);
-      const alt = CURRENT_CURRENCY === 'USD' 
-        ? `${currentQuickViewProduct.priceKHR.toLocaleString()} ៛` 
-        : `$${currentQuickViewProduct.priceUSD.toFixed(2)}`;
-      p2.textContent = `(${alt})`;
-    }
-  }
-}
-
-function formatPrice(usd, khr) {
-  if (CURRENT_CURRENCY === 'KHR') {
-    return `${khr.toLocaleString()} ៛`;
-  }
-  return `$${usd.toFixed(2)}`;
+function formatPrice(usd) {
+  return `$${Number(usd || 0).toFixed(2)}`;
 }
 
 // Toast Notification with Sorbet Orange & Cotton Beige Frame
@@ -2380,7 +2400,7 @@ function showToastNotification(product, qty) {
           Added to Bag!
         </div>
         <div class="text-xs font-black text-[#2B1D1D] truncate mt-0.5">${product.title}</div>
-        <div class="text-[11px] font-semibold text-[#4A3333] mt-0.5">${formatPrice(product.priceUSD, product.priceKHR)} &bull; Qty: ${qty}</div>
+        <div class="text-[11px] font-semibold text-[#4A3333] mt-0.5">${formatPrice(product.priceUSD)} &bull; Qty: ${qty}</div>
       </div>
       <a href="cart.html" class="px-3.5 py-2 rounded-xl bg-[#FFA552] hover:bg-[#E88C35] text-white font-extrabold text-xs shrink-0 transition-colors shadow-sm">
         View Bag &rarr;
@@ -2524,10 +2544,6 @@ function openQuickView(productId, event) {
     `
     : '';
 
-  const altCurrency = CURRENT_CURRENCY === 'USD' 
-    ? `${product.priceKHR.toLocaleString()} ៛` 
-    : `$${product.priceUSD.toFixed(2)}`;
-
   const galleryList = product.gallery && product.gallery.length > 0 ? product.gallery : [product.image];
 
   modal.innerHTML = `
@@ -2639,15 +2655,9 @@ function openQuickView(productId, event) {
             <div class="p-3 bg-[#FDFBF7] dark:bg-[#16161D] rounded-2xl border border-[#EFE4D6] dark:border-[#2D2D38] flex items-baseline justify-between">
               <div>
                 <span class="text-2xl font-black text-[#2B1D1D] dark:text-white" id="quickViewPricePrimary">
-                  ${formatPrice(product.priceUSD, product.priceKHR)}
-                </span>
-                <span class="text-xs font-bold text-[#FFA552] ml-2" id="quickViewPriceSecondary">
-                  (${altCurrency})
+                  ${formatPrice(product.priceUSD)}
                 </span>
               </div>
-              <span class="text-[10px] font-black uppercase text-[#2B1D1D] dark:text-white px-2 py-0.5 rounded-md bg-[#FFA552]/20 border border-[#FFA552]/40">
-                1 USD = 4,100 ៛
-              </span>
             </div>
 
             <!-- Description -->
@@ -2690,7 +2700,7 @@ function openQuickView(productId, event) {
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                 </svg>
-                <span id="quickViewAddText">Add to Bag &bull; ${formatPrice(product.priceUSD, product.priceKHR)}</span>
+                <span id="quickViewAddText">Add to Bag &bull; ${formatPrice(product.priceUSD)}</span>
               </button>
 
               <!-- Save to Wishlist Button in Quick View -->
@@ -2788,10 +2798,9 @@ function changeQuickViewQty(delta) {
 function updateQuickViewPrice() {
   if (!currentQuickViewProduct) return;
   const totalUSD = currentQuickViewProduct.priceUSD * quickViewQuantity;
-  const totalKHR = currentQuickViewProduct.priceKHR * quickViewQuantity;
   const btnText = document.getElementById('quickViewAddText');
   if (btnText) {
-    btnText.textContent = `Add to Bag • ${formatPrice(totalUSD, totalKHR)}`;
+    btnText.textContent = `Add to Bag • ${formatPrice(totalUSD)}`;
   }
 }
 
@@ -3017,6 +3026,7 @@ function toggleWishlist(productId, event) {
   let list = getWishlist();
   const product = ACCESSORIES_PRODUCTS.find(p => p.id === productId);
   const exists = list.includes(productId);
+  if (!exists && psaIsStaffAccount()) { psaShowStaffShoppingToast(); return; }
 
   if (exists) {
     list = list.filter(id => id !== productId);
@@ -3063,8 +3073,7 @@ function moveAllWishlistToBag() {
   showToastNotification({
     title: `${list.length} Wishlist Items`,
     image: ACCESSORIES_PRODUCTS.find(p => p.id === list[0])?.image || '',
-    priceUSD: 0,
-    priceKHR: 0
+    priceUSD: 0
   }, list.length);
   closeWishlistModal();
 }
@@ -3280,8 +3289,7 @@ function renderWishlistDrawer() {
                     </a>
                     <div class="text-[11px] text-stone-400 font-khmer truncate mt-0.5">${item.titleKhmer}</div>
                     <div class="text-xs font-black text-[#2B1D1D] dark:text-white mt-1">
-                      ${formatPrice(item.priceUSD, item.priceKHR)}
-                      <span class="text-[10px] font-bold text-[#FFA552] ml-1">(${CURRENT_CURRENCY === 'USD' ? item.priceKHR.toLocaleString() + ' ៛' : '$' + item.priceUSD.toFixed(2)})</span>
+                      ${formatPrice(item.priceUSD)}
                     </div>
                   </div>
                 </div>
@@ -3425,12 +3433,103 @@ function psaRenderBell() {
     </ul>`;
 }
 
+// ---------- Live updates: new notifications pop up without reloading ----------
+// The newest notification id this browser has already shown (per account), shared by every open tab
+// so the same notification never pops up twice.
+const PSA_BELL_POLL_MS = 10000;
+const psaBellSeenKey = () => `psa_bell_seen_${PSA.user ? PSA.user.id : ''}`;
+function psaBellSeenId() {
+  try { const v = localStorage.getItem(psaBellSeenKey()); return v === null ? null : Number(v) || 0; } catch (e) { return null; }
+}
+function psaSetBellSeenId(id) {
+  try { localStorage.setItem(psaBellSeenKey(), String(id)); } catch (e) { /* storage unavailable */ }
+}
+
+const psaBaseTitle = document.title;
+function psaUpdateTitleCount() {
+  const n = psaBellState.unread || 0;
+  document.title = n ? `(${n > 9 ? '9+' : n}) ${psaBaseTitle}` : psaBaseTitle;
+}
+
+let psaBellLoading = false;
 async function psaLoadNotifications() {
-  if (!PSA.online || !PSA.user) return;
+  if (!PSA.online || !PSA.user || psaBellLoading) return;
+  psaBellLoading = true;
   try {
     psaBellState = await psaApi('GET', '/api/notifications');
     psaRenderBell();
-  } catch (e) { /* keep the last known state */ }
+    psaUpdateTitleCount();
+
+    const items = psaBellState.items || [];
+    const newest = items.reduce((max, n) => Math.max(max, Number(n.id) || 0), 0);
+    const seen = psaBellSeenId();
+    if (seen === null) {
+      psaSetBellSeenId(newest); // first visit on this browser: don't pop up old ones
+    } else if (newest > seen) {
+      psaSetBellSeenId(newest);
+      const fresh = items.filter(n => Number(n.id) > seen && !n.read).reverse();
+      if (fresh.length) {
+        psaShowNotificationPopups(fresh);
+        // Pages can refresh what they show (e.g. an order's chat) when something new arrives.
+        document.dispatchEvent(new CustomEvent('psa:notifications', { detail: fresh }));
+      }
+    }
+  } catch (e) {
+    /* keep the last known state */
+  } finally {
+    psaBellLoading = false;
+  }
+}
+
+function psaShowNotificationPopups(fresh) {
+  let stack = document.getElementById('psaNotifyStack');
+  if (!stack) {
+    stack = document.createElement('div');
+    stack.id = 'psaNotifyStack';
+    stack.setAttribute('role', 'status');
+    stack.setAttribute('aria-live', 'polite');
+    stack.className = 'fixed z-[70] top-20 left-2 right-2 sm:left-auto sm:right-4 sm:w-96 flex flex-col gap-2 pointer-events-none';
+    document.body.appendChild(stack);
+  }
+  const shown = fresh.slice(-3);
+  const extra = fresh.length - shown.length;
+  shown.forEach(n => {
+    const card = document.createElement('div');
+    card.className = 'psa-notify pointer-events-auto rounded-2xl bg-white dark:bg-[#1A1A22] border-2 border-[#FFA552] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.35)] p-3 flex gap-3 items-start';
+    card.innerHTML = `
+      <span class="mt-0.5 w-9 h-9 shrink-0 rounded-full bg-[#FFF0E1] dark:bg-[#2A2118] text-[#A3520F] dark:text-[#FFA552] grid place-items-center" aria-hidden="true">${PSA_BELL_ICON}</span>
+      <a href="${psaEsc(n.link || '#')}" class="min-w-0 flex-1 block" data-notify-open="${Number(n.id)}">
+        <span class="block text-sm font-black text-[#2B1D1D]">${psaEsc(n.title)}</span>
+        ${n.body ? `<span class="block text-sm text-stone-600 line-clamp-2">${psaEsc(n.body)}</span>` : ''}
+        <span class="block mt-0.5 text-xs text-stone-500">${psaEsc(psaTimeAgo(n.createdAt))} &middot; <span class="font-bold text-[#A3520F] dark:text-[#FFA552]">Open</span></span>
+      </a>
+      <button type="button" class="shrink-0 w-9 h-9 -mr-1 -mt-1 rounded-full text-stone-500 hover:bg-[#F9F3EA] dark:hover:bg-[#252530] cursor-pointer text-lg leading-none" aria-label="Dismiss notification">&times;</button>`;
+    let timer;
+    const close = () => { clearTimeout(timer); card.classList.add('psa-notify--out'); setTimeout(() => card.remove(), 250); };
+    const start = () => { timer = setTimeout(close, 9000); };
+    card.querySelector('button').addEventListener('click', close);
+    card.addEventListener('mouseenter', () => clearTimeout(timer));
+    card.addEventListener('mouseleave', start);
+    card.addEventListener('focusin', () => clearTimeout(timer));
+    card.querySelector('[data-notify-open]').addEventListener('click', async e => {
+      if (!n.link) { e.preventDefault(); close(); return; }
+      e.preventDefault();
+      await psaApi('POST', '/api/notifications/read', { id: Number(n.id) }).catch(() => null);
+      window.location.href = n.link;
+    });
+    stack.appendChild(card);
+    start();
+  });
+  if (extra > 0) {
+    const more = document.createElement('button');
+    more.type = 'button';
+    more.className = 'psa-notify pointer-events-auto self-end h-10 px-4 rounded-full bg-[#2B1D1D] text-white text-sm font-bold shadow-lg cursor-pointer';
+    more.textContent = `+${extra} more in notifications`;
+    more.addEventListener('click', e => { e.stopPropagation(); more.remove(); psaToggleBellPanel(true); });
+    stack.appendChild(more);
+    setTimeout(() => more.remove(), 9000);
+  }
+  while (stack.children.length > 4) stack.firstElementChild.remove();
 }
 
 function psaToggleBellPanel(force) {
@@ -3470,6 +3569,7 @@ function psaInitNotifications() {
       (psaBellState.items || []).forEach(n => { n.read = true; });
       psaBellState.unread = 0;
       psaRenderBell();
+      psaUpdateTitleCount();
       return;
     }
     const item = e.target.closest('[data-bell-item]');
@@ -3483,11 +3583,94 @@ function psaInitNotifications() {
   document.addEventListener('keydown', e => { if (e.key === 'Escape') psaToggleBellPanel(false); });
 
   psaLoadNotifications();
-  setInterval(() => { if (!document.hidden) psaLoadNotifications(); }, 30000);
+  // Check every few seconds while the page is on screen, and straight away when you come back to it.
+  setInterval(() => { if (!document.hidden) psaLoadNotifications(); }, PSA_BELL_POLL_MS);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) psaLoadNotifications(); });
+  window.addEventListener('focus', () => psaLoadNotifications());
+  // Reading notifications in another tab clears the badge here too.
+  window.addEventListener('storage', e => { if (e.key === psaBellSeenKey()) psaLoadNotifications(); });
 }
 
 document.addEventListener('DOMContentLoaded', psaInitNotifications);
 
+
+// =========================================================================
+// SOCIAL ACCOUNTS (staff change them in Drops & Stock > Social media)
+// =========================================================================
+// Brand shapes from Simple Icons (CC0, simpleicons.org), drawn in the text color.
+const PSA_SOCIAL_ICONS = {
+  facebook: 'M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z',
+  instagram: 'M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077',
+  tiktok: 'M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z',
+  x: 'M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z',
+  youtube: 'M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z',
+  telegram: 'M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z'
+};
+const PSA_SOCIAL_NAMES = { facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok', x: 'X', youtube: 'YouTube', telegram: 'Telegram' };
+// Shown until staff save their own list. The Instagram/TikTok/Facebook/X links are placeholders (the
+// platforms' home pages) until real account links are filled in.
+const PSA_SOCIAL_DEFAULTS = [
+  { platform: 'facebook', handle: 'PsaOnline', url: 'https://facebook.com' },
+  { platform: 'instagram', handle: '@psaonline_kh', url: 'https://instagram.com' },
+  { platform: 'tiktok', handle: '@psaonline', url: 'https://tiktok.com' },
+  { platform: 'x', handle: '@psaonline', url: 'https://x.com' },
+  { platform: 'telegram', handle: '@psaonline_support', url: 'https://t.me/psaonline_support' }
+];
+const PSA_TELEGRAM_DEFAULT = 'https://t.me/psaonline_support';
+
+function psaSocialLinks() {
+  const saved = PSA.online && PSA.siteContent && Array.isArray(PSA.siteContent.socials) ? PSA.siteContent.socials : null;
+  return (saved || PSA_SOCIAL_DEFAULTS).filter(s => PSA_SOCIAL_ICONS[s.platform] && /^https:\/\//i.test(s.url || ''));
+}
+
+function psaSocialIcon(platform, cls = 'w-5 h-5') {
+  return `<svg class="${cls}" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="${PSA_SOCIAL_ICONS[platform] || ''}"/></svg>`;
+}
+
+// Fills every element with data-psa-socials: "list" (home footer: round icon, name and username),
+// "compact" (other footers: small icon and text) or "icons" (a row of icons only).
+function psaRenderSocials(root = document, override = null) {
+  const links = override ? override.filter(s => PSA_SOCIAL_ICONS[s.platform] && /^https:\/\//i.test(s.url || '')) : psaSocialLinks();
+  root.querySelectorAll('[data-psa-socials]').forEach(box => {
+    const style = box.dataset.psaSocials;
+    if (!links.length) { box.innerHTML = ''; return; }
+    box.innerHTML = links.map(s => {
+      const name = PSA_SOCIAL_NAMES[s.platform];
+      const a = `href="${psaEsc(s.url)}" target="_blank" rel="noopener noreferrer"`;
+      if (style === 'icons') {
+        return `<li><a ${a} class="w-11 h-11 grid place-items-center rounded-full hover:text-[#FFA552] transition-colors" aria-label="${psaEsc(name)} ${psaEsc(s.handle)}">${psaSocialIcon(s.platform, 'w-6 h-6')}</a></li>`;
+      }
+      if (style === 'compact') {
+        return `<li><a ${a} class="flex items-center gap-2 min-h-8 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">${psaSocialIcon(s.platform, 'w-4 h-4 shrink-0 text-[#2B1D1D] dark:text-white')}<span>${psaEsc(name)} <span class="text-stone-500">${psaEsc(s.handle)}</span></span></a></li>`;
+      }
+      return `<li><a ${a} class="inline-flex items-center gap-3 min-h-11 pr-2 text-sm font-bold text-[#2B1D1D] hover:text-sorbet-ink dark:hover:text-sorbet">
+          <span class="w-10 h-10 rounded-full bg-espresso text-cotton dark:bg-sorbet dark:text-espresso flex items-center justify-center shrink-0">${psaSocialIcon(s.platform)}</span>
+          <span>${psaEsc(name)}<span class="block text-sm font-semibold text-stone-600">${psaEsc(s.handle)}</span></span>
+        </a></li>`;
+    }).join('');
+  });
+
+  // Usernames written out in text (About page contact box).
+  root.querySelectorAll('[data-psa-handle]').forEach(el => {
+    const s = links.find(l => l.platform === el.dataset.psaHandle);
+    el.hidden = !s;
+    if (s) el.textContent = `${PSA_SOCIAL_NAMES[s.platform]}: ${s.handle}`;
+  });
+
+  // "Message us on Telegram" links across the site follow the Telegram account staff set.
+  const telegram = links.find(s => s.platform === 'telegram');
+  if (telegram && telegram.url !== PSA_TELEGRAM_DEFAULT) {
+    root.querySelectorAll(`a[href^="${PSA_TELEGRAM_DEFAULT}"]`).forEach(link => {
+      link.href = telegram.url;
+      // ...and any username written in the link text
+      const walker = document.createTreeWalker(link, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        if (n.nodeValue.includes('@psaonline_support')) n.nodeValue = n.nodeValue.split('@psaonline_support').join(telegram.handle);
+      }
+    });
+  }
+}
+document.addEventListener('DOMContentLoaded', () => psaRenderSocials());
 
 // Stacked tables on phones: copy each column heading onto its cells as data-label (rows are rendered by page scripts).
 function psaLabelStackTables(root = document) {
@@ -3514,3 +3697,186 @@ document.addEventListener('DOMContentLoaded', () => {
   s.defer = true;
   document.body.appendChild(s);
 });
+
+// Home headline text staff can change: words between *stars* get the orange highlight
+// (the same .hero-marker style as before), everything else is plain escaped text.
+function psaHeadlineHtml(text) {
+  return psaEsc(String(text || '')).replace(/\*([^*]+)\*/g, '<span class="hero-marker">$1</span>');
+}
+
+// =========================================================================
+// FLOATING PRODUCT SHOWCASE (home hero; staff choose the products in Drops & Stock > Home showcase)
+// =========================================================================
+
+// The products staff picked, in order (first = the front card). When none are picked (or the
+// server is offline) it uses `fallbackIds`, then the first catalog products, so the hero is never empty.
+function psaShowcaseProducts(fallbackIds = [], count = 3) {
+  const byId = new Map(ACCESSORIES_PRODUCTS.map(p => [p.id, p]));
+  const picked = (PSA.online && Array.isArray(PSA.showcase) ? PSA.showcase : []).map(id => byId.get(id)).filter(Boolean);
+  if (picked.length) return picked;
+  const chosen = fallbackIds.map(id => byId.get(id)).filter(Boolean);
+  for (const p of ACCESSORIES_PRODUCTS) {
+    if (chosen.length >= count) break;
+    if (!chosen.includes(p)) chosen.push(p);
+  }
+  return chosen.slice(0, count);
+}
+
+// Draws the showcase into `root`: one big front card that bobs, tilts toward the pointer and casts a
+// moving shadow, with up to two cards layered behind it. Clicking a back card (or a dot, or the arrow
+// keys) brings that product to the front. `preview: true` (staff page) shows the Add to bag button
+// without making it work. Returns { setProducts(list), destroy() }.
+function psaRenderShowcase(root, products, { preview = false } = {}) {
+  if (!root) return null;
+  if (root._psaShowcase) root._psaShowcase.destroy();
+
+  let list = (products || []).filter(Boolean);
+  let index = 0;
+  let el = null;
+  let raf = 0;
+  const target = { x: 0, y: 0 };
+  const cur = { x: 0, y: 0 };
+  const media = q => (window.matchMedia ? window.matchMedia(q).matches : false);
+  const reduceMotion = media('(prefers-reduced-motion: reduce)');
+  const touchOnly = media('(hover: none)');
+  const area = root.closest('section') || root;
+  const price = p => `$${Number(p.priceUSD).toFixed(2)}`;
+  const at = k => list[(index + k) % list.length];
+
+  function frontCard(p) {
+    const href = `product-detail.html?id=${encodeURIComponent(p.id)}`;
+    const add = preview
+      ? '<span class="psa-sc__add inline-flex items-center" aria-hidden="true">Add to bag</span>'
+      : `<button type="button" class="psa-sc__add" data-sc-add="${psaEsc(p.id)}" aria-label="Add ${psaEsc(p.title)} to bag">Add to bag</button>`;
+    return `
+      <div class="psa-sc__layer psa-sc__layer--front"><div class="psa-sc__bob">
+        <article class="psa-sc__card">
+          <a href="${href}" tabindex="-1" aria-hidden="true" class="block"><img src="${psaEsc(p.image)}" alt="" class="psa-sc__img" /></a>
+          <div class="psa-sc__body">
+            ${p.categoryLabel ? `<span class="psa-sc__chip">${psaEsc(p.categoryLabel)}</span>` : ''}
+            <a href="${href}" class="psa-sc__title">${psaEsc(p.title)}</a>
+            <div class="psa-sc__row"><span class="psa-sc__price">${price(p)}</span>${add}</div>
+          </div>
+        </article>
+      </div></div>`;
+  }
+
+  function backCard(p, slot) {
+    return `
+      <div class="psa-sc__layer psa-sc__layer--back${slot}"><div class="psa-sc__bob">
+        <button type="button" class="psa-sc__card" data-sc-step="${slot}" aria-label="Show ${psaEsc(p.title)} (${price(p)}) in front">
+          <img src="${psaEsc(p.image)}" alt="" class="psa-sc__img" loading="lazy" />
+          <span class="psa-sc__tag">${price(p)}</span>
+        </button>
+      </div></div>`;
+  }
+
+  function render(switching) {
+    if (!list.length) {
+      root.innerHTML = '';
+      el = null;
+      return;
+    }
+    const backs = [1, 2].filter(k => k < list.length);
+    root.innerHTML = `
+      <div class="psa-sc${switching ? ' is-switching' : ''}" role="region" aria-roledescription="carousel" aria-label="Featured products">
+        <div class="psa-sc__stage">
+          <div class="psa-sc__ground" aria-hidden="true"><div class="psa-sc__shadow"></div></div>
+          ${backs.map(k => backCard(at(k), k)).join('')}
+          ${frontCard(at(0))}
+        </div>
+        ${list.length > 1 ? `<div class="psa-sc__dots">${list.map((p, i) => `<button type="button" class="psa-sc__dot" data-sc-go="${i}" aria-label="Show ${psaEsc(p.title)}" aria-current="${i === index}"><span></span></button>`).join('')}</div>` : ''}
+      </div>`;
+    el = root.firstElementChild;
+    applyVars();
+  }
+
+  function go(i, focusDot) {
+    if (list.length < 2) return;
+    const next = ((i % list.length) + list.length) % list.length;
+    if (next === index) return;
+    const hadFocus = root.contains(document.activeElement);
+    index = next;
+    render(true);
+    if (hadFocus) (focusDot ? root.querySelector(`[data-sc-go="${index}"]`) : root.querySelector('.psa-sc__title'))?.focus();
+  }
+
+  // Pointer parallax, eased so the cards drift rather than snap.
+  function applyVars() {
+    if (!el) return;
+    el.style.setProperty('--mx', cur.x.toFixed(3));
+    el.style.setProperty('--my', cur.y.toFixed(3));
+  }
+  function tick() {
+    cur.x += (target.x - cur.x) * 0.08;
+    cur.y += (target.y - cur.y) * 0.08;
+    applyVars();
+    raf = Math.abs(target.x - cur.x) > 0.001 || Math.abs(target.y - cur.y) > 0.001 ? requestAnimationFrame(tick) : 0;
+  }
+  const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+  const clamp = v => Math.max(-1, Math.min(1, v));
+  function onMove(e) {
+    if (e.pointerType === 'touch') return;
+    const r = root.getBoundingClientRect();
+    target.x = clamp((e.clientX - (r.left + r.width / 2)) / (r.width / 2 + 160));
+    target.y = clamp((e.clientY - (r.top + r.height / 2)) / (r.height / 2 + 160));
+    kick();
+  }
+  function onLeave() {
+    target.x = 0;
+    target.y = 0;
+    kick();
+  }
+  // Phones have no pointer to follow, so the cards lean gently as the page scrolls.
+  function onScroll() {
+    const r = root.getBoundingClientRect();
+    target.y = clamp((r.top + r.height / 2 - window.innerHeight / 2) / window.innerHeight) * 0.8;
+    target.x = target.y * -0.35;
+    kick();
+  }
+
+  function onClick(e) {
+    const add = e.target.closest('[data-sc-add]');
+    if (add) return addToCart(add.dataset.scAdd, 1);
+    const step = e.target.closest('[data-sc-step]');
+    if (step) return go(index + Number(step.dataset.scStep), false);
+    const dot = e.target.closest('[data-sc-go]');
+    if (dot) go(Number(dot.dataset.scGo), true);
+  }
+  function onKey(e) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); go(index + 1, true); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(index - 1, true); }
+  }
+
+  root.addEventListener('click', onClick);
+  root.addEventListener('keydown', onKey);
+  if (!reduceMotion) {
+    if (touchOnly) {
+      window.addEventListener('scroll', onScroll, { passive: true });
+    } else {
+      area.addEventListener('pointermove', onMove);
+      area.addEventListener('pointerleave', onLeave);
+    }
+  }
+  render(false);
+  if (!reduceMotion && touchOnly) onScroll();
+
+  const api = {
+    setProducts(next) {
+      list = (next || []).filter(Boolean);
+      index = 0;
+      render(true);
+    },
+    destroy() {
+      root.removeEventListener('click', onClick);
+      root.removeEventListener('keydown', onKey);
+      window.removeEventListener('scroll', onScroll);
+      area.removeEventListener('pointermove', onMove);
+      area.removeEventListener('pointerleave', onLeave);
+      cancelAnimationFrame(raf);
+      root._psaShowcase = null;
+    }
+  };
+  root._psaShowcase = api;
+  return api;
+}
