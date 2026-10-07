@@ -18,8 +18,10 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-/psaonline.sql
+/*.sql
 .env.example
 skills-lock.json
 /.agents
 /.claude
+/mascot-candidates
+/.impeccable
