@@ -23,7 +23,7 @@
     <div class="max-w-2xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
       <a href="home.html" class="flex items-center gap-2" aria-label="PsaOnline home">
         <img src="assets/images/psa-accessories-online-logo.svg" alt="" class="h-9 w-auto" />
-        <span class="text-lg font-black text-[#2B1D1D]">Psa<span class="text-sorbet-ink dark:text-sorbet">Online</span></span>
+        <span class="text-lg font-black text-[#2B1D1D]" data-psa-brand>Psa<span class="text-sorbet-ink dark:text-sorbet">Online</span></span>
       </a>
       <a href="dashboard-buyer.html" class="h-11 px-4 inline-flex items-center gap-1.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] text-sm font-bold text-[#2B1D1D] hover:bg-[#F9F3EA]">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
@@ -36,16 +36,7 @@
     <p class="text-sm text-stone-600">Loading your order…</p>
   </main>
 
-  <footer class="bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] py-6 text-sm text-stone-600">
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <div>&copy; 2026 PsaOnline</div>
-      <div class="flex items-center gap-5">
-        <a href="about.html" class="py-2 hover:text-sorbet-ink">About us</a>
-        <a href="privacy.html" class="py-2 hover:text-sorbet-ink">Privacy</a>
-        <a href="terms.html" class="py-2 hover:text-sorbet-ink">Terms</a>
-      </div>
-    </div>
-  </footer>
+  <footer data-psa-footer class="mt-auto"></footer>
 
   <script src="assets/js/store.js"></script>
   <script>

@@ -35,13 +35,13 @@ class OrderMessage extends Model
     /** Messages the order's customer wrote. */
     public function scopeFromCustomer(Builder $query): Builder
     {
-        return $query->whereHas('order.customer', fn ($q) => $q->whereColumn('customers.user_id', 'order_messages.sender_id'));
+        return $query->whereHas('order', fn ($q) => $q->whereColumn('orders.user_id', 'order_messages.sender_id'));
     }
 
     /** Messages the shop wrote (anyone other than the order's customer). */
     public function scopeFromStaff(Builder $query): Builder
     {
-        return $query->whereDoesntHave('order.customer', fn ($q) => $q->whereColumn('customers.user_id', 'order_messages.sender_id'));
+        return $query->whereDoesntHave('order', fn ($q) => $q->whereColumn('orders.user_id', 'order_messages.sender_id'));
     }
 
     public function isFromStaff(Order $order): bool

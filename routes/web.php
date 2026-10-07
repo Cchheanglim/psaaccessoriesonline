@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\PromoApiController;
 use App\Http\Controllers\Api\RoleApiController;
+use App\Http\Controllers\Api\SiteSettingApiController;
 use App\Http\Controllers\Api\StockApiController;
 use App\Http\Controllers\Api\StoreApiController;
 use App\Http\Controllers\Api\AdminApiController;
@@ -28,7 +29,7 @@ Route::get('/home', fn () => response()->file(public_path('home.html')));
 // Staff portal pages live in resources/portal/ (not public/), so the web server can't hand
 // them out directly; they are only sent to signed-in Staff and Admin accounts.
 $portalPages = [
-    'dashboard-admin', 'admin-orders', 'admin-products', 'admin-users', 'admin-payment-methods', 'admin-messages', 'admin-promo-codes',
+    'dashboard-admin', 'admin-orders', 'admin-products', 'admin-users', 'admin-payment-methods', 'admin-messages', 'admin-promo-codes', 'admin-website',
     'order-detail--admin-payment-submitted', 'order-detail--staff-payment-submitted',
     'payment-method-form', 'product-detail--staff', 'product-form', 'user-form',
 ];
@@ -57,6 +58,8 @@ Route::prefix('api')->middleware('same-account')->group(function () {
 
     Route::get('/orders/{orderNumber}/messages', [StoreApiController::class, 'orderMessages']);
     Route::post('/orders/{orderNumber}/messages', [StoreApiController::class, 'sendOrderMessage'])->middleware('throttle:30,1');
+    Route::delete('/orders/{orderNumber}/messages', [StoreApiController::class, 'destroyOrderMessages']);
+    Route::delete('/orders/{orderNumber}/messages/{message}', [StoreApiController::class, 'destroyOrderMessage'])->whereNumber('message');
     Route::post('/orders/{orderNumber}/reviews', [StoreApiController::class, 'reviewOrder'])->middleware('throttle:20,1');
     Route::get('/products/{sku}/reviews', [StoreApiController::class, 'productReviews']);
 
@@ -78,8 +81,8 @@ Route::prefix('api')->middleware('same-account')->group(function () {
         Route::patch('/categories/{category}', [AdminApiController::class, 'updateCategory']);
         Route::delete('/categories/{category}', [AdminApiController::class, 'destroyCategory']);
         Route::put('/showcase', [AdminApiController::class, 'updateShowcase']);
-        Route::put('/site-content', [AdminApiController::class, 'updateSiteContent']);
-        Route::put('/socials', [AdminApiController::class, 'updateSocials']);
+        Route::get('/site-settings', [SiteSettingApiController::class, 'index']);
+        Route::put('/site-settings', [SiteSettingApiController::class, 'update']);
         Route::get('/suppliers', [StockApiController::class, 'suppliers']);
         Route::post('/suppliers', [StockApiController::class, 'storeSupplier']);
         Route::patch('/suppliers/{supplier}', [StockApiController::class, 'updateSupplier']);

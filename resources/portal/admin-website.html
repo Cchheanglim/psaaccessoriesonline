@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Website — PsaOnline Staff</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="description" content="Edit the website's header, home page, footer, social accounts and shop rules." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { sorbet: '#FFA552', 'sorbet-ink': '#A3520F', cotton: '#F9F3EA', espresso: '#2B1D1D' } } } };</script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
+  <style>
+    .field + .field { margin-top: 18px; }
+    .field-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+    .field-top .pt-label { margin: 0; }
+    .field-count { font-size: 12px; color: var(--pt-ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .field-count.is-over { color: var(--pt-red-ink); font-weight: 700; }
+    .field-foot { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-top: 6px; }
+    .field-foot .pt-hint { margin: 0; }
+    .reset-link { flex: none; border: 0; background: none; padding: 0; font: inherit; font-size: 12px; font-weight: 700; color: var(--pt-accent-ink); cursor: pointer; }
+    .reset-link:hover { text-decoration: underline; }
+    .field.is-changed .pt-input, .field.is-changed .pt-textarea { border-color: var(--pt-accent); }
+    .logo-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .logo-box { width: 72px; height: 72px; border-radius: 14px; border: 1px solid var(--pt-line); background: #fff; display: grid; place-items: center; overflow: hidden; flex: none; }
+    .logo-box img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 6px; }
+    .preview { border-radius: var(--pt-radius); border: 1px solid var(--pt-line); overflow: hidden; background: #FDFBF7; color: #2B1D1D; }
+    html.dark .preview { background: #121215; color: #F4F4F6; }
+    .preview-label { font-size: 12px; font-weight: 700; color: var(--pt-ink-2); margin: 0 0 8px; }
+    .preview footer { margin-top: 0 !important; }
+    .preview footer > div { padding: 24px 20px !important; }
+    .preview footer .grid { grid-template-columns: 1fr !important; gap: 22px !important; }
+    .preview footer .grid > div { grid-column: auto !important; }
+    .rules-summary { font-size: 14px; line-height: 1.7; }
+    .rules-summary b { font-weight: 800; }
+    .save-bar { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; padding: 14px 20px; border-top: 1px solid var(--pt-line); background: var(--pt-panel); border-radius: 0 0 var(--pt-radius) var(--pt-radius); }
+    .save-bar .dirty { margin-right: auto; font-size: 13px; font-weight: 700; color: var(--pt-amber-ink); }
+  </style>
+</head>
+<body class="pt" data-portal="website">
+  <div class="pt-frame">
+    <main class="pt-main">
+      <div class="pt-head">
+        <div class="pt-head__text">
+          <h1>Website</h1>
+          <p>Everything customers read on the shop: the header, the home page, the footer, your social accounts and the shop rules. Changes show on the website as soon as you save.</p>
+        </div>
+        <div class="pt-head__actions">
+          <a class="pt-btn pt-btn--secondary" href="home.html" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+            Open the shop
+          </a>
+        </div>
+      </div>
+
+      <div class="pt-tabs" role="tablist" aria-label="Website sections" id="tabs"></div>
+
+      <div class="pt-grid pt-grid--main-side">
+        <form class="pt-panel" id="settingsForm" novalidate>
+          <div class="pt-panel__head"><div><h2 class="pt-section-title" id="groupTitle"></h2><p class="pt-section-sub" id="groupSub"></p></div></div>
+          <div class="pt-panel__body" id="fields"><span class="pt-skel" style="width:60%"></span></div>
+          <div class="save-bar">
+            <span class="dirty" id="dirtyNote" hidden>Unsaved changes</span>
+            <span class="pt-error" id="formError" style="margin:0 auto 0 0" hidden></span>
+            <button type="button" class="pt-btn pt-btn--ghost" id="undoBtn" hidden>Undo changes</button>
+            <button type="submit" class="pt-btn pt-btn--primary" id="saveBtn" disabled>Save</button>
+          </div>
+        </form>
+
+        <aside class="pt-sticky">
+          <p class="preview-label">Preview</p>
+          <div class="preview" id="preview"></div>
+          <p class="pt-hint" id="previewHint" style="margin-top:10px"></p>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/rbac.js"></script>
+  <script src="assets/js/portal-shell.js"></script>
+  <script>
+    const GROUPS = [
+      { id: 'header', label: 'Header', title: 'Header', sub: 'The top of every page: logo, shop name, tagline, the message bar on the home page and the search box.', hint: 'The message bar shows on the home page; the logo and name show on every page.' },
+      { id: 'home', label: 'Home page', title: 'Home page', sub: 'The headline, buttons and every section title and text on the home page.', hint: 'Words between *stars* get the orange highlight.' },
+      { id: 'footer', label: 'Footer', title: 'Footer', sub: 'The same footer is at the bottom of every shop page.', hint: 'Empty contact lines are not shown.' },
+      { id: 'social', label: 'Social media', title: 'Social media', sub: 'Paste the link to each account (open your profile and copy the address). Customers see the username and go straight to that exact account. Leave one empty to hide it.', hint: 'Shown in the footer and used by every "Chat on Telegram" link.' },
+      { id: 'rules', label: 'Shop rules', title: 'Shop rules', sub: 'Delivery and membership. Checkout uses these numbers straight away.', hint: 'Only Admins can change these.' }
+    ];
+    let fields = [];
+    let saved = {};
+    let draft = {};
+    let group = 'header';
+    let canEditRules = false;
+    const $ = id => document.getElementById(id);
+
+    async function load() {
+      try {
+        const res = await psaApi('GET', '/api/admin/site-settings');
+        fields = res.fields;
+        canEditRules = res.canEditRules;
+        saved = Object.fromEntries(fields.map(f => [f.key, f.value]));
+        draft = { ...saved };
+        const wanted = location.hash.slice(1);
+        if (GROUPS.some(g => g.id === wanted) && (wanted !== 'rules' || canEditRules)) group = wanted;
+        renderTabs();
+        renderGroup();
+      } catch (err) {
+        $('fields').innerHTML = `<p class="pt-error">${psaEsc(err.message)}</p>`;
+      }
+    }
+
+    const groupFields = () => fields.filter(f => f.group === group);
+    const changedKeys = () => groupFields().map(f => f.key).filter(k => (draft[k] ?? '') !== (saved[k] ?? ''));
+
+    function renderTabs() {
+      $('tabs').innerHTML = GROUPS.filter(g => g.id !== 'rules' || canEditRules).map(g =>
+        `<button type="button" role="tab" data-group="${g.id}" aria-selected="${g.id === group}">${g.label}</button>`).join('');
+    }
+
+    function inputFor(f) {
+      const id = `f-${f.key.replace(/\W/g, '-')}`;
+      const value = draft[f.key] ?? '';
+      if (f.type === 'image') {
+        return `<div class="logo-row">
+          <div class="logo-box" id="${id}-box">${value ? `<img src="${psaEsc(value)}" alt="Current logo">` : ''}</div>
+          <label class="pt-btn pt-btn--secondary" style="cursor:pointer"><input type="file" accept="image/*" class="sr-only" data-image="${f.key}">Choose picture</label>
+        </div>`;
+      }
+      if (f.type === 'money' || f.type === 'percent' || f.type === 'days') {
+        const unit = { money: ['$', ''], percent: ['', '%'], days: ['', 'days'] }[f.type];
+        return `<div class="pt-addon">${unit[0] ? `<span>${unit[0]}</span>` : ''}<input id="${id}" class="pt-input" type="number" inputmode="decimal" step="${f.type === 'money' ? '0.01' : '1'}" min="${f.min}" max="${f.maxValue}" value="${psaEsc(value)}" data-key="${f.key}">${unit[1] ? `<span>${unit[1]}</span>` : ''}</div>`;
+      }
+      if (f.type === 'long') {
+        return `<textarea id="${id}" class="pt-textarea" rows="3" maxlength="${f.max}" data-key="${f.key}">${psaEsc(value)}</textarea>`;
+      }
+      if (f.type === 'url') {
+        const example = { facebook: 'https://www.facebook.com/yourpage', instagram: 'https://www.instagram.com/yourname', tiktok: 'https://www.tiktok.com/@yourname', x: 'https://x.com/yourname', youtube: 'https://www.youtube.com/@yourchannel', telegram: 'https://t.me/yourname' }[f.key.slice(7)];
+        const shown = value ? psaSocialName(f.key.slice(7), value) : '';
+        return `<input id="${id}" class="pt-input" type="url" inputmode="url" maxlength="${f.max}" value="${psaEsc(value)}" data-key="${f.key}" placeholder="${example} (empty: not shown)" autocomplete="off">
+          <span class="pt-hint" data-shown="${f.key}">${shown ? `Shown as <b>${psaEsc(shown)}</b>` : ''}</span>`;
+      }
+      return `<input id="${id}" class="pt-input" type="text" maxlength="${f.max}" value="${psaEsc(value)}" data-key="${f.key}">`;
+    }
+
+    function renderGroup() {
+      const g = GROUPS.find(x => x.id === group);
+      $('groupTitle').textContent = g.title;
+      $('groupSub').textContent = g.sub;
+      $('previewHint').textContent = g.hint;
+      document.querySelectorAll('[data-group]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.group === group)));
+      history.replaceState(null, '', '#' + group);
+      $('fields').innerHTML = groupFields().map(f => {
+        const id = `f-${f.key.replace(/\W/g, '-')}`;
+        const counted = f.max && f.type !== 'image';
+        return `<div class="field" data-field="${f.key}">
+          <div class="field-top"><label class="pt-label" for="${id}">${psaEsc(f.label)}</label>${counted ? `<span class="field-count" data-count="${f.key}"></span>` : ''}</div>
+          ${inputFor(f)}
+          <div class="field-foot">
+            <span class="pt-hint">${psaEsc(f.hint || '')}</span>
+            ${f.original !== '' ? `<button type="button" class="reset-link" data-reset="${f.key}" title="${f.type === 'image' ? 'The PsaOnline logo' : psaEsc(f.original)}">${f.type === 'image' ? 'Use original logo' : 'Use original'}</button>` : ''}
+          </div>
+          <span class="pt-error" data-error="${f.key}" hidden></span>
+        </div>`;
+      }).join('');
+      $('formError').hidden = true;
+      refresh();
+    }
+
+    function refresh() {
+      groupFields().forEach(f => {
+        const box = document.querySelector(`[data-field="${CSS.escape(f.key)}"]`);
+        if (!box) return;
+        box.classList.toggle('is-changed', (draft[f.key] ?? '') !== (saved[f.key] ?? ''));
+        const count = box.querySelector('[data-count]');
+        if (count) {
+          const n = (draft[f.key] || '').length;
+          count.textContent = `${n}/${f.max}`;
+          count.classList.toggle('is-over', n > f.max);
+        }
+        const reset = box.querySelector('[data-reset]');
+        if (reset) reset.hidden = (draft[f.key] ?? '') === f.original;
+        const shown = box.querySelector('[data-shown]');
+        if (shown) {
+          const v = (draft[f.key] || '').trim();
+          shown.innerHTML = /^https:\/\/\S+/.test(v) ? `Shown as <b>${psaEsc(psaSocialName(f.key.slice(7), v))}</b>` : (v ? 'Paste the full link, starting with https://' : '');
+        }
+      });
+      const dirty = changedKeys().length > 0;
+      $('dirtyNote').hidden = !dirty;
+      $('undoBtn').hidden = !dirty;
+      $('saveBtn').disabled = !dirty;
+      renderPreview();
+    }
+
+    // Shows the draft with the website's own code (store.js), so the preview matches the real pages.
+    function withDraft(fn) {
+      const real = PSA.settings;
+      PSA.settings = { ...(real || {}), ...draft };
+      try { return fn(); } finally { PSA.settings = real; }
+    }
+
+    function renderPreview() {
+      const box = $('preview');
+      withDraft(() => {
+        const s = psaSetting;
+        if (group === 'header') {
+          const msgs = ['header.announcement_1', 'header.announcement_2', 'header.announcement_3'].map(s).filter(t => t && t.trim());
+          box.innerHTML = `
+            ${msgs.length ? `<div class="bg-espresso text-cotton text-xs font-bold px-4 py-2 text-center">${msgs.map(psaEsc).join(' <span class="text-sorbet">&bull;</span> ')}</div>` : ''}
+            <div class="flex items-center gap-3 px-4 py-4 border-b border-[#EFE4D6] dark:border-[#2A2A34]">
+              <img src="${psaEsc(s('site.logo'))}" alt="" class="h-10 w-auto object-contain">
+              <div><div class="text-xl font-black leading-none">${psaBrandHtml(s('site.name'))}</div><div class="text-[11px] uppercase tracking-widest text-sorbet-ink dark:text-sorbet font-black mt-1">${psaEsc(s('site.tagline'))}</div></div>
+            </div>
+            <div class="p-4"><div class="h-10 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1A1A22] px-4 flex items-center text-sm text-stone-500">${psaEsc(s('header.search_placeholder'))}</div></div>`;
+        } else if (group === 'home') {
+          const chips = ['home.chip_1', 'home.chip_2'].map(s).filter(t => t && t.trim());
+          box.innerHTML = `
+            <div class="p-5 bg-cotton dark:bg-[#17171C]">
+              <div class="text-3xl font-black leading-[1.05] tracking-tight">${psaHeadlineHtml(s('home.headline'))}</div>
+              <p class="mt-3 text-sm text-[#4A3333] dark:text-stone-300 leading-relaxed">${psaEsc(s('home.subtitle'))}</p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="h-10 px-4 rounded-xl bg-espresso text-cotton dark:bg-sorbet dark:text-espresso text-sm font-black inline-flex items-center">${psaEsc(s('home.button_primary')).replace('{count}', String((PSA.products || []).filter(p => p.status === 'active').length || 32))}</span>
+                <span class="h-10 px-4 rounded-xl bg-sorbet text-espresso text-sm font-black inline-flex items-center">${psaEsc(s('home.button_secondary'))}</span>
+              </div>
+              ${chips.length ? `<div class="mt-3 flex flex-wrap gap-2">${chips.map(c => `<span class="px-3 py-1.5 rounded-full bg-white dark:bg-[#1A1A22] border border-[#EFE4D6] dark:border-[#32323D] text-xs font-bold">${psaEsc(c)}</span>`).join('')}</div>` : ''}
+            </div>
+            <div class="p-5 space-y-1"><div class="text-xl font-black">${psaEsc(s('home.gifts_title'))}</div><p class="text-sm text-[#4A3333] dark:text-stone-300">${psaEsc(s('home.gifts_text'))}</p><div class="pt-3 text-xl font-black">${psaEsc(s('home.picks_title'))}</div></div>
+            <div class="p-5 bg-espresso text-cotton">
+              <div class="text-2xl font-black text-white">${psaEsc(s('home.steps_title')).replace(/\*([^*]+)\*/g, '<span class="text-sorbet">$1</span>')}</div>
+              <ol class="mt-3 space-y-2 text-sm">${[1, 2, 3].map(i => `<li><b class="text-sorbet">${i}</b> <b>${psaEsc(s(`home.step_${i}_title`))}</b><br><span class="text-cotton/80">${psaEsc(s(`home.step_${i}_text`))}</span></li>`).join('')}</ol>
+            </div>
+            <div class="p-5 bg-sorbet text-espresso"><div class="text-xl font-black">${psaEsc(s('home.help_title'))}</div><p class="text-sm font-semibold mt-1">${psaEsc(s('home.help_text'))}</p><span class="mt-3 h-10 px-4 rounded-xl bg-espresso text-cotton text-sm font-black inline-flex items-center">${psaEsc(s('home.help_button'))}</span></div>`;
+        } else if (group === 'footer' || group === 'social') {
+          box.innerHTML = '<footer></footer>';
+          psaRenderFooter(box.querySelector('footer'));
+        } else {
+          const money = v => psaMoneyShort(v);
+          box.innerHTML = `<div class="p-5 rules-summary">
+            <p><b>Delivery:</b> $${(Number(s('shop.delivery_fee_usd')) || 0).toFixed(2)}, free when the items cost ${money(s('shop.free_delivery_from_usd'))} or more.</p>
+            <p style="margin-top:10px"><b>Plus:</b> everyone, no discount.</p>
+            <p><b>Pro:</b> after spending ${money(s('membership.pro_min_spend_usd'))}: <b>${Number(s('membership.pro_discount_percent')) || 0}% off</b>.</p>
+            <p><b>Max:</b> after spending ${money(s('membership.max_min_spend_usd'))}: <b>${Number(s('membership.max_discount_percent')) || 0}% off</b>.</p>
+            <p style="margin-top:10px">Membership goes back to Plus after <b>${Number(s('membership.lapse_days')) || 0} days</b> without an order.</p>
+          </div>`;
+        }
+      });
+    }
+
+    function showErrors(err) {
+      document.querySelectorAll('[data-error]').forEach(el => { el.hidden = true; });
+      const errors = err.errors || {};
+      let first = null;
+      Object.entries(errors).forEach(([k, list]) => {
+        const key = k.replace(/^settings\./, '');
+        const el = document.querySelector(`[data-error="${CSS.escape(key)}"]`);
+        if (el) { el.textContent = [].concat(list)[0]; el.hidden = false; first = first || key; }
+      });
+      if (!first) { $('formError').textContent = err.message; $('formError').hidden = false; }
+      else {
+        const input = document.querySelector(`[data-key="${CSS.escape(first)}"]`);
+        if (input) input.focus();
+      }
+    }
+
+    async function save(e) {
+      e.preventDefault();
+      const keys = changedKeys();
+      if (!keys.length) return;
+      const btn = $('saveBtn');
+      psaSetButtonLoading(btn, true, 'Saving…');
+      $('formError').hidden = true;
+      try {
+        const res = await psaApi('PUT', '/api/admin/site-settings', { settings: Object.fromEntries(keys.map(k => [k, draft[k]])) });
+        fields = res.fields;
+        saved = Object.fromEntries(fields.map(f => [f.key, f.value]));
+        draft = { ...draft, ...Object.fromEntries(keys.map(k => [k, saved[k]])) };
+        PSA.settings = { ...(PSA.settings || {}), ...saved };
+        renderGroup();
+        showRBACToast(`${GROUPS.find(g => g.id === group).title} saved. It's on the website now.`, 'success');
+      } catch (err) {
+        showErrors(err);
+      } finally {
+        psaSetButtonLoading(btn, false);
+        $('saveBtn').textContent = 'Save';
+        refresh();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (ptDenied()) return;
+      load();
+      $('tabs').addEventListener('click', e => {
+        const b = e.target.closest('[data-group]');
+        if (!b || b.dataset.group === group) return;
+        if (changedKeys().length && !confirm('You have unsaved changes on this tab. Leave them?')) return;
+        groupFields().forEach(f => { draft[f.key] = saved[f.key]; });
+        group = b.dataset.group;
+        renderGroup();
+      });
+      $('fields').addEventListener('input', e => {
+        const key = e.target.dataset.key;
+        if (!key) return;
+        draft[key] = e.target.value;
+        const err = document.querySelector(`[data-error="${CSS.escape(key)}"]`);
+        if (err) err.hidden = true;
+        refresh();
+      });
+      $('fields').addEventListener('change', async e => {
+        const key = e.target.dataset.image;
+        if (!key || !e.target.files[0]) return;
+        try {
+          draft[key] = await psaImageToDataUrl(e.target.files[0], 300, 0.9);
+          const box = document.getElementById(`f-${key.replace(/\W/g, '-')}-box`);
+          box.innerHTML = `<img src="${psaEsc(draft[key])}" alt="New logo">`;
+          refresh();
+        } catch (err) {
+          showRBACToast(psaEsc(err.message), 'danger');
+        }
+        e.target.value = '';
+      });
+      $('fields').addEventListener('click', e => {
+        const b = e.target.closest('[data-reset]');
+        if (!b) return;
+        const f = fields.find(x => x.key === b.dataset.reset);
+        draft[f.key] = f.original;
+        const input = document.querySelector(`[data-key="${CSS.escape(f.key)}"]`);
+        if (input) input.value = f.original;
+        const logoBox = document.getElementById(`f-${f.key.replace(/\W/g, '-')}-box`);
+        if (logoBox) logoBox.innerHTML = `<img src="${psaEsc(f.original)}" alt="Original logo">`;
+        refresh();
+      });
+      $('undoBtn').addEventListener('click', () => {
+        groupFields().forEach(f => { draft[f.key] = saved[f.key]; });
+        renderGroup();
+      });
+      $('settingsForm').addEventListener('submit', save);
+      window.addEventListener('beforeunload', e => { if (changedKeys().length) { e.preventDefault(); e.returnValue = ''; } });
+    });
+  </script>
+</body>
+</html>

@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
             ]
         );
 
-        // Demo Buyer Account (a customer profile with a saved home address)
+        // Demo Buyer Account (with a saved home address)
         $buyer = User::firstOrCreate(
             ['email' => 'buyer@gmail.com'],
             [
@@ -32,9 +32,8 @@ class UserSeeder extends Seeder
                 'role' => 'buyer',
             ]
         );
-        $customer = $buyer->customerProfile();
-        if (! $customer->addresses()->exists()) {
-            $customer->addresses()->create([
+        if (! $buyer->addresses()->exists()) {
+            $buyer->addresses()->create([
                 'label' => 'Home', 'recipient_name' => $buyer->name, 'phone' => $buyer->phone,
                 'address_line' => 'Toul Kork, St 315, House #14, Phnom Penh', 'is_default' => true,
             ]);

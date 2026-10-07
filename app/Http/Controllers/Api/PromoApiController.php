@@ -116,7 +116,7 @@ class PromoApiController extends Controller
 
     private function list(): array
     {
-        return PromoCode::withCount(['orders as uses_count' => fn ($q) => $q->whereDoesntHave('currentStatus', fn ($s) => $s->where('order_status_id', \App\Models\OrderStatus::idFor('cancelled')))])
+        return PromoCode::withCount(['orders as uses_count' => fn ($q) => $q->whereDoesntHave('currentStatus', fn ($s) => $s->where('status', 'cancelled'))])
             ->orderByDesc('id')->get()->map(fn ($p) => $this->json($p))->values()->all();
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\SiteSetting;
 use App\Support\Storefront;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Client\RequestException;
@@ -107,7 +108,7 @@ class ChatAssistantController extends Controller
 
         $user = $request->user();
         $orders = $user
-            ? Order::with(Order::PAGE_RELATIONS)->whereHas('customer', fn ($q) => $q->where('user_id', $user->id))->latest()->limit(5)->get()
+            ? Order::with(Order::PAGE_RELATIONS)->where('user_id', $user->id)->latest()->limit(5)->get()
                 ->map(fn ($o) => sprintf('- %s placed %s: %s, total $%s, paid by %s', $o->order_number,
                     optional($o->created_at)->format('d M Y'), Storefront::statusLabel($o), number_format((float) $o->total_usd, 2), Storefront::paymentName($o->payment_method)))
                 ->implode("\n")
@@ -115,25 +116,32 @@ class ChatAssistantController extends Controller
 
         $customer = $user ? "The customer is signed in as {$user->name}." : 'The customer is not signed in.';
 
+        // Delivery and Telegram come from the Website page (site settings).
+        $money = fn ($v) => '$'.rtrim(rtrim(number_format((float) $v, 2, '.', ''), '0'), '.');
+        $delivery = '$'.number_format(SiteSetting::number('shop.delivery_fee_usd'), 2);
+        $freeFrom = $money(SiteSetting::number('shop.free_delivery_from_usd'));
+        $telegramUrl = SiteSetting::get('social.telegram') ?: 'https://t.me/psaonline_support';
+        $telegram = SiteSetting::socialName('telegram', $telegramUrl);
+
         return <<<PROMPT
 You are the friendly shopping assistant for PsaOnline, an online shop in Phnom Penh, Cambodia, for cute gifts and everyday finds (bag and phone charms, gift sets, hair clips, socks, tees, shirts, bags and watches).
 
 How to answer:
 - Reply in the customer's language (Khmer or English). Keep answers short and warm: 1 to 4 sentences, or a short list.
-- Only use the facts below. Never invent products, prices, discounts, promo codes, delivery times, stock, or policies. If you don't know, say so and suggest messaging the shop on Telegram (https://t.me/psaonline_support) or from their order page.
+- Only use the facts below. Never invent products, prices, discounts, promo codes, delivery times, stock, or policies. If you don't know, say so and suggest messaging the shop on Telegram ({$telegramUrl}) or from their order page.
 - When you suggest a product, give its name, price in USD, and its link exactly as written in the catalog (for example product-detail.html?id=genz-25). Suggest at most 3.
 - You can't change orders, take payments or see payment slips. For anything about a specific order beyond its status, tell them to use "Messages with the shop" on their order page.
 - Never ask for card numbers, passwords or banking PINs.
 - To point to a page, write its link in place of the page name and the chat shows it as a button with the right label: dashboard-buyer.html (My account), products.html (the shop), products.html?q=gift (gift ideas), products.html?max=10 (gifts under $10), cart.html (your bag). For example: "Go to dashboard-buyer.html and tap your order." Never put links in brackets.
 
 Shop facts:
-- Delivery: Phnom Penh only. $1.50, free on orders of $15 or more, and free for the whole order when the bag has any item marked FREE DELIVERY.
+- Delivery: Phnom Penh only. {$delivery}, free on orders of {$freeFrom} or more, and free for the whole order when the bag has any item marked FREE DELIVERY.
 - All prices are in US dollars (USD) only.
 - To order: add items to the bag, sign in at checkout, enter the delivery address, choose a payment method.
 - Paying by KHQR / bank: after ordering, the payment page shows the shop's QR code. Pay with any Cambodian banking app (ABA, ACLEDA, Wing and others), then upload the transfer slip. Staff check the slip, then pack and send the order.
 - Cash on delivery: pay the courier when the parcel arrives.
 - Track orders from My account dashboard-buyer.html, then tap the order. Customers can review items after delivery.
-- Human help: Telegram @psaonline_support.
+- Human help: Telegram {$telegram}.
 
 Payment methods currently available:
 {$methods}

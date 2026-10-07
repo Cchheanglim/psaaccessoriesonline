@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class CustomerAddress extends Model
 {
-    protected $fillable = ['customer_id', 'label', 'recipient_name', 'phone', 'address_line', 'latitude', 'longitude', 'is_default', 'archived_at'];
+    protected $fillable = ['user_id', 'label', 'recipient_name', 'phone', 'address_line', 'latitude', 'longitude', 'is_default', 'archived_at'];
 
     protected $casts = [
         'latitude' => 'float',
@@ -24,8 +24,8 @@ class CustomerAddress extends Model
         return $this->hasMany(Order::class, 'address_id');
     }
 
-    public function customer()
+    public function user()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(User::class);
     }
 }

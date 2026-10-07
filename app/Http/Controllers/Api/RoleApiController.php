@@ -32,7 +32,7 @@ class RoleApiController extends Controller
 
         DB::transaction(function () use ($data) {
             $role = Role::create(['name' => $data['name'], 'description' => $data['description'] ?? null, 'is_active' => true]);
-            $role->permissions()->sync($this->permissionIds($data['permissions'] ?? []));
+            $role->syncPermissions($data['permissions'] ?? []);
         });
         Role::flushCache();
 
@@ -53,7 +53,7 @@ class RoleApiController extends Controller
         DB::transaction(function () use ($role, $data) {
             $role->update(array_intersect_key($data, array_flip(['name', 'description'])));
             if (array_key_exists('permissions', $data)) {
-                $role->permissions()->sync($this->permissionIds($data['permissions']));
+                $role->syncPermissions($data['permissions']);
             }
         });
         Role::flushCache();
@@ -72,7 +72,7 @@ class RoleApiController extends Controller
         }
 
         DB::transaction(function () use ($role) {
-            $role->permissions()->detach();
+            $role->syncPermissions([]);
             $role->delete();
         });
         Role::flushCache();
@@ -82,12 +82,10 @@ class RoleApiController extends Controller
 
     private function payload(): array
     {
-        $permissions = Permission::where('is_active', true)->orderBy('id')->get();
-        $all = $permissions->pluck('name')->all();
-        $order = array_flip(array_keys(Permission::LABELS));
+        $all = Permission::names();
 
         return [
-            'roles' => Role::with('permissions:id,name')->withCount('users')->orderBy('id')->get()
+            'roles' => Role::withCount('users')->orderBy('id')->get()
                 ->sortBy(fn (Role $r) => [['admin' => 0, 'staff' => 1, 'buyer' => 3][$r->name] ?? 2, $r->id]) // Admin, Staff, new roles, Buyer
                 ->map(fn (Role $r) => [
                     'id' => $r->id,
@@ -100,17 +98,12 @@ class RoleApiController extends Controller
                     'permissions' => match ($r->name) {
                         'admin' => $all,
                         'buyer' => [],
-                        default => $r->permissions->pluck('name')->intersect($all)->values()->all(),
+                        default => $r->permissionNames(),
                     },
                 ])->values()->all(),
-            'permissions' => $permissions
-                ->sortBy(fn (Permission $p) => $order[$p->name] ?? 99)
-                ->map(fn (Permission $p) => [
-                    'name' => $p->name,
-                    'label' => Permission::LABELS[$p->name][0] ?? ucfirst(str_replace('_', ' ', $p->name)),
-                    'group' => Permission::LABELS[$p->name][1] ?? 'Other',
-                    'description' => $p->description,
-                ])->values()->all(),
+            'permissions' => collect(Permission::LIST)->map(fn ($p, $name) => [
+                'name' => $name, 'label' => $p[0], 'group' => $p[1], 'description' => $p[2],
+            ])->values()->all(),
         ];
     }
 
@@ -121,13 +114,13 @@ class RoleApiController extends Controller
             'name' => [$req, 'string', 'min:2', 'max:40', 'regex:/^[\pL\pN][\pL\pN &\-]*$/u'],
             'description' => ['sometimes', 'nullable', 'string', 'max:160'],
             'permissions' => [$role ? 'sometimes' : 'present', 'array'],
-            'permissions.*' => ['string', 'distinct', Rule::exists('permissions', 'name')->where('is_active', true)],
+            'permissions.*' => ['string', 'distinct', Rule::in(Permission::names())],
         ], [
             'name.required' => 'Give the role a name.',
             'name.min' => 'Role names need at least 2 characters.',
             'name.max' => 'Keep role names to 40 characters.',
             'name.regex' => 'Use letters, numbers, spaces, & or - in role names.',
-            'permissions.*.exists' => 'One of the ticked permissions doesn\'t exist.',
+            'permissions.*.in' => 'One of the ticked permissions doesn\'t exist.',
         ]);
 
         if (isset($data['name'])) {
@@ -142,12 +135,6 @@ class RoleApiController extends Controller
         }
 
         return $data;
-    }
-
-    /** @param list<string> $names */
-    private function permissionIds(array $names): array
-    {
-        return Permission::whereIn('name', $names)->pluck('id')->all();
     }
 
     private function admin(Request $request): User

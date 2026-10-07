@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-/** pending_payment, processing, out_for_delivery, delivered, cancelled. */
-class OrderStatus extends Model
+/**
+ * The steps of an order. Not a table: order_status_history.status stores the code (checked by the
+ * database), and the names and allowed steps are fixed here.
+ */
+class OrderStatus
 {
-    public $timestamps = false;
-
-    protected $fillable = ['code', 'name', 'sort_order'];
-
-    /** @var array<string, int>|null code => id, kept for the request */
-    private static ?array $ids = null;
+    public const NAMES = [
+        'pending_payment' => 'Pending payment',
+        'processing' => 'Processing',
+        'out_for_delivery' => 'Out for delivery',
+        'delivered' => 'Delivered',
+        'cancelled' => 'Cancelled',
+    ];
 
     /** Which status may follow which (staff actions can only take real steps). */
     public const NEXT = [
@@ -23,28 +25,13 @@ class OrderStatus extends Model
         'cancelled' => [],
     ];
 
-    public static function idFor(string $code): int
+    public static function exists(string $code): bool
     {
-        self::$ids ??= static::query()->pluck('id', 'code')->all();
-
-        return self::$ids[$code] ?? throw new \InvalidArgumentException("Unknown order status {$code}");
-    }
-
-    public static function codeFor(?int $id): ?string
-    {
-        self::$ids ??= static::query()->pluck('id', 'code')->all();
-        $code = array_search($id, self::$ids, true);
-
-        return $code === false ? null : $code;
+        return isset(self::NAMES[$code]);
     }
 
     public static function canMove(string $from, string $to): bool
     {
         return in_array($to, self::NEXT[$from] ?? [], true);
-    }
-
-    public static function flushCache(): void
-    {
-        self::$ids = null;
     }
 }

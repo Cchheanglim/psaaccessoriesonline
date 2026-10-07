@@ -2,39 +2,69 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 /**
- * Plus, Pro, Max: how much a customer must spend to reach the tier and the discount it gives on
- * items at checkout. Membership lapses after LAPSE_DAYS without an order, and the spending
- * count starts again.
+ * Plus, Pro, Max. Not a table: the amounts are site settings (membership.*) that admins change on the
+ * Website page. Plus is everyone; Pro and Max need that much spending on delivered orders, and the
+ * membership lapses after membership.lapse_days without an order (the spending count starts again).
  */
-class LoyaltyTier extends Model
+class LoyaltyTier
 {
-    /** Days without an order before the membership drops back to the first tier. */
-    public const LAPSE_DAYS = 18;
+    public function __construct(
+        public readonly string $name,
+        public readonly float $min_spend_usd,
+        public readonly float $discount_percent,
+    ) {}
 
-    protected $fillable = ['name', 'min_spend_usd', 'discount_percent'];
-
-    protected $casts = [
-        'min_spend_usd' => 'decimal:2',
-        'discount_percent' => 'decimal:2',
-    ];
+    /** @return list<self> lowest first */
+    public static function all(): array
+    {
+        return [
+            new self('Plus', 0, 0),
+            new self('Pro', SiteSetting::number('membership.pro_min_spend_usd'), SiteSetting::number('membership.pro_discount_percent')),
+            new self('Max', SiteSetting::number('membership.max_min_spend_usd'), SiteSetting::number('membership.max_discount_percent')),
+        ];
+    }
 
     public static function lowest(): self
     {
-        return static::orderBy('min_spend_usd')->firstOrFail();
+        return self::all()[0];
+    }
+
+    /** Days without an order before the membership drops back to Plus. */
+    public static function lapseDays(): int
+    {
+        return max(1, (int) SiteSetting::number('membership.lapse_days'));
     }
 
     /** The highest tier this much spending reaches. */
     public static function forSpend(float $spend): self
     {
-        return static::where('min_spend_usd', '<=', max(0, $spend))->orderByDesc('min_spend_usd')->first() ?? static::lowest();
+        $reached = self::lowest();
+        foreach (self::all() as $tier) {
+            if ($spend >= $tier->min_spend_usd) {
+                $reached = $tier;
+            }
+        }
+
+        return $reached;
+    }
+
+    /** The tier after this one, or null at the top. */
+    public function next(): ?self
+    {
+        $tiers = self::all();
+        foreach ($tiers as $i => $tier) {
+            if ($tier->name === $this->name) {
+                return $tiers[$i + 1] ?? null;
+            }
+        }
+
+        return null;
     }
 
     /** Dollars off these items for a member of this tier. */
     public function discountFor(float $subtotal): float
     {
-        return round($subtotal * (float) $this->discount_percent / 100, 2);
+        return round($subtotal * $this->discount_percent / 100, 2);
     }
 }

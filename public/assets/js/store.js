@@ -2224,10 +2224,9 @@ function psaRiel(usd) {
 }
 try { localStorage.removeItem('psa_currency'); } catch (e) { /* storage unavailable */ }
 
-// Delivery in Phnom Penh: $1.50, free from $15, or when the bag has any free-delivery item
-// (staff mark items free delivery with a Sort By group). The server applies the same rule.
-const PSA_DELIVERY_FEE = 1.5;
-const PSA_FREE_DELIVERY_FROM = 15;
+// Delivery in Phnom Penh: the fee and the free-delivery amount come from the Website settings
+// (Shop rules), and it's free when the bag has any free-delivery item (a Sort By group). The server applies the same rule.
+const psaDeliverySettings = () => ({ fee: Number(psaSetting('shop.delivery_fee_usd')) || 0, freeFrom: Number(psaSetting('shop.free_delivery_from_usd')) || 0 });
 function psaCartHasFreeDeliveryItem(cart) {
   return (cart || []).some(item => {
     const p = ACCESSORIES_PRODUCTS.find(x => x.id === item.id);
@@ -2235,11 +2234,13 @@ function psaCartHasFreeDeliveryItem(cart) {
   });
 }
 function psaDeliveryFee(cart, subtotal) {
-  return psaCartHasFreeDeliveryItem(cart) || subtotal >= PSA_FREE_DELIVERY_FROM ? 0 : PSA_DELIVERY_FEE;
+  const d = psaDeliverySettings();
+  return psaCartHasFreeDeliveryItem(cart) || subtotal >= d.freeFrom ? 0 : d.fee;
 }
 function psaDeliveryLabel(cart, subtotal) {
+  const d = psaDeliverySettings();
   if (psaCartHasFreeDeliveryItem(cart)) return 'FREE (free-delivery item)';
-  return subtotal >= PSA_FREE_DELIVERY_FROM ? 'FREE (over $15)' : '$1.50';
+  return subtotal >= d.freeFrom ? `FREE (over ${psaMoneyShort(d.freeFrom)})` : `$${d.fee.toFixed(2)}`;
 }
 
 // The shop's Sort By menu. Staff edit it in Drops & Stock > Sort By; without the server
@@ -3601,7 +3602,7 @@ document.addEventListener('DOMContentLoaded', psaInitNotifications);
 
 
 // =========================================================================
-// SOCIAL ACCOUNTS (staff change them in Drops & Stock > Social media)
+// SOCIAL ACCOUNTS (staff change them in the staff portal > Website > Social media)
 // =========================================================================
 // Brand shapes from Simple Icons (CC0, simpleicons.org), drawn in the text color.
 const PSA_SOCIAL_ICONS = {
@@ -3613,20 +3614,36 @@ const PSA_SOCIAL_ICONS = {
   telegram: 'M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z'
 };
 const PSA_SOCIAL_NAMES = { facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok', x: 'X', youtube: 'YouTube', telegram: 'Telegram' };
-// Shown until staff save their own list. The Instagram/TikTok/Facebook/X links are placeholders (the
-// platforms' home pages) until real account links are filled in.
-const PSA_SOCIAL_DEFAULTS = [
-  { platform: 'facebook', handle: 'PsaOnline', url: 'https://facebook.com' },
-  { platform: 'instagram', handle: '@psaonline_kh', url: 'https://instagram.com' },
-  { platform: 'tiktok', handle: '@psaonline', url: 'https://tiktok.com' },
-  { platform: 'x', handle: '@psaonline', url: 'https://x.com' },
-  { platform: 'telegram', handle: '@psaonline_support', url: 'https://t.me/psaonline_support' }
-];
+const PSA_SOCIAL_ORDER = ['facebook', 'instagram', 'tiktok', 'x', 'youtube', 'telegram'];
 const PSA_TELEGRAM_DEFAULT = 'https://t.me/psaonline_support';
 
+// Staff paste each account's link (a link points at one account; many accounts share a name).
+// The username shown is worked out from it: https://www.instagram.com/psaonline_kh -> @psaonline_kh
+function psaSocialName(platform, url) {
+  let segments = [];
+  try { segments = new URL(url).pathname.split('/').filter(Boolean); } catch (e) { return PSA_SOCIAL_NAMES[platform] || platform; }
+  let name = segments[0] || '';
+  if (name === 'channel') return 'YouTube channel';
+  if (['c', 'user', 'pages', 'people'].includes(name)) name = segments[1] || name;
+  try { name = decodeURIComponent(name); } catch (e) { /* keep as it is */ }
+  if (!name || name === 'profile.php') return PSA_SOCIAL_NAMES[platform] || platform;
+  return platform === 'facebook' || name.startsWith('@') ? name : '@' + name;
+}
+
+// An older saved name (not a link) still works: "@psaonline_kh" -> https://www.instagram.com/psaonline_kh
+function psaSocialUrl(platform, value) {
+  const v = String(value || '').trim();
+  if (/^https:\/\//i.test(v)) return v;
+  const base = { facebook: 'https://www.facebook.com/', instagram: 'https://www.instagram.com/', tiktok: 'https://www.tiktok.com/@', x: 'https://x.com/', youtube: 'https://www.youtube.com/@', telegram: 'https://t.me/' }[platform];
+  return base && v ? base + encodeURIComponent(v.replace(/^@/, '')) : '';
+}
+
+// The accounts staff filled in (an empty one is not shown), in display order: the link as saved,
+// and the username shown for it.
 function psaSocialLinks() {
-  const saved = PSA.online && PSA.siteContent && Array.isArray(PSA.siteContent.socials) ? PSA.siteContent.socials : null;
-  return (saved || PSA_SOCIAL_DEFAULTS).filter(s => PSA_SOCIAL_ICONS[s.platform] && /^https:\/\//i.test(s.url || ''));
+  return PSA_SOCIAL_ORDER.map(platform => ({ platform, url: psaSocialUrl(platform, psaSetting(`social.${platform}`)) }))
+    .filter(s => s.url)
+    .map(s => ({ ...s, handle: psaSocialName(s.platform, s.url) }));
 }
 
 function psaSocialIcon(platform, cls = 'w-5 h-5') {
@@ -3885,4 +3902,173 @@ function psaRenderShowcase(root, products, { preview = false } = {}) {
   };
   root._psaShowcase = api;
   return api;
+}
+
+// =========================================================================
+// WEBSITE TEXT (site_settings): staff change it in the staff portal > Website.
+// One setting = one piece of text, e.g. "header.announcement_1". Without the server the
+// built-in text below is used, so the pages still read well offline.
+// =========================================================================
+const PSA_SITE_DEFAULTS = {
+  'site.name': 'PsaOnline',
+  'site.tagline': 'Gifts & cute finds',
+  'site.logo': 'assets/images/psa-accessories-online-logo.svg',
+  'header.announcement_1': 'Free delivery in Phnom Penh on orders $15+',
+  'header.announcement_2': 'Pay by KHQR or cash on delivery',
+  'header.announcement_3': 'All prices in US dollars',
+  'header.search_placeholder': 'Search charms, clips, socks, tees…',
+  'footer.about_text': 'Cute gifts and everyday finds, delivered in Phnom Penh. Prices in US dollars, paid by KHQR or cash on delivery.',
+  'footer.payment_text': 'Bakong KHQR (ABA, ACLEDA, Canadia, Wing and other Cambodian banking apps) and cash on delivery.',
+  'footer.phone': '',
+  'footer.email': '',
+  'footer.address': 'Phnom Penh, Cambodia',
+  'footer.hours': '',
+  'footer.copyright': '© 2026 PsaOnline',
+  'social.facebook': 'https://www.facebook.com/PsaOnline',
+  'social.instagram': 'https://www.instagram.com/psaonline_kh',
+  'social.tiktok': 'https://www.tiktok.com/@psaonline',
+  'social.x': 'https://x.com/psaonline',
+  'social.youtube': '',
+  'social.telegram': 'https://t.me/psaonline_support',
+  'shop.delivery_fee_usd': '1.50',
+  'shop.free_delivery_from_usd': '15'
+};
+
+function psaSetting(key) {
+  const saved = PSA.online && PSA.settings ? PSA.settings[key] : undefined;
+  return saved !== undefined && saved !== null ? String(saved) : (PSA_SITE_DEFAULTS[key] ?? null);
+}
+
+// "$1.50" / "$15"
+function psaMoneyShort(value) {
+  const n = Number(value) || 0;
+  return '$' + (Number.isInteger(n) ? String(n) : n.toFixed(2));
+}
+
+// "PsaOnline" -> Psa<span>Online</span> (the second part in orange, as in the logo lettering)
+function psaBrandHtml(name, accentClass = 'text-sorbet-ink dark:text-sorbet') {
+  const text = String(name || '');
+  const split = text.search(/(?<=[a-z])(?=[A-Z])/);
+  if (split <= 0) return psaEsc(text);
+  return `${psaEsc(text.slice(0, split))}<span class="${accentClass}">${psaEsc(text.slice(split))}</span>`;
+}
+
+// Fills the parts of a page marked with data-setting attributes, the brand, the logo, the top bar and the footer.
+function psaApplySettings(root = document) {
+  if (!PSA.online || !PSA.settings) {
+    root.querySelectorAll('[data-psa-footer]').forEach(f => psaRenderFooter(f));
+    return; // offline: the pages keep their built-in text
+  }
+  root.querySelectorAll('[data-setting]').forEach(el => {
+    const value = psaSetting(el.dataset.setting);
+    if (value === null) return;
+    if ('settingHtml' in el.dataset) {
+      // *words* get a highlight: the orange marker by default, or the class the element asks for
+      const cls = el.dataset.settingHtml || 'hero-marker';
+      el.innerHTML = psaEsc(value).replace(/\*([^*]+)\*/g, `<span class="${cls}">$1</span>`);
+    }
+    else if ('settingCount' in el.dataset) el.innerHTML = psaEsc(value).replace('{count}', `<span id="${el.dataset.settingCount}"></span>`);
+    else el.textContent = value;
+    if ('settingHideEmpty' in el.dataset) el.hidden = value.trim() === '';
+  });
+  root.querySelectorAll('[data-setting-placeholder]').forEach(el => { el.placeholder = psaSetting(el.dataset.settingPlaceholder) || el.placeholder; });
+  root.querySelectorAll('[data-psa-brand]').forEach(el => {
+    const accent = el.querySelector('span') ? el.querySelector('span').className : undefined;
+    el.innerHTML = psaBrandHtml(psaSetting('site.name'), accent);
+  });
+  const logo = psaSetting('site.logo');
+  if (logo) root.querySelectorAll('img[src*="psa-accessories-online-logo"], img[data-psa-logo]').forEach(img => { img.src = logo; img.dataset.psaLogo = ''; });
+  root.querySelectorAll('[data-psa-announce]').forEach(bar => {
+    const items = ['header.announcement_1', 'header.announcement_2', 'header.announcement_3'].map(psaSetting).filter(t => t && t.trim());
+    bar.hidden = !items.length;
+    const box = bar.querySelector('[data-psa-announce-items]') || bar;
+    box.innerHTML = items.map((t, i) => `${i ? `<span class="${i === 1 ? 'hidden sm:inline' : 'hidden md:inline'} text-sorbet" aria-hidden="true">&bull;</span>` : ''}<span class="${i === 2 ? 'hidden md:inline' : ''}">${psaEsc(t)}</span>`).join('');
+  });
+  root.querySelectorAll('[data-psa-footer]').forEach(f => psaRenderFooter(f));
+}
+
+// The same footer on every shop page, from the Website settings.
+function psaRenderFooter(footer) {
+  const s = psaSetting;
+  const link = 'inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet';
+  const telegram = psaSocialLinks().find(x => x.platform === 'telegram');
+  const contact = [
+    telegram ? `<li><a href="${psaEsc(telegram.url)}" target="_blank" rel="noopener noreferrer" class="${link} font-bold text-sorbet-ink dark:text-sorbet">Telegram: ${psaEsc(telegram.handle)}</a></li>` : '',
+    s('footer.phone') ? `<li><a href="tel:${psaEsc(s('footer.phone').replace(/[^\d+]/g, ''))}" class="${link}">${psaEsc(s('footer.phone'))}</a></li>` : '',
+    s('footer.email') ? `<li><a href="mailto:${psaEsc(s('footer.email'))}" class="${link} break-all">${psaEsc(s('footer.email'))}</a></li>` : '',
+    s('footer.address') ? `<li class="py-1">${psaEsc(s('footer.address'))}</li>` : '',
+    s('footer.hours') ? `<li class="py-1">${psaEsc(s('footer.hours'))}</li>` : ''
+  ].join('');
+  footer.className = 'bg-[#F9F3EA] dark:bg-[#141418] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto no-print';
+  footer.innerHTML = `
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div class="col-span-2 md:col-span-1 space-y-3">
+          <a href="home.html" class="flex items-center gap-2">
+            <img src="${psaEsc(s('site.logo'))}" alt="" class="h-9 w-auto object-contain" data-psa-logo />
+            <span class="text-lg font-black text-[#2B1D1D] dark:text-white">${psaBrandHtml(s('site.name'))}</span>
+          </a>
+          <p class="text-sm text-stone-600 dark:text-stone-300 leading-relaxed">${psaEsc(s('footer.about_text'))}</p>
+          ${contact ? `<ul class="text-sm text-stone-600 dark:text-stone-300">${contact}</ul>` : ''}
+        </div>
+        <div>
+          <h2 class="text-sm font-black text-[#2B1D1D] dark:text-white">Shop</h2>
+          <ul class="mt-3 space-y-1 text-sm text-stone-600 dark:text-stone-300">
+            <li><a href="products.html?q=gift" class="${link}">Gift ideas</a></li>
+            <li><a href="products.html?max=10" class="${link}">Under $10</a></li>
+            <li><a href="products.html?category=charms" class="${link}">Charms</a></li>
+            <li><a href="products.html?category=hair" class="${link}">Hair &amp; clips</a></li>
+            <li><a href="products.html?category=bags" class="${link}">Bags</a></li>
+            <li><a href="products.html?category=watches" class="${link}">Watches</a></li>
+            <li><a href="products.html" class="${link}">Shop all</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="text-sm font-black text-[#2B1D1D] dark:text-white">Your orders</h2>
+          <ul class="mt-3 space-y-1 text-sm text-stone-600 dark:text-stone-300">
+            <li><a href="cart.html" class="${link}">Shopping bag</a></li>
+            <li><a href="dashboard-buyer.html" class="${link}">Track my order</a></li>
+            <li><a href="dashboard-buyer.html" class="${link}">My account</a></li>
+          </ul>
+          ${s('footer.payment_text') ? `<h2 class="mt-6 text-sm font-black text-[#2B1D1D] dark:text-white">We accept</h2>
+          <p class="mt-2 text-sm text-stone-600 dark:text-stone-300 leading-relaxed">${psaEsc(s('footer.payment_text'))}</p>` : ''}
+        </div>
+        <div>
+          <h2 class="text-sm font-black text-[#2B1D1D] dark:text-white">Find us</h2>
+          <ul class="mt-3 space-y-2" data-psa-socials="list"></ul>
+        </div>
+      </div>
+      <div class="mt-10 pt-6 border-t border-[#EFE4D6] dark:border-[#272732] flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-stone-600 dark:text-stone-300">
+        <div>${psaEsc(s('footer.copyright'))}</div>
+        <div class="flex items-center gap-5">
+          <a href="about.html" class="py-2 hover:text-sorbet-ink dark:hover:text-sorbet">About us</a>
+          <a href="privacy.html" class="py-2 hover:text-sorbet-ink dark:hover:text-sorbet">Privacy</a>
+          <a href="terms.html" class="py-2 hover:text-sorbet-ink dark:hover:text-sorbet">Terms</a>
+        </div>
+      </div>
+    </div>`;
+  psaRenderSocials(footer);
+}
+
+// Run as early as possible so the text never flickers from the built-in version.
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => psaApplySettings());
+else psaApplySettings();
+
+// =========================================================================
+// DELETING ORDER MESSAGES: customers delete their own messages; staff with "Customer messages"
+// delete any message or the whole chat. A deleted message is gone for both sides.
+// =========================================================================
+function psaMessageDeleteButton(m, onDark) {
+  if (!m.canDelete) return '';
+  return `<button type="button" data-delete-message="${Number(m.id)}" class="mt-1 text-xs font-bold underline underline-offset-2 ${onDark ? 'text-cotton/80 hover:text-white' : 'text-stone-600 hover:text-rose-700'} cursor-pointer">Delete</button>`;
+}
+
+async function psaDeleteMessage(orderId, messageId) {
+  if (!confirm('Delete this message? It disappears for everyone.')) return null;
+  return psaApi('DELETE', `/api/orders/${encodeURIComponent(orderId)}/messages/${Number(messageId)}`);
+}
+
+async function psaDeleteChat(orderId) {
+  if (!confirm('Delete the whole chat for this order? Every message disappears for everyone, and this can\'t be undone.')) return null;
+  return psaApi('DELETE', `/api/orders/${encodeURIComponent(orderId)}/messages`);
 }

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 /**
  * Loads the storefront catalog (database/data/catalog*.json) into products, categories,
- * product_details, product_images and product_stocks.
+ * product_images, product_specifications and stock movements.
  *
  * Safe to re-run: products are matched by SKU and keep their id and stock; ratings are never
  * seeded (they come from real customer reviews).
@@ -44,15 +44,13 @@ class CatalogSeeder extends Seeder
                     'title_khmer' => $item['titleKhmer'] ?? null,
                     'price_usd' => $item['priceUSD'],
                     'badge' => $item['badge'] ?? null,
+                    'description' => $item['description'] ?? null,
                 ]);
                 if ($isNew) {
                     $product->status = $item['status'] ?? 'active';
                 }
                 $product->save();
 
-                $product->detail()->updateOrCreate(['product_id' => $product->id], [
-                    'description' => $item['description'] ?? null,
-                ]);
                 // One row per fact (1NF)
                 $product->specifications()->delete();
                 $i = 0;

@@ -61,6 +61,7 @@
               <h2 id="threadTitle" class="pt-section-title truncate">Choose a conversation</h2>
               <p id="threadMeta" class="pt-section-sub truncate"></p>
             </div>
+            <button type="button" id="deleteChatBtn" class="pt-btn pt-btn--danger pt-btn--sm shrink-0" hidden>Delete chat</button>
             <a id="threadOrderLink" href="#" class="hidden pt-btn pt-btn--secondary pt-btn--sm shrink-0">Open order</a>
           </div>
           <div id="threadList" class="flex-1 overflow-y-auto p-4 space-y-3" aria-live="polite">
@@ -169,7 +170,10 @@
       psaLoadNotifications();
     }
 
-    function renderThread(messages) {
+    function renderThread(res) {
+      const messages = Array.isArray(res) ? res : res.messages;
+      const del = document.getElementById('deleteChatBtn');
+      if (del && !Array.isArray(res)) del.hidden = !(res.canDeleteChat && messages.length);
       const box = document.getElementById('threadList');
       box.innerHTML = messages.length ? messages.map(m => {
         const ours = m.fromStaff;
@@ -180,6 +184,7 @@
             <div class="max-w-[85%] rounded-2xl px-4 py-2.5 ${ours ? 'bg-espresso text-cotton dark:bg-[#FFA552] dark:text-[#2B1D1D] rounded-br-md' : 'bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] rounded-bl-md'}">
               <div class="text-xs font-bold ${ours ? 'text-cotton/80' : 'text-stone-600'}">${psaEsc(who)} &middot; ${psaEsc(when)}</div>
               <p class="mt-0.5 text-base whitespace-pre-line break-words">${psaEsc(m.body)}</p>
+              ${psaMessageDeleteButton(m, ours)}
             </div>
           </div>`;
       }).join('') : '<p class="text-sm text-stone-600">No messages yet.</p>';
@@ -189,8 +194,7 @@
     async function loadThread() {
       if (!current) return;
       try {
-        const { messages } = await psaApi('GET', `/api/orders/${encodeURIComponent(current.orderId)}/messages`);
-        renderThread(messages);
+        renderThread(await psaApi('GET', `/api/orders/${encodeURIComponent(current.orderId)}/messages`));
       } catch (err) {
         document.getElementById('threadList').innerHTML = `<p class="text-sm font-bold text-rose-700">${psaEsc(err.message)}</p>`;
       }
@@ -206,9 +210,9 @@
       const btn = document.getElementById('threadSend');
       psaSetButtonLoading(btn, true, 'Sending…');
       try {
-        const { messages } = await psaApi('POST', `/api/orders/${encodeURIComponent(current.orderId)}/messages`, { body });
+        const res = await psaApi('POST', `/api/orders/${encodeURIComponent(current.orderId)}/messages`, { body });
         input.value = '';
-        renderThread(messages);
+        renderThread(res);
         loadConversations();
       } catch (err) {
         errorEl.textContent = err.message;
@@ -226,6 +230,20 @@
         if (btn) openConversation(btn.dataset.open);
       });
       document.getElementById('backToList').addEventListener('click', () => { showThreadPane(false); });
+      document.addEventListener('click', async e => {
+        const one = e.target.closest('#threadList [data-delete-message]');
+        const all = e.target.closest('#deleteChatBtn');
+        if (!current || (!one && !all)) return;
+        try {
+          const res = one ? await psaDeleteMessage(current.orderId, one.dataset.deleteMessage) : await psaDeleteChat(current.orderId);
+          if (!res) return;
+          renderThread(res);
+          loadConversations();
+          showRBACToast(one ? 'Message deleted.' : 'Chat deleted.', 'success');
+        } catch (err) {
+          showRBACToast(psaEsc(err.message), 'danger');
+        }
+      });
       document.getElementById('threadForm').addEventListener('submit', sendReply);
       document.getElementById('threadInput').addEventListener('keydown', e => {
         if (e.key === 'Enter' && !e.shiftKey && !isMobile()) { e.preventDefault(); document.getElementById('threadForm').requestSubmit(); }

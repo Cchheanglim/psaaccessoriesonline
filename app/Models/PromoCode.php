@@ -43,7 +43,7 @@ class PromoCode extends Model
     /** Orders that used it and weren't cancelled (a cancelled order gives the use back). */
     public function usedOrders()
     {
-        return $this->orders()->whereDoesntHave('currentStatus', fn ($q) => $q->where('order_status_id', OrderStatus::idFor('cancelled')));
+        return $this->orders()->whereDoesntHave('currentStatus', fn ($q) => $q->where('status', 'cancelled'));
     }
 
     /** 'scheduled', 'active', 'expired', 'used_up' or 'off', for the staff list. */
@@ -61,7 +61,7 @@ class PromoCode extends Model
     }
 
     /** Why this customer can't use it on an order of this size, or null when they can. */
-    public function problemFor(?Customer $customer, float $subtotal): ?string
+    public function problemFor(?User $customer, float $subtotal): ?string
     {
         $state = $this->state();
         if ($state !== 'active') {
@@ -78,7 +78,7 @@ class PromoCode extends Model
             return "Code {$this->code} needs items worth \$".number_format((float) $this->min_order_usd, 2)." or more. Add \${$more} to use it.";
         }
         if ($customer && $this->max_uses_per_customer !== null
-            && $this->usedOrders()->where('customer_id', $customer->id)->count() >= $this->max_uses_per_customer) {
+            && $this->usedOrders()->where('user_id', $customer->id)->count() >= $this->max_uses_per_customer) {
             return "You've already used code {$this->code}.";
         }
 
