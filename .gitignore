@@ -23,3 +23,5 @@ yarn-error.log
 skills-lock.json
 /.agents
 /.claude
+/mascot-candidates
+/.impeccable
