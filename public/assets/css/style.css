@@ -668,7 +668,7 @@ html.dark .hero-marker {
   --my: 0;
   position: relative;
   width: 100%;
-  max-width: 27rem;
+  max-width: 32rem;
   margin-inline: auto;
   perspective: 1100px;
 }
@@ -682,7 +682,7 @@ html.dark .hero-marker {
   transform: translate3d(calc(var(--mx) * var(--depth, 8) * 1px), calc(var(--my) * var(--depth, 8) * 1px), 0);
   will-change: transform;
 }
-.psa-sc__layer--front { left: 22%; top: 5%; width: 56%; z-index: 3; --depth: 18; }
+.psa-sc__layer--front { left: 20%; top: 4%; width: 60%; z-index: 3; --depth: 18; }
 .psa-sc__layer--back1 { left: -2%; top: 2%; width: 46%; z-index: 1; --depth: 7; --rot: -10deg; }
 .psa-sc__layer--back2 { right: -2%; top: 38%; width: 44%; z-index: 2; --depth: 10; --rot: 9deg; }
 
@@ -773,7 +773,7 @@ button.psa-sc__card:focus-visible, .psa-sc__dot:focus-visible { outline: 3px sol
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   font-weight: 900;
   line-height: 1.3;
   color: var(--c-espresso);
@@ -842,12 +842,7 @@ button.psa-sc__card:focus-visible, .psa-sc__dot:focus-visible { outline: 3px sol
 .psa-sc__dot span { width: 0.6rem; height: 0.6rem; border-radius: 999px; background: rgba(43, 29, 29, 0.25); transition: width 0.25s, background 0.25s; }
 .psa-sc__dot[aria-current="true"] span { width: 1.6rem; background: var(--c-espresso); }
 
-html.dark .psa-sc__card { background: #1E1E26; color: #F9F3EA; }
-html.dark .psa-sc__title, html.dark .psa-sc__price { color: #F9F3EA; }
-html.dark .psa-sc__chip { background: rgba(255, 165, 82, 0.16); color: var(--c-sorbet); }
-html.dark .psa-sc__img { background: #2A2A34; }
-html.dark .psa-sc__add { background: var(--c-sorbet); color: var(--c-espresso); }
-html.dark .psa-sc__add:hover { background: #FFB877; }
+/* Dark mode: the cards stay white (they read like little paper cards); only the shadow and dots change */
 html.dark .psa-sc__shadow { background: radial-gradient(closest-side, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0)); }
 html.dark .psa-sc__dot span { background: rgba(249, 243, 234, 0.3); }
 html.dark .psa-sc__dot[aria-current="true"] span { background: var(--c-sorbet); }

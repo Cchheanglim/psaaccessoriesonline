@@ -326,13 +326,13 @@
 
 
     function renderHomePage() {
+      // Staff can rewrite the button text on the Website page, so {count} may not be there.
       const total = ACCESSORIES_PRODUCTS.length;
-      document.getElementById('heroCount').textContent = total;
-      document.getElementById('picksCount').textContent = total;
-      renderHero();
-      renderEntryTiles();
-      renderHomeProducts();
-      updateWishlistUI();
+      ['heroCount', 'picksCount'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = total; });
+      // One section failing must not leave the others (like the showcase) empty.
+      [renderHero, renderEntryTiles, renderHomeProducts, updateWishlistUI].forEach(render => {
+        try { render(); } catch (err) { console.error(err); }
+      });
     }
 
     document.addEventListener('DOMContentLoaded', renderHomePage);

@@ -3969,7 +3969,12 @@ function psaApplySettings(root = document) {
       const cls = el.dataset.settingHtml || 'hero-marker';
       el.innerHTML = psaEsc(value).replace(/\*([^*]+)\*/g, `<span class="${cls}">$1</span>`);
     }
-    else if ('settingCount' in el.dataset) el.innerHTML = psaEsc(value).replace('{count}', `<span id="${el.dataset.settingCount}"></span>`);
+    else if ('settingCount' in el.dataset) {
+      // {count} becomes the number (kept if it was already filled in)
+      const id = el.dataset.settingCount;
+      const count = document.getElementById(id)?.textContent || '';
+      el.innerHTML = psaEsc(value).replace('{count}', `<span id="${id}">${psaEsc(count)}</span>`);
+    }
     else el.textContent = value;
     if ('settingHideEmpty' in el.dataset) el.hidden = value.trim() === '';
   });
