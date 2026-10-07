@@ -3931,7 +3931,9 @@ const PSA_SITE_DEFAULTS = {
   'social.youtube': '',
   'social.telegram': 'https://t.me/psaonline_support',
   'shop.delivery_fee_usd': '1.50',
-  'shop.free_delivery_from_usd': '15'
+  'shop.free_delivery_from_usd': '15',
+  'chat.auto_delete_days': '7',
+  'chat.purge_days': '15'
 };
 
 function psaSetting(key) {
@@ -4056,19 +4058,38 @@ else psaApplySettings();
 
 // =========================================================================
 // DELETING ORDER MESSAGES: customers delete their own messages; staff with "Customer messages"
-// delete any message or the whole chat. A deleted message is gone for both sides.
+// delete any message or the whole chat. The text is gone for both sides; the chat shows who deleted it.
 // =========================================================================
+// The line shown where a deleted message was: "Message deleted by Sokha · 7 Oct 2026, 15:20"
+function psaDeletedMessageHtml(m) {
+  const when = m.deletedAt ? new Date(m.deletedAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
+  const what = m.count > 1 ? `${m.count} messages deleted` : 'Message deleted';
+  const who = m.deletedByMe ? 'by you' : m.deletedBy ? `by ${psaEsc(m.deletedBy)}` : 'automatically (no new messages for a while)';
+  return `<p class="text-center text-xs italic text-stone-600 dark:text-stone-300">${what} ${who}${when ? ' &middot; ' + psaEsc(when) : ''}</p>`;
+}
+
+// "Chats are deleted 7 days after the last message." (the shop rule in site settings)
+function psaChatCleanUpNote() {
+  const days = Number(psaSetting('chat.auto_delete_days')) || 7;
+  return `<p class="text-center text-xs text-stone-600 dark:text-stone-300">Chats are deleted ${days} days after the last message.</p>`;
+}
+
+// Is there anything left to delete in this chat?
+function psaChatHasMessages(list) {
+  return (list || []).some(m => !m.deleted);
+}
+
 function psaMessageDeleteButton(m, onDark) {
   if (!m.canDelete) return '';
   return `<button type="button" data-delete-message="${Number(m.id)}" class="mt-1 text-xs font-bold underline underline-offset-2 ${onDark ? 'text-cotton/80 hover:text-white' : 'text-stone-600 hover:text-rose-700'} cursor-pointer">Delete</button>`;
 }
 
 async function psaDeleteMessage(orderId, messageId) {
-  if (!confirm('Delete this message? It disappears for everyone.')) return null;
+  if (!confirm('Delete this message? Its text disappears for everyone, and the chat shows who deleted it.')) return null;
   return psaApi('DELETE', `/api/orders/${encodeURIComponent(orderId)}/messages/${Number(messageId)}`);
 }
 
 async function psaDeleteChat(orderId) {
-  if (!confirm('Delete the whole chat for this order? Every message disappears for everyone, and this can\'t be undone.')) return null;
+  if (!confirm('Delete the whole chat for this order? Every message\'s text disappears for everyone, and this can\'t be undone.')) return null;
   return psaApi('DELETE', `/api/orders/${encodeURIComponent(orderId)}/messages`);
 }

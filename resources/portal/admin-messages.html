@@ -173,9 +173,10 @@
     function renderThread(res) {
       const messages = Array.isArray(res) ? res : res.messages;
       const del = document.getElementById('deleteChatBtn');
-      if (del && !Array.isArray(res)) del.hidden = !(res.canDeleteChat && messages.length);
+      if (del && !Array.isArray(res)) del.hidden = !(res.canDeleteChat && psaChatHasMessages(messages));
       const box = document.getElementById('threadList');
       box.innerHTML = messages.length ? messages.map(m => {
+        if (m.deleted) return psaDeletedMessageHtml(m);
         const ours = m.fromStaff;
         const when = m.createdAt ? new Date(m.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
         const who = ours ? (m.staffName ? m.staffName : 'PsaOnline') : (m.author || 'Customer');
@@ -187,7 +188,7 @@
               ${psaMessageDeleteButton(m, ours)}
             </div>
           </div>`;
-      }).join('') : '<p class="text-sm text-stone-600">No messages yet.</p>';
+      }).join('') + psaChatCleanUpNote() : '<p class="text-sm text-stone-600">No messages yet.</p>';
       box.scrollTop = box.scrollHeight;
     }
 

@@ -60,7 +60,7 @@
           if (o.slipUploaded && o.paymentStatus !== 'failed') list.push({ action: 'reject', label: 'Reject slip', tone: 'warn', help: 'The customer is asked to upload a new one.' });
         }
       }
-      if (o.orderStatus === 'processing') list.push({ action: 'dispatch', label: 'Mark out for delivery', tone: 'primary', help: 'Handed to the courier.' });
+      if (o.orderStatus === 'processing') list.push({ action: 'dispatch', label: 'Mark out for delivery', tone: 'primary', help: 'Handed to the delivery service (Grab, VET Express…).' });
       if (o.orderStatus === 'out_for_delivery') list.push({ action: 'deliver', label: 'Mark delivered', tone: 'primary', help: cod ? 'Cash collected and parcel handed over.' : 'Parcel handed over.' });
       if (o.orderStatus !== 'delivered') list.push({ action: 'cancel', label: 'Cancel order', tone: 'danger', help: 'Puts the items back in stock.' });
       return list.filter(a => can(allowed[a.action]));
@@ -206,6 +206,7 @@
         return;
       }
       box.innerHTML = list.map(m => {
+        if (m.deleted) return psaDeletedMessageHtml(m);
         const ours = m.fromStaff;
         const when = m.createdAt ? new Date(m.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
         const who = ours ? `PsaOnline${m.staffName ? ' (' + m.staffName + ')' : ''}` : (m.author || 'Customer');
@@ -217,14 +218,14 @@
               ${psaMessageDeleteButton(m, ours)}
             </div>
           </div>`;
-      }).join('');
+      }).join('') + psaChatCleanUpNote();
       box.scrollTop = box.scrollHeight;
     }
 
     function renderThread(res) {
       renderMessages(res.messages);
       const del = document.getElementById('deleteChatBtn');
-      if (del) del.hidden = !(res.canDeleteChat && res.messages.length);
+      if (del) del.hidden = !(res.canDeleteChat && psaChatHasMessages(res.messages));
     }
 
     async function loadMessages(quiet) {

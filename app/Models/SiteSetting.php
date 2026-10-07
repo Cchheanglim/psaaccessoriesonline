@@ -20,7 +20,20 @@ class SiteSetting extends Model
 
     protected $keyType = 'string';
 
-    protected $fillable = ['setting_key', 'setting_value'];
+    protected $fillable = ['setting_key', 'setting_value', 'updated_by'];
+
+    /** These Shop rules are edited on the Website page but stored in loyalty_tiers (tier => column). */
+    public const TIER_FIELDS = [
+        'membership.pro_min_spend_usd' => ['Pro', 'min_spend_usd'],
+        'membership.pro_discount_percent' => ['Pro', 'discount_percent'],
+        'membership.max_min_spend_usd' => ['Max', 'min_spend_usd'],
+        'membership.max_discount_percent' => ['Max', 'discount_percent'],
+    ];
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 
     /** Social platforms, in the order they are shown. The value is the account name; the link is built from it. */
     public const SOCIAL_PLATFORMS = ['facebook', 'instagram', 'tiktok', 'x', 'youtube', 'telegram'];
@@ -86,6 +99,8 @@ class SiteSetting extends Model
         'membership.max_min_spend_usd' => ['rules', 'Max: spend needed', '500', [1, 100000], 'money', 'Must be more than Pro.'],
         'membership.max_discount_percent' => ['rules', 'Max: discount', '17', [0, 90], 'percent', ''],
         'membership.lapse_days' => ['rules', 'Membership ends after', '18', [1, 365], 'days', 'Days without an order before a customer goes back to Plus.'],
+        'chat.auto_delete_days' => ['rules', 'Chats deleted after', '7', [1, 365], 'days', 'Days after the last message before an order’s chat is deleted automatically.'],
+        'chat.purge_days' => ['rules', 'Deleted messages kept for', '15', [1, 365], 'days', 'Days a deleted message is kept before it is removed for good.'],
     ];
 
     /** The web addresses each platform's links may use (so a pasted link really is that platform). */
@@ -129,11 +144,23 @@ class SiteSetting extends Model
         return $platform === 'facebook' || str_starts_with($name, '@') ? $name : '@'.$name;
     }
 
+    /** The cache key changes whenever the list of settings changes, so a new version never reads an old list. */
+    private static function cacheKey(): string
+    {
+        return 'site_settings.'.substr(md5(implode(',', array_keys(self::FIELDS))), 0, 8);
+    }
+
     /** Every setting's value (the original text when a row is missing). Cached until a setting is saved. */
     public static function map(): array
     {
-        return Cache::rememberForever('site_settings', function () {
+        return Cache::rememberForever(self::cacheKey(), function () {
             $saved = static::query()->pluck('setting_value', 'setting_key')->all();
+            $tiers = LoyaltyTier::query()->get()->keyBy('name');
+            foreach (self::TIER_FIELDS as $key => [$tier, $column]) {
+                if (isset($tiers[$tier])) {
+                    $saved[$key] = rtrim(rtrim(number_format((float) $tiers[$tier]->{$column}, 2, '.', ''), '0'), '.');
+                }
+            }
 
             return collect(self::FIELDS)->map(fn ($f, $key) => array_key_exists($key, $saved) ? (string) $saved[$key] : $f[2])->all();
         });
@@ -149,17 +176,26 @@ class SiteSetting extends Model
         return (float) self::get($key);
     }
 
-    /** Saves several settings at once; null puts the original text back. */
-    public static function putMany(array $values): void
+    /** Saves several settings at once (and who changed them); null puts the original text back. */
+    public static function putMany(array $values, ?int $by = null): void
     {
         foreach ($values as $key => $value) {
-            static::updateOrCreate(['setting_key' => $key], ['setting_value' => $value ?? self::FIELDS[$key][2]]);
+            $value ??= self::FIELDS[$key][2];
+            if (isset(self::TIER_FIELDS[$key])) {
+                [$tier, $column] = self::TIER_FIELDS[$key];
+                LoyaltyTier::where('name', $tier)->update([$column => $value, 'updated_at' => now()]);
+
+                continue;
+            }
+            static::updateOrCreate(['setting_key' => $key], ['setting_value' => $value, 'updated_by' => $by]);
         }
-        Cache::forget('site_settings');
+        LoyaltyTier::flushCache();
+        Cache::forget(self::cacheKey());
     }
 
     public static function forgetCache(): void
     {
-        Cache::forget('site_settings');
+        LoyaltyTier::flushCache();
+        Cache::forget(self::cacheKey());
     }
 }

@@ -89,25 +89,30 @@ class DataMigrationTest extends TestCase
         // Roles and customers
         $this->assertSame(['admin', 'buyer', 'staff'], $db->table('users')->join('roles', 'roles.id', '=', 'users.role_id')->orderBy('users.id')->pluck('roles.name')->sort()->values()->all());
         $this->assertNull($db->table('users')->where('id', 3)->value('phone')); // '' became "no phone"
-        // customers, product_details, order_statuses and permissions were merged into the tables that use them
-        foreach (['customers', 'product_details', 'order_statuses', 'permissions'] as $merged) {
-            $this->assertFalse($db->getSchemaBuilder()->hasTable($merged), $merged);
+        // The Final Draft's tables (28): customers, product_details, order_statuses, permissions and loyalty_tiers are back
+        foreach (['customers', 'product_details', 'order_statuses', 'permissions', 'loyalty_tiers'] as $table) {
+            $this->assertTrue($db->getSchemaBuilder()->hasTable($table), $table);
         }
+        $this->assertSame(12, $db->table('permissions')->count());
+        $this->assertSame(['pending_payment', 'processing', 'out_for_delivery', 'delivered', 'cancelled'], $db->table('order_statuses')->orderBy('sort_order')->pluck('code')->all());
         $this->assertSame(11, $db->table('role_permissions')->where('role_id', $db->table('roles')->where('name', 'admin')->value('id'))->count()); // every tick moved (Admin also gets the newer ones in code)
-        $this->assertContains('manage_stock', $db->table('role_permissions')->where('role_id', $db->table('roles')->where('name', 'staff')->value('id'))->pluck('permission')->all());
+        $this->assertContains('manage_stock', $db->table('role_permissions')->join('permissions', 'permissions.id', '=', 'role_permissions.permission_id')
+            ->where('role_id', $db->table('roles')->where('name', 'staff')->value('id'))->pluck('permissions.name')->all());
+        $customer = $db->table('customers')->where('user_id', 2)->value('id');
+        $this->assertNotNull($customer); // the shopper's customer row
         $this->assertFalse($db->getSchemaBuilder()->hasTable('user_settings')); // settings stay in the browser
         // Only what can't be worked out is stored: the promo discount comes from the code, there is no tax
         $this->assertFalse($db->getSchemaBuilder()->hasColumn('orders', 'discount_usd'));
         $this->assertFalse($db->getSchemaBuilder()->hasColumn('orders', 'tax_usd'));
         $this->assertFalse($db->getSchemaBuilder()->hasColumn('promo_codes', 'created_by'));
-        // Plus / Pro / Max are site settings now (editable on the Website page), not a table
-        $this->assertFalse($db->getSchemaBuilder()->hasTable('loyalty_tiers'));
-        $this->assertSame(['100', '6', '500', '17', '18'], $db->table('site_settings')->whereIn('setting_key', [
-            'membership.pro_min_spend_usd', 'membership.pro_discount_percent', 'membership.max_min_spend_usd', 'membership.max_discount_percent', 'membership.lapse_days',
-        ])->orderByRaw("case setting_key when 'membership.pro_min_spend_usd' then 1 when 'membership.pro_discount_percent' then 2 when 'membership.max_min_spend_usd' then 3 when 'membership.max_discount_percent' then 4 else 5 end")->pluck('setting_value')->all());
-        $this->assertSame(['setting_key', 'setting_value', 'updated_at'], $db->getSchemaBuilder()->getColumnListing('site_settings'));
+        // Plus / Pro / Max are loyalty_tiers rows; the 18-day lapse stays a site setting
+        $this->assertEquals([['Plus', 0, 0], ['Pro', 100, 6], ['Max', 500, 17]], $db->table('loyalty_tiers')->orderBy('min_spend_usd')->get()
+            ->map(fn ($t) => [$t->name, (float) $t->min_spend_usd, (float) $t->discount_percent])->all());
+        $this->assertSame(0, $db->table('site_settings')->where('setting_key', 'like', 'membership.pro%')->count());
+        $this->assertSame('18', $db->table('site_settings')->where('setting_key', 'membership.lapse_days')->value('setting_value'));
+        $this->assertEqualsCanonicalizing(['setting_key', 'setting_value', 'updated_by', 'updated_at'], $db->getSchemaBuilder()->getColumnListing('site_settings'));
         $this->assertSame('https://www.instagram.com/psaonline_kh', $db->table('site_settings')->where('setting_key', 'social.instagram')->value('setting_value')); // accounts are links
-        $this->assertSame('St 240, Phnom Penh', $db->table('customer_addresses')->where('user_id', 2)->whereNull('archived_at')->value('address_line'));
+        $this->assertSame('St 240, Phnom Penh', $db->table('customer_addresses')->where('customer_id', $customer)->whereNull('archived_at')->value('address_line'));
 
         // Points are gone (membership comes from spending), and so are tables nothing needs
         foreach (['loyalty_transactions', 'user_notifications', 'showcase_products'] as $gone) {
@@ -118,7 +123,8 @@ class DataMigrationTest extends TestCase
         $this->assertSame(['/a.jpg', '/b.jpg', '/c.jpg'], $db->table('product_images')->where('product_id', 10)->orderBy('sort_order')->pluck('image_path')->all());
         $this->assertSame(1, $db->table('product_images')->where('product_id', 10)->where('is_primary', true)->count());
         $this->assertSame(['/j.jpg'], $db->table('product_images')->where('product_id', 11)->pluck('image_path')->all()); // empty gallery used the image
-        $this->assertSame('Shiny', $db->table('products')->where('id', 10)->value('description'));
+        $this->assertSame('Shiny', $db->table('product_details')->where('product_id', 10)->value('description'));
+        $this->assertFalse($db->getSchemaBuilder()->hasColumn('products', 'description'));
         // 1NF: the specification list and the material column became one row per fact
         $this->assertSame(['Metal' => 'Silver', 'Material' => 'Silver'], $db->table('product_specifications')->where('product_id', 10)->orderBy('sort_order')->pluck('value', 'name')->all());
         // Stock is the sum of the movements (product_stocks is gone)
@@ -132,10 +138,11 @@ class DataMigrationTest extends TestCase
 
         // Orders, payments, history
         // The current status is the newest history row
-        $statuses = collect([100, 101, 102])->map(fn ($id) => $db->table('order_status_history')->where('order_id', $id)->orderByDesc('id')->value('status'))->all();
+        $code = fn ($q) => $q->join('order_statuses', 'order_statuses.id', '=', 'order_status_history.order_status_id');
+        $statuses = collect([100, 101, 102])->map(fn ($id) => $code($db->table('order_status_history'))->where('order_id', $id)->orderByDesc('order_status_history.id')->value('order_statuses.code'))->all();
         $this->assertSame(['delivered', 'pending_payment', 'pending_payment'], $statuses);
         // Who handles order 100 = who made its first change after "placed"
-        $this->assertEquals(3, $db->table('order_status_history')->where('order_id', 100)->where('status', '!=', 'pending_payment')->orderBy('id')->value('changed_by'));
+        $this->assertEquals(3, $code($db->table('order_status_history'))->where('order_id', 100)->where('order_statuses.code', '!=', 'pending_payment')->orderBy('order_status_history.id')->value('changed_by'));
         // Each order points at the exact address it shipped to; addresses that only an old order used are archived
         foreach ([100 => 'St 240', 101 => 'St 240', 102 => 'BKK 1, Phnom Penh'] as $id => $line) {
             $address = $db->table('customer_addresses')->where('id', $db->table('orders')->where('id', $id)->value('address_id'))->first();
@@ -147,7 +154,7 @@ class DataMigrationTest extends TestCase
         foreach (['order_status_id', 'payment_method_id', 'handled_by', 'customer_name', 'subtotal_usd', 'total_usd'] as $column) {
             $this->assertFalse($db->getSchemaBuilder()->hasColumn('orders', $column), $column);
         }
-        $this->assertSame(3, $db->table('orders')->where('user_id', 2)->count());
+        $this->assertSame(3, $db->table('orders')->where('customer_id', $customer)->count());
         $this->assertSame(['verified', 'slip_uploaded', 'pending'], $db->table('payments')->orderBy('order_id')->pluck('status')->all());
         $this->assertSame('data:image/png;base64,SLIP', $db->table('payments')->where('order_id', 100)->value('slip_url'));
         $this->assertNull($db->table('payments')->where('order_id', 101)->value('slip_url')); // placeholder text dropped
@@ -163,7 +170,7 @@ class DataMigrationTest extends TestCase
         // Reviews and messages
         $review = $db->table('product_reviews')->first();
         $this->assertEquals(10, $review->product_id);
-        $this->assertEquals(2, $review->user_id);
+        $this->assertEquals($customer, $review->customer_id);
         $this->assertSame([2, 3], $db->table('order_messages')->orderBy('id')->pluck('sender_id')->map(fn ($v) => (int) $v)->all());
         $this->assertSame('data:image/png;base64,AA', $db->table('payment_methods')->value('qr_image_url'));
     }

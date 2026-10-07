@@ -263,10 +263,11 @@
       const box = document.getElementById('messageList');
       if (!box) return;
       if (!list.length) {
-        box.innerHTML = '<p class="text-sm text-stone-600">No messages yet. We usually reply here, so check back after you send one.</p>';
+        box.innerHTML = '<p class="text-sm text-stone-600">No messages yet. We usually reply here, so check back after you send one.</p>' + psaChatCleanUpNote();
         return;
       }
       box.innerHTML = list.map(m => {
+        if (m.deleted) return psaDeletedMessageHtml(m);
         const mine = !m.fromStaff;
         const when = m.createdAt ? new Date(m.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
         return `
@@ -277,7 +278,7 @@
               ${psaMessageDeleteButton(m, mine)}
             </div>
           </div>`;
-      }).join('');
+      }).join('') + psaChatCleanUpNote();
       box.scrollTop = box.scrollHeight;
     }
 

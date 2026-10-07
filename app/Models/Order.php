@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * One checkout (3NF). The order stores only its own facts: who ordered (user_id), where it ships (address_id),
+ * One checkout (3NF). The order stores only its own facts: who ordered (customer_id), where it ships (address_id),
  * notes, and the delivery fee, member discount and promo code decided at checkout. Everything else is looked up or calculated:
  *
  *   customer_name, customer_phone, delivery_address, latitude, longitude  <- the address it ships to
@@ -22,7 +22,8 @@ class Order extends Model
 
     protected $fillable = [
         'order_number',
-        'user_id',
+        'customer_id',
+        'user_id', // sets customer_id: the customer row of that user
         'address_id',
         'promo_code_id',
         'delivery_notes',
@@ -35,10 +36,31 @@ class Order extends Model
         'delivery_fee_usd' => 'decimal:2',
     ];
 
-    /** The shopper who placed it (a user). */
+    /** The shopper who placed it. */
     public function customer()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Customer::class);
+    }
+
+    /** The shopper's account (through customers). */
+    public function user()
+    {
+        return $this->hasOneThrough(User::class, Customer::class, 'id', 'id', 'customer_id', 'user_id');
+    }
+
+    /** The shopper's user id (orders store customer_id; setting it finds or makes the customer row). */
+    protected function userId(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->customer?->user_id,
+            set: fn (int $id) => ['customer_id' => Customer::idForUser($id)],
+        );
+    }
+
+    /** Orders placed by this user (as a customer). */
+    public function scopeOfUser($query, int $userId)
+    {
+        return $query->whereIn('customer_id', Customer::select('id')->where('user_id', $userId));
     }
 
     public function address()
@@ -82,7 +104,7 @@ class Order extends Model
     public function approval()
     {
         return $this->hasOne(OrderStatusHistory::class)->ofMany(['id' => 'min'], function ($q) {
-            $q->where('status', '!=', 'pending_payment')->whereNotNull('changed_by');
+            $q->where('order_status_id', '!=', OrderStatus::idFor('pending_payment'))->whereNotNull('changed_by');
         });
     }
 
@@ -102,7 +124,7 @@ class Order extends Model
     /** Only orders whose current (newest) status is one of these codes. */
     public function scopeInStatus($query, string ...$codes)
     {
-        return $query->whereHas('currentStatus', fn ($q) => $q->whereIn('status', $codes));
+        return $query->whereHas('currentStatus', fn ($q) => $q->whereIn('order_status_id', OrderStatus::idsFor(...$codes)));
     }
 
     /* ---------- From the address it ships to ---------- */

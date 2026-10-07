@@ -53,7 +53,7 @@ class StoreApiController extends Controller
                 $q->where(function ($q) use ($user, $guestOrders) {
                     $q->whereIn('order_number', $guestOrders);
                     if ($user) {
-                        $q->orWhere('user_id', $user->id);
+                        $q->orWhere(fn ($q) => $q->ofUser($user->id));
                     }
                 });
             })
@@ -515,7 +515,7 @@ class StoreApiController extends Controller
 
     /**
      * Delete one message. Customers can delete their own messages; staff with "Customer messages"
-     * can delete any. The row is removed, so it is gone for both sides.
+     * can delete any. The row stays with deleted_at and deleted_by; both sides see "Message deleted by ...".
      */
     public function destroyOrderMessage(Request $request, string $orderNumber, int $message): JsonResponse
     {
@@ -524,7 +524,7 @@ class StoreApiController extends Controller
         $row = $order->messages()->whereKey($message)->firstOrFail();
 
         abort_unless($this->canDeleteMessage($user, $order, $row), 403, 'You can only delete your own messages.');
-        $row->delete();
+        $order->messages()->whereKey($row->id)->update(['deleted_by' => $user->id, 'deleted_at' => now()]);
 
         return response()->json($this->thread($order, $user));
     }
@@ -535,7 +535,7 @@ class StoreApiController extends Controller
         $user = $this->requireUser($request);
         $order = $this->ownOrder($request, $orderNumber);
         abort_unless($user->isStaff() && $user->hasPermission('manage_messages'), 403, 'Only staff can delete a whole chat.');
-        $order->messages()->delete();
+        $order->messages()->update(['deleted_by' => $user->id, 'deleted_at' => now()]);
 
         return response()->json($this->thread($order, $user));
     }
@@ -576,22 +576,49 @@ class StoreApiController extends Controller
             ->update(['read_at' => now()]);
     }
 
+    /**
+     * The chat, oldest first. A deleted message has no text, only who deleted it and when; several
+     * deleted in a row by the same person (a whole chat) show as one line with a count.
+     */
     private function messageList(Order $order, ?User $viewer = null): array
     {
-        return $order->messages()->with('sender:id,name')->orderBy('created_at')->orderBy('id')->get()
-            ->map(function (OrderMessage $m) use ($order, $viewer) {
+        $viewerIsStaff = $viewer && $viewer->id !== $order->user_id;
+        $list = [];
+        $order->messages()->withTrashed()->with(['sender:id,name', 'deleter:id,name'])->orderBy('created_at')->orderBy('id')->get()
+            ->each(function (OrderMessage $m) use ($order, $viewer, $viewerIsStaff, &$list) {
                 $fromStaff = $m->isFromStaff($order);
-
-                return [
+                $row = [
                     'id' => $m->id,
-                    'body' => $m->body,
+                    'body' => $m->trashed() ? null : $m->body,
                     'fromStaff' => $fromStaff,
                     'author' => $fromStaff ? 'PsaOnline' : ($m->sender?->name ?? $order->customer_name),
                     'staffName' => $fromStaff ? $m->sender?->name : null,
                     'createdAt' => $m->created_at?->toIso8601String(),
-                    'canDelete' => $this->canDeleteMessage($viewer, $order, $m),
+                    'canDelete' => ! $m->trashed() && $this->canDeleteMessage($viewer, $order, $m),
                 ];
-            })->all();
+                if ($m->trashed()) {
+                    // Empty deleted_by = the automatic clean-up. The customer sees "PsaOnline" for staff;
+                    // staff see the staff member's name.
+                    $byCustomer = $m->deleted_by !== null && $m->deleted_by === $order->user_id;
+                    $row += [
+                        'deleted' => true,
+                        'deletedAt' => $m->deleted_at?->toIso8601String(),
+                        'deletedBy' => $m->deleted_by === null ? null
+                            : ($byCustomer ? ($m->deleter?->name ?? 'the customer') : ($viewerIsStaff ? ($m->deleter?->name ?? 'PsaOnline') : 'PsaOnline')),
+                        'deletedByMe' => $viewer && $m->deleted_by === $viewer->id,
+                        'count' => 1,
+                    ];
+                    $last = count($list) - 1;
+                    if ($last >= 0 && ! empty($list[$last]['deleted']) && $list[$last]['deletedBy'] === $row['deletedBy']) {
+                        $list[$last]['count']++;
+
+                        return;
+                    }
+                }
+                $list[] = $row;
+            });
+
+        return $list;
     }
 
     /* ---------- Reviews ---------- */
@@ -634,7 +661,7 @@ class StoreApiController extends Controller
             foreach ($data['reviews'] as $review) {
                 ProductReview::updateOrCreate(
                     ['order_id' => $order->id, 'product_id' => $productIds[$review['id']]],
-                    ['user_id' => $order->user_id, 'rating' => $review['rating'], 'comment' => trim($review['comment'] ?? '') ?: null],
+                    ['customer_id' => $order->customer_id, 'rating' => $review['rating'], 'comment' => trim($review['comment'] ?? '') ?: null],
                 );
             }
         });
@@ -654,11 +681,11 @@ class StoreApiController extends Controller
         return response()->json([
             'average' => $count ? round((float) (clone $query)->avg('rating'), 1) : null,
             'count' => $count,
-            'reviews' => (clone $query)->with('user:id,name')->latest()->limit(30)->get()
+            'reviews' => (clone $query)->with('customer.user:id,name')->latest()->limit(30)->get()
                 ->map(fn (ProductReview $r) => [
                     'rating' => $r->rating,
                     'comment' => $r->comment,
-                    'author' => $this->shortName($r->user?->name),
+                    'author' => $this->shortName($r->customer?->user?->name),
                     'date' => $r->created_at?->timezone(config('app.timezone'))->format('d M Y'),
                 ])->all(),
         ]);
@@ -685,7 +712,7 @@ class StoreApiController extends Controller
         if ($address) {
             $this->retireAddress($address);
         }
-        $user->addresses()->create([
+        $user->asCustomer()->addresses()->create([
             'label' => $address?->label ?? 'Home', 'recipient_name' => $address?->recipient_name ?? $user->name,
             'phone' => $address?->phone ?? $user->phone, 'address_line' => $line, 'is_default' => true,
         ]);
@@ -719,7 +746,7 @@ class StoreApiController extends Controller
             && round((float) $a->latitude, 7) === round((float) $details['latitude'], 7)
             && round((float) $a->longitude, 7) === round((float) $details['longitude'], 7));
 
-        return $same ?? $customer->addresses()->create($details + [
+        return $same ?? $customer->asCustomer()->addresses()->create($details + [
             'label' => 'Delivery', 'is_default' => ! $customer->defaultAddress()->exists(),
         ]);
     }

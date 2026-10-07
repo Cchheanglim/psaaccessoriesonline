@@ -101,13 +101,13 @@ class NotificationTest extends TestCase
     public function test_custom_roles_get_the_notifications_their_permissions_cover(): void
     {
         $admin = $this->user('admin', 'Vanna Chea');
-        $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'Rider', 'permissions' => ['manage_orders']])->assertCreated();
+        $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'Dispatcher', 'permissions' => ['manage_orders']])->assertCreated();
         $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'Packer', 'permissions' => ['manage_products']])->assertCreated();
-        $rider = $this->user('rider', 'Rider Dara');
+        $dispatcher = $this->user('dispatcher', 'Dispatcher Dara');
         $packer = $this->user('packer', 'Packer Sok');
 
         $number = $this->placeOrder($this->user('buyer', 'Dara Sok'));
-        $this->actingAs($rider)->getJson('/api/notifications')->assertJsonPath('items.0.title', "New order {$number}");
+        $this->actingAs($dispatcher)->getJson('/api/notifications')->assertJsonPath('items.0.title', "New order {$number}");
         $this->actingAs($packer)->getJson('/api/notifications')->assertJsonPath('unread', 0)->assertJsonCount(0, 'items');
     }
 

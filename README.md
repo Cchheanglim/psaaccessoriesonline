@@ -51,7 +51,7 @@ It is a full-stack Laravel 12 application: a phone-first storefront for shoppers
 - **One portal layout:** a sidebar that only lists the pages the signed-in role may use, the same buttons, tables and forms on every page, light and dark mode, and a phone layout with a slide-out menu.
 - **Dashboard:** sales, average order, items sold and discounts for today, 7 days, 30 days or this year; a "Needs attention" list (payments to check, orders to send out, low stock, unread messages); best sellers, sales by category and payment method, and a CSV export. Every number comes from real orders.
 - **Orders:** tabs for *Needs action*, *Awaiting payment*, *Preparing*, *Out for delivery*, *Delivered*, *Cancelled*, search, and one next-step button per order. Each order's page has the slip, address, pinned location, items to pack, discounts, messages and the actions the role allows (cancelling restores stock).
-- **Messages inbox:** all customer chats with unread counts, filtered by *Mine / Not assigned / All*. Staff can delete any message or a whole chat; customers can delete their own messages.
+- **Messages inbox:** all customer chats with unread counts, filtered by *Mine / Not assigned / All*. Staff can delete any message or a whole chat; customers can delete their own messages. A deleted message keeps its row with *deleted_at* and *deleted_by*, and the chat shows "Message deleted by ...". A chat with no new message for 7 days is deleted automatically, and deleted messages are removed for good after 15 more days (both numbers are Shop rules).
 - **Promo codes:** create codes (percent or dollars off, minimum spend, total and per-customer limits, start and end dates), turn them off, choose which ones customers see under *My coupons*, and see how often each was used and how much it took off. A used code keeps its discount and is turned off instead of deleted.
 - **Products & stock** (one page, several tabs):
   - **Products:** create, edit and delete products (photos, Khmer names, specifications, stock, visibility, and a **sale**: percent off with an optional end day); tick products and move them to another category.
@@ -59,7 +59,7 @@ It is a full-stack Laravel 12 application: a phone-first storefront for shoppers
   - **Home showcase:** choose and order the products in the home page's floating showcase.
   - **Sort By:** edit the shop's Sort By menu; add hand-picked groups such as "New Drop" or "Free Delivery".
   - **Suppliers** and **Buying stock:** purchase orders go draft → ordered → received; receiving adds the items to stock and keeps what each one cost.
-- **Website:** every text customers read is editable here, grouped as *Header* (shop name, tagline, logo, top-bar messages, search hint), *Home page* (headline, buttons, section titles and texts), *Footer* (about text, payments, phone, email, address, hours, copyright), *Social media* (paste the link to each account; customers see the username and the link opens that exact account) and *Shop rules* (delivery fee, free delivery from, Pro/Max spend and discount, days before a membership ends; Admins only). Every shop page shares one footer, and a preview shows each change before saving.
+- **Website:** every text customers read is editable here, grouped as *Header* (shop name, tagline, logo, top-bar messages, search hint), *Home page* (headline, buttons, section titles and texts), *Footer* (about text, payments, phone, email, address, hours, copyright), *Social media* (paste the link to each account; customers see the username and the link opens that exact account) and *Shop rules* (delivery fee, free delivery from, Pro/Max spend and discount, days before a membership ends, chat clean-up days; Admins only). Every shop page shares one footer, and a preview shows each change before saving.
 - **Payment methods:** add, edit, turn off and delete payment methods with their own QR image.
 - **Staff & roles:** create accounts, change a person's role, suspend accounts, and under **Roles & permissions** create new roles (for example "Delivery rider") and tick exactly what each role may do.
 - Staff and admin accounts can't shop (bag, wishlist and checkout are turned off for them), so sales and stock only come from customers.
@@ -172,11 +172,11 @@ Without a key, Psa Bunny still answers the basics (delivery, payment, Telegram).
 php artisan test
 ```
 
-**72 feature tests (687 assertions)** run against an in-memory SQLite database. They cover:
+**73 feature tests (727 assertions)** run against an in-memory SQLite database. They cover:
 
 - registration, login, suspended accounts, and staff accounts not being able to order;
 - roles & permissions: creating, editing and deleting roles, each permission being enforced, Admin always keeping everything, and nobody handing out more than they have;
-- the Website page (every setting is a row; staff edit text, Admins edit shop rules, checkout follows them), deleting messages (customers their own, staff any or the whole chat);
+- the Website page (every setting is a row; staff edit text, Admins edit shop rules, checkout follows them), deleting messages (customers their own, staff any or the whole chat; who and when are kept) and the 7-day / 15-day chat clean-up;
 - membership (Pro at $100 with 6% off, Max at $500 with 17% off, lapsing after 18 days), promo codes (limits, dates, minimum spend, per customer, stacking after the member discount) and product sales;
 - ordering with database prices, stock checks, delivery rules (including free-delivery groups) and payment methods;
 - payment slips, the staff workflow (verify → dispatch → deliver), rejections and cancellations restoring stock;
@@ -286,17 +286,17 @@ All endpoints are under `/api`, use the session cookie, and require the CSRF tok
 
 ## Database
 
-**23 tables in third normal form (3NF):** every fact is stored once, and values that can be calculated are not stored. For example, an order's total is worked out from its items, stock on hand is the sum of the stock movements, a customer's membership tier is worked out from their delivered orders, and the notification bell is built from orders and messages. Small tables that only held one column or a fixed list were merged into the tables that use them (customers into users, product_details into products, order statuses and permissions into a column, loyalty tiers into site_settings). The diagram is `docs/PsaOnline-database-3NF.drawio` (open it at app.diagrams.net).
+**28 tables in third normal form (3NF)**, as drawn in `docs/Final Draft.drawio` (open it at app.diagrams.net). Every fact is stored once, and values that can be calculated are not stored. For example, an order's total is worked out from its items, stock on hand is the sum of the stock movements, a customer's membership tier is worked out from their delivered orders, and the notification bell is built from orders and messages.
 
 | Module | Tables |
 |---|---|
-| Users & roles | `users` (customers are users with the buyer role), `roles`, `role_permissions` |
-| Customers | `customer_addresses`, `promo_codes` |
-| Products | `categories` (with sub-categories), `products`, `product_specifications`, `product_images`, `product_reviews` |
+| Users & roles | `users`, `roles`, `permissions`, `role_permissions` (role_id + permission_id) |
+| Customers | `customers` (1:1 with users: a shopper; staff have none), `customer_addresses`, `loyalty_tiers` (Plus / Pro / Max: spend needed and % off), `promo_codes` |
+| Products | `categories` (with sub-categories), `products`, `product_details` (the description, 1:1), `product_specifications`, `product_images`, `product_reviews` |
 | Stock & suppliers | `suppliers`, `purchase_orders`, `purchase_order_items`, `stock_movements` |
-| Orders & payment | `orders`, `order_items`, `order_status_history`, `payments`, `payment_methods` |
-| Messages | `order_messages` |
-| Shop content | `site_settings` (one row per piece of website text and per shop rule: `setting_key`, `setting_value`, `updated_at`), `sort_options`, `sort_option_products` (the home showcase is `products.showcase_position`) |
+| Orders & payment | `orders` (customer_id), `order_items`, `order_statuses`, `order_status_history` (order_status_id), `payments`, `payment_methods` |
+| Messages | `order_messages` (deleted_at, deleted_by) |
+| Shop content | `site_settings` (one row per piece of website text and per shop rule: `setting_key`, `setting_value`, `updated_by`, `updated_at`), `sort_options`, `sort_option_products` (the home showcase is `products.showcase_position`) |
 
 Some values are stored on purpose because they are facts of that moment and can't be recalculated later: the price and cost of each item sold (`order_items.unit_price_usd`, `unit_cost_usd`), the delivery fee and member discount of each order (and which promo code it used; what the code took off is calculated, because a used code's discount can't change), the cost of each item bought, and the amount of each payment. Theme, language and notification choices stay in the visitor's browser and are not stored in the database. Money is stored in US dollars only; riel is worked out when it is shown ($1 = 4,000៛). A customer's tier is not stored either: it is worked out from their delivered orders since their last 18-day gap.
 

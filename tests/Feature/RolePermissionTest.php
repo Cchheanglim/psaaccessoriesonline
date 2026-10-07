@@ -56,32 +56,32 @@ class RolePermissionTest extends TestCase
     {
         $admin = $this->user('admin');
         $this->actingAs($admin)->postJson('/api/admin/roles', [
-            'name' => 'Delivery rider', 'description' => 'Takes orders to customers', 'permissions' => ['manage_orders'],
-        ])->assertCreated()->assertJsonPath('roles.2.name', 'Delivery rider')->assertJsonPath('roles.2.permissions', ['manage_orders']);
+            'name' => 'Order checker', 'description' => 'Checks and packs orders', 'permissions' => ['manage_orders'],
+        ])->assertCreated()->assertJsonPath('roles.2.name', 'Order checker')->assertJsonPath('roles.2.permissions', ['manage_orders']);
 
-        $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'delivery RIDER', 'permissions' => []])->assertStatus(422);
+        $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'order CHECKER', 'permissions' => []])->assertStatus(422);
         $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'X', 'permissions' => []])->assertStatus(422);
         $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'Ghost', 'permissions' => ['fly']])->assertStatus(422);
 
         // the new role can be given to an account, which then gets into the portal with only that permission
         $id = $this->actingAs($admin)->postJson('/api/admin/users', [
-            'name' => 'Rider One', 'email' => 'rider@example.com', 'password' => 'secret123', 'role' => 'Delivery rider',
-        ])->assertCreated()->assertJsonPath('user.role', 'Delivery rider')->assertJsonPath('user.permissions', ['manage_orders'])->json('user.id');
-        $rider = User::find($id);
-        $this->assertTrue($rider->isStaff());
+            'name' => 'Packer One', 'email' => 'packer@example.com', 'password' => 'secret123', 'role' => 'Order checker',
+        ])->assertCreated()->assertJsonPath('user.role', 'Order checker')->assertJsonPath('user.permissions', ['manage_orders'])->json('user.id');
+        $packer = User::find($id);
+        $this->assertTrue($packer->isStaff());
 
         $number = $this->order();
-        $this->actingAs($rider)->patchJson("/api/admin/orders/{$number}", ['action' => 'verify'])->assertStatus(403);
+        $this->actingAs($packer)->patchJson("/api/admin/orders/{$number}", ['action' => 'verify'])->assertStatus(403);
         $this->actingAs($admin)->patchJson("/api/admin/orders/{$number}", ['action' => 'verify'])->assertOk();
-        $this->actingAs($rider)->patchJson("/api/admin/orders/{$number}", ['action' => 'dispatch'])->assertOk();
-        $this->actingAs($rider)->postJson('/api/admin/products', ['title' => 'Nope'])->assertStatus(403);
-        $this->actingAs($rider)->getJson('/api/admin/conversations')->assertStatus(403);
+        $this->actingAs($packer)->patchJson("/api/admin/orders/{$number}", ['action' => 'dispatch'])->assertOk();
+        $this->actingAs($packer)->postJson('/api/admin/products', ['title' => 'Nope'])->assertStatus(403);
+        $this->actingAs($packer)->getJson('/api/admin/conversations')->assertStatus(403);
         $this->get('/admin-orders')->assertOk();
 
         // ticking another permission works straight away
-        $roleId = Role::idFor('delivery rider');
+        $roleId = Role::idFor('order checker');
         $this->actingAs($admin)->patchJson("/api/admin/roles/{$roleId}", ['permissions' => ['manage_orders', 'manage_messages']])->assertOk();
-        $this->actingAs($rider->fresh())->getJson('/api/admin/conversations')->assertOk();
+        $this->actingAs($packer->fresh())->getJson('/api/admin/conversations')->assertOk();
 
         // a role with people in it can't be deleted; an empty one can
         $this->actingAs($admin)->deleteJson("/api/admin/roles/{$roleId}")->assertStatus(422);
@@ -111,15 +111,15 @@ class RolePermissionTest extends TestCase
     {
         $admin = $this->user('admin');
         $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'Team lead', 'permissions' => ['manage_users', 'manage_orders']])->assertCreated();
-        $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'Rider', 'permissions' => ['manage_orders']])->assertCreated();
+        $this->actingAs($admin)->postJson('/api/admin/roles', ['name' => 'Packer', 'permissions' => ['manage_orders']])->assertCreated();
         $lead = $this->user('team lead');
         $staff = $this->user('staff');
 
         $this->actingAs($lead)->getJson('/api/bootstrap')->assertOk()->assertJsonCount(5, 'roles');
-        $this->actingAs($lead)->patchJson("/api/admin/users/{$staff->id}", ['role' => 'Rider'])->assertOk();
+        $this->actingAs($lead)->patchJson("/api/admin/users/{$staff->id}", ['role' => 'Packer'])->assertOk();
         $this->actingAs($lead)->patchJson("/api/admin/users/{$staff->id}", ['role' => 'Staff'])->assertStatus(403); // Staff can do more
         $this->actingAs($lead)->patchJson("/api/admin/users/{$staff->id}", ['role' => 'Admin'])->assertStatus(403);
         $this->actingAs($lead)->patchJson("/api/admin/users/{$admin->id}", ['status' => 'Suspended'])->assertStatus(403);
-        $this->actingAs($lead)->patchJson("/api/admin/users/{$lead->id}", ['role' => 'Rider'])->assertStatus(422);
+        $this->actingAs($lead)->patchJson("/api/admin/users/{$lead->id}", ['role' => 'Packer'])->assertStatus(422);
     }
 }

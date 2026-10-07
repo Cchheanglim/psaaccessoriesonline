@@ -10,7 +10,7 @@ class ProductReview extends Model
     protected $fillable = [
         'order_id',
         'product_id',
-        'user_id',
+        'customer_id',
         'rating',
         'comment',
     ];
@@ -19,9 +19,9 @@ class ProductReview extends Model
         'rating' => 'integer',
     ];
 
-    public function user()
+    public function customer()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function order()
