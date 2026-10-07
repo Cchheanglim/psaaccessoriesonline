@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Privacy Policy — PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Learn how PsaOnline collects, uses, and protects your personal information when shopping for accessories in Cambodia." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -63,10 +66,6 @@
           <span class="hidden sm:inline font-bold">Dark</span>
         </button>
 
-        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
-          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD</button>
-          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-white">KHR</button>
-        </div>
 
         <a href="cart.html" class="relative p-2.5 rounded-full bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] border border-[#EFE4D6] dark:border-[#32323D] text-[#2B1D1D] dark:text-white transition-transform hover:scale-105" title="Bag">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
@@ -139,7 +138,7 @@
           <li><strong>Delivery details:</strong> Your physical delivery address in Phnom Penh, delivery notes, and optional precise map location coordinates (latitude and longitude) selected via the checkout map pin.</li>
           <li><strong>Profile photo:</strong> An optional profile photo avatar uploaded to personalize your account.</li>
           <li><strong>Payment verification slips:</strong> Screenshots or image files of transfer slips uploaded to verify Bakong KHQR or ABA mobile bank transfers.</li>
-          <li><strong>Order history:</strong> Items ordered, quantities, timestamps, order amounts in USD and KHR, selected delivery options, and fulfillment status.</li>
+          <li><strong>Order history:</strong> Items ordered, quantities, timestamps, order amounts in USD, selected delivery options, and fulfillment status.</li>
           <li><strong>Customer communications:</strong> Any details you share when contacting our customer support team via Telegram or web form.</li>
         </ul>
       </section>
@@ -163,7 +162,7 @@
           <li><strong>Shopping bag / Cart:</strong> Items currently held in your cart.</li>
           <li><strong>Wishlist / Saved items:</strong> Accessories you marked with a heart.</li>
           <li><strong>Recently viewed:</strong> Accessories you viewed during your session.</li>
-          <li><strong>Preferences:</strong> Your selected interface theme (Light or Dark mode) and currency (USD or KHR).</li>
+          <li><strong>Preferences:</strong> Your selected interface theme (Light or Dark mode).</li>
           <li><strong>Saved checkout addresses:</strong> Pre-filled delivery address information saved for faster checkout on your device.</li>
         </ul>
         <p>
@@ -306,32 +305,7 @@
         <!-- Col 3: Visit Us (Socials) -->
         <div class="space-y-2">
           <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Visit Us (Socials)</div>
-          <ul class="text-xs space-y-2 font-medium">
-            <li>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">IG</span>
-                <span>Instagram (@psaonline_kh)</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">TikTok</span>
-                <span>TikTok (@psaonline)</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">FB</span>
-                <span>Facebook Page</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://t.me/psaonline_support" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">TG</span>
-                <span>Telegram (@psaonline_support)</span>
-              </a>
-            </li>
-          </ul>
+          <ul class="text-xs space-y-2 font-medium" data-psa-socials="compact"></ul>
         </div>
 
         <!-- Col 4: Payments Accepted -->

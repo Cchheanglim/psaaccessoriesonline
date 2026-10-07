@@ -3,230 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment Methods — PsaOnline Admin</title>
+  <title>Payment methods — PsaOnline Staff</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="description" content="The ways customers can pay at checkout." />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { sorbet: '#FFA552', cotton: '#F9F3EA', espresso: '#2B1D1D' } } } };</script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
+  <style>
+    .qr-thumb { width: 44px; height: 44px; padding: 3px; border-radius: 8px; border: 1px solid var(--pt-line); background: #fff; cursor: zoom-in; }
+    .qr-thumb img { width: 100%; height: 100%; object-fit: contain; }
+    tr.is-off td:not(:last-child) { opacity: .6; }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
-
-  <!-- Admin Top Navigation Bar with RBAC Role Switcher -->
-  <header class="bg-white dark:bg-[#121215] border-b border-gray-200 dark:border-[#2D2D38] sticky top-0 z-40 transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-4 sm:gap-6">
-        
-        <!-- Logo -->
-        <a href="dashboard-admin.html" class="flex items-center gap-2.5 sm:gap-3 group" title="PsaOnline Studio Operations">
-          <img 
-            src="assets/images/psa-accessories-online-logo.svg" 
-            alt="Psa Accessories Online" 
-            class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
-          />
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-base sm:text-lg font-black text-gray-900 dark:text-white tracking-tight leading-none">Psa<span class="text-orange-500">Online</span></span>
-              <span data-hide-mobile class="text-[9px] uppercase tracking-widest text-orange-600 font-black px-1.5 py-0.5 rounded bg-orange-50 dark:bg-orange-950/60 border border-orange-200 dark:border-orange-800">Admin Ops</span>
-            </div>
-            <div class="text-[10px] text-gray-500 dark:text-gray-400 font-bold mt-0.5">Bakong KHQR & Bank Gateways</div>
-          </div>
-        </a>
-
-        <!-- Desktop Nav Items -->
-        <nav class="hidden lg:flex items-center gap-1 text-xs font-bold text-gray-600 dark:text-gray-300">
-          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Reports & KPIs</a>
-          <a href="admin-orders.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Orders & Slips</a>
-          <a href="admin-messages.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Messages <span class="psa-inbox-count hidden ml-1 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-rose-600 text-white text-xs font-black"></span></a>
-          <a href="admin-products.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">Drops & Stock</a>
-          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-full bg-slate-900 text-white dark:bg-orange-500 dark:text-slate-900 shadow-xs">KHQR Gateways</a>
-          <a href="admin-users.html" class="px-3 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition rbac-admin-only">Staff & RBAC</a>
-        </nav>
-      </div>
-
-      <!-- Action Items: RBAC Switcher, Theme & Storefront -->
-      <div class="flex items-center gap-2 sm:gap-3">
-        
-        <a href="home.html" target="_blank" class="hidden sm:inline-flex items-center gap-1 text-xs text-orange-600 font-black hover:underline transition">
-          <span>Storefront</span>
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-        </a>
-
-        <!-- Dark / Light Theme Toggle -->
-        <button 
-          type="button" 
-          onclick="toggleTheme()" 
-          class="theme-toggle-btn p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-white transition-all shadow-xs cursor-pointer" 
-          title="Toggle Theme"
-        >
-          <svg class="w-4 h-4 text-stone-700 dark:text-stone-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-        </button>
-
-        <div class="h-6 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
-
-        <!-- RBAC Interactive Role Switcher Pill -->
-        <div class="relative group rbac-dropdown-container">
-          <button 
-            type="button" 
-            id="rbacRoleSelectorBtn"
-            onclick="toggleRbacDropdown(event)"
-            class="flex items-center gap-2 p-1.5 sm:px-3 sm:py-1.5 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-orange-500 transition shadow-xs cursor-pointer"
-          >
-            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-orange-500 to-slate-900 text-white font-black text-xs flex items-center justify-center rbac-current-avatar shadow-xs">
-              SO
-            </div>
-            <div class="hidden sm:block text-left text-xs leading-tight">
-              <div class="font-extrabold text-gray-900 dark:text-white rbac-current-name">Sokha Ouk</div>
-              <div class="flex items-center gap-1 mt-0.5">
-                <span data-hide-mobile class="rbac-role-badge">Admin</span>
-                <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-              </div>
-            </div>
-          </button>
-
-          <!-- Dropdown Menu to test and switch roles with 1 click -->
-          <div class="rbac-dropdown-menu absolute right-0 top-full w-72 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-2xl p-2 hidden group-hover:block transition-all z-50">
-            <div class="px-3 py-2 border-b border-gray-100 dark:border-gray-800">
-              <div class="text-[10px] font-black uppercase text-orange-500 tracking-wider flex items-center justify-between">
-                <span>RBAC Role Switcher</span>
-                <span class="text-[9px] text-gray-400 font-mono">Live Session</span>
-              </div>
-              <div class="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">Switch role to test access boundaries:</div>
-            </div>
-            <div class="py-1 space-y-1">
-              <button type="button" onclick="switchUserRole('Admin')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs flex items-center justify-between transition cursor-pointer">
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-md bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[11px]">A</span>
-                  <div>
-                    <div class="font-bold text-gray-900 dark:text-white">Admin (Studio Lead)</div>
-                    <div class="text-[10px] text-gray-400">Configure bank accounts &amp; gateways</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-purple-600">Select</span>
-              </button>
-              <button type="button" onclick="switchUserRole('Staff')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-blue-50 dark:hover:bg-blue-950/40 text-xs flex items-center justify-between transition cursor-pointer">
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[11px]">S</span>
-                  <div>
-                    <div class="font-bold text-gray-900 dark:text-white">Staff (Dispatch Team)</div>
-                    <div class="text-[10px] text-gray-400">Test gateway restriction guard</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-blue-600">Select</span>
-              </button>
-              <button type="button" onclick="switchUserRole('Buyer')" class="w-full px-3 py-2 rounded-xl text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs flex items-center justify-between transition cursor-pointer">
-                <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[11px]">B</span>
-                  <div>
-                    <div class="font-bold text-gray-900 dark:text-white">Buyer (Customer)</div>
-                    <div class="text-[10px] text-gray-400">Test 403 access restriction</div>
-                  </div>
-                </div>
-                <span class="text-[10px] font-bold text-emerald-600">Select</span>
-              </button>
-            </div>
-            <div class="pt-2 border-t border-gray-100 dark:border-gray-800 px-3 py-1.5 flex items-center justify-between text-[10px]">
-              <a href="admin-users.html" class="text-orange-500 font-bold hover:underline">Manage All Roles &rarr;</a>
-              <button onclick="openRBACMatrixModal()" class="text-gray-400 hover:text-orange-500 underline cursor-pointer">Security Matrix</button>
-            </div>
-            <div class="pt-2 mt-1 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2 px-2 pb-1">
-              <a data-hide-mobile href="home.html" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 flex items-center justify-center gap-1.5 transition">
-                <span>Exit to Store</span>
-              </a>
-              <button type="button" data-rbac-logout onclick="logoutSession()" class="flex-1 px-2.5 py-2 rounded-xl text-[11px] font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200/70 flex items-center justify-center gap-1.5 transition cursor-pointer">
-                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                <span>Log Out</span>
-              </button>
-            </div>
-          </div>
+<body class="pt" data-portal="payments">
+  <div class="pt-frame">
+    <main class="pt-main">
+      <div class="pt-head">
+        <div class="pt-head__text">
+          <h1>Payment methods</h1>
+          <p>The ways customers can pay at checkout. Turn one off to hide it from checkout without losing its details.</p>
         </div>
-
-      </div>
-    </div>
-  </header>
-
-  <!-- Page Body -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
-
-    <!-- Header & Action -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-      <div>
-        <div class="text-xs text-gray-500 mb-1 flex items-center gap-1.5">
-          <a href="dashboard-admin.html" class="text-orange-600 font-bold hover:underline">&larr; Back to Executive Report</a>
-          <span>/</span>
-          <span class="text-gray-900 font-medium">Payment Gateways</span>
+        <div class="pt-head__actions">
+          <a href="payment-method-form.html" class="pt-btn pt-btn--primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add method
+          </a>
         </div>
-        <h1 class="text-2xl font-black text-gray-900 tracking-tight">Payment Gateways &amp; Methods</h1>
-        <p class="text-xs text-gray-500 mt-1">Configure Bakong KHQR, Cambodian bank transfers, and cash options accepted on checkout.</p>
       </div>
 
-      <div class="flex items-center gap-2">
-        <a href="dashboard-admin.html" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition">
-          &larr; Back to Report
-        </a>
-        <a href="payment-method-form.html" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold shadow-sm transition-all">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-          Add Payment Method
-        </a>
-      </div>
-    </div>
-
-    <!-- Payment Methods Table Card -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="psa-stack-table w-full text-left text-sm text-gray-600">
-          <thead class="bg-gray-50 text-[11px] uppercase tracking-wider text-gray-500 border-b border-gray-200">
-            <tr>
-              <th class="px-5 py-3 font-semibold">Method Name</th>
-              <th class="px-5 py-3 font-semibold">Type</th>
-              <th class="px-5 py-3 font-semibold">QR / Icon</th>
-              <th class="px-5 py-3 font-semibold">Account / Remark</th>
-              <th class="px-5 py-3 font-semibold">Status</th>
-              <th class="px-5 py-3 font-semibold text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="methodsTableBody" class="divide-y divide-gray-100">
-            <tr><td colspan="6" class="px-5 py-10 text-center text-xs text-gray-400">Loading payment methods&hellip;</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- Admin Portal Footer -->
-  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-xs text-stone-500 dark:text-stone-400 no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline Operations Portal &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Large QR Code Preview Modal -->
-  <div id="qrModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 hidden" onclick="closeQrModal()">
-    <div class="bg-white rounded-2xl p-6 max-w-xs w-full text-center space-y-4 shadow-2xl" onclick="event.stopPropagation()">
-      <div class="flex items-center justify-between border-b border-gray-100 pb-2">
-        <h3 class="text-sm font-bold text-gray-900" id="qrModalTitle">Payment QR</h3>
-        <button onclick="closeQrModal()" class="text-gray-400 hover:text-gray-600 text-lg">&times;</button>
-      </div>
-      <div class="p-3 bg-white border border-gray-200 rounded-xl inline-block shadow-xs">
-        <img id="qrModalImg" src="" alt="QR" class="w-48 h-48 object-contain mx-auto" />
-      </div>
-      <p class="text-xs text-gray-500">Scan this code in any bank mobile app during checkout testing.</p>
-    </div>
+      <section class="pt-panel" aria-label="Payment methods">
+        <div class="pt-table-wrap">
+          <table class="pt-table pt-table--stack">
+            <thead>
+              <tr>
+                <th scope="col">Method</th>
+                <th scope="col">Type</th>
+                <th scope="col">QR</th>
+                <th scope="col">Account</th>
+                <th scope="col">At checkout</th>
+                <th scope="col" class="is-end"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="methodsTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
   </div>
 
+  <dialog id="qrDialog" class="pt-dialog" aria-labelledby="qrTitle" style="width:min(360px, calc(100vw - 32px))">
+    <div class="pt-dialog__head">
+      <h2 id="qrTitle">Payment QR</h2>
+      <button type="button" class="pt-btn pt-btn--ghost pt-btn--icon" data-close-qr aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="pt-panel__body" style="text-align:center">
+      <div id="qrHolder" style="display:inline-block;padding:10px;background:#fff;border-radius:12px;border:1px solid var(--pt-line)"></div>
+      <p class="pt-muted" style="font-size:13px;margin:12px 0 0">Customers scan this in their bank app at checkout.</p>
+    </div>
+  </dialog>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/rbac.js"></script>
+  <script src="assets/js/portal-shell.js"></script>
   <script>
-    const TYPE_CHIPS = {
-      khqr: ['KHQR Code', 'bg-red-50 text-red-700 border-red-200'],
-      bank: ['Bank Transfer', 'bg-sky-50 text-sky-700 border-sky-200'],
-      cod: ['Cash', 'bg-emerald-50 text-emerald-700 border-emerald-200'],
-      other: ['Other', 'bg-gray-100 text-gray-700 border-gray-200']
-    };
+    const TYPES = { khqr: ['KHQR', 'violet'], bank: ['Bank transfer', 'sky'], cod: ['Cash', 'green'], other: ['Other', 'grey'] };
     const BUILT_IN_CODES = ['bakong_khqr', 'aba_pay', 'acleda_khqr', 'visa_card', 'cod'];
+    const EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+    const TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>';
 
     // A QR can be stored as an uploaded image, a link, or KHQR text (rendered via a QR image service).
     function qrImageUrl(m, size) {
@@ -239,117 +87,86 @@
       const tbody = document.getElementById('methodsTableBody');
       const methods = PSA.online ? PSA.paymentMethods : [];
       if (!methods.length) {
-        tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-10 text-center text-xs text-gray-400">${PSA.online ? 'No payment methods yet.' : 'Start the server (php artisan serve) to manage payment methods.'}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6"><div class="pt-empty"><h3>${PSA.online ? 'No payment methods yet' : 'The server is offline'}</h3><p>${PSA.online ? 'Add one so customers can pay at checkout.' : 'Start it with php artisan serve to manage payment methods.'}</p></div></td></tr>`;
         return;
       }
-      const canEdit = hasPermission('canManagePaymentGateways');
       tbody.innerHTML = methods.map(m => {
-        const chip = TYPE_CHIPS[m.type] || TYPE_CHIPS.other;
+        const [typeLabel, tone] = TYPES[m.type] || TYPES.other;
         const qr = qrImageUrl(m, 100);
         const builtIn = BUILT_IN_CODES.includes(m.code);
         return `
-            <tr class="hover:bg-gray-50/80 transition-colors ${m.isActive ? '' : 'opacity-60'}">
-              <td class="px-5 py-4">
-                <div class="font-bold text-xs text-gray-900">${psaEsc(m.name)}</div>
-                <div class="text-[11px] text-gray-400">${psaEsc(m.description || '')}</div>
-              </td>
-              <td class="px-5 py-4">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${chip[1]}">${chip[0]}</span>
-              </td>
-              <td class="px-5 py-4">
-                ${qr ? `<div class="w-12 h-12 rounded border border-gray-200 p-0.5 bg-white overflow-hidden shadow-xs cursor-pointer" onclick="showMethodQr(${m.id})"><img src="${psaEsc(qr)}" alt="QR" class="w-full h-full object-contain" /></div>`
-                  : '<span class="text-[11px] text-gray-400">&mdash;</span>'}
-              </td>
-              <td class="px-5 py-4 text-xs font-mono text-gray-700">
-                ${psaEsc(m.accountNumber || '—')}
-                ${m.accountName ? `<div class="text-[10px] text-gray-400 font-sans">${psaEsc(m.accountName)}</div>` : ''}
-              </td>
-              <td class="px-5 py-4">
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" ${m.isActive ? 'checked' : ''} ${canEdit ? '' : 'disabled'} class="sr-only peer" onchange="toggleMethodStatus(this, ${m.id})" />
-                  <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
-                  <span class="ml-2 text-xs font-semibold status-label ${m.isActive ? 'text-emerald-700' : 'text-gray-400'}">${m.isActive ? 'Enabled' : 'Disabled'}</span>
-                </label>
-              </td>
-              <td class="px-5 py-4 text-right">
-                <div class="flex items-center justify-end gap-2 ${canEdit ? '' : 'opacity-50 pointer-events-none'}">
-                  <a href="payment-method-form.html?id=${m.id}" class="p-1.5 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors" title="Edit">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                  </a>
-                  <button class="p-1.5 text-gray-400 hover:text-red-600 rounded" title="${builtIn ? 'Built-in checkout method: turn it off instead' : 'Delete'}" onclick="deleteMethod(${m.id})">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>`;
+          <tr class="${m.isActive ? '' : 'is-off'}">
+            <td><span class="pt-strong">${psaEsc(m.name)}</span><span class="pt-sub">${psaEsc(m.description || '')}</span></td>
+            <td data-label="Type"><span class="pt-badge pt-badge--${tone} pt-badge--plain">${typeLabel}</span></td>
+            <td data-label="QR">${qr ? `<button type="button" class="qr-thumb" data-qr="${m.id}" aria-label="Show the ${psaEsc(m.name)} QR code"><img src="${psaEsc(qr)}" alt=""></button>` : '<span class="pt-faint">—</span>'}</td>
+            <td data-label="Account"><span class="pt-mono">${psaEsc(m.accountNumber || '—')}</span>${m.accountName ? `<span class="pt-sub">${psaEsc(m.accountName)}</span>` : ''}</td>
+            <td data-label="At checkout">
+              <span style="display:inline-flex;align-items:center;gap:10px">
+                <label class="pt-switch"><input type="checkbox" data-toggle="${m.id}" ${m.isActive ? 'checked' : ''} aria-label="Show ${psaEsc(m.name)} at checkout"><span></span></label>
+                <span class="pt-muted" style="font-size:13px;font-weight:600">${m.isActive ? 'On' : 'Off'}</span>
+              </span>
+            </td>
+            <td class="is-end"><div class="pt-actions">
+              <a href="payment-method-form.html?id=${m.id}" class="pt-btn pt-btn--secondary pt-btn--sm">${EDIT}Edit</a>
+              ${builtIn ? '' : `<button type="button" class="pt-btn pt-btn--ghost pt-btn--sm pt-btn--icon" data-delete="${m.id}" aria-label="Delete ${psaEsc(m.name)}">${TRASH}</button>`}
+            </div></td>
+          </tr>`;
       }).join('');
     }
 
-    async function toggleMethodStatus(checkbox, id) {
-      if (!hasPermission('canManagePaymentGateways')) {
-        showRBACToast(`Access Denied: Only Admin (Studio Lead) can modify payment gateway merchant credentials. Staff role has read-only access.`, 'danger');
-        checkbox.checked = !checkbox.checked;
-        return;
-      }
+    async function toggleMethodStatus(checkbox) {
+      const id = Number(checkbox.dataset.toggle);
+      checkbox.disabled = true;
       try {
         const { paymentMethod } = await psaApi('PATCH', `/api/admin/payment-methods/${id}`, { isActive: checkbox.checked });
         PSA.paymentMethods = PSA.paymentMethods.map(m => (m.id === paymentMethod.id ? paymentMethod : m));
         renderMethodsTable();
-        showRBACToast(`${psaEsc(paymentMethod.name)} ${paymentMethod.isActive ? 'enabled' : 'disabled'} at checkout.`, paymentMethod.isActive ? 'success' : 'info');
+        showRBACToast(`${psaEsc(paymentMethod.name)} is ${paymentMethod.isActive ? 'on' : 'off'} at checkout.`, 'success');
       } catch (err) {
         checkbox.checked = !checkbox.checked;
+        checkbox.disabled = false;
         showRBACToast(psaEsc(err.message), 'danger');
       }
     }
 
     async function deleteMethod(id) {
       const m = PSA.paymentMethods.find(x => x.id === id);
-      if (!m) return;
-      if (BUILT_IN_CODES.includes(m.code)) {
-        alert('This is a built-in checkout method and cannot be deleted. Turn it off instead.');
-        return;
-      }
-      if (!confirm(`Delete "${m.name}"?`)) return;
+      if (!m || !confirm(`Delete "${m.name}"? Customers won't see it at checkout any more.`)) return;
       try {
         await psaApi('DELETE', `/api/admin/payment-methods/${id}`);
         PSA.paymentMethods = PSA.paymentMethods.filter(x => x.id !== id);
         renderMethodsTable();
+        showRBACToast(`${psaEsc(m.name)} deleted.`, 'success');
       } catch (err) {
         showRBACToast(psaEsc(err.message), 'danger');
       }
     }
 
-    function showMethodQr(id) {
+    function showQr(id) {
       const m = PSA.paymentMethods.find(x => x.id === id);
-      if (m) showQrModal(m.name, qrImageUrl(m, 300));
+      if (!m) return;
+      document.getElementById('qrTitle').textContent = m.name;
+      const img = document.createElement('img');
+      img.src = qrImageUrl(m, 300);
+      img.alt = `${m.name} payment QR code`;
+      img.style.cssText = 'width:240px;height:240px;object-fit:contain';
+      document.getElementById('qrHolder').replaceChildren(img);
+      document.getElementById('qrDialog').showModal();
     }
 
-    function showQrModal(title, url) {
-      document.getElementById('qrModalTitle').textContent = title;
-      document.getElementById('qrModalImg').src = url;
-      document.getElementById('qrModal').classList.remove('hidden');
-    }
-
-    function closeQrModal() {
-      document.getElementById('qrModal').classList.add('hidden');
-    }
-  </script>
-
-  <script src="assets/js/store.js"></script>
-  <script src="assets/js/rbac.js"></script>
-  <script>
     document.addEventListener('DOMContentLoaded', () => {
-      if (!enforcePageRBAC('canAccessAdminPortal')) return;
+      if (ptDenied()) return;
       renderMethodsTable();
-      if (!hasPermission('canManagePaymentGateways')) {
-        // Disable checkboxes and add button if staff
-        document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = true);
-        const addBtn = document.querySelector('a[href="payment-method-form.html"]');
-        if (addBtn) {
-          addBtn.classList.add('opacity-50', 'pointer-events-none');
-          addBtn.setAttribute('title', 'Admin Role Required');
-        }
-      }
+      const body = document.getElementById('methodsTableBody');
+      body.addEventListener('change', e => { if (e.target.matches('[data-toggle]')) toggleMethodStatus(e.target); });
+      body.addEventListener('click', e => {
+        const del = e.target.closest('[data-delete]');
+        if (del) return deleteMethod(Number(del.dataset.delete));
+        const qr = e.target.closest('[data-qr]');
+        if (qr) showQr(Number(qr.dataset.qr));
+      });
+      const dlg = document.getElementById('qrDialog');
+      dlg.addEventListener('click', e => { if (e.target === dlg || e.target.closest('[data-close-qr]')) dlg.close(); });
     });
   </script>
 </body>

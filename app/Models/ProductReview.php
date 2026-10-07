@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/** A customer's rating (1-5) and comment on a product from one of their delivered orders. */
 class ProductReview extends Model
 {
     protected $fillable = [
-        'product_sku',
         'order_id',
-        'user_id',
+        'product_id',
+        'customer_id',
         'rating',
         'comment',
     ];
@@ -18,13 +19,18 @@ class ProductReview extends Model
         'rating' => 'integer',
     ];
 
-    public function user()
+    public function customer()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

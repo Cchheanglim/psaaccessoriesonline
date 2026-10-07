@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Viewed History — PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Products you recently viewed on PsaOnline." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
@@ -120,7 +123,7 @@
                   <div class="text-xs font-bold line-clamp-2 min-h-[2rem]">${p.title}</div>
                   <div class="text-[10px] text-stone-400 mt-1">Viewed ${timeLabel(v.ts)}</div>
                   <div class="flex items-baseline justify-between mt-1">
-                    <span class="text-sm font-black text-[#FFA552]">${formatPrice(p.priceUSD, p.priceKHR)}</span>
+                    <span class="text-sm font-black text-[#FFA552]">${formatPrice(p.priceUSD)}</span>
                     <span class="text-[10px] text-stone-400">★ ${p.rating}</span>
                   </div>
                   ${editMode ? '' : `

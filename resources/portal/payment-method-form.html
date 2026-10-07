@@ -3,159 +3,91 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment Gateway Editor — PsaOnline Admin</title>
+  <title>Payment method — PsaOnline Staff</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="description" content="Add or edit a way customers can pay." />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { sorbet: '#FFA552', cotton: '#F9F3EA', espresso: '#2B1D1D' } } } };</script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
+  <style>
+    .qr-box { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .qr-preview { width: 112px; height: 112px; flex: none; border-radius: 12px; border: 1px solid var(--pt-line); background: #fff; display: grid; place-items: center; overflow: hidden; color: #6B5A55; font-size: 12px; font-weight: 700; text-align: center; }
+    .qr-preview img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
-
-  <!-- Admin Top Bar -->
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-6">
-        <a href="dashboard-admin.html" class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded bg-orange-600 flex items-center justify-center text-white font-black text-base">P</div>
-          <span class="text-lg font-black text-gray-900 tracking-tight">PsaOnline <span data-hide-mobile class="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200 uppercase tracking-widest ml-1">Admin Ops</span></span>
-        </a>
-
-        <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-gray-600">
-          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Overview</a>
-          <a href="admin-orders.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Orders</a>
-          <a href="admin-messages.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Messages <span class="psa-inbox-count hidden ml-1 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-rose-600 text-white text-xs font-black"></span></a>
-          <a href="admin-products.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Products</a>
-          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 font-semibold">Payment Methods</a>
-          <a href="admin-users.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Staff & Users</a>
-        </nav>
-      </div>
-
-      <div class="flex items-center gap-2 sm:gap-3">
-        <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs text-gray-700 font-bold transition">&larr; Back to Gateways</a>
-        <a href="dashboard-admin.html" class="hidden sm:inline-flex px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-xs text-orange-600 font-bold transition">Exit to Report</a>
-        <a href="login.html?logout=1" class="px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-xs text-red-600 font-bold transition">Log Out</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Form Body -->
-  <main class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
-
-    <div>
-      <div class="text-xs text-gray-500 mb-1 flex items-center gap-1.5">
-        <a href="admin-payment-methods.html" class="hover:text-orange-600">Payment Methods</a>
-        <span>/</span>
-        <span class="text-gray-900 font-medium">Configure Gateway</span>
-      </div>
-      <h1 class="text-2xl font-black text-gray-900 tracking-tight">Payment Method Configuration</h1>
-      <p class="text-xs text-gray-500 mt-1">Update receiver account details, upload new QR graphics, and write instructions shown to buyers.</p>
-    </div>
-
-    <form class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-6" onsubmit="saveMethod(event)">
-      
-      <!-- Method Name -->
-      <div class="space-y-1.5">
-        <label for="methodName" class="text-xs font-bold text-gray-700">Gateway Display Name <span class="text-red-500">*</span></label>
-        <input
-          type="text"
-          id="methodName"
-          name="name"
-          required
-          placeholder="e.g. Bakong KHQR, ABA Pay"
-          class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-        />
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- Gateway Type -->
-        <div class="space-y-1.5">
-          <label for="methodType" class="text-xs font-bold text-gray-700">Method Type <span class="text-red-500">*</span></label>
-          <select id="methodType" name="type" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <option value="khqr" selected>Bakong KHQR Universal Code</option>
-            <option value="bank">Bank Transfer (ABA, ACLEDA, etc.)</option>
-            <option value="cod">Cash on Delivery (Courier)</option>
-            <option value="other">Other Mobile Wallet</option>
-          </select>
-        </div>
-
-        <!-- Account / Remark -->
-        <div class="space-y-1.5">
-          <label for="accountNumber" class="text-xs font-bold text-gray-700">Account ID / Remark Format</label>
-          <input
-            type="text"
-            id="accountNumber"
-            name="account"
-            placeholder="e.g. 001 928 374 or account handle"
-            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 font-mono"
-          />
+<body class="pt" data-portal="payment-method-form" data-portal-parent="payments" data-portal-title="New payment method">
+  <div class="pt-frame">
+    <main class="pt-main pt-main--narrow">
+      <a href="admin-payment-methods.html" class="pt-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Payment methods</a>
+      <div class="pt-head">
+        <div class="pt-head__text">
+          <h1 id="formTitle">New payment method</h1>
+          <p>Customers see the name, the account details, your note and the QR code at checkout.</p>
         </div>
       </div>
 
-      <!-- QR Code Image Upload & Preview -->
-      <div class="space-y-2">
-        <label class="text-xs font-bold text-gray-700 block">QR Code Graphic</label>
-        <div class="flex items-center gap-4">
-          <div class="w-24 h-24 rounded-lg border border-gray-200 bg-gray-50 p-1 flex-shrink-0 overflow-hidden shadow-xs">
-            <img id="qrPreviewImg" src="" alt="QR Preview" class="w-full h-full object-contain" />
+      <form class="pt-panel" novalidate onsubmit="saveMethod(event)">
+        <div class="pt-panel__body">
+          <div class="pt-field">
+            <label for="methodName" class="pt-label">Name customers see</label>
+            <input type="text" id="methodName" name="name" required maxlength="100" placeholder="Bakong KHQR" class="pt-input" />
           </div>
-          <div class="space-y-2 flex-1">
-            <input type="file" id="qrFileInput" accept="image/*" class="text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer" onchange="previewQr(event)" />
-            <p class="text-[11px] text-gray-400">Supported: PNG, JPG, SVG with high contrast. Recommended square 400x400.</p>
+          <div class="pt-row pt-row--2" style="margin-top:16px">
+            <div class="pt-field">
+              <label for="methodType" class="pt-label">Type</label>
+              <select id="methodType" name="type" class="pt-select">
+                <option value="khqr" selected>KHQR code</option>
+                <option value="bank">Bank transfer (ABA, ACLEDA…)</option>
+                <option value="cod">Cash on delivery</option>
+                <option value="other">Other wallet</option>
+              </select>
+            </div>
+            <div class="pt-field">
+              <label for="accountNumber" class="pt-label">Account number <span class="pt-faint">(optional)</span></label>
+              <input type="text" id="accountNumber" name="account" maxlength="50" placeholder="012 345 678" class="pt-input pt-mono" />
+            </div>
+          </div>
+
+          <div class="pt-field" style="margin-top:20px">
+            <span class="pt-label">QR code <span class="pt-faint">(optional)</span></span>
+            <div class="qr-box">
+              <div class="qr-preview" id="qrPreview">No QR yet</div>
+              <div>
+                <label class="pt-btn pt-btn--secondary" style="cursor:pointer">
+                  <input type="file" id="qrFileInput" accept="image/*" class="sr-only" onchange="previewQr(event)" />
+                  Choose picture
+                </label>
+                <button type="button" class="pt-btn pt-btn--ghost" id="qrRemove" hidden>Remove</button>
+                <span class="pt-hint">A clear square picture of the QR from your bank app works best.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-field" style="margin-top:20px">
+            <label for="instructions" class="pt-label">Note for customers <span class="pt-faint">(optional)</span></label>
+            <textarea id="instructions" name="instructions" rows="3" maxlength="255" placeholder="Put your order number in the transfer remark." class="pt-textarea"></textarea>
+          </div>
+
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-top:20px;padding-top:16px;border-top:1px solid var(--pt-line)">
+            <span><b style="display:block;font-size:14px">Show at checkout</b><small class="pt-muted" style="font-size:12px">Turn off to hide it from customers for now.</small></span>
+            <label class="pt-switch"><input type="checkbox" id="methodEnabled" name="enabled" checked aria-label="Show at checkout"><span></span></label>
           </div>
         </div>
-      </div>
-
-      <!-- Buyer Instructions Textarea -->
-      <div class="space-y-1.5">
-        <label for="instructions" class="text-xs font-bold text-gray-700">Buyer Instructions & Payment Remark Guide</label>
-        <textarea
-          id="instructions"
-          name="instructions"
-          rows="3"
-          maxlength="255"
-          class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-        ></textarea>
-      </div>
-
-      <!-- Status Toggle Checkbox -->
-      <div class="pt-2">
-        <label class="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" id="methodEnabled" name="enabled" checked class="w-4 h-4 rounded text-orange-600 focus:ring-orange-500 border-gray-300" />
-          <div>
-            <span class="text-xs font-bold text-gray-900 block">Enable this payment method at checkout</span>
-            <span class="text-[11px] text-gray-500">Uncheck to temporarily hide from customer checkout screens</span>
-          </div>
-        </label>
-      </div>
-
-      <!-- Form Buttons -->
-      <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-        <a href="admin-payment-methods.html" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:text-gray-900">
-          Cancel
-        </a>
-        <span id="methodFormError" class="hidden text-xs font-bold text-red-600" role="alert"></span>
-        <button type="submit" id="methodSaveBtn" class="px-5 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-sm transition-all">
-          Save Payment Method
-        </button>
-      </div>
-
-    </form>
-
-  </main>
-
-  <!-- Admin Portal Footer -->
-  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-xs text-stone-500 dark:text-stone-400 no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline Operations Portal &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
+        <div class="pt-panel__foot">
+          <span id="methodFormError" class="hidden pt-error" style="margin:0 auto 0 0;align-self:center" role="alert"></span>
+          <a href="admin-payment-methods.html" class="pt-btn pt-btn--ghost">Cancel</a>
+          <button type="submit" id="methodSaveBtn" class="pt-btn pt-btn--primary">Save method</button>
+        </div>
+      </form>
+    </main>
+  </div>
 
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
+  <script src="assets/js/portal-shell.js"></script>
   <script>
     const editingMethodId = new URLSearchParams(location.search).get('id');
     let qrData = null;
@@ -166,15 +98,30 @@
       return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data)}`;
     }
 
+    function showQr() {
+      const box = document.getElementById('qrPreview');
+      const url = qrImageUrl(qrData);
+      if (url) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = 'QR code preview';
+        box.replaceChildren(img);
+      } else {
+        box.textContent = 'No QR yet';
+      }
+      document.getElementById('qrRemove').hidden = !url;
+    }
+
     async function previewQr(event) {
       const file = event.target.files[0];
       if (!file) return;
       try {
         qrData = await psaImageToDataUrl(file, 600, 0.9);
-        document.getElementById('qrPreviewImg').src = qrData;
+        showQr();
       } catch (err) {
-        alert(err.message);
+        showRBACToast(psaEsc(err.message), 'danger');
       }
+      event.target.value = '';
     }
 
     // Same limits as AdminApiController::validatePaymentMethod.
@@ -183,12 +130,10 @@
       let hasError = false;
       const check = (id, message) => { if (message) { psaShowFieldError(id, message); hasError = true; } };
       const tooLong = (id, max, label) => document.getElementById(id).value.trim().length > max ? `${label} must be ${max} characters or fewer.` : null;
-
       check('methodName', psaValidateMinLength(document.getElementById('methodName').value, 2, 'Name') || tooLong('methodName', 100, 'Name'));
       check('methodType', psaValidateRequired(document.getElementById('methodType').value, 'Type'));
       check('accountNumber', tooLong('accountNumber', 50, 'Account number'));
-      check('instructions', tooLong('instructions', 255, 'Instructions'));
-
+      check('instructions', tooLong('instructions', 255, 'Note'));
       return !hasError;
     }
 
@@ -206,19 +151,15 @@
         qrData,
         isActive: document.getElementById('methodEnabled').checked
       };
-      psaSetButtonLoading(btn, true, 'Saving...');
+      psaSetButtonLoading(btn, true, 'Saving…');
       try {
-        if (editingMethodId) {
-          await psaApi('PATCH', `/api/admin/payment-methods/${encodeURIComponent(editingMethodId)}`, payload);
-        } else {
-          await psaApi('POST', '/api/admin/payment-methods', payload);
-        }
+        if (editingMethodId) await psaApi('PATCH', `/api/admin/payment-methods/${encodeURIComponent(editingMethodId)}`, payload);
+        else await psaApi('POST', '/api/admin/payment-methods', payload);
         window.location.replace('admin-payment-methods.html');
       } catch (err) {
         psaSetButtonLoading(btn, false);
-        if (err.errors) {
-          psaApplyServerErrors(e.target, err.errors);
-        } else {
+        if (err.errors) psaApplyServerErrors(e.target, err.errors);
+        else {
           errorEl.textContent = err.message;
           errorEl.classList.remove('hidden');
         }
@@ -226,27 +167,31 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      if (!enforcePageRBAC('canManagePaymentGateways')) return;
+      if (ptDenied()) return;
       ['methodName', 'methodType', 'accountNumber', 'instructions'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => psaClearFieldError(el));
       });
+      document.getElementById('qrRemove').addEventListener('click', () => { qrData = null; showQr(); });
       if (!editingMethodId) return;
       const m = PSA.paymentMethods.find(x => String(x.id) === editingMethodId);
       if (!m) {
-        alert('That payment method was not found.');
-        window.location.href = 'admin-payment-methods.html';
+        showRBACToast('That payment method was not found.', 'danger');
+        setTimeout(() => { window.location.href = 'admin-payment-methods.html'; }, 900);
         return;
       }
+      document.title = `${m.name} — PsaOnline Staff`;
+      document.getElementById('formTitle').textContent = m.name;
+      const crumb = document.querySelector('.pt-top__crumb b');
+      if (crumb) crumb.textContent = m.name;
       document.getElementById('methodName').value = m.name;
       document.getElementById('methodType').value = m.type || 'other';
       document.getElementById('accountNumber').value = m.accountNumber || '';
       document.getElementById('instructions').value = m.description || '';
       document.getElementById('methodEnabled').checked = m.isActive;
       qrData = m.qrData;
-      document.getElementById('qrPreviewImg').src = qrImageUrl(m.qrData);
+      showQr();
     });
   </script>
-
 </body>
 </html>

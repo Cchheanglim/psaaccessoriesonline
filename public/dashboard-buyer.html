@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>My account | PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Track your PsaOnline orders, saved items and recently viewed products." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -84,7 +87,7 @@
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 flex-wrap">
             <div id="profileName" class="min-w-0 text-lg sm:text-2xl font-extrabold leading-tight text-white break-words"></div>
-            <span id="levelBadge" class="hidden items-center rounded-md bg-[#FFA552] text-stone-900 text-xs font-bold px-2 py-0.5" title="Level is based on completed orders"></span>
+            <span id="levelBadge" class="hidden items-center rounded-md bg-[#FFA552] text-stone-900 text-xs font-bold px-2 py-0.5" title="Your PsaOnline Rewards tier"></span>
           </div>
           <!-- Email and phone stay private here; they're shown only under Settings > My info -->
           <div id="profileEmail" class="hidden"></div>
@@ -118,12 +121,15 @@
           <div id="statCoupons" class="text-lg font-extrabold text-white tabular-nums">0</div>
           <div class="text-xs text-[#E9DCCB]">Coupons</div>
         </button>
-        <div class="py-3 text-center">
-          <div id="statPoints" class="text-lg font-extrabold text-white tabular-nums">0</div>
-          <div class="text-xs text-[#E9DCCB]">Points</div>
-        </div>
+        <a href="#rewards" class="py-3 text-center hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[#FFA552]">
+          <div id="statTier" class="text-lg font-extrabold text-white">Plus</div>
+          <div class="text-xs text-[#E9DCCB]">Membership</div>
+        </a>
       </div>
     </section>
+
+    <!-- PsaOnline membership: tier and spending (filled by renderRewards) -->
+    <section id="rewards" class="hidden scroll-mt-24 rounded-2xl bg-white dark:bg-[#1A1A22] border border-[#EFE4D6] dark:border-[#2D2D38] p-4 sm:p-6" aria-labelledby="rewardsHeading"></section>
 
     <!-- Order status shortcuts -->
     <section class="rounded-2xl bg-white dark:bg-[#1A1A22] border border-[#EFE4D6] dark:border-[#2D2D38]" aria-labelledby="myOrdersHeading">
@@ -375,10 +381,15 @@
       $('signInLink').classList.toggle('inline-flex', !user);
 
       const badge = $('levelBadge');
-      if (user) {
+      const loyalty = user && user.loyalty;
+      if (loyalty && loyalty.tier) {
+        badge.textContent = `${loyalty.tier} member`;
+        badge.classList.remove('hidden');
+        badge.classList.add('inline-flex');
+      } else if (user && !PSA.online) {
+        // Preview without the server: estimate from delivered orders
         const delivered = getOrders().filter((o) => orderGroup(o) === 'delivered').length;
-        const level = MEMBER_LEVELS.find((l) => delivered >= l.min);
-        badge.textContent = level.label;
+        badge.textContent = MEMBER_LEVELS.find((l) => delivered >= l.min).label;
         badge.classList.remove('hidden');
         badge.classList.add('inline-flex');
       } else {
@@ -388,6 +399,8 @@
     }
 
     function activeCoupons() {
+      // Live: promo codes staff chose to show customers (checked again at checkout).
+      if (typeof PSA !== 'undefined' && PSA.online) return Array.isArray(PSA.coupons) ? PSA.coupons : [];
       const list = readJSON('psa_coupons', []);
       if (!Array.isArray(list)) return [];
       return list.filter((c) => {
@@ -400,16 +413,55 @@
       });
     }
 
-    function getPoints() {
-      const n = Math.floor(Number(localStorage.getItem('psa_points')));
-      return isFinite(n) && n > 0 ? n : 0;
+    /* ---------- PsaOnline Rewards ---------- */
+    // Membership: Plus, then Pro from $100 spent (6% off), then Max from $500 (17% off).
+    // Spending counts delivered orders; 18 days without an order and it starts again.
+    function renderRewards() {
+      const box = $('rewards');
+      const user = getUser();
+      const l = user && user.loyalty;
+      box.classList.toggle('hidden', !l);
+      if (!l) return;
+      const spend = Number(l.spendUSD || 0);
+      const from = Number(l.tierFromUSD || 0);
+      const to = l.nextTierAtUSD ? Number(l.nextTierAtUSD) : null;
+      const pct = to ? Math.max(0, Math.min(100, Math.round(((spend - from) / (to - from)) * 100))) : 100;
+      const money = (v) => '$' + Number(v || 0).toFixed(2).replace(/\.00$/, '');
+      const when = (iso) => iso ? new Date(iso).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      const daysLeft = l.expiresAt ? Math.max(0, Math.ceil((new Date(l.expiresAt) - Date.now()) / 86400000)) : null;
+      const tiers = (l.tiers || []).map((t) => {
+        const on = t.name === l.tier;
+        return `<li class="flex-1 rounded-xl border px-3 py-2 text-center ${on ? 'border-[#E88C35] bg-[#FFF4E8] dark:bg-[#2A2118]' : 'border-[#EFE4D6] dark:border-[#2D2D38]'}">
+          <div class="text-sm font-extrabold text-[#2B1D1D]">${esc(t.name)}${on ? ' <span class="sr-only">(your tier)</span>' : ''}</div>
+          <div class="text-xs text-stone-600">${t.minSpendUSD ? `Spend ${money(t.minSpendUSD)}` : 'Everyone'} · ${t.discountPercent ? `${t.discountPercent}% off` : 'no discount'}</div>
+        </li>`;
+      }).join('');
+      box.innerHTML = `
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 id="rewardsHeading" class="text-base font-extrabold text-[#2B1D1D]">PsaOnline membership</h2>
+            <p class="text-sm text-stone-600">${l.discountPercent ? `You get <b>${l.discountPercent}% off</b> everything at checkout.` : 'Spend $100 on delivered orders to become Pro and get 6% off.'}</p>
+          </div>
+          <span class="inline-flex items-center h-8 px-3 rounded-full bg-[#2B1D1D] text-white text-sm font-extrabold dark:bg-[#FFA552] dark:text-stone-900">${esc(l.tier)}</span>
+        </div>
+        <div class="mt-4 flex items-end justify-between gap-3">
+          <div><span class="text-3xl font-extrabold text-[#2B1D1D] tabular-nums">${money(spend)}</span> <span class="text-sm text-stone-600">spent</span></div>
+          <div class="text-sm font-semibold text-stone-600 text-right">${l.nextTier ? `${money(l.spendToNextUSD)} more to <b class="text-[#2B1D1D]">${esc(l.nextTier)}</b>` : 'You are at the top tier'}</div>
+        </div>
+        <div class="mt-2 h-3 rounded-full bg-[#F3EAD9] dark:bg-[#2A2A34] overflow-hidden" role="progressbar" aria-label="Progress to ${esc(l.nextTier || l.tier)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}">
+          <div class="h-full rounded-full bg-[#E88C35]" style="width:${pct}%"></div>
+        </div>
+        ${daysLeft !== null ? `<p class="mt-2 text-sm ${daysLeft <= 5 ? 'text-rose-700 dark:text-rose-300 font-bold' : 'text-stone-600'}">${daysLeft === 0 ? `Order today to keep ${esc(l.tier)}.` : `Order within ${daysLeft} day${daysLeft === 1 ? '' : 's'} to keep ${esc(l.tier)} (until ${esc(when(l.expiresAt))}).`}</p>`
+          : `<p class="mt-2 text-xs text-stone-500">Delivered orders count. Membership resets after ${l.lapseDays || 18} days without an order.</p>`}
+        <ul class="mt-4 flex gap-2" aria-label="Membership tiers">${tiers}</ul>`;
     }
 
     function renderStats() {
       $('statWishlist').textContent = getWishlist().length.toLocaleString();
       $('statViewed').textContent = getViewed().length.toLocaleString();
       $('statCoupons').textContent = activeCoupons().length.toLocaleString();
-      $('statPoints').textContent = getPoints().toLocaleString();
+      const loyalty = getUser() && getUser().loyalty;
+      $('statTier').textContent = loyalty ? loyalty.tier : 'Plus';
     }
 
     /* ---------- Avatar upload ---------- */
@@ -633,8 +685,7 @@
       const idQ = encodeURIComponent(id);
       const items = Array.isArray(ord.items) ? ord.items : [];
       const payHref = 'order-detail--buyer-pending.html?order=' + idQ +
-        '&usd=' + encodeURIComponent(ord.totalUSD != null ? ord.totalUSD : '') +
-        '&khr=' + encodeURIComponent(ord.totalKHR != null ? ord.totalKHR : '');
+        '&usd=' + encodeURIComponent(ord.totalUSD != null ? ord.totalUSD : '');
       const btnBase = 'inline-flex items-center justify-center h-9 px-4 rounded-lg text-sm font-bold ' + FOCUS;
 
       return `
@@ -663,7 +714,6 @@
             <div class="text-sm">
               <span class="text-stone-500">Total</span>
               <span class="font-extrabold text-[#2B1D1D] tabular-nums">$${esc(ord.totalUSD)}</span>
-              <span class="text-stone-500 tabular-nums">(${esc(ord.totalKHR)} ៛)</span>
             </div>
             <div class="flex items-center gap-2">
               ${orderGroup(ord) === 'pending' && ord.paymentCode !== 'cod' ? `<a href="${payHref}" class="${btnBase} bg-[#FFA552] hover:bg-[#E88C35] text-stone-900">Pay now</a>` : ''}
@@ -731,13 +781,18 @@
     function openCoupons() {
       const coupons = activeCoupons();
       $('couponList').innerHTML = coupons.length
-        ? coupons.map((c) => `
-            <div class="rounded-lg border border-[#EFE4D6] dark:border-[#2D2D38] p-3">
-              <div class="font-mono text-sm font-bold text-[#2B1D1D]">${esc(c.code)}</div>
-              ${c.description ? `<div class="text-sm text-stone-500">${esc(c.description)}</div>` : ''}
-              ${c.expires ? `<div class="text-xs text-stone-500">Expires ${esc(new Date(c.expires).toLocaleDateString())}</div>` : ''}
-            </div>`).join('')
-        : '<p class="text-sm text-stone-500">You have no coupons right now.</p>';
+        ? coupons.map((c) => {
+            const ends = c.endsAt || c.expires;
+            return `
+            <div class="rounded-xl border border-dashed border-[#E2D3BF] dark:border-[#3A3A46] p-3 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap"><span class="font-mono text-sm font-bold tracking-wide text-[#2B1D1D]">${esc(c.code)}</span>${c.label ? `<span class="text-xs font-extrabold text-emerald-800 bg-emerald-50 rounded-full px-2 py-0.5">${esc(c.label)}</span>` : ''}</div>
+                ${c.description ? `<div class="text-sm text-stone-600">${esc(c.description)}</div>` : ''}
+                <div class="text-xs text-stone-500">${c.minOrderUSD ? `On items over $${Number(c.minOrderUSD).toFixed(2)}` : 'Any order'}${ends ? ` · until ${esc(new Date(ends).toLocaleDateString([], { day: 'numeric', month: 'short' }))}` : ''}</div>
+              </div>
+              <a href="checkout.html?promo=${encodeURIComponent(c.code)}" class="shrink-0 h-9 px-3 inline-flex items-center rounded-lg bg-[#2B1D1D] text-white text-xs font-black dark:bg-[#FFA552] dark:text-[#2B1D1D]">Use</a>
+            </div>`; }).join('')
+        : '<p class="text-sm text-stone-500">No coupons right now. Watch our socials for new codes.</p>';
       const dlg = $('couponDialog');
       if (typeof dlg.showModal === 'function') dlg.showModal(); else dlg.setAttribute('open', '');
     }
@@ -794,7 +849,7 @@
           </a>
           <div class="p-3 flex flex-col gap-2 flex-1">
             <a href="product-detail.html?id=${encodeURIComponent(p.id)}" class="text-sm font-semibold text-[#2B1D1D] line-clamp-2 min-h-[2.5rem] hover:underline ${FOCUS}">${esc(p.title)}</a>
-            <div class="text-sm font-extrabold text-[#2B1D1D] tabular-nums">${esc(formatPrice(p.priceUSD, p.priceKHR))}</div>
+            <div class="text-sm font-extrabold text-[#2B1D1D] tabular-nums">${esc(formatPrice(p.priceUSD))}</div>
             <div class="flex gap-2 mt-auto">
               <button type="button" data-add="${esc(p.id)}" ${p.inStock === false ? 'disabled' : ''} class="flex-1 h-9 rounded-lg bg-[#FFA552] hover:bg-[#E88C35] disabled:opacity-50 disabled:cursor-not-allowed text-stone-900 text-xs font-bold cursor-pointer ${FOCUS}">${p.inStock === false ? 'Sold out' : 'Add to Bag'}</button>
               <button type="button" data-wish="${esc(p.id)}" data-wishlist-id="${esc(p.id)}" class="w-9 h-9 shrink-0 rounded-lg border border-[#EFE4D6] dark:border-[#2D2D38] text-stone-400 flex items-center justify-center cursor-pointer ${FOCUS}" aria-label="Save to Wishlist" title="Save to Wishlist">
@@ -811,6 +866,7 @@
     function refreshAll() {
       renderProfile();
       renderStats();
+      renderRewards();
       updateShortcuts();
       renderOrders();
       renderRecs();

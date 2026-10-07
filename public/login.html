@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Customer Sign In — PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Sign in to your PsaOnline account to track your accessories orders and save your favorites." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -182,7 +185,7 @@
       // only follow same-site relative links
       if (next && /^[a-z0-9_-]+(\.html)?([?#].*)?$/i.test(next)) {
         window.location.replace(next);
-      } else if (user.role === 'Admin' || user.role === 'Staff') {
+      } else if (user.role && user.role !== 'Buyer') {
         window.location.replace('dashboard-admin.html');
       } else {
         window.location.replace('dashboard-buyer.html');

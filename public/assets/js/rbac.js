@@ -189,9 +189,35 @@ function switchUserRole(newRole) {
   }, 350);
 }
 
+// Old page keys -> the server permission an admin ticks under Staff & roles.
+const RBAC_SERVER_PERMISSION = {
+  canViewReports: 'view_reports',
+  canExportReports: 'view_reports',
+  canVerifyOrders: 'verify_payments',
+  canCancelOrders: 'cancel_orders',
+  canManageProducts: 'manage_products',
+  canDeleteProducts: 'delete_products',
+  canManageInventory: 'manage_stock',
+  canManageUsers: 'manage_users',
+  canManagePaymentGateways: 'manage_payment_methods'
+};
+
+function isPortalUser(user = getCurrentUser()) {
+  return !!(user && !user.guest && user.role && user.role !== 'Buyer');
+}
+
+/**
+ * Live: what the signed-in account's role allows (sent by the server, which checks it again).
+ * Takes the old keys (canCancelOrders) or server names (cancel_orders). Demo mode: the fixed matrix.
+ */
 function hasPermission(permissionName) {
   const user = getCurrentUser();
-  const perms = RBAC_PERMISSIONS[user.role] || RBAC_PERMISSIONS.Buyer;
+  if (Array.isArray(user.permissions)) {
+    if (permissionName === 'canAccessAdminPortal') return isPortalUser(user);
+    if (permissionName === 'canEditRoles') return user.role === 'Admin';
+    return user.permissions.includes(RBAC_SERVER_PERMISSION[permissionName] || permissionName);
+  }
+  const perms = RBAC_PERMISSIONS[user.role] || (isPortalUser(user) ? RBAC_PERMISSIONS.Staff : RBAC_PERMISSIONS.Buyer);
   return !!perms[permissionName];
 }
 
@@ -310,13 +336,13 @@ function updateRBACUI() {
     badge.className = 'rbac-role-badge px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider inline-flex items-center gap-1 ' +
       (user.role === 'Admin' 
         ? 'bg-purple-100 text-purple-700 border border-purple-300 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800' 
-        : (user.role === 'Staff' 
+        : (isPortalUser(user) 
           ? 'bg-blue-100 text-blue-700 border border-blue-300 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800' 
           : 'bg-emerald-100 text-emerald-700 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'));
   });
 
   // Admin-only elements handling
-  if (user.role === 'Staff') {
+  if (isPortalUser(user) && user.role !== 'Admin') {
     document.querySelectorAll('.rbac-admin-only').forEach(el => {
       el.classList.add('opacity-50', 'pointer-events-none');
       el.setAttribute('title', 'Admin Role Required (Restricted for Staff)');

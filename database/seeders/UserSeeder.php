@@ -19,21 +19,26 @@ class UserSeeder extends Seeder
                 'phone' => '+855 12 889 900',
                 'password' => Hash::make('admin123456'),
                 'role' => 'admin',
-                'address' => 'Street 2004, Phnom Penh, Cambodia',
             ]
         );
 
-        // Demo Buyer Account
-        User::firstOrCreate(
+        // Demo Buyer Account (a customer profile with a saved home address)
+        $buyer = User::firstOrCreate(
             ['email' => 'buyer@gmail.com'],
             [
                 'name' => 'Sophea Chhum',
                 'phone' => '+855 96 554 1234',
                 'password' => Hash::make('password123'),
                 'role' => 'buyer',
-                'address' => 'Toul Kork, St 315, House #14, Phnom Penh',
             ]
         );
+        $customer = $buyer->customerProfile();
+        if (! $customer->addresses()->exists()) {
+            $customer->addresses()->create([
+                'label' => 'Home', 'recipient_name' => $buyer->name, 'phone' => $buyer->phone,
+                'address_line' => 'Toul Kork, St 315, House #14, Phnom Penh', 'is_default' => true,
+            ]);
+        }
 
         // Default Payment Gateways
         PaymentMethod::firstOrCreate(

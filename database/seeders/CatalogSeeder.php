@@ -2,20 +2,29 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Product;
-use App\Models\ProductReview;
+use App\Support\Inventory;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Loads the storefront catalog (database/data/catalog.json) into the products table.
+ * Loads the storefront catalog (database/data/catalog*.json) into products, categories,
+ * product_details, product_images and product_stocks.
  *
- * Safe to re-run: products are matched by SKU, and rows created by the older
- * ProductSeeder are matched by their slug so they keep their id and stock.
+ * Safe to re-run: products are matched by SKU and keep their id and stock; ratings are never
+ * seeded (they come from real customer reviews).
  */
 class CatalogSeeder extends Seeder
 {
-    private const LEGACY_SLUGS = [];
+    // Same names as the staff product form (resources/portal/product-form.html)
+    private const CATEGORY_NAMES = [
+        'apparel' => 'Tees & Shirts', 'watches' => 'Watches', 'bags' => 'Bags & Pouches', 'hair' => 'Hair & Clips',
+        'charms' => 'Bag & Phone Charms', 'shoes' => 'Shoes', 'plush' => 'Plush & Crochet', 'socks' => 'Socks',
+        'hats' => 'Caps & Hats', 'jewelry' => 'Jewelry', 'beauty' => 'Beauty', 'accessories' => 'Phone Accessories',
+        'gifts' => 'Gift Sets', 'eyewear' => 'Shades & Eyewear',
+    ];
 
     public function run(): void
     {
@@ -25,33 +34,65 @@ class CatalogSeeder extends Seeder
             $catalog = array_merge($catalog, json_decode(file_get_contents(database_path('data/'.$file)), true) ?? []);
         }
 
-        foreach ($catalog as $item) {
-            $product = Product::where('sku', $item['id'])->first();
+        DB::transaction(function () use ($catalog) {
+            foreach ($catalog as $item) {
+                $product = Product::firstOrNew(['sku' => $item['id']]);
+                $isNew = ! $product->exists;
+                $product->fill([
+                    'category_id' => $this->category($item['category'], $item['categoryLabel'] ?? null)->id,
+                    'title' => $item['title'],
+                    'title_khmer' => $item['titleKhmer'] ?? null,
+                    'price_usd' => $item['priceUSD'],
+                    'badge' => $item['badge'] ?? null,
+                ]);
+                if ($isNew) {
+                    $product->status = $item['status'] ?? 'active';
+                }
+                $product->save();
 
-            if (! $product && isset(self::LEGACY_SLUGS[$item['id']])) {
-                $product = Product::where('slug', self::LEGACY_SLUGS[$item['id']])->first();
+                $product->detail()->updateOrCreate(['product_id' => $product->id], [
+                    'description' => $item['description'] ?? null,
+                ]);
+                // One row per fact (1NF)
+                $product->specifications()->delete();
+                $i = 0;
+                foreach ($item['specifications'] ?? [] as $name => $value) {
+                    $product->specifications()->create(['name' => mb_substr($name, 0, 100), 'value' => (string) $value, 'sort_order' => $i++]);
+                }
+
+                $gallery = array_values(array_filter($item['gallery'] ?? [])) ?: array_values(array_filter([$item['image'] ?? null]));
+                $product->images()->delete();
+                foreach ($gallery as $i => $path) {
+                    $product->images()->create(['image_path' => $path, 'is_primary' => $i === 0, 'sort_order' => $i]);
+                }
+
+                if ($isNew) {
+                    Inventory::setQuantity($product, ($item['inStock'] ?? true) ? 50 : 0, null, 'Opening stock (catalog seed)');
+                }
             }
 
-            $product ??= new Product(['stock' => ($item['inStock'] ?? true) ? 50 : 0, 'status' => $item['status'] ?? 'active']);
+            // The home page showcase starts with these, unless staff already picked their own.
+            if (! Product::whereNotNull('showcase_position')->exists()) {
+                foreach (['genz-25', 'genz-24', 'genz-08'] as $i => $sku) {
+                    Product::where('sku', $sku)->update(['showcase_position' => $i]);
+                }
+            }
+        });
+    }
 
-            $product->fill([
-                'sku' => $item['id'],
-                'title' => $item['title'],
-                'title_khmer' => $item['titleKhmer'] ?? null,
-                'slug' => Str::slug($item['title']),
-                'category' => $item['category'],
-                'category_label' => $item['categoryLabel'] ?? null,
-                'price_usd' => $item['priceUSD'],
-                'price_khr' => $item['priceKHR'],
-                'image' => $item['image'] ?? null,
-                'gallery' => $item['gallery'] ?? [],
-                'badge' => $item['badge'] ?? null,
-                // Ratings come only from real customer reviews, never from the catalog file.
-                'rating' => round((float) ProductReview::where('product_sku', $item['id'])->avg('rating'), 1),
-                'review_count' => ProductReview::where('product_sku', $item['id'])->count(),
-                'description' => $item['description'] ?? null,
-                'specifications' => $item['specifications'] ?? [],
-            ])->save();
+    private function category(string $slug, ?string $label): Category
+    {
+        $slug = Str::slug($slug) ?: 'other';
+        $top = Category::firstOrCreate(['slug' => $slug], ['name' => self::CATEGORY_NAMES[$slug] ?? Str::headline($slug)]);
+
+        $label = trim((string) $label);
+        if ($label === '' || strcasecmp($label, $top->name) === 0) {
+            return $top;
         }
+
+        return Category::firstOrCreate(
+            ['slug' => $slug.'-'.Str::slug($label)],
+            ['name' => $label, 'parent_id' => $top->id],
+        );
     }
 }

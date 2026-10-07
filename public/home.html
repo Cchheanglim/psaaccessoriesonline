@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>PsaOnline | Cute Gifts & Little Treats in Phnom Penh</title>
-  <meta name="description" content="Plush bag charms, flower claw clips, socks, tees, bags and watches. Prices in USD and riel, pay by KHQR or cash on delivery, delivered in Phnom Penh." />
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="description" content="Plush bag charms, flower claw clips, socks, tees, bags and watches. Prices in US dollars, pay by KHQR or cash on delivery, delivered in Phnom Penh." />
   <meta property="og:title" content="PsaOnline | Cute Gifts & Little Treats in Phnom Penh" />
   <meta property="og:description" content="Cute gifts and everyday finds. $1.50 delivery in Phnom Penh, free on orders of $15 or more. Pay by KHQR or cash on delivery." />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -34,7 +37,7 @@
       <span class="hidden sm:inline text-sorbet" aria-hidden="true">&bull;</span>
       <span>Pay by KHQR or cash on delivery</span>
       <span class="hidden md:inline text-sorbet" aria-hidden="true">&bull;</span>
-      <span class="hidden md:inline">Prices in USD &amp; riel</span>
+      <span class="hidden md:inline">All prices in US dollars</span>
     </div>
   </div>
 
@@ -76,10 +79,6 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
           <span class="hidden sm:inline font-bold">Theme</span>
         </button>
-        <div class="hidden md:flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-1 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-xs" role="group" aria-label="Currency">
-          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn h-9 px-3 font-black rounded-full text-[#2B1D1D]">USD</button>
-          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn h-9 px-3 font-black rounded-full text-[#2B1D1D]">KHR</button>
-        </div>
 
         <button type="button" onclick="openWishlistModal()" class="hidden md:flex relative w-11 h-11 rounded-full bg-white dark:bg-[#1E1E26] hover:bg-rose-50 border border-[#EFE4D6] dark:border-[#32323D] items-center justify-center cursor-pointer" aria-label="Saved items">
           <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
@@ -107,13 +106,13 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12 sm:pt-14 sm:pb-20 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
 
         <div class="lg:col-span-7 text-center lg:text-left">
-          <h1 class="text-[2.5rem] leading-[1.02] sm:text-6xl lg:text-7xl font-black text-[#2B1D1D] tracking-tight text-balance">
+          <h1 id="heroTitle" class="text-[2.5rem] leading-[1.02] sm:text-6xl lg:text-7xl font-black text-[#2B1D1D] tracking-tight text-balance">
             Cute gifts &amp;
             <span class="hero-marker">little treats,</span>
             delivered in Phnom&nbsp;Penh.
           </h1>
-          <p class="mt-5 text-base sm:text-lg text-[#4A3333] max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-            Plush bag charms, flower claw clips, comfy socks, graphic tees and watches. Real prices in dollars and riel, paid your way.
+          <p id="heroSubtitle" class="mt-5 text-base sm:text-lg text-[#4A3333] max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+            Plush bag charms, flower claw clips, comfy socks, graphic tees and watches. Real prices in US dollars, paid your way.
           </p>
 
           <div class="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3">
@@ -129,13 +128,12 @@
           <ul class="mt-8 flex flex-wrap justify-center lg:justify-start gap-2 text-sm font-bold text-[#2B1D1D]">
             <li class="px-3.5 py-2 rounded-full bg-white border border-[#EFE4D6]">$1.50 delivery, free from $15</li>
             <li class="px-3.5 py-2 rounded-full bg-white border border-[#EFE4D6]">KHQR or cash on delivery</li>
-            <li class="px-3.5 py-2 rounded-full bg-white border border-[#EFE4D6]">Prices in USD &amp; ៛</li>
           </ul>
         </div>
 
-        <!-- Real products from the catalog, filled in by renderHero() -->
+        <!-- Floating showcase: the products staff pick in Drops & Stock > Home showcase (renderHero) -->
         <div class="lg:col-span-5">
-          <div id="heroStickers" class="relative mx-auto w-full max-w-[26rem] aspect-[1/1.02]"></div>
+          <div id="heroShowcase"></div>
         </div>
       </div>
     </section>
@@ -182,7 +180,7 @@
             <span class="text-5xl sm:text-6xl font-black text-sorbet leading-none" aria-hidden="true">3</span>
             <div>
               <h3 class="text-xl font-black text-white">Delivered in Phnom Penh</h3>
-              <p class="mt-2 text-base text-cotton/85 leading-relaxed">$1.50 delivery, free on orders of $15 (61,500 ៛) or more. Track it from your account.</p>
+              <p class="mt-2 text-base text-cotton/85 leading-relaxed">$1.50 delivery, free on orders of $15 or more. Track it from your account.</p>
             </div>
           </li>
         </ol>
@@ -213,7 +211,7 @@
             <img src="assets/images/psa-accessories-online-logo.svg" alt="" class="h-9 w-auto object-contain" />
             <span class="text-lg font-black text-[#2B1D1D]">Psa<span class="text-sorbet-ink dark:text-sorbet">Online</span></span>
           </div>
-          <p class="text-sm text-stone-600 leading-relaxed">Cute gifts and everyday finds, delivered in Phnom Penh. Prices in USD and riel, paid by KHQR or cash on delivery.</p>
+          <p class="text-sm text-stone-600 leading-relaxed">Cute gifts and everyday finds, delivered in Phnom Penh. Prices in US dollars, paid by KHQR or cash on delivery.</p>
           <a href="https://t.me/psaonline_support" target="_blank" rel="noopener noreferrer" class="inline-flex h-11 items-center text-sm font-black text-sorbet-ink dark:text-sorbet underline underline-offset-4">Telegram: @psaonline_support</a>
         </div>
 
@@ -238,12 +236,12 @@
             <li><a href="dashboard-buyer.html" class="inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet">My account</a></li>
           </ul>
           <h2 class="mt-6 text-sm font-black text-[#2B1D1D]">We accept</h2>
-          <p class="mt-2 text-sm text-stone-600 leading-relaxed">Bakong KHQR (ABA, ACLEDA, Canadia, Wing and other Cambodian banking apps) and cash on delivery. 1 USD = 4,100 ៛.</p>
+          <p class="mt-2 text-sm text-stone-600 leading-relaxed">Bakong KHQR (ABA, ACLEDA, Canadia, Wing and other Cambodian banking apps) and cash on delivery.</p>
         </div>
 
         <div>
           <h2 class="text-sm font-black text-[#2B1D1D]">Find us</h2>
-          <ul id="socialLinks" class="mt-3 space-y-2"></ul>
+          <ul id="socialLinks" class="mt-3 space-y-2" data-psa-socials="list"></ul>
         </div>
       </div>
 
@@ -293,11 +291,18 @@
 
   <script src="assets/js/store.js"></script>
   <script>
-    let activeFilter = 'all'; // setCurrency() re-renders the page when this exists
+    // Headline and the line under it, if staff changed them (Drops & Stock > Home showcase). Same styles as before.
+    (function applyHomeText() {
+      const c = PSA.siteContent || {};
+      if (c.homeHeadline) document.getElementById('heroTitle').innerHTML = psaHeadlineHtml(c.homeHeadline);
+      if (c.homeSubtitle) document.getElementById('heroSubtitle').textContent = c.homeSubtitle;
+    })();
+
+    let activeFilter = 'all';
 
     // Badges in the catalog that claim popularity or craft we can't back up are swapped for the category.
     const UNPROVEN_BADGE = /best\s*seller|viral|trending|hot pick|handmade/i;
-    const HERO_PICKS = ['genz-25', 'genz-24', 'genz-08'];
+    const HERO_PICKS = ['genz-25', 'genz-24', 'genz-08']; // only used when staff haven't picked any
     const FRESH_PICKS = ['genz-05', 'genz-23', 'genz-06', 'genz-21', 'genz-28', 'genz-09', 'genz-30', 'genz-02'];
 
     // Pick products by id, topping up from the catalog when some are missing (e.g. an older database).
@@ -311,9 +316,6 @@
       return chosen.slice(0, count);
     }
 
-    function altPrice(p) {
-      return CURRENT_CURRENCY === 'KHR' ? `$${Number(p.priceUSD).toFixed(2)}` : `${Number(p.priceKHR).toLocaleString()} ៛`;
-    }
 
     function cardBadge(p) {
       return p.badge && !UNPROVEN_BADGE.test(p.badge) ? p.badge : p.categoryLabel;
@@ -322,33 +324,7 @@
     const heartIcon = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>';
 
     function renderHero() {
-      const box = document.getElementById('heroStickers');
-      if (!box) return;
-      const [main, second, third] = pickProducts(HERO_PICKS, 3);
-      const sticker = (p, cls, size, tagSide) => p ? `
-        <a href="product-detail.html?id=${encodeURIComponent(p.id)}" class="hero-sticker ${cls} absolute block bg-white p-2 sm:p-2.5 rounded-[1.75rem] shadow-[0_18px_40px_-12px_rgba(0,0,0,0.28)] ${size}" aria-label="${psaEsc(p.title)}, ${psaEsc(formatPrice(p.priceUSD, p.priceKHR))}">
-          <img src="${psaEsc(p.image)}" alt="" class="w-full aspect-square object-cover rounded-[1.35rem]" />
-          <span class="absolute -bottom-3 ${tagSide} px-3 py-1.5 rounded-full bg-sorbet text-espresso text-sm font-black shadow-md">${psaEsc(formatPrice(p.priceUSD, p.priceKHR))}</span>
-        </a>` : '';
-      box.innerHTML = `
-        ${sticker(second, 'hero-sticker--left left-[4%] top-[8%] -rotate-6', 'w-[44%]', 'left-4')}
-        ${sticker(third, 'hero-sticker--right right-[4%] bottom-[2%] rotate-6', 'w-[40%]', 'left-4')}
-        ${main ? `
-        <div class="hero-sticker hero-sticker--main absolute left-[18%] top-[16%] w-[64%] bg-white p-2.5 sm:p-3 rounded-[2rem] shadow-[0_24px_60px_-14px_rgba(0,0,0,0.32)] rotate-2">
-          <a href="product-detail.html?id=${encodeURIComponent(main.id)}" class="block">
-            <img src="${psaEsc(main.image)}" alt="${psaEsc(main.title)}" class="w-full aspect-square object-cover rounded-[1.5rem]" />
-          </a>
-          <div class="px-1.5 pt-3 pb-1">
-            <a href="product-detail.html?id=${encodeURIComponent(main.id)}" class="block text-sm sm:text-base font-black text-[#2B1D1D] leading-snug line-clamp-2">${psaEsc(main.title)}</a>
-            <div class="mt-2 flex items-center justify-between gap-2">
-              <div class="leading-tight">
-                <span class="block text-lg font-black text-[#2B1D1D]">${psaEsc(formatPrice(main.priceUSD, main.priceKHR))}</span>
-                <span class="block text-xs font-semibold text-stone-600">${psaEsc(altPrice(main))}</span>
-              </div>
-              <button type="button" onclick="addToCart('${psaEsc(main.id)}', 1)" class="h-11 px-4 rounded-full bg-espresso text-cotton dark:bg-sorbet dark:text-espresso font-black text-sm cursor-pointer" aria-label="Add ${psaEsc(main.title)} to bag">Add to bag</button>
-            </div>
-          </div>
-        </div>` : ''}`;
+      psaRenderShowcase(document.getElementById('heroShowcase'), psaShowcaseProducts(HERO_PICKS, 3));
     }
 
     function renderEntryTiles() {
@@ -396,8 +372,7 @@
             ${p.titleKhmer ? `<p class="font-khmer mt-0.5 text-sm text-stone-600 line-clamp-1" lang="km">${psaEsc(p.titleKhmer)}</p>` : ''}
             <div class="mt-auto pt-2.5 flex items-center justify-between gap-2">
               <div class="leading-tight min-w-0">
-                <span class="block text-base sm:text-lg font-black text-[#2B1D1D]">${psaEsc(formatPrice(p.priceUSD, p.priceKHR))}</span>
-                <span class="block text-xs font-semibold text-stone-600">${psaEsc(altPrice(p))}</span>
+                <span class="block text-base sm:text-lg font-black text-[#2B1D1D]">${psaPriceHtml(p)}</span>
               </div>
               <button type="button" onclick="addToCart('${id}', 1)" class="shrink-0 h-11 px-4 rounded-full bg-espresso text-cotton hover:bg-black dark:bg-sorbet dark:text-espresso font-black text-sm cursor-pointer" aria-label="Add ${psaEsc(p.title)} to bag">Add</button>
             </div>
@@ -406,25 +381,8 @@
       }).join('');
     }
 
-    // Shop social accounts for the footer. Add Facebook / Instagram / TikTok here with their real profile links.
-    const SOCIAL_LINKS = [
-      { name: 'Telegram', handle: '@psaonline_support', url: 'https://t.me/psaonline_support', icon: '<path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/>' }
-    ];
-
-    function renderSocialLinks() {
-      const list = document.getElementById('socialLinks');
-      if (!list) return;
-      list.innerHTML = SOCIAL_LINKS.map(s => `
-        <li>
-          <a href="${psaEsc(s.url)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 min-h-11 pr-2 text-sm font-bold text-[#2B1D1D] hover:text-sorbet-ink dark:hover:text-sorbet">
-            <span class="w-10 h-10 rounded-full bg-espresso text-cotton dark:bg-sorbet dark:text-espresso flex items-center justify-center shrink-0"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${s.icon}</svg></span>
-            <span>${psaEsc(s.name)}<span class="block text-sm font-semibold text-stone-600">${psaEsc(s.handle)}</span></span>
-          </a>
-        </li>`).join('');
-    }
 
     function renderHomePage() {
-      renderSocialLinks();
       const total = ACCESSORIES_PRODUCTS.length;
       document.getElementById('heroCount').textContent = total;
       document.getElementById('picksCount').textContent = total;
@@ -434,14 +392,7 @@
       updateWishlistUI();
     }
 
-    // setCurrency() calls renderHomeProducts(activeFilter); keep the hero prices in step too.
-    const _renderHomeProducts = renderHomeProducts;
-    renderHomeProducts = function () { _renderHomeProducts(); renderHero(); };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      renderHomePage();
-      setCurrency(CURRENT_CURRENCY);
-    });
+    document.addEventListener('DOMContentLoaded', renderHomePage);
   </script>
 </body>
 </html>

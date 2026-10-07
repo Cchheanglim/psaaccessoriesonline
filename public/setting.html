@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Settings — PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>tailwind.config = { darkMode: 'class' };</script>
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -294,7 +297,6 @@
         return `
         <div class="${card}">
           <div class="row" style="cursor:default"><span class="text-sm font-bold">Language</span>${seg([['en','English'],['km','ខ្មែរ']], s.lang, 'setLang')}</div>
-          <div class="row" style="cursor:default"><span class="text-sm font-bold">Currency</span>${seg([['USD','USD $'],['KHR','KHR ៛']], CURRENT_CURRENCY, 'setCur')}</div>
           <div class="row" style="cursor:default"><span class="text-sm font-bold">Theme</span>${seg([['light','Light'],['dark','Dark']], dark ? 'dark' : 'light', 'setTheme')}</div>
         </div>`;
       },
@@ -318,7 +320,7 @@
         return `<div class="${card} p-5 text-sm space-y-3">
           <div class="font-black text-base">Psa<span class="text-[#FFA552]">Online</span></div>
           <p class="text-xs text-stone-500">Gen-Z streetwear and aesthetic accessories, delivered in Phnom Penh. Pay with Bakong KHQR, ABA Mobile or cash on delivery.</p>
-          <div class="text-xs text-stone-400">Version 1.0 &bull; 1 USD = 4,100 ៛</div>
+          <div class="text-xs text-stone-400">Version 1.0 &bull; Prices in US dollars</div>
           <div class="pt-2 flex flex-wrap items-center gap-3 text-xs border-t border-[#EFE4D6] dark:border-[#2b2e37]">
             <a href="about.html" class="font-bold text-[#FFA552] hover:underline">About Us</a>
             <span>&bull;</span>
@@ -550,7 +552,6 @@
       localStorage.setItem('psa_addresses', JSON.stringify(list)); render();
     }
     function setLang(v) { saveSettings({ lang: v }); render(); toast(v === 'km' ? 'Khmer saved. Translations are coming soon' : 'Language saved'); }
-    function setCur(v) { setCurrency(v); render(); }
     function setTheme(v) { applyTheme(v); render(); }
     function clearViewedHistory() { if (!confirm('Clear your viewed history?')) return; clearViewed(); render(); toast('Viewed history cleared'); }
     function clearSearch() { localStorage.removeItem('psa_search_history'); toast('Search history cleared'); }

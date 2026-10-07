@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Messages | PsaOnline Staff</title>
+  <title>Messages — PsaOnline Staff</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Chats with customers about their orders." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -13,66 +16,70 @@
     };
   </script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
+  <style>
+    .msg-box { display: flex; height: calc(100dvh - var(--pt-top-h) - 150px); min-height: 460px; overflow: hidden; }
+    @media (max-width: 639px) { .msg-box { height: calc(100dvh - var(--pt-top-h) - 120px); } }
+    .msg-box .pt-seg { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; }
+    .msg-box .pt-seg button { justify-content: center; }
+    #convList button[data-open] { transition: background-color .12s ease; }
+  </style>
 </head>
-<body class="bg-stone-50 dark:bg-[#121215] text-[#2B1D1D] font-sans h-screen flex flex-col antialiased overflow-hidden">
-
-  <header class="shrink-0 bg-white/95 dark:bg-[#16161C]/95 backdrop-blur border-b border-stone-200 dark:border-[#272732]">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-      <a href="dashboard-admin.html" class="flex items-center gap-2 min-w-0" aria-label="Staff dashboard">
-        <img src="assets/images/psa-accessories-online-logo.svg" alt="" class="h-9 w-auto" />
-        <span class="text-lg font-black text-[#2B1D1D] truncate">Messages</span>
-      </a>
-      <div class="flex items-center gap-2">
-        <a href="admin-orders.html" class="h-11 px-4 inline-flex items-center rounded-xl border border-stone-200 dark:border-[#32323D] bg-white dark:bg-[#1E1E26] text-sm font-bold text-[#2B1D1D] hover:bg-stone-100">Orders</a>
+<body class="pt" data-portal="messages">
+  <div class="pt-frame">
+    <main class="pt-main">
+      <div class="pt-head" style="margin-bottom:16px">
+        <div class="pt-head__text">
+          <h1>Messages</h1>
+          <p>Customers writing about their orders. "Mine" are orders you approved.</p>
+        </div>
       </div>
-    </div>
-  </header>
 
-  <main class="flex-1 min-h-0 w-full max-w-6xl mx-auto sm:px-6 sm:py-5 flex">
-    <div class="flex-1 min-h-0 flex sm:rounded-2xl overflow-hidden bg-white dark:bg-[#1A1A22] sm:border border-stone-200 dark:border-[#2D2D38]">
-
-      <!-- Conversation list -->
-      <section id="listPane" class="w-full md:w-80 lg:w-96 shrink-0 flex flex-col md:border-r border-stone-200 dark:border-[#2D2D38]" aria-labelledby="listTitle">
-        <div class="p-3 border-b border-stone-200 dark:border-[#2D2D38]">
-          <h1 id="listTitle" class="sr-only">Conversations</h1>
-          <div class="grid grid-cols-3 gap-1 p-1 rounded-xl bg-stone-100 dark:bg-[#252530]" role="tablist" aria-label="Filter conversations">
-            <button type="button" role="tab" data-filter="mine" class="h-10 rounded-lg text-sm font-bold cursor-pointer">Mine</button>
-            <button type="button" role="tab" data-filter="open" class="h-10 rounded-lg text-sm font-bold cursor-pointer">Not assigned</button>
-            <button type="button" role="tab" data-filter="all" class="h-10 rounded-lg text-sm font-bold cursor-pointer">All</button>
+      <div class="pt-panel msg-box">
+        <!-- Conversation list -->
+        <section id="listPane" class="w-full md:w-80 lg:w-96 shrink-0 flex flex-col md:border-r" style="border-color:var(--pt-line)" aria-labelledby="listTitle">
+          <div class="p-3" style="border-bottom:1px solid var(--pt-line)">
+            <h2 id="listTitle" class="sr-only">Conversations</h2>
+            <div class="pt-seg" role="tablist" aria-label="Filter conversations">
+              <button type="button" role="tab" data-filter="mine">Mine</button>
+              <button type="button" role="tab" data-filter="open">Not assigned</button>
+              <button type="button" role="tab" data-filter="all">All</button>
+            </div>
           </div>
-        </div>
-        <ul id="convList" class="flex-1 overflow-y-auto divide-y divide-stone-100 dark:divide-[#2D2D38]" aria-live="polite">
-          <li class="p-4 text-sm text-stone-600">Loading…</li>
-        </ul>
-      </section>
+          <ul id="convList" class="flex-1 overflow-y-auto divide-y divide-[#EFE4D6] dark:divide-[#2B2B35]" aria-live="polite">
+            <li class="p-4"><span class="pt-skel" style="width:70%"></span></li>
+          </ul>
+        </section>
 
-      <!-- Thread -->
-      <section id="threadPane" class="hidden md:flex flex-1 min-w-0 flex-col" aria-labelledby="threadTitle">
-        <div class="shrink-0 flex items-center gap-2 px-3 sm:px-4 h-16 border-b border-stone-200 dark:border-[#2D2D38]">
-          <button type="button" id="backToList" class="md:hidden w-11 h-11 -ml-1 rounded-xl flex items-center justify-center hover:bg-stone-100 dark:hover:bg-[#252530] cursor-pointer" aria-label="Back to conversations">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 19l-7-7 7-7"/></svg>
-          </button>
-          <div class="min-w-0 flex-1">
-            <h2 id="threadTitle" class="text-xl font-black truncate">Choose a conversation</h2>
-            <p id="threadMeta" class="text-sm text-stone-600 truncate"></p>
+        <!-- Thread -->
+        <section id="threadPane" class="hidden md:flex flex-1 min-w-0 flex-col" aria-labelledby="threadTitle">
+          <div class="shrink-0 flex items-center gap-2 px-3 sm:px-4 h-16" style="border-bottom:1px solid var(--pt-line)">
+            <button type="button" id="backToList" class="md:hidden pt-btn pt-btn--ghost pt-btn--icon" aria-label="Back to conversations">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <div class="min-w-0 flex-1">
+              <h2 id="threadTitle" class="pt-section-title truncate">Choose a conversation</h2>
+              <p id="threadMeta" class="pt-section-sub truncate"></p>
+            </div>
+            <a id="threadOrderLink" href="#" class="hidden pt-btn pt-btn--secondary pt-btn--sm shrink-0">Open order</a>
           </div>
-          <a id="threadOrderLink" href="#" class="hidden h-10 px-3 inline-flex items-center rounded-lg bg-stone-100 dark:bg-[#252530] text-sm font-bold text-[#2B1D1D] shrink-0">Open order</a>
-        </div>
-        <div id="threadList" class="flex-1 overflow-y-auto p-4 space-y-3" aria-live="polite">
-          <p class="text-sm text-stone-600">Pick a conversation on the left to read and reply.</p>
-        </div>
-        <form id="threadForm" class="hidden shrink-0 p-3 border-t border-stone-200 dark:border-[#2D2D38] flex gap-2">
-          <label for="threadInput" class="sr-only">Reply to the customer</label>
-          <textarea id="threadInput" rows="1" maxlength="2000" required placeholder="Write a reply…" class="flex-1 min-h-[3rem] max-h-40 rounded-xl border border-stone-300 dark:border-[#32323D] bg-white dark:bg-[#1E1E26] px-4 py-3 text-base text-[#2B1D1D] focus:outline-none focus:border-sorbet focus:ring-2 focus:ring-sorbet/30"></textarea>
-          <button type="submit" id="threadSend" class="h-12 self-end px-5 rounded-xl bg-espresso text-cotton dark:bg-sorbet dark:text-espresso font-black cursor-pointer">Send</button>
-        </form>
-        <p id="threadError" class="hidden px-4 pb-3 text-sm font-bold text-rose-700" role="alert"></p>
-      </section>
-    </div>
-  </main>
+          <div id="threadList" class="flex-1 overflow-y-auto p-4 space-y-3" aria-live="polite">
+            <div class="pt-empty"><h3>Pick a conversation</h3><p>Choose a customer on the left to read their messages and reply.</p></div>
+          </div>
+          <form id="threadForm" class="hidden shrink-0 p-3 flex gap-2" style="border-top:1px solid var(--pt-line)">
+            <label for="threadInput" class="sr-only">Reply to the customer</label>
+            <textarea id="threadInput" rows="1" maxlength="2000" required placeholder="Write a reply… (Enter sends, Shift+Enter for a new line)" class="pt-textarea" style="min-height:48px;max-height:160px;flex:1"></textarea>
+            <button type="submit" id="threadSend" class="pt-btn pt-btn--primary self-end" style="height:48px">Send</button>
+          </form>
+          <p id="threadError" class="hidden px-4 pb-3 pt-error" role="alert"></p>
+        </section>
+      </div>
+    </main>
+  </div>
 
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
+  <script src="assets/js/portal-shell.js"></script>
   <script>
     let conversations = [];
     let filter = 'mine';
@@ -91,10 +98,6 @@
       document.querySelectorAll('[data-filter]').forEach(b => {
         const on = b.dataset.filter === filter;
         b.setAttribute('aria-selected', String(on));
-        b.classList.toggle('bg-white', on);
-        b.classList.toggle('dark:bg-[#1A1A22]', on);
-        b.classList.toggle('shadow', on);
-        b.classList.toggle('text-stone-600', !on);
       });
       renderList();
     }
@@ -174,7 +177,7 @@
         const who = ours ? (m.staffName ? m.staffName : 'PsaOnline') : (m.author || 'Customer');
         return `
           <div class="flex ${ours ? 'justify-end' : 'justify-start'}">
-            <div class="max-w-[85%] rounded-2xl px-4 py-2.5 ${ours ? 'bg-espresso text-cotton rounded-br-md' : 'bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] rounded-bl-md'}">
+            <div class="max-w-[85%] rounded-2xl px-4 py-2.5 ${ours ? 'bg-espresso text-cotton dark:bg-[#FFA552] dark:text-[#2B1D1D] rounded-br-md' : 'bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] rounded-bl-md'}">
               <div class="text-xs font-bold ${ours ? 'text-cotton/80' : 'text-stone-600'}">${psaEsc(who)} &middot; ${psaEsc(when)}</div>
               <p class="mt-0.5 text-base whitespace-pre-line break-words">${psaEsc(m.body)}</p>
             </div>
@@ -216,7 +219,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
-      if (!enforcePageRBAC('canVerifyOrders')) return;
+      if (ptDenied()) return;
       document.querySelectorAll('[data-filter]').forEach(b => b.addEventListener('click', () => setFilter(b.dataset.filter)));
       document.getElementById('convList').addEventListener('click', e => {
         const btn = e.target.closest('[data-open]');
@@ -239,6 +242,8 @@
         loadConversations();
         loadThread();
       }, 20000);
+      // A new message notification refreshes the inbox and the open chat straight away.
+      document.addEventListener('psa:notifications', () => { loadConversations(); loadThread(); });
     });
   </script>
 </body>

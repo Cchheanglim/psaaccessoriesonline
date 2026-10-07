@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Order | PsaOnline Staff</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Staff view of one order: payment slip, status actions and messages with the customer." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -13,48 +16,28 @@
     };
   </script>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
 </head>
-<body class="bg-stone-50 dark:bg-[#121215] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased">
+<body class="pt" data-portal="order" data-portal-parent="orders" data-portal-title="Order">
 
-  <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#16161C]/95 backdrop-blur border-b border-stone-200 dark:border-[#272732]">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-      <a href="dashboard-admin.html" class="flex items-center gap-2" aria-label="Staff dashboard">
-        <img src="assets/images/psa-accessories-online-logo.svg" alt="" class="h-9 w-auto" />
-        <span class="text-lg font-black text-[#2B1D1D]">Psa<span class="text-sorbet-ink dark:text-sorbet">Online</span> <span class="text-sm font-bold text-stone-500">Staff</span></span>
-      </a>
-      <a href="admin-orders.html" class="h-11 px-4 inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-[#32323D] bg-white dark:bg-[#1E1E26] text-sm font-bold text-[#2B1D1D] hover:bg-stone-100">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-        All orders
-      </a>
-    </div>
-  </header>
-
-  <main id="staffOrder" class="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-5" aria-live="polite">
+  <div class="pt-frame">
+  <main id="staffOrder" class="pt-main space-y-5" aria-live="polite">
     <p class="text-sm text-stone-600">Loading order…</p>
   </main>
-
-  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-sm text-stone-600">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <div>&copy; 2026 PsaOnline Operations Portal</div>
-      <div class="flex items-center gap-5">
-        <a href="about.html" class="py-2 hover:text-sorbet-ink">About us</a>
-        <a href="privacy.html" class="py-2 hover:text-sorbet-ink">Privacy</a>
-        <a href="terms.html" class="py-2 hover:text-sorbet-ink">Terms</a>
-      </div>
-    </div>
-  </footer>
+  </div>
 
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
+  <script src="assets/js/portal-shell.js"></script>
   <script>
     const orderId = new URLSearchParams(window.location.search).get('order') || '';
     const page = document.getElementById('staffOrder');
-    const card = 'rounded-2xl bg-white dark:bg-[#1A1A22] border border-stone-200 dark:border-[#2D2D38] p-5';
+    const card = 'pt-panel p-5';
     let order = null;
     let messagesTimer = null;
 
     const money = usd => `$${Number(usd || 0).toFixed(2)}`;
-    const isAdmin = () => PSA.user && PSA.user.role === 'Admin';
+    const can = name => typeof hasPermission === 'function' && hasPermission(name);
 
     function statusTone(o) {
       if (o.orderStatus === 'cancelled' || o.paymentStatus === 'failed') return 'bg-rose-50 text-rose-800 border-rose-200';
@@ -68,6 +51,7 @@
     function availableActions(o) {
       if (o.orderStatus === 'cancelled') return [];
       const list = [];
+      const allowed = { verify: 'verify_payments', reject: 'verify_payments', dispatch: 'manage_orders', deliver: 'manage_orders', cancel: 'cancel_orders' };
       const cod = o.paymentCode === 'cod';
       if (o.orderStatus === 'pending_payment') {
         if (cod) list.push({ action: 'verify', label: 'Confirm order', tone: 'primary', help: 'Cash on delivery: start preparing it.' });
@@ -78,8 +62,8 @@
       }
       if (o.orderStatus === 'processing') list.push({ action: 'dispatch', label: 'Mark out for delivery', tone: 'primary', help: 'Handed to the courier.' });
       if (o.orderStatus === 'out_for_delivery') list.push({ action: 'deliver', label: 'Mark delivered', tone: 'primary', help: cod ? 'Cash collected and parcel handed over.' : 'Parcel handed over.' });
-      if (isAdmin() && o.orderStatus !== 'delivered') list.push({ action: 'cancel', label: 'Cancel order', tone: 'danger', help: 'Puts the items back in stock.' });
-      return list;
+      if (o.orderStatus !== 'delivered') list.push({ action: 'cancel', label: 'Cancel order', tone: 'danger', help: 'Puts the items back in stock.' });
+      return list.filter(a => can(allowed[a.action]));
     }
 
     function render() {
@@ -98,7 +82,11 @@
         : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((order.address || '') + ', Phnom Penh')}`;
       const tel = String(order.phone || '').replace(/[^\d+]/g, '');
 
+      const crumb = document.querySelector('.pt-top__crumb b');
+      if (crumb) crumb.textContent = order.id;
+      document.title = `Order ${order.id} — PsaOnline Staff`;
       page.innerHTML = `
+        <a href="admin-orders.html" class="pt-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Orders</a>
         <section class="${card}">
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -110,7 +98,6 @@
             </div>
             <div class="text-right">
               <div class="text-2xl font-black tabular-nums">${money(order.totalUSD)}</div>
-              <div class="text-sm font-semibold text-stone-600 tabular-nums">${psaEsc(order.totalKHR)} ៛</div>
             </div>
           </div>
           ${actions.length ? `
@@ -129,7 +116,7 @@
             <h2 id="slipTitle" class="text-lg font-black">Payment slip</h2>
             ${order.paymentCode === 'cod' ? '<p class="mt-2 text-base text-stone-600">Cash on delivery, so there is no slip. Collect the total in cash.</p>'
               : slip ? `<a href="${psaEsc(slip)}" target="_blank" rel="noopener" class="mt-3 block"><img src="${psaEsc(slip)}" alt="Customer's payment slip" class="w-full max-h-[28rem] object-contain rounded-xl border border-stone-200 bg-stone-50" /><span class="mt-2 inline-block text-sm font-bold text-sorbet-ink dark:text-sorbet underline">Open full size</span></a>
-                <p class="mt-2 text-sm text-stone-600">Check the amount is <strong class="text-[#2B1D1D]">${money(order.totalUSD)}</strong> (${psaEsc(order.totalKHR)} ៛) and the receiver is our account.</p>`
+                <p class="mt-2 text-sm text-stone-600">Check the amount is <strong class="text-[#2B1D1D]">${money(order.totalUSD)}</strong> and the receiver is our account.</p>`
               : order.slipUploaded ? '<p class="mt-2 text-base text-stone-600">The customer confirmed payment without attaching a picture. Check your bank app before approving.</p>'
               : '<p class="mt-2 text-base text-stone-600">No slip yet. The customer has not paid or uploaded a screenshot.</p>'}
           </section>
@@ -161,6 +148,8 @@
             </ul>
             <dl class="mt-2 pt-2 border-t border-stone-200 dark:border-[#2D2D38] text-sm space-y-1">
               <div class="flex justify-between"><dt class="text-stone-600">Subtotal</dt><dd class="font-bold tabular-nums">${money(order.subtotalUSD)}</dd></div>
+              ${Number(order.memberDiscountUSD) ? `<div class="flex justify-between"><dt class="text-stone-600">Member discount</dt><dd class="font-bold tabular-nums">-${money(order.memberDiscountUSD)}</dd></div>` : ''}
+              ${Number(order.discountUSD) ? `<div class="flex justify-between"><dt class="text-stone-600">Promo${order.promoCode ? ' ' + psaEsc(order.promoCode) : ''}</dt><dd class="font-bold tabular-nums">-${money(order.discountUSD)}</dd></div>` : ''}
               <div class="flex justify-between"><dt class="text-stone-600">Delivery</dt><dd class="font-bold tabular-nums">${Number(order.deliveryUSD) ? money(order.deliveryUSD) : 'Free'}</dd></div>
               <div class="flex justify-between text-base"><dt class="font-black">Total</dt><dd class="font-black tabular-nums">${money(order.totalUSD)}</dd></div>
             </dl>
@@ -259,11 +248,13 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      if (!enforcePageRBAC('canVerifyOrders')) return;
+      if (ptDenied()) return;
       order = (PSA.orders || []).find(o => o.id === orderId) || null;
       if (order) document.title = `Order ${order.id} | PsaOnline Staff`;
       render();
       if (order) messagesTimer = setInterval(() => { if (!document.hidden) loadMessages(true); }, 20000);
+      // A new notification (e.g. the customer replied) refreshes the chat straight away.
+      document.addEventListener('psa:notifications', () => { if (order) loadMessages(true); });
     });
   </script>
 </body>

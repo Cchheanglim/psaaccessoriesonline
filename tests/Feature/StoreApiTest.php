@@ -33,6 +33,11 @@ class StoreApiTest extends TestCase
         ]);
     }
 
+    private function stockOf(string $sku): int
+    {
+        return Product::where('sku', $sku)->firstOrFail()->stock_on_hand; // SUM of its stock movements
+    }
+
     private function orderPayload(array $overrides = []): array
     {
         return $overrides + [
@@ -70,7 +75,7 @@ class StoreApiTest extends TestCase
     public function test_order_uses_database_prices_and_decrements_stock(): void
     {
         $buyer = $this->makeUser(['role' => 'buyer']);
-        $stockBefore = Product::where('sku', 'genz-01')->value('stock');
+        $stockBefore = $this->stockOf('genz-01');
 
         $response = $this->actingAs($buyer)
             ->postJson('/api/orders', $this->orderPayload(['items' => [['id' => 'genz-01', 'quantity' => 1, 'priceUSD' => 0.01]]]))
@@ -80,7 +85,7 @@ class StoreApiTest extends TestCase
             ->assertJsonPath('order.totalUSD', '10.50')
             ->assertJsonPath('order.status', 'Payment Pending');
 
-        $this->assertSame($stockBefore - 1, Product::where('sku', 'genz-01')->value('stock'));
+        $this->assertSame($stockBefore - 1, $this->stockOf('genz-01'));
 
         $number = $response->json('order.id');
         $this->getJson('/api/bootstrap')->assertJsonPath('orders.0.id', $number);
@@ -108,7 +113,7 @@ class StoreApiTest extends TestCase
     {
         $buyer = $this->makeUser();
 
-        Product::where('sku', 'genz-02')->update(['stock' => 1]);
+        \App\Support\Inventory::setQuantity(Product::where('sku', 'genz-02')->firstOrFail(), 1);
         $this->actingAs($buyer)->postJson('/api/orders', $this->orderPayload(['items' => [['id' => 'genz-02', 'quantity' => 3]]]))
             ->assertStatus(422);
 
@@ -126,7 +131,7 @@ class StoreApiTest extends TestCase
         $this->actingAs($buyer)->patchJson('/api/admin/products/genz-01', ['stock' => 5])->assertStatus(403);
 
         $this->actingAs($staff)->patchJson('/api/admin/products/genz-01', ['stock' => 5, 'priceUSD' => 7])
-            ->assertOk()->assertJsonPath('product.stock', 5)->assertJsonPath('product.priceKHR', 28700);
+            ->assertOk()->assertJsonPath('product.stock', 5)->assertJsonPath('product.priceUSD', 7);
         $this->actingAs($staff)->deleteJson('/api/admin/products/genz-01')->assertStatus(403);
         $this->actingAs($staff)->patchJson("/api/admin/users/{$buyer->id}", ['role' => 'Admin'])->assertStatus(403);
 
@@ -141,7 +146,7 @@ class StoreApiTest extends TestCase
         $staff = $this->makeUser(['role' => 'staff']);
         $admin = $this->makeUser(['role' => 'admin']);
         $number = $this->actingAs($this->makeUser())->postJson('/api/orders', $this->orderPayload())->json('order.id');
-        $stock = Product::where('sku', 'genz-01')->value('stock');
+        $stock = $this->stockOf('genz-01');
 
         $this->actingAs($staff)->patchJson("/api/admin/orders/{$number}", ['action' => 'verify'])
             ->assertOk()->assertJsonPath('order.status', 'Processing');
@@ -149,7 +154,7 @@ class StoreApiTest extends TestCase
 
         $this->actingAs($admin)->patchJson("/api/admin/orders/{$number}", ['action' => 'cancel'])
             ->assertOk()->assertJsonPath('order.status', 'Cancelled');
-        $this->assertSame($stock + 2, Product::where('sku', 'genz-01')->value('stock'));
+        $this->assertSame($stock + 2, $this->stockOf('genz-01'));
     }
 
     public function test_suspended_users_cannot_log_in(): void
@@ -261,9 +266,12 @@ class StoreApiTest extends TestCase
         $this->getJson('/api/products/genz-01/reviews')
             ->assertOk()
             ->assertJsonPath('count', 1)
+            ->assertJsonPath('average', 4)
             ->assertJsonPath('reviews.0.author', 'Sophea C.')
             ->assertJsonPath('reviews.0.comment', 'So comfy');
-        $this->assertEquals(4.0, (float) Product::where('sku', 'genz-01')->value('rating'));
+        $genz01 = collect($this->getJson('/api/bootstrap')->json('products'))->firstWhere('id', 'genz-01');
+        $this->assertEquals(4.0, $genz01['rating']);
+        $this->assertSame(1, $genz01['reviewsCount']);
     }
 
     public function test_pages_answer_at_clean_addresses(): void
@@ -276,5 +284,47 @@ class StoreApiTest extends TestCase
         // Staff pages keep their login check at the clean address
         $this->get('/dashboard-admin')->assertRedirect();
         $this->actingAs($this->makeUser(['role' => 'staff']))->get('/admin-orders')->assertOk();
+    }
+
+    public function test_staff_and_admin_accounts_cannot_place_orders(): void
+    {
+        $stock = $this->stockOf('genz-01');
+
+        foreach (['staff', 'admin'] as $role) {
+            $this->actingAs($this->makeUser(['role' => $role]))
+                ->postJson('/api/orders', $this->orderPayload())
+                ->assertStatus(403);
+        }
+        $this->assertSame($stock, $this->stockOf('genz-01'));
+        $this->assertSame(0, \App\Models\Order::count());
+    }
+
+    public function test_changes_sent_from_a_tab_opened_as_another_account_are_refused(): void
+    {
+        // The demo bug: the admin signed in in another tab, so the customer's open order page
+        // sent its message as the admin. The page says which account it was opened as.
+        $buyer = $this->makeUser();
+        $admin = $this->makeUser(['role' => 'admin']);
+        $number = $this->actingAs($buyer)->postJson('/api/orders', $this->orderPayload())->json('order.id');
+        $this->actingAs($admin)->patchJson("/api/admin/orders/{$number}", ['action' => 'reject'])->assertOk();
+
+        $this->actingAs($admin)
+            ->withHeader('X-PSA-User', (string) $buyer->id)
+            ->postJson("/api/orders/{$number}/messages", ['body' => 'Sent from the customer tab'])
+            ->assertStatus(409)
+            ->assertJsonPath('accountChanged', true);
+        $this->assertSame(0, \App\Models\OrderMessage::count());
+
+        // Reading, and signing in or out, still work from that tab
+        $this->actingAs($admin)->withHeader('X-PSA-User', (string) $buyer->id)->getJson('/api/bootstrap')->assertOk();
+        $this->actingAs($admin)->withHeader('X-PSA-User', (string) $buyer->id)->postJson('/api/auth/logout')->assertOk();
+
+        // The right account is accepted, and the customer's message is the customer's
+        $this->actingAs($buyer)
+            ->withHeader('X-PSA-User', (string) $buyer->id)
+            ->postJson("/api/orders/{$number}/messages", ['body' => 'I uploaded a new slip'])
+            ->assertCreated()
+            ->assertJsonPath('messages.0.fromStaff', false);
+        $this->assertSame($buyer->id, \App\Models\OrderMessage::first()->sender_id);
     }
 }

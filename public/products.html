@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Gen-Z Accessories Catalog — PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Shop all aesthetic Gen-Z drops: Y2K silver chrome jewelry, 90s sunglasses, cloud bags, claw clips, and phone charms." />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -72,10 +75,6 @@
           <span class="hidden sm:inline font-bold">Dark</span>
         </button>
 
-        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
-          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD</button>
-          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-white">KHR</button>
-        </div>
 
         <!-- Wishlist Button -->
         <button 
@@ -127,15 +126,12 @@
           class="px-3 py-2 rounded-xl bg-white border border-[#EFE4D6] text-xs font-bold text-[#2B1D1D] focus:outline-none focus:border-[#FFA552] shadow-xs"
         >
           <option value="featured">✨ Trending Picks</option>
-          <option value="price-asc">Price: Low to High ($)</option>
-          <option value="price-desc">Price: High to Low ($)</option>
-          <option value="rating">Top Rated (★)</option>
         </select>
       </div>
     </div>
 
     <!-- Category Filters Scrollable Bar -->
-    <div class="reveal-init delay-100 flex items-center gap-2 overflow-x-auto pb-2 text-xs font-bold">
+    <div id="categoryBar" class="reveal-init delay-100 flex items-center gap-2 overflow-x-auto pb-2 text-xs font-bold">
       <button onclick="setCategoryFilter('all', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-[#2B1D1D] text-white shadow-xs shrink-0">
         All Pieces (<span id="totalCountBadge">0</span>)
       </button>
@@ -224,32 +220,7 @@
         <!-- Col 3: Visit Us (Socials) -->
         <div class="space-y-2">
           <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Visit Us (Socials)</div>
-          <ul class="text-xs space-y-2 font-medium">
-            <li>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">IG</span>
-                <span>Instagram (@psaonline_kh)</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">TikTok</span>
-                <span>TikTok (@psaonline)</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">FB</span>
-                <span>Facebook Page</span>
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 text-stone-600 dark:text-stone-300 hover:text-[#FFA552] transition-colors">
-                <span class="text-[#FFA552] font-black">X</span>
-                <span>X / Twitter (@psaonline)</span>
-              </a>
-            </li>
-          </ul>
+          <ul class="text-xs space-y-2 font-medium" data-psa-socials="compact"></ul>
         </div>
 
         <!-- Col 4: Payments Accepted -->
@@ -315,7 +286,7 @@
   <script>
     let currentCategory = 'all';
     let searchQuery = '';
-    let sortMode = 'featured';
+    let sortMode = ''; // id of the chosen Sort By option (the first one when empty)
     let maxPrice = null;
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -324,6 +295,9 @@
     }
     if (urlParams.has('max') && Number(urlParams.get('max')) > 0) {
       maxPrice = Number(urlParams.get('max'));
+    }
+    if (urlParams.has('sort')) {
+      sortMode = urlParams.get('sort');
     }
     if (urlParams.has('q')) {
       searchQuery = urlParams.get('q');
@@ -356,13 +330,7 @@
         );
       }
 
-      if (sortMode === 'price-asc') {
-        list.sort((a, b) => a.priceUSD - b.priceUSD);
-      } else if (sortMode === 'price-desc') {
-        list.sort((a, b) => b.priceUSD - a.priceUSD);
-      } else if (sortMode === 'rating') {
-        list.sort((a, b) => b.rating - a.rating);
-      }
+      list = psaApplySortOption(list, currentSortOption());
 
       if (list.length === 0) {
         grid.innerHTML = '';
@@ -435,7 +403,7 @@
           <div class="p-3.5 sm:p-4 flex-1 flex flex-col justify-between space-y-2">
             <div>
               <div class="flex items-center justify-between text-[11px] text-[#FFA552] font-bold">
-                <span>${item.categoryLabel}</span>
+                <span>${item.categoryLabel}${item.freeDelivery ? ' <span class="ml-1 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 font-black">Free delivery</span>' : ''}</span>
                 ${item.reviewsCount > 0 ? `<span class="text-amber-700">★ ${Number(item.rating).toFixed(1)} (${item.reviewsCount})</span>` : ''}
               </div>
               <h3 class="text-xs sm:text-sm font-extrabold text-[#2B1D1D] dark:text-white line-clamp-1 mt-1 hover:text-[#FFA552] transition-colors">
@@ -446,8 +414,7 @@
 
             <div class="pt-2 border-t border-[#F9F3EA] dark:border-[#2D2D38] flex items-baseline justify-between">
               <div>
-                <span class="text-xs sm:text-sm font-black text-[#2B1D1D] dark:text-white">${formatPrice(item.priceUSD, item.priceKHR)}</span>
-                <span class="text-[10px] text-[#FFA552] block sm:inline sm:ml-1 font-bold">${item.priceKHR.toLocaleString()} ៛</span>
+                <span class="text-xs sm:text-sm font-black text-[#2B1D1D] dark:text-white">${psaPriceHtml(item)}</span>
               </div>
               <div class="card-footer-actions flex items-center gap-2">
                 <button 
@@ -486,6 +453,20 @@
       renderCatalog();
     }
 
+    function currentSortOption() {
+      const options = psaSortOptions();
+      return options.find(o => String(o.id) === String(sortMode)) || options[0];
+    }
+
+    // Fill the Sort By menu with the options staff set up.
+    function renderSortSelect() {
+      const select = document.getElementById('sortSelect');
+      const options = psaSortOptions();
+      select.innerHTML = options.map(o => `<option value="${psaEsc(String(o.id))}">${psaEsc(o.label)}</option>`).join('');
+      const chosen = currentSortOption();
+      if (chosen) { sortMode = String(chosen.id); select.value = sortMode; }
+    }
+
     function handleSort(val) {
       sortMode = val;
       renderCatalog();
@@ -510,13 +491,30 @@
       maxPrice = null;
       currentCategory = 'all';
       searchQuery = '';
-      sortMode = 'featured';
       ['searchInput', 'mobileSearchInput'].forEach(id => { const box = document.getElementById(id); if (box) box.value = ''; });
-      document.getElementById('sortSelect').value = 'featured';
+      sortMode = '';
+      renderSortSelect();
       renderCatalog();
     }
 
+    // The category buttons come from the database (staff add categories in Drops & Stock), showing
+    // only categories that have something in them. Without the server the built-in buttons stay.
+    function renderCategoryBar() {
+      if (!PSA.online || !Array.isArray(PSA.categories)) return;
+      const bar = document.getElementById('categoryBar');
+      const pill = 'catalog-filter-btn px-4 py-2 rounded-full bg-white text-[#2B1D1D] hover:bg-[#F9F3EA] border border-[#EFE4D6] transition-colors shrink-0';
+      const counts = {};
+      ACCESSORIES_PRODUCTS.forEach(p => { counts[p.category] = (counts[p.category] || 0) + 1; });
+      const tops = PSA.categories.filter(c => !c.parentId && counts[c.slug] && /^[a-z0-9-]+$/.test(c.slug))
+        .sort((a, b) => counts[b.slug] - counts[a.slug] || a.name.localeCompare(b.name));
+      bar.innerHTML = `<button onclick="setCategoryFilter('all', this)" class="catalog-filter-btn px-4 py-2 rounded-full bg-[#2B1D1D] text-white shadow-xs shrink-0">All Pieces (<span id="totalCountBadge">${ACCESSORIES_PRODUCTS.length}</span>)</button>` +
+        tops.map(c => `<button onclick="setCategoryFilter('${c.slug}', this)" class="${pill}">${psaEsc(c.name)}</button>`).join('');
+    }
+
+    renderSortSelect();
+
     document.addEventListener('DOMContentLoaded', () => {
+      renderCategoryBar();
       if (currentCategory !== 'all') {
         document.querySelectorAll('.catalog-filter-btn').forEach(b => {
           if (b.getAttribute('onclick')?.includes(`'${currentCategory}'`)) {

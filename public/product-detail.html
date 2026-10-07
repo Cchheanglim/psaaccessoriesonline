@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Silver Chrome Star Pendant Necklace — PsaOnline</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="description" content="Layered stainless steel chain with a chrome Cyber Y2K star motif. Tarnish-free and hypoallergenic." />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -41,10 +44,6 @@
           <span class="hidden sm:inline font-bold">Dark</span>
         </button>
 
-        <div class="flex items-center bg-[#F9F3EA] dark:bg-[#1E1E26] p-0.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] text-[11px]">
-          <button type="button" onclick="setCurrency('USD')" data-currency="USD" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all bg-[#2B1D1D] text-white shadow-xs">USD</button>
-          <button type="button" onclick="setCurrency('KHR')" data-currency="KHR" class="currency-toggle-btn px-2.5 py-1 font-black rounded-full transition-all text-[#2B1D1D] dark:text-white">KHR</button>
-        </div>
 
         <a href="cart.html" class="relative p-2.5 rounded-full bg-white hover:bg-[#F9F3EA] border border-[#EFE4D6] text-[#2B1D1D] transition-transform hover:scale-105" title="Bag">
           <svg class="w-5 h-5 text-[#2B1D1D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
@@ -120,7 +119,7 @@
         <div class="bg-white p-5 rounded-2xl border border-[#EFE4D6] flex items-baseline justify-between shadow-xs">
           <div>
             <div class="text-3xl font-black text-[#2B1D1D]" id="productPriceUSD">$6.50</div>
-            <div class="text-xs text-[#FFA552] font-black khmer-font mt-0.5" id="productPriceKHR">26,650 ៛ (Fixed 4,100 Rate)</div>
+            <div id="freeDeliveryNote" class="hidden mt-1 text-sm font-bold text-emerald-800 dark:text-emerald-300">Free delivery: your whole order ships free</div>
           </div>
           <div class="text-right">
             <span id="stockBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-sm font-bold border border-emerald-200">
@@ -286,8 +285,12 @@
     loadReviews();
     document.getElementById('productKhmerTitle').textContent = selectedProduct.titleKhmer;
     document.getElementById('productDescription').textContent = selectedProduct.description;
-    document.getElementById('productPriceUSD').textContent = `$${selectedProduct.priceUSD.toFixed(2)}`;
-    document.getElementById('productPriceKHR').textContent = `${selectedProduct.priceKHR.toLocaleString()} ៛`;
+    document.getElementById('productPriceUSD').innerHTML = psaPriceHtml(selectedProduct, 'lg');
+    if (selectedProduct.onSale && selectedProduct.discountEndsAt) {
+      const ends = new Date(selectedProduct.discountEndsAt).toLocaleDateString([], { day: 'numeric', month: 'long' });
+      document.getElementById('productPriceUSD').insertAdjacentHTML('beforeend', `<span class="block text-sm font-bold text-stone-600 mt-1">Sale ends ${psaEsc(ends)}</span>`);
+    }
+    document.getElementById('freeDeliveryNote').classList.toggle('hidden', !selectedProduct.freeDelivery);
 
     function adjustDetailQty(delta) {
       currentQty = Math.max(1, currentQty + delta);

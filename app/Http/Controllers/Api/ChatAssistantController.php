@@ -95,9 +95,9 @@ class ChatAssistantController extends Controller
     {
         $products = collect(Storefront::catalog(false)['products'])
             ->map(fn ($p) => sprintf(
-                '- %s | %s | %s | $%.2f (%s riel) | %s | link: product-detail.html?id=%s',
-                $p['id'], $p['title'], $p['categoryLabel'], $p['priceUSD'], number_format($p['priceKHR']),
-                $p['inStock'] ? 'in stock' : 'sold out', $p['id'],
+                '- %s | %s | %s | $%.2f | %s%s | link: product-detail.html?id=%s',
+                $p['id'], $p['title'], $p['categoryLabel'], $p['priceUSD'],
+                $p['inStock'] ? 'in stock' : 'sold out', ! empty($p['freeDelivery']) ? ' | FREE DELIVERY item' : '', $p['id'],
             ))->implode("\n");
 
         $methods = collect(Storefront::catalog(false)['paymentMethods'])
@@ -107,7 +107,7 @@ class ChatAssistantController extends Controller
 
         $user = $request->user();
         $orders = $user
-            ? Order::where('user_id', $user->id)->latest()->limit(5)->get()
+            ? Order::with(Order::PAGE_RELATIONS)->whereHas('customer', fn ($q) => $q->where('user_id', $user->id))->latest()->limit(5)->get()
                 ->map(fn ($o) => sprintf('- %s placed %s: %s, total $%s, paid by %s', $o->order_number,
                     optional($o->created_at)->format('d M Y'), Storefront::statusLabel($o), number_format((float) $o->total_usd, 2), Storefront::paymentName($o->payment_method)))
                 ->implode("\n")
@@ -121,14 +121,14 @@ You are the friendly shopping assistant for PsaOnline, an online shop in Phnom P
 How to answer:
 - Reply in the customer's language (Khmer or English). Keep answers short and warm: 1 to 4 sentences, or a short list.
 - Only use the facts below. Never invent products, prices, discounts, promo codes, delivery times, stock, or policies. If you don't know, say so and suggest messaging the shop on Telegram (https://t.me/psaonline_support) or from their order page.
-- When you suggest a product, give its name, price in USD and riel, and its link exactly as written in the catalog (for example product-detail.html?id=genz-25). Suggest at most 3.
+- When you suggest a product, give its name, price in USD, and its link exactly as written in the catalog (for example product-detail.html?id=genz-25). Suggest at most 3.
 - You can't change orders, take payments or see payment slips. For anything about a specific order beyond its status, tell them to use "Messages with the shop" on their order page.
 - Never ask for card numbers, passwords or banking PINs.
 - To point to a page, write its link in place of the page name and the chat shows it as a button with the right label: dashboard-buyer.html (My account), products.html (the shop), products.html?q=gift (gift ideas), products.html?max=10 (gifts under $10), cart.html (your bag). For example: "Go to dashboard-buyer.html and tap your order." Never put links in brackets.
 
 Shop facts:
-- Delivery: Phnom Penh only. $1.50, free on orders of $15 (61,500 riel) or more.
-- Prices are shown in USD and riel at a fixed 1 USD = 4,100 riel.
+- Delivery: Phnom Penh only. $1.50, free on orders of $15 or more, and free for the whole order when the bag has any item marked FREE DELIVERY.
+- All prices are in US dollars (USD) only.
 - To order: add items to the bag, sign in at checkout, enter the delivery address, choose a payment method.
 - Paying by KHQR / bank: after ordering, the payment page shows the shop's QR code. Pay with any Cambodian banking app (ABA, ACLEDA, Wing and others), then upload the transfer slip. Staff check the slip, then pack and send the order.
 - Cash on delivery: pay the courier when the parcel arrives.

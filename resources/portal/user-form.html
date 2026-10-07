@@ -3,169 +3,109 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>User & Permissions Editor — PsaOnline Admin</title>
+  <title>Account — PsaOnline Staff</title>
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="description" content="Add or edit an account and choose its role." />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class', theme: { extend: { colors: { sorbet: '#FFA552', cotton: '#F9F3EA', espresso: '#2B1D1D' } } } };</script>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/portal.css" />
+  <style>
+    .radio-card { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1px solid var(--pt-line); border-radius: 12px; cursor: pointer; flex: 1; }
+    .radio-card:has(input:checked) { border-color: var(--pt-accent); background: var(--pt-accent-soft); }
+    .radio-card:has(input:disabled) { cursor: default; opacity: .7; }
+    .radio-card b { display: block; font-size: 14px; }
+    .radio-card small { display: block; font-size: 12px; color: var(--pt-ink-2); }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans min-h-screen flex flex-col">
-
-  <!-- Admin Top Bar -->
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-6">
-        <a href="dashboard-admin.html" class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded bg-orange-600 flex items-center justify-center text-white font-black text-base">P</div>
-          <span class="text-lg font-black text-gray-900 tracking-tight">PsaOnline <span data-hide-mobile class="text-xs font-semibold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200 uppercase tracking-widest ml-1">Admin Ops</span></span>
-        </a>
-
-        <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-gray-600">
-          <a href="dashboard-admin.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Overview</a>
-          <a href="admin-orders.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Orders</a>
-          <a href="admin-messages.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Messages <span class="psa-inbox-count hidden ml-1 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-rose-600 text-white text-xs font-black"></span></a>
-          <a href="admin-products.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Products</a>
-          <a href="admin-payment-methods.html" class="px-3 py-1.5 rounded-lg hover:bg-gray-100 hover:text-gray-900">Payment Methods</a>
-          <a href="admin-users.html" class="px-3 py-1.5 rounded-lg bg-orange-50 text-orange-600 font-semibold">Staff & Users</a>
-        </nav>
-      </div>
-
-      <div class="flex items-center gap-2 sm:gap-3">
-        <a href="admin-users.html" class="px-3 py-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-xs text-gray-700 font-bold transition">&larr; Back to Users</a>
-        <a href="dashboard-admin.html" class="hidden sm:inline-flex px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-xs text-orange-600 font-bold transition">Exit to Report</a>
-        <a href="login.html?logout=1" class="px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 hover:bg-red-100 text-xs text-red-600 font-bold transition">Log Out</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Page Body -->
-  <main class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
-
-    <div>
-      <div class="text-xs text-gray-500 mb-1 flex items-center gap-1.5">
-        <a href="admin-users.html" class="hover:text-orange-600">Users</a>
-        <span>/</span>
-        <span class="text-gray-900 font-medium">Account & Permissions</span>
-      </div>
-      <h1 class="text-2xl font-black text-gray-900 tracking-tight">User Account Editor</h1>
-      <p class="text-xs text-gray-500 mt-1">Manage user roles, grant staff access, or update password credentials.</p>
-    </div>
-
-    <!-- User Form -->
-    <form class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5" onsubmit="saveUser(event)">
-      
-      <!-- Full Name -->
-      <div class="space-y-1.5">
-        <label for="userName" class="text-xs font-bold text-gray-700">Full Name <span class="text-red-500">*</span></label>
-        <input
-          type="text"
-          id="userName"
-          name="name"
-          required
-          placeholder="e.g. Kosal Meng"
-          class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-        />
-      </div>
-
-      <!-- Email Address -->
-      <div class="space-y-1.5">
-        <label for="userEmail" class="text-xs font-bold text-gray-700">Email Address <span class="text-red-500">*</span></label>
-        <input
-          type="email"
-          id="userEmail"
-          name="email"
-          required
-          placeholder="e.g. kosal@psaonline.store"
-          class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-        />
-      </div>
-
-      <!-- Role Selection -->
-      <div class="space-y-1.5">
-        <label for="userRole" class="text-xs font-bold text-gray-700">System Role & Permissions <span class="text-red-500">*</span></label>
-        <select id="userRole" name="role" class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500">
-          <option value="Admin">Admin (Full store access, approve/reject payments, manage users)</option>
-          <option value="Staff" selected>Staff (Read-only payments, product management, view orders)</option>
-          <option value="Buyer">Buyer (Standard customer with shopping & chat access)</option>
-        </select>
-        <p class="text-[11px] text-gray-400">Staff members can view payment slips but cannot approve or reject bank proofs.</p>
-      </div>
-
-      <!-- Account Status Radio -->
-      <div class="space-y-2 pt-1">
-        <label class="text-xs font-bold text-gray-700 block">Account Status</label>
-        <div class="flex items-center gap-6">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="status" value="Active" checked class="text-orange-600 focus:ring-orange-500" />
-            <span class="text-xs font-medium text-gray-800">Active</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="status" value="Suspended" class="text-orange-600 focus:ring-orange-500" />
-            <span class="text-xs font-medium text-gray-800">Suspended / Deactivated</span>
-          </label>
+<body class="pt" data-portal="user-form" data-portal-parent="users" data-portal-title="New account">
+  <div class="pt-frame">
+    <main class="pt-main pt-main--narrow">
+      <a href="admin-users.html" class="pt-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>Staff &amp; roles</a>
+      <div class="pt-head">
+        <div class="pt-head__text">
+          <h1 id="formTitle">New account</h1>
+          <p id="formSub">Give someone a staff role to let them into this portal, or make a customer account.</p>
         </div>
       </div>
 
-      <div class="border-t border-gray-100 pt-4 space-y-4">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">Security & Password</h3>
+      <form class="pt-panel" novalidate onsubmit="saveUser(event)">
+        <div class="pt-panel__body">
+          <div class="pt-row pt-row--2">
+            <div class="pt-field">
+              <label for="userName" class="pt-label">Full name</label>
+              <input type="text" id="userName" name="name" required maxlength="100" placeholder="Kosal Meng" autocomplete="off" class="pt-input" />
+            </div>
+            <div class="pt-field">
+              <label for="userEmail" class="pt-label">Email</label>
+              <input type="email" id="userEmail" name="email" required maxlength="255" placeholder="kosal@psaonline.store" autocomplete="off" class="pt-input" />
+            </div>
+          </div>
 
-        <div class="space-y-1.5">
-          <label for="newPassword" id="passwordLabel" class="text-xs font-bold text-gray-700">New Password (leave blank to keep existing)</label>
-          <input
-            type="password"
-            id="newPassword"
-            name="password"
-            minlength="6"
-            autocomplete="new-password"
-            placeholder="••••••••"
-            class="w-full px-3 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          />
+          <div class="pt-field" style="margin-top:20px">
+            <label for="userRole" class="pt-label">Role</label>
+            <select id="userRole" name="role" class="pt-select"></select>
+            <span class="pt-hint" id="roleHint"></span>
+            <span class="pt-hint" id="roleLink" hidden><a href="admin-users.html#roles" style="color:var(--pt-accent-ink);font-weight:700">See or change what each role can do</a></span>
+          </div>
+
+          <div class="pt-field" style="margin-top:20px">
+            <span class="pt-label">Account</span>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <label class="radio-card"><input type="radio" name="status" value="Active" checked /><span><b>Active</b><small>Can sign in.</small></span></label>
+              <label class="radio-card"><input type="radio" name="status" value="Suspended" /><span><b>Suspended</b><small>Can't sign in until you turn it back on.</small></span></label>
+            </div>
+          </div>
+
+          <div class="pt-field" style="margin-top:20px;padding-top:20px;border-top:1px solid var(--pt-line)">
+            <label for="newPassword" id="passwordLabel" class="pt-label">New password <span class="pt-faint">(leave empty to keep the current one)</span></label>
+            <input type="password" id="newPassword" name="password" minlength="6" autocomplete="new-password" class="pt-input" />
+          </div>
         </div>
-      </div>
-
-      <!-- Form Buttons -->
-      <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-        <a href="admin-users.html" class="px-4 py-2 text-xs font-semibold text-gray-600 hover:text-gray-900">
-          Cancel
-        </a>
-        <span id="userFormError" class="hidden text-xs font-bold text-red-600" role="alert"></span>
-        <button type="submit" id="userSaveBtn" class="px-5 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-sm transition-all">
-          Save User Profile
-        </button>
-      </div>
-
-    </form>
-
-  </main>
-
-  <!-- Admin Portal Footer -->
-  <footer class="bg-white dark:bg-[#16161C] border-t border-stone-200 dark:border-[#272732] mt-auto py-4 text-xs text-stone-500 dark:text-stone-400 no-print">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline Operations Portal &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
+        <div class="pt-panel__foot">
+          <span id="userFormError" class="hidden pt-error" style="margin:0 auto 0 0;align-self:center" role="alert"></span>
+          <a href="admin-users.html" class="pt-btn pt-btn--ghost">Cancel</a>
+          <button type="submit" id="userSaveBtn" class="pt-btn pt-btn--primary">Save account</button>
+        </div>
+      </form>
+    </main>
+  </div>
 
   <script src="assets/js/store.js"></script>
   <script src="assets/js/rbac.js"></script>
+  <script src="assets/js/portal-shell.js"></script>
   <script>
     const editingUserId = new URLSearchParams(location.search).get('id');
+    const me = getCurrentUser();
+    const roles = (PSA.roles && PSA.roles.length ? PSA.roles : [
+      { name: 'Admin', description: 'Full access' }, { name: 'Staff', description: 'Runs orders, products and stock' }, { name: 'Buyer', description: 'Customer account' }
+    ]).filter(r => me.role === 'Admin' || r.name !== 'Admin');
+
+    function fillRoles(selected) {
+      const select = document.getElementById('userRole');
+      select.innerHTML = roles.map(r => `<option value="${psaEsc(r.name)}">${psaEsc(r.name)}${r.name === 'Buyer' ? ' (customer)' : ''}</option>`).join('');
+      select.value = selected && roles.some(r => r.name === selected) ? selected : (roles.find(r => r.name === 'Staff') || roles[0]).name;
+      describeRole();
+    }
+
+    function describeRole() {
+      const r = roles.find(x => x.name === document.getElementById('userRole').value);
+      document.getElementById('roleHint').textContent = r ? (r.description || (r.name === 'Buyer' ? 'Shops in the store. No portal access.' : '')) : '';
+      document.getElementById('roleLink').hidden = me.role !== 'Admin';
+    }
 
     function validateUserForm(form) {
       psaClearAllFieldErrors(form);
       let hasError = false;
       const check = (id, message) => { if (message) { psaShowFieldError(id, message); hasError = true; } };
-
       check('userName', psaValidateMinLength(document.getElementById('userName').value, 2, 'Full name'));
       check('userEmail', psaValidateEmail(document.getElementById('userEmail').value));
       check('userRole', psaValidateRequired(document.getElementById('userRole').value, 'Role'));
       // A new account needs a password; when editing, leaving it empty keeps the old one.
       const password = document.getElementById('newPassword').value;
       if (password || !editingUserId) check('newPassword', psaValidatePassword(password, 6));
-
       return !hasError;
     }
 
@@ -182,19 +122,15 @@
         status: document.querySelector('input[name="status"]:checked').value,
         password: document.getElementById('newPassword').value || null
       };
-      psaSetButtonLoading(btn, true, 'Saving...');
+      psaSetButtonLoading(btn, true, 'Saving…');
       try {
-        if (editingUserId) {
-          await psaApi('PATCH', `/api/admin/users/${encodeURIComponent(editingUserId)}`, payload);
-        } else {
-          await psaApi('POST', '/api/admin/users', payload);
-        }
+        if (editingUserId) await psaApi('PATCH', `/api/admin/users/${encodeURIComponent(editingUserId)}`, payload);
+        else await psaApi('POST', '/api/admin/users', payload);
         window.location.replace('admin-users.html');
       } catch (err) {
         psaSetButtonLoading(btn, false);
-        if (err.errors) {
-          psaApplyServerErrors(e.target, err.errors);
-        } else {
+        if (err.errors) psaApplyServerErrors(e.target, err.errors);
+        if (!err.errors || err.errors.role || err.errors.status) {
           errorEl.textContent = err.message;
           errorEl.classList.remove('hidden');
         }
@@ -202,27 +138,42 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      if (!enforcePageRBAC('canManageUsers')) return;
+      if (ptDenied()) return;
       ['userName', 'userEmail', 'userRole', 'newPassword'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', () => psaClearFieldError(el));
       });
+      document.getElementById('userRole').addEventListener('change', describeRole);
+
       if (!editingUserId) {
+        fillRoles();
         document.getElementById('passwordLabel').textContent = 'Password (at least 6 characters)';
         document.getElementById('newPassword').required = true;
         return;
       }
       const user = getRBACUsers().find(u => String(u.id) === editingUserId);
       if (!user) {
-        alert('That user was not found.');
-        window.location.href = 'admin-users.html';
+        showRBACToast('That account was not found.', 'danger');
+        setTimeout(() => { window.location.href = 'admin-users.html'; }, 900);
         return;
       }
+      if (!roles.some(r => r.name === user.role)) roles.push({ name: user.role, description: '' });
+      fillRoles(user.role);
+      document.title = `${user.name} — PsaOnline Staff`;
+      document.getElementById('formTitle').textContent = user.name;
+      document.getElementById('formSub').textContent = `${user.email} · joined ${user.created || '—'}`;
+      const crumb = document.querySelector('.pt-top__crumb b');
+      if (crumb) crumb.textContent = user.name;
       document.getElementById('userName').value = user.name;
       document.getElementById('userEmail').value = user.email;
-      document.getElementById('userRole').value = user.role;
       const status = document.querySelector(`input[name="status"][value="${user.status === 'Suspended' ? 'Suspended' : 'Active'}"]`);
       if (status) status.checked = true;
+      // Nobody can change their own role or suspend themselves (the server refuses it too).
+      if (String(user.id) === String(me.id)) {
+        document.getElementById('userRole').disabled = true;
+        document.querySelectorAll('input[name="status"]').forEach(r => { r.disabled = true; });
+        document.getElementById('roleHint').textContent = 'This is your own account, so another Admin has to change its role.';
+      }
     });
   </script>
 </body>

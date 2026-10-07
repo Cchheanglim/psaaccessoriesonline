@@ -2,20 +2,27 @@
 
 namespace App\Support;
 
+use App\Models\Category;
+use App\Models\Customer;
+use App\Models\LoyaltyTier;
 use App\Models\Order;
+use App\Models\OrderMessage;
 use App\Models\PaymentMethod;
 use App\Models\Product;
+use App\Models\PromoCode;
+use App\Models\Role;
+use App\Models\SiteSetting;
+use App\Models\SortOption;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
 /**
  * Converts database rows into the JSON shapes the storefront pages
- * (public/*.html + assets/js/store.js) were written against.
+ * (public/*.html + assets/js/store.js) were written against. The tables changed in the
+ * 2026-10 redesign; these shapes did not, so the pages keep working unchanged.
  */
 class Storefront
 {
-    public const EXCHANGE_RATE = 4100;
-
     /** Checkout radio value => payment_methods.code */
     public const PAYMENT_CODES = [
         'khqr' => 'bakong_khqr',
@@ -33,16 +40,143 @@ class Storefront
         'cod' => 'Cash on Delivery',
     ];
 
-    /** Products + payment methods, cached for 30 seconds. Staff also see draft/archived products. */
+    /** Relations a product card needs. */
+    public const PRODUCT_RELATIONS = ['category.parent', 'detail', 'images', 'specifications', 'freeDeliveryGroups'];
+
+    /** Delivery in Phnom Penh: $1.50, free from $15 or when the bag has a free-delivery item. */
+    public const DELIVERY_FEE = 1.50;
+
+    public const FREE_DELIVERY_FROM = 15;
+
+    public static function deliveryFee(float $subtotal, bool $hasFreeDeliveryItem): float
+    {
+        return ($hasFreeDeliveryItem || $subtotal >= self::FREE_DELIVERY_FROM) ? 0.0 : self::DELIVERY_FEE;
+    }
+
+    /**
+     * Products, categories, the home showcase and payment methods, cached for 30 seconds.
+     * Staff also see draft/archived products and hidden categories; customers don't see
+     * products whose category (or its parent) is hidden.
+     */
     public static function catalog(bool $includeHidden): array
     {
-        return Cache::remember('storefront.catalog.'.($includeHidden ? 'all' : 'public'), 30, fn () => [
-            'products' => Product::query()
-                ->when(! $includeHidden, fn ($q) => $q->where('status', 'active'))
+        return Cache::remember('storefront.catalog.'.($includeHidden ? 'all' : 'public'), 30, function () use ($includeHidden) {
+            $products = Product::query()
+                ->with(self::PRODUCT_RELATIONS)
+                ->withAvg('reviews', 'rating')->withCount('reviews')
+                ->withSum('stockMovements', 'quantity_change')
+                ->when(! $includeHidden, fn ($q) => $q->where('status', 'active')->whereHas('category', fn ($c) => $c
+                    ->where('is_active', true)
+                    ->where(fn ($c) => $c->whereNull('parent_id')->orWhereHas('parent', fn ($p) => $p->where('is_active', true)))))
                 ->orderByRaw('sku is null')->orderBy('sku')->orderBy('id')
-                ->get()->map(fn ($p) => self::product($p))->all(),
-            'paymentMethods' => PaymentMethod::orderBy('id')->get()->map(fn ($m) => self::paymentMethod($m))->all(),
-        ]);
+                ->get()->map(fn ($p) => self::product($p))->all();
+
+            $shown = array_flip(array_column($products, 'id'));
+            $showcase = Product::whereNotNull('showcase_position')->orderBy('showcase_position')->get(['id', 'sku'])
+                ->map(fn ($p) => $p->sku ?: 'db-'.$p->id)
+                ->filter(fn ($id) => isset($shown[$id]))->values()->all();
+
+            $sortOptions = SortOption::with('products:id,sku')
+                ->when(! $includeHidden, fn ($q) => $q->where('is_active', true))
+                ->orderBy('sort_order')->orderBy('id')->get()
+                ->map(fn ($o) => self::sortOption($o, $includeHidden ? null : $shown))->all();
+
+            return [
+                'products' => $products,
+                'categories' => self::categories($includeHidden),
+                'showcase' => $showcase,
+                'sortOptions' => $sortOptions,
+                'siteContent' => self::siteContent(),
+                'paymentMethods' => PaymentMethod::orderBy('id')->get()->map(fn ($m) => self::paymentMethod($m))->all(),
+            ];
+        });
+    }
+
+    /** Every category, flat (parentId links a sub-category to its parent), A to Z. */
+    public static function categories(bool $includeHidden): array
+    {
+        $list = Category::query()
+            ->withCount(['products' => fn ($q) => $includeHidden ? $q->where('status', '!=', 'archived') : $q->where('status', 'active')])
+            ->orderBy('name')
+            ->get();
+        $active = $list->pluck('is_active', 'id');
+
+        return $list
+            ->filter(fn ($c) => $includeHidden || ($c->is_active && (! $c->parent_id || ($active[$c->parent_id] ?? false))))
+            ->map(fn ($c) => self::category($c))
+            ->values()->all();
+    }
+
+    /** A customer's points, tier (Plus / Pro / Max), how far to the next tier, and recent history. */
+    public static function loyalty(Customer $customer): array
+    {
+        $membership = $customer->membership; // from the customer's orders
+        $tier = $customer->tier;
+        $lowest = LoyaltyTier::lowest();
+        $next = LoyaltyTier::where('min_spend_usd', '>', $tier->min_spend_usd)->orderBy('min_spend_usd')->first();
+        $usd = fn ($v) => number_format((float) $v, 2, '.', '');
+
+        return [
+            'tier' => $tier->name,
+            'discountPercent' => (float) $tier->discount_percent,
+            'spendUSD' => $usd($membership['spend']),
+            'tierFromUSD' => $usd($tier->min_spend_usd),
+            'nextTier' => $next?->name,
+            'nextTierAtUSD' => $next ? $usd($next->min_spend_usd) : null,
+            'spendToNextUSD' => $next ? $usd(max(0, (float) $next->min_spend_usd - $membership['spend'])) : null,
+            'lastOrderAt' => optional($membership['lastOrderAt'])->toIso8601String(),
+            // Pro and Max end on this day unless the customer orders again
+            'expiresAt' => $tier->isNot($lowest) ? optional($membership['expiresAt'])->toIso8601String() : null,
+            'lapseDays' => LoyaltyTier::LAPSE_DAYS,
+            'totalSpentUSD' => $usd($customer->total_spent_usd),
+            'tiers' => LoyaltyTier::orderBy('min_spend_usd')->get()->map(fn ($t) => [
+                'name' => $t->name, 'minSpendUSD' => (float) $t->min_spend_usd,
+                'discountPercent' => (float) $t->discount_percent,
+            ])->all(),
+        ];
+    }
+
+    /** Home page text staff changed (null = the page keeps its own text). */
+    public static function siteContent(): array
+    {
+        $values = SiteSetting::values([SiteSetting::HOME_HEADLINE, SiteSetting::HOME_SUBTITLE, SiteSetting::SOCIAL_LINKS]);
+        $socials = isset($values[SiteSetting::SOCIAL_LINKS]) ? json_decode($values[SiteSetting::SOCIAL_LINKS], true) : null;
+
+        return [
+            'homeHeadline' => $values[SiteSetting::HOME_HEADLINE] ?? null,
+            'homeSubtitle' => $values[SiteSetting::HOME_SUBTITLE] ?? null,
+            'socials' => is_array($socials) ? $socials : null, // null = the pages' built-in accounts
+        ];
+    }
+
+    /** One Sort By choice. $shown limits a group's products to the ones customers can see. */
+    public static function sortOption(SortOption $o, ?array $shown = null): array
+    {
+        $o->loadMissing('products:id,sku');
+        $ids = $o->products->map(fn ($p) => $p->sku ?: 'db-'.$p->id)
+            ->filter(fn ($id) => $shown === null || isset($shown[$id]))->values()->all();
+
+        return [
+            'id' => $o->id,
+            'label' => $o->label,
+            'type' => $o->type,
+            'sortKey' => $o->sort_key,
+            'freeDelivery' => $o->type === 'group' && $o->free_delivery,
+            'isActive' => (bool) $o->is_active,
+            'products' => $o->type === 'group' ? $ids : [],
+        ];
+    }
+
+    public static function category(Category $c): array
+    {
+        return [
+            'id' => $c->id,
+            'slug' => $c->slug,
+            'name' => $c->name,
+            'parentId' => $c->parent_id,
+            'isActive' => (bool) $c->is_active,
+            'productCount' => (int) ($c->products_count ?? $c->products()->count()),
+        ];
     }
 
     public static function forgetCatalog(): void
@@ -53,33 +187,48 @@ class Storefront
 
     public static function product(Product $p): array
     {
-        $gallery = $p->gallery ?: array_values(array_filter([$p->image]));
+        $p->loadMissing(self::PRODUCT_RELATIONS);
+        if (! array_key_exists('reviews_count', $p->getAttributes())) {
+            $p->loadAvg('reviews', 'rating')->loadCount('reviews');
+        }
+        $category = $p->category;
+        $root = $category?->root();
+        $gallery = $p->images->pluck('image_path')->values()->all();
+        $stock = $p->stock_on_hand; // SUM of its stock movements
 
         return [
             'id' => $p->sku ?: 'db-'.$p->id,
             'dbId' => $p->id,
             'title' => $p->title,
             'titleKhmer' => $p->title_khmer,
-            'category' => $p->category,
-            'categoryLabel' => $p->category_label ?: ucfirst($p->category),
-            'priceUSD' => (float) $p->price_usd,
-            'priceKHR' => (int) $p->price_khr,
-            'inStock' => $p->stock > 0,
-            'stock' => (int) $p->stock,
-            'rating' => (float) $p->rating,
-            'reviewsCount' => (int) $p->review_count,
+            'category' => $root?->slug,
+            'categoryLabel' => $category?->name ?? ucfirst((string) $root?->slug),
+            'categoryId' => $category?->id,
+            'priceUSD' => $p->sellingPrice(), // what customers pay now (sale included)
+            'basePriceUSD' => (float) $p->price_usd, // the normal price staff set
+            'originalPriceUSD' => $p->activeDiscountPercent() !== null ? (float) $p->price_usd : null, // crossed out while on sale
+            'discountPercent' => $p->discount_percent !== null ? (float) $p->discount_percent : null,
+            'discountEndsAt' => optional($p->discount_ends_at)->toIso8601String(),
+            'onSale' => $p->activeDiscountPercent() !== null,
+            'inStock' => $stock > 0,
+            'stock' => $stock,
+            'rating' => round((float) $p->reviews_avg_rating, 1),
+            'reviewsCount' => (int) $p->reviews_count,
             'badge' => $p->badge,
-            'image' => $p->image,
+            'image' => $p->primaryImagePath(),
             'gallery' => $gallery,
-            'description' => $p->description,
-            'specifications' => (object) ($p->specifications ?: []),
+            'description' => $p->detail?->description,
+            'specifications' => (object) $p->specifications->pluck('value', 'name')->all(),
             'status' => $p->status,
+            'freeDelivery' => $p->freeDeliveryGroups->isNotEmpty(),
         ];
     }
 
     public static function user(User $u): array
     {
-        $role = ucfirst($u->role);
+        $role = Role::label($u->role);
+        $u->loadMissing('customer.defaultAddress', 'roleRecord');
+        $customer = $u->customer;
 
         return [
             'id' => (string) $u->id,
@@ -88,24 +237,23 @@ class Storefront
             'phone' => $u->phone,
             'role' => $role,
             'avatar' => self::initials($u->name),
-            'avatarUrl' => $u->avatar,
-            'bannerUrl' => $u->banner,
-            'address' => $u->address,
+            'avatarUrl' => $u->avatar_url,
+            'bannerUrl' => $u->banner_url,
+            'address' => $customer?->defaultAddress?->address_line,
             'status' => $u->status ?: 'Active',
             'created' => optional($u->created_at)->format('d M Y'),
-            'department' => [
-                'Admin' => 'Studio Management & Finance',
-                'Staff' => 'Fulfillment & Catalog Operations',
-            ][$role] ?? 'Customer',
-            'description' => [
-                'Admin' => 'Full access: reports, payments, catalog and team roles.',
-                'Staff' => 'Verifies payment slips, dispatches orders and manages stock.',
-            ][$role] ?? 'Registered PsaOnline shopper.',
+            'department' => $u->isStaff() ? $role.' team' : 'Customer',
+            'description' => $u->roleRecord?->description ?: 'Registered PsaOnline shopper.',
+            'permissions' => $u->permissionNames(),
+            'loyalty' => $customer ? self::loyalty($customer) : null,
         ];
     }
 
     public static function order(Order $o): array
     {
+        $o->loadMissing(Order::PAGE_RELATIONS);
+        $payment = $o->latestPayment;
+
         return [
             'id' => $o->order_number,
             'dbId' => $o->id,
@@ -116,34 +264,53 @@ class Storefront
             'phone' => $o->customer_phone,
             'address' => $o->delivery_address,
             'notes' => $o->delivery_notes,
-            'latitude' => $o->latitude !== null ? (float) $o->latitude : null,
-            'longitude' => $o->longitude !== null ? (float) $o->longitude : null,
+            'latitude' => $o->latitude,
+            'longitude' => $o->longitude,
             'items' => $o->items->map(fn ($i) => [
-                'id' => $i->product_id,
-                'title' => $i->product_title,
-                'image' => $i->product_image,
-                'priceUSD' => (float) $i->price_usd,
-                'priceKHR' => (int) $i->price_khr,
+                'id' => $i->product?->sku ?? ($i->product_id ? 'db-'.$i->product_id : null),
+                'title' => $i->product?->title,
+                'image' => $i->product?->primaryImagePath(),
+                'priceUSD' => (float) $i->unit_price_usd,
                 'quantity' => (int) $i->quantity,
             ])->all(),
-            'subtotalUSD' => number_format((float) $o->subtotal_usd, 2, '.', ''),
+            'subtotalUSD' => number_format($o->subtotal_usd, 2, '.', ''),
+            'memberDiscountUSD' => number_format((float) $o->member_discount_usd, 2, '.', ''),
+            'discountUSD' => number_format($o->promo_discount_usd, 2, '.', ''),
+            'promoCode' => $o->promoCode?->code,
             'deliveryUSD' => number_format((float) $o->delivery_fee_usd, 2, '.', ''),
-            'totalUSD' => number_format((float) $o->total_usd, 2, '.', ''),
-            'totalKHR' => number_format((int) $o->total_khr),
+            'totalUSD' => number_format($o->total_usd, 2, '.', ''),
             'status' => self::statusLabel($o),
             'paymentMethod' => self::paymentName($o->payment_method),
             'paymentCode' => $o->payment_method,
             'paymentStatus' => $o->payment_status,
             'orderStatus' => $o->order_status,
-            'slipUploaded' => (bool) $o->payment_slip_url,
-            'slipImage' => $o->payment_slip_url,
+            'slipUploaded' => $payment && ($payment->slip_url !== null || $payment->status === 'slip_uploaded'),
+            'slipImage' => $payment?->slip_url,
+            'paidAt' => optional($payment?->paid_at)->toIso8601String(),
             'reviewed' => (bool) ($o->reviews_count ?? $o->reviews()->exists()),
             'messageCount' => (int) ($o->messages_count ?? $o->messages()->count()),
             // Staff replies the customer hasn't opened yet
-            'unreadReplies' => (int) ($o->unread_replies_count ?? $o->messages()->where('from_staff', true)->whereNull('read_at')->count()),
+            'unreadReplies' => (int) ($o->unread_replies_count ?? OrderMessage::where('order_id', $o->id)->fromStaff()->whereNull('read_at')->count()),
             'handledBy' => $o->handler?->name,
             'handledById' => $o->handled_by ? (string) $o->handled_by : null,
         ];
+    }
+
+    /** Promo codes staff chose to show customers under "My coupons" that can be used now. */
+    public static function coupons(): array
+    {
+        return PromoCode::where('is_active', true)->where('show_to_customers', true)
+            ->where(fn ($q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+            ->orderBy('ends_at')->orderByDesc('id')->limit(20)->get()
+            ->filter(fn (PromoCode $p) => $p->state() === 'active')
+            ->map(fn (PromoCode $p) => [
+                'code' => $p->code,
+                'label' => $p->label(),
+                'description' => $p->description,
+                'minOrderUSD' => $p->min_order_usd !== null ? (float) $p->min_order_usd : null,
+                'endsAt' => optional($p->ends_at)->toIso8601String(),
+            ])->values()->all();
     }
 
     /** Display name for a payment code: built-in label, else the admin-created method's name. */
@@ -167,7 +334,7 @@ class Storefront
             'type' => $m->type,
             'accountName' => $m->account_name,
             'accountNumber' => $m->account_number,
-            'qrData' => $m->qr_data,
+            'qrData' => $m->qr_image_url,
             'description' => $m->description,
             'icon' => $m->icon,
             'isActive' => (bool) $m->is_active,
@@ -186,6 +353,7 @@ class Storefront
                 'verified' => 'Payment Verified',
                 'paid_demo' => 'Paid (demo)',
                 'failed' => 'Payment Failed',
+                'refunded' => 'Refunded',
                 default => 'Payment Pending',
             },
         };

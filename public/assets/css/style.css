@@ -343,6 +343,49 @@ html.dark .text-stone-500 {
   color: #A1A1AA !important;
 }
 
+/* Staff pages use Tailwind's gray scale; in dark mode white cards turn dark (above), so the
+   gray text and the light gray / tinted panels have to follow or the text disappears. */
+html.dark .text-gray-900 { color: #F4F4F5 !important; }
+html.dark .text-gray-800 { color: #E4E4E7 !important; }
+html.dark .text-gray-700 { color: #D4D4D8 !important; }
+html.dark .text-gray-600 { color: #C4C4CC !important; }
+html.dark .text-gray-500 { color: #A1A1AA !important; }
+html.dark .bg-gray-50,
+html.dark .bg-gray-50\/60,
+html.dark .bg-gray-50\/80 { background-color: #181820 !important; }
+html.dark .bg-gray-100 { background-color: #26262F !important; }
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-gray-50\/80:hover,
+html.dark .hover\:bg-gray-100:hover { background-color: #26262F !important; }
+html.dark .border-gray-100,
+html.dark .border-gray-200 { border-color: #2D2D38 !important; }
+html.dark .border-gray-300 { border-color: #3A3A46 !important; }
+html.dark .divide-gray-100 > * + * { border-color: #2D2D38 !important; }
+html.dark .bg-orange-50,
+html.dark .bg-orange-50\/50,
+html.dark .bg-orange-50\/60,
+html.dark .hover\:bg-orange-50:hover { background-color: #2A2118 !important; }
+html.dark .bg-orange-100 { background-color: #3A2A1A !important; }
+html.dark .text-orange-700,
+html.dark .text-orange-800,
+html.dark .hover\:text-orange-800:hover { color: #FFB877 !important; }
+html.dark .border-orange-200,
+html.dark .border-orange-300,
+html.dark .border-orange-400 { border-color: #8A5A2B !important; }
+html.dark .bg-emerald-50,
+html.dark .bg-emerald-50\/60 { background-color: #10241C !important; }
+html.dark .text-emerald-900,
+html.dark .text-emerald-900\/80,
+html.dark .text-emerald-800,
+html.dark .text-emerald-700 { color: #6EE7B7 !important; }
+html.dark .border-emerald-200 { border-color: #1F4D3A !important; }
+html.dark .text-amber-700 { color: #FCD34D !important; }
+html.dark .hover\:bg-red-50:hover { background-color: #2A1517 !important; }
+html.dark .bg-red-50 { background-color: #2A1517 !important; }
+html.dark .border-red-200 { border-color: #5B2328 !important; }
+html.dark .text-red-600 { color: #FCA5A5 !important; }
+html.dark .hover\:bg-red-100:hover { background-color: #3A1A1E !important; }
+
 html.dark .border-\[\#EFE4D6\] {
   border-color: #2D2D38 !important;
 }
@@ -543,7 +586,12 @@ html.dark #psaQuickViewModal .text-\[\#4A3333\] {
   html.dark .text-\[\#2B1D1D\],
   html.dark .text-\[\#4A3333\],
   html.dark .text-stone-600,
-  html.dark .text-stone-500 {
+  html.dark .text-stone-500,
+  html.dark .text-gray-900,
+  html.dark .text-gray-800,
+  html.dark .text-gray-700,
+  html.dark .text-gray-600,
+  html.dark .text-gray-500 {
     color: #111827 !important;
   }
 
@@ -609,19 +657,207 @@ html.dark .hero-marker {
   background: linear-gradient(transparent 58%, rgba(255, 165, 82, 0.55) 58%, rgba(255, 165, 82, 0.55) 92%, transparent 92%);
 }
 
-/* The one authored motion moment: hero product stickers settle into place.
-   They start visible (only transform animates), so nothing waits on JS timing. */
-@keyframes stickerSettle {
-  from { transform: translateY(14px) rotate(var(--settle-from, 0deg)) scale(0.97); }
+/* ---------- Floating product showcase (home hero; staff choose the products) ----------
+   Three nested layers per card so the motions never fight:
+   .psa-sc__layer  position + pointer parallax (front card moves most, so it reads as closest)
+   .psa-sc__bob    the slow up-and-down bob with a little sway
+   .psa-sc__card   tilt toward the pointer, and a shadow that leans away from it
+   --mx / --my run from -1 to 1 and are set by psaRenderShowcase(). */
+.psa-sc {
+  --mx: 0;
+  --my: 0;
+  position: relative;
+  width: 100%;
+  max-width: 27rem;
+  margin-inline: auto;
+  perspective: 1100px;
 }
-.hero-sticker {
-  animation: stickerSettle 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+.psa-sc__stage {
+  position: relative;
+  aspect-ratio: 1 / 1.06;
+  transform-style: preserve-3d;
 }
-.hero-sticker--left { --settle-from: -12deg; animation-delay: 0.05s; }
-.hero-sticker--right { --settle-from: 12deg; animation-delay: 0.12s; }
-.hero-sticker--main { --settle-from: -4deg; z-index: 2; }
-a.hero-sticker:hover { transform: translateY(-4px) rotate(0deg); }
+.psa-sc__layer {
+  position: absolute;
+  transform: translate3d(calc(var(--mx) * var(--depth, 8) * 1px), calc(var(--my) * var(--depth, 8) * 1px), 0);
+  will-change: transform;
+}
+.psa-sc__layer--front { left: 22%; top: 5%; width: 56%; z-index: 3; --depth: 18; }
+.psa-sc__layer--back1 { left: -2%; top: 2%; width: 46%; z-index: 1; --depth: 7; --rot: -10deg; }
+.psa-sc__layer--back2 { right: -2%; top: 38%; width: 44%; z-index: 2; --depth: 10; --rot: 9deg; }
+
+.psa-sc__bob {
+  animation: psaScBob var(--bob-time, 6s) ease-in-out infinite;
+  animation-delay: var(--bob-delay, 0s);
+}
+.psa-sc__layer--front .psa-sc__bob { --rot: -1.5deg; --sway: 2.5deg; --lift: -16px; }
+.psa-sc__layer--back1 .psa-sc__bob { --sway: 2deg; --lift: -9px; --bob-time: 7.4s; --bob-delay: -2.1s; }
+.psa-sc__layer--back2 .psa-sc__bob { --sway: -2deg; --lift: -11px; --bob-time: 6.8s; --bob-delay: -4.3s; }
+@keyframes psaScBob {
+  0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+  50% { transform: translateY(var(--lift, -12px)) rotate(calc(var(--rot, 0deg) + var(--sway, 0deg))); }
+}
+
+.psa-sc__card {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0.6rem;
+  border: 0;
+  border-radius: 1.75rem;
+  background: #fff;
+  color: var(--c-espresso);
+  text-align: left;
+  transform: rotateX(calc(var(--my) * var(--tilt, 4) * -1deg)) rotateY(calc(var(--mx) * var(--tilt, 4) * 1deg));
+  box-shadow:
+    calc(var(--mx) * -14px) calc(18px + var(--my) * -8px) 42px -14px rgba(43, 29, 29, 0.34),
+    0 2px 6px rgba(43, 29, 29, 0.06);
+  transition: box-shadow 0.3s ease;
+}
+.psa-sc__layer--front .psa-sc__card {
+  --tilt: 9;
+  padding: 0.75rem;
+  border-radius: 2rem;
+  box-shadow:
+    calc(var(--mx) * -22px) calc(30px + var(--my) * -12px) 60px -16px rgba(43, 29, 29, 0.4),
+    0 3px 10px rgba(43, 29, 29, 0.08);
+}
+/* a soft sheen that follows the pointer across the front card */
+.psa-sc__layer--front .psa-sc__card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle at calc(50% + var(--mx) * 35%) calc(30% + var(--my) * 30%), rgba(255, 255, 255, 0.35), transparent 55%);
+  mix-blend-mode: soft-light;
+}
+button.psa-sc__card { cursor: pointer; font: inherit; }
+button.psa-sc__card:hover { box-shadow: 0 26px 50px -16px rgba(43, 29, 29, 0.45); }
+button.psa-sc__card:focus-visible, .psa-sc__dot:focus-visible { outline: 3px solid var(--c-sorbet); outline-offset: 3px; }
+
+.psa-sc__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 1.35rem;
+  background: var(--c-cotton);
+}
+.psa-sc__layer--front .psa-sc__img { border-radius: 1.5rem; }
+.psa-sc__tag {
+  position: absolute;
+  left: 0.9rem;
+  bottom: -0.7rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: var(--c-sorbet);
+  color: var(--c-espresso);
+  font-size: 0.875rem;
+  font-weight: 900;
+  box-shadow: 0 6px 14px -6px rgba(43, 29, 29, 0.35);
+}
+.psa-sc__body { padding: 0.75rem 0.4rem 0.25rem; }
+.psa-sc__chip {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--c-sorbet-light);
+  color: #8A4508;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.psa-sc__title {
+  display: -webkit-box;
+  margin-top: 0.35rem;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.3;
+  color: var(--c-espresso);
+}
+.psa-sc__row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: 0.6rem; }
+.psa-sc__price { font-size: 1.25rem; font-weight: 900; color: var(--c-espresso); font-variant-numeric: tabular-nums; }
+.psa-sc__add {
+  height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 999px;
+  background: var(--c-espresso);
+  color: var(--c-cotton);
+  font-size: 0.875rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+.psa-sc__add { white-space: nowrap; }
+.psa-sc__add:hover { background: #000; }
+@media (max-width: 480px) {
+  .psa-sc__layer--front { left: 18%; width: 64%; }
+  .psa-sc__layer--front .psa-sc__card { padding: 0.6rem; }
+  .psa-sc__price { font-size: 1.1rem; }
+  .psa-sc__add { padding: 0 0.8rem; }
+}
+
+/* the ground shadow: shrinks and fades as the front card rises, drifts away from the pointer */
+.psa-sc__ground {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 0;
+  height: 9%;
+  z-index: 0;
+  transform: translateX(calc(var(--mx) * -14px));
+  pointer-events: none;
+}
+.psa-sc__shadow {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(43, 29, 29, 0.42), rgba(43, 29, 29, 0));
+  filter: blur(6px);
+  animation: psaScShadow 6s ease-in-out infinite;
+}
+@keyframes psaScShadow {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(0.8); opacity: 0.5; }
+}
+
+/* switching products: the new front card rises in */
+.psa-sc.is-switching .psa-sc__layer--front .psa-sc__card { animation: psaScIn 0.55s cubic-bezier(0.16, 1, 0.3, 1); }
+.psa-sc.is-switching .psa-sc__layer--back1 .psa-sc__card,
+.psa-sc.is-switching .psa-sc__layer--back2 .psa-sc__card { animation: psaScFade 0.45s ease-out; }
+@keyframes psaScIn { from { opacity: 0; translate: 0 22px; scale: 0.92; } }
+@keyframes psaScFade { from { opacity: 0; scale: 0.95; } }
+
+.psa-sc__dots { display: flex; justify-content: center; gap: 0.25rem; margin-top: 1.25rem; }
+.psa-sc__dot {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.psa-sc__dot span { width: 0.6rem; height: 0.6rem; border-radius: 999px; background: rgba(43, 29, 29, 0.25); transition: width 0.25s, background 0.25s; }
+.psa-sc__dot[aria-current="true"] span { width: 1.6rem; background: var(--c-espresso); }
+
+html.dark .psa-sc__card { background: #1E1E26; color: #F9F3EA; }
+html.dark .psa-sc__title, html.dark .psa-sc__price { color: #F9F3EA; }
+html.dark .psa-sc__chip { background: rgba(255, 165, 82, 0.16); color: var(--c-sorbet); }
+html.dark .psa-sc__img { background: #2A2A34; }
+html.dark .psa-sc__add { background: var(--c-sorbet); color: var(--c-espresso); }
+html.dark .psa-sc__add:hover { background: #FFB877; }
+html.dark .psa-sc__shadow { background: radial-gradient(closest-side, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0)); }
+html.dark .psa-sc__dot span { background: rgba(249, 243, 234, 0.3); }
+html.dark .psa-sc__dot[aria-current="true"] span { background: var(--c-sorbet); }
+
+@media (prefers-reduced-motion: reduce) {
+  .psa-sc__bob, .psa-sc__shadow { animation: none !important; }
+  .psa-sc__layer, .psa-sc__card, .psa-sc__ground { transform: none !important; }
+  .psa-sc__layer--back1 .psa-sc__bob { transform: rotate(-10deg); }
+  .psa-sc__layer--back2 .psa-sc__bob { transform: rotate(9deg); }
+}
 
 /* Respect reduced-motion everywhere: no loops, no entrances, content always visible */
 @media (prefers-reduced-motion: reduce) {
@@ -907,3 +1143,18 @@ html.dark .psa-pin__coords, .checkout-dark .psa-pin__coords { color: #94a3b8 !im
 .psa-pin__use[hidden] { display: none; }
 
 @media (prefers-reduced-motion: reduce) { .psa-drop-pin, .psa-drop-pin__shadow { transition: none; } }
+
+/* Notification pop-ups (store.js psaShowNotificationPopups) */
+.psa-notify { animation: psaNotifyIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); transition: opacity 0.25s ease, transform 0.25s ease; }
+.psa-notify--out { opacity: 0; transform: translateX(24px); }
+@keyframes psaNotifyIn { from { opacity: 0; transform: translateY(-10px) scale(0.97); } }
+@media (prefers-reduced-motion: reduce) { .psa-notify { animation: none; transition: none; } }
+
+/* Sale prices: what you pay now, the normal price crossed out, and the percent off */
+.psa-price { display: inline-flex; align-items: baseline; flex-wrap: wrap; column-gap: 6px; row-gap: 2px; }
+.psa-price-now--sale { color: #B4232A; }
+.dark .psa-price-now--sale { color: #FF8A8F; }
+.psa-price-was { font-size: .8em; font-weight: 600; color: #8C7B74; text-decoration-thickness: 1.5px; }
+.psa-price-off { align-self: center; font-size: 11px; line-height: 1; font-weight: 800; padding: 3px 6px; border-radius: 999px; background: #FDECEC; color: #A3262A; }
+.dark .psa-price-off { background: rgba(226, 75, 80, .18); color: #F49A9D; }
+.psa-price--lg .psa-price-off { font-size: 13px; padding: 4px 8px; }
