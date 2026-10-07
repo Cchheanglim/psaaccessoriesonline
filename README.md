@@ -302,14 +302,6 @@ Some values are stored on purpose because they are facts of that moment and can'
 
 ---
 
-## Design
-
-- Palette: **sorbet orange** `#FFA552`, **espresso brown** `#2B1D1D`, **cotton cream** `#F9F3EA`. Light and dark mode.
-- Type: Plus Jakarta Sans, with Kantumruy Pro for Khmer names.
-- Mascot: **Psa Bunny**, drawn as a simple vector and animated with CSS (ear wiggle, blink, hop), which respects the "reduce motion" setting.
-
----
-
 ## Credits
 
 - Maps © **OpenStreetMap** contributors, via **Leaflet**; address suggestions from OpenStreetMap **Nominatim**.
