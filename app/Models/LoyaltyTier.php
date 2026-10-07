@@ -2,32 +2,46 @@
 
 namespace App\Models;
 
-/**
- * Plus, Pro, Max. Not a table: the amounts are site settings (membership.*) that admins change on the
- * Website page. Plus is everyone; Pro and Max need that much spending on delivered orders, and the
- * membership lapses after membership.lapse_days without an order (the spending count starts again).
- */
-class LoyaltyTier
-{
-    public function __construct(
-        public readonly string $name,
-        public readonly float $min_spend_usd,
-        public readonly float $discount_percent,
-    ) {}
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
-    /** @return list<self> lowest first */
-    public static function all(): array
+/**
+ * Plus, Pro, Max: one row each in loyalty_tiers. A tier needs that much spending on delivered orders
+ * (min_spend_usd) and gives discount_percent off the items at checkout. Plus (0) is everyone.
+ * The membership lapses after membership.lapse_days (a site setting) without an order, and the
+ * spending count starts again. Admins change the amounts on the Website page (Shop rules).
+ */
+class LoyaltyTier extends Model
+{
+    protected $fillable = ['name', 'min_spend_usd', 'discount_percent'];
+
+    protected $casts = [
+        'min_spend_usd' => 'float',
+        'discount_percent' => 'float',
+    ];
+
+    /** @var Collection<int, self>|null lowest first, kept for the request */
+    private static ?Collection $tiers = null;
+
+    /** @return Collection<int, self> lowest first */
+    public static function ordered(): Collection
     {
-        return [
-            new self('Plus', 0, 0),
-            new self('Pro', SiteSetting::number('membership.pro_min_spend_usd'), SiteSetting::number('membership.pro_discount_percent')),
-            new self('Max', SiteSetting::number('membership.max_min_spend_usd'), SiteSetting::number('membership.max_discount_percent')),
-        ];
+        return self::$tiers ??= static::query()->orderBy('min_spend_usd')->get();
+    }
+
+    public static function flushCache(): void
+    {
+        self::$tiers = null;
     }
 
     public static function lowest(): self
     {
-        return self::all()[0];
+        return self::ordered()->first();
+    }
+
+    public static function named(string $name): ?self
+    {
+        return self::ordered()->firstWhere('name', $name);
     }
 
     /** Days without an order before the membership drops back to Plus. */
@@ -39,27 +53,13 @@ class LoyaltyTier
     /** The highest tier this much spending reaches. */
     public static function forSpend(float $spend): self
     {
-        $reached = self::lowest();
-        foreach (self::all() as $tier) {
-            if ($spend >= $tier->min_spend_usd) {
-                $reached = $tier;
-            }
-        }
-
-        return $reached;
+        return self::ordered()->filter(fn (self $t) => $spend >= $t->min_spend_usd)->last() ?? self::lowest();
     }
 
     /** The tier after this one, or null at the top. */
     public function next(): ?self
     {
-        $tiers = self::all();
-        foreach ($tiers as $i => $tier) {
-            if ($tier->name === $this->name) {
-                return $tiers[$i + 1] ?? null;
-            }
-        }
-
-        return null;
+        return self::ordered()->first(fn (self $t) => $t->min_spend_usd > $this->min_spend_usd);
     }
 
     /** Dollars off these items for a member of this tier. */

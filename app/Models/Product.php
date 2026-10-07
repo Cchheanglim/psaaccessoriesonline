@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * A catalog item, its description and its SELL price. Specs live in product_specifications (1:N),
- * pictures in product_images (1:N), facts like Material in product_specifications (1:N).
+ * A catalog item and its SELL price. Its description is in product_details (1:1; $product->description
+ * reads and writes it), specs in product_specifications (1:N), pictures in product_images (1:N).
  * Stock is not stored: it is the sum of stock_movements (see Inventory).
  */
 class Product extends Model
@@ -20,7 +20,7 @@ class Product extends Model
         'sku',
         'title',
         'title_khmer',
-        'description',
+        'description', // saved in product_details
         'price_usd',
         'discount_percent', // a sale: percent off price_usd, null = no sale
         'discount_ends_at', // the sale stops after this moment (null = until staff remove it)
@@ -61,6 +61,40 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function detail()
+    {
+        return $this->hasOne(ProductDetail::class);
+    }
+
+    /** A description set on the product, saved to product_details after the product is saved. */
+    private ?string $pendingDescription = null;
+
+    private bool $descriptionChanged = false;
+
+    protected static function booted(): void
+    {
+        static::saved(function (Product $product) {
+            if ($product->descriptionChanged) {
+                $product->detail()->updateOrCreate([], ['description' => $product->pendingDescription]);
+                $product->descriptionChanged = false;
+                $product->unsetRelation('detail');
+            }
+        });
+    }
+
+    protected function description(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->descriptionChanged ? $this->pendingDescription : $this->detail?->description,
+            set: function (?string $value) {
+                $this->pendingDescription = $value;
+                $this->descriptionChanged = true;
+
+                return [];
+            },
+        );
     }
 
 

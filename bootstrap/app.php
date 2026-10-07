@@ -18,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // The storefront's login page is public/login.html, not the old Blade /login route.
         $middleware->redirectGuestsTo(fn () => '/login.html');
+        // Old chats are cleaned up once an hour (see OrderMessage::cleanUp).
+        $middleware->web(append: [\App\Http\Middleware\CleanUpOldMessages::class]);
+
         $middleware->alias([
             'staff' => \App\Http\Middleware\EnsureStaff::class,
             'same-account' => \App\Http\Middleware\EnsureSameAccount::class,

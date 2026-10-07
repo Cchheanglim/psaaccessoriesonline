@@ -129,9 +129,10 @@ class DatabaseRedesignTest extends TestCase
             ->assertJsonPath('user.loyalty.spendToNextUSD', '100.00')
             ->assertJsonPath('user.loyalty.discountPercent', 0);
 
-        // A customer is a user: no separate profile row; staff get no membership
-        $this->assertFalse(\Illuminate\Support\Facades\Schema::hasTable('customers'));
+        // A customer is a user (1:1 customers row); staff get no customer row and no membership
+        $customers = \App\Models\Customer::count();
         $this->user('staff', 'Sokha Lim');
+        $this->assertSame($customers, \App\Models\Customer::count());
         $this->assertNull(\App\Support\Storefront::user(User::where('name', 'Sokha Lim')->first())['loyalty']);
 
         // Same phone number cannot be used twice (login works by phone)

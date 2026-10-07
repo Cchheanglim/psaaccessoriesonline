@@ -58,7 +58,7 @@ class NotificationController extends Controller
     {
         $from = now()->subDays(self::DAYS);
         $orders = Order::with(['statusHistory', 'payments', 'messages', 'customer', 'approval.changedBy:id,name', 'latestPayment.method'])
-            ->where('user_id', $user->id)
+            ->ofUser($user->id)
             ->latest()->limit(50)->get();
 
         $feed = collect();
@@ -112,7 +112,7 @@ class NotificationController extends Controller
 
         if ($user->hasPermission('verify_payments') || $user->hasPermission('manage_orders')) {
             $orders = Order::with(['items', 'customer', 'address', 'latestPayment.method', 'promoCode'])
-                ->where('created_at', '>=', $from)->where('user_id', '!=', $user->id)
+                ->where('created_at', '>=', $from)->whereNot(fn ($q) => $q->ofUser($user->id))
                 ->latest()->limit(30)->get();
             foreach ($orders as $o) {
                 $feed->push($this->item('o'.$o->id, 'order_placed', "New order {$o->order_number}",
@@ -196,12 +196,12 @@ class NotificationController extends Controller
         if ($user->isStaff()) {
             return OrderMessage::fromCustomer()->whereNull('read_at')
                 ->whereHas('order', fn ($q) => $q->where(fn ($q) => $q->whereDoesntHave('approval')->orWhereHas('approval', fn ($a) => $a->where('changed_by', $user->id)))
-                    ->where('user_id', '!=', $user->id))
+                    ->whereNot(fn ($q) => $q->ofUser($user->id)))
                 ->count();
         }
 
         return OrderMessage::fromStaff()->whereNull('read_at')
-            ->whereHas('order', fn ($q) => $q->where('user_id', $user->id))
+            ->whereHas('order', fn ($q) => $q->ofUser($user->id))
             ->count();
     }
 }

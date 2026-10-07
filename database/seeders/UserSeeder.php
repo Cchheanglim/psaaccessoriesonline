@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
             ]
         );
         if (! $buyer->addresses()->exists()) {
-            $buyer->addresses()->create([
+            $buyer->asCustomer()->addresses()->create([
                 'label' => 'Home', 'recipient_name' => $buyer->name, 'phone' => $buyer->phone,
                 'address_line' => 'Toul Kork, St 315, House #14, Phnom Penh', 'is_default' => true,
             ]);

@@ -63,8 +63,14 @@ class CatalogAdminTest extends TestCase
         $this->assertSame(2, Product::where('category_id', $sub['id'])->count());
 
         // New products can go straight into it
-        $this->actingAs($staff)->postJson('/api/admin/products', ['title' => 'Star Pencil Case', 'categoryId' => $sub['id'], 'priceUSD' => 3.5, 'stock' => 4])
-            ->assertCreated()->assertJsonPath('product.categoryId', $sub['id']);
+        $id = $this->actingAs($staff)->postJson('/api/admin/products', ['title' => 'Star Pencil Case', 'categoryId' => $sub['id'], 'priceUSD' => 3.5, 'stock' => 4, 'description' => 'Holds 20 pens'])
+            ->assertCreated()->assertJsonPath('product.categoryId', $sub['id'])->assertJsonPath('product.description', 'Holds 20 pens')->json('product.id');
+
+        // The description is the product's product_details row (1:1)
+        $product = Product::where('title', 'Star Pencil Case')->first();
+        $this->assertSame('Holds 20 pens', \App\Models\ProductDetail::where('product_id', $product->id)->value('description'));
+        $this->actingAs($staff)->patchJson("/api/admin/products/{$id}", ['description' => 'Holds 30 pens'])->assertOk()->assertJsonPath('product.description', 'Holds 30 pens');
+        $this->assertSame(1, \App\Models\ProductDetail::where('product_id', $product->id)->count());
 
         // Rename keeps the slug (links keep working)
         $this->actingAs($staff)->patchJson("/api/admin/categories/{$top['id']}", ['name' => 'School Days'])

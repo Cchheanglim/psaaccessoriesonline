@@ -94,7 +94,7 @@ class SiteSettingApiController extends Controller
             throw ValidationException::withMessages($errors);
         }
 
-        SiteSetting::putMany($values);
+        SiteSetting::putMany($values, $user->id);
         Storefront::forgetCatalog();
 
         return response()->json($this->payload($user));

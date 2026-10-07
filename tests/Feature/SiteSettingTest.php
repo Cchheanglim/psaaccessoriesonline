@@ -33,8 +33,9 @@ class SiteSettingTest extends TestCase
 
     public function test_every_setting_is_a_row_and_the_website_gets_them_all(): void
     {
-        // One row per piece of text, three columns (setting_key, setting_value, updated_at)
-        $this->assertSame(count(SiteSetting::FIELDS), DB::table('site_settings')->count());
+        // One row per piece of text (setting_key, setting_value, updated_by, updated_at); the Pro / Max amounts are loyalty_tiers rows
+        $this->assertSame(count(SiteSetting::FIELDS) - count(SiteSetting::TIER_FIELDS), DB::table('site_settings')->count());
+        $this->assertSame('100', SiteSetting::get('membership.pro_min_spend_usd'));
         $this->assertSame('Free delivery in Phnom Penh on orders $15+', DB::table('site_settings')->where('setting_key', 'header.announcement_1')->value('setting_value'));
         $this->assertSame('https://t.me/psaonline_support', DB::table('site_settings')->where('setting_key', 'social.telegram')->value('setting_value'));
 

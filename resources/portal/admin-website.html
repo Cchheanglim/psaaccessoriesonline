@@ -87,7 +87,7 @@
       { id: 'home', label: 'Home page', title: 'Home page', sub: 'The headline, buttons and every section title and text on the home page.', hint: 'Words between *stars* get the orange highlight.' },
       { id: 'footer', label: 'Footer', title: 'Footer', sub: 'The same footer is at the bottom of every shop page.', hint: 'Empty contact lines are not shown.' },
       { id: 'social', label: 'Social media', title: 'Social media', sub: 'Paste the link to each account (open your profile and copy the address). Customers see the username and go straight to that exact account. Leave one empty to hide it.', hint: 'Shown in the footer and used by every "Chat on Telegram" link.' },
-      { id: 'rules', label: 'Shop rules', title: 'Shop rules', sub: 'Delivery and membership. Checkout uses these numbers straight away.', hint: 'Only Admins can change these.' }
+      { id: 'rules', label: 'Shop rules', title: 'Shop rules', sub: 'Delivery, membership and chat clean-up. The shop uses these numbers straight away.', hint: 'Only Admins can change these.' }
     ];
     let fields = [];
     let saved = {};
@@ -244,6 +244,7 @@
             <p><b>Pro:</b> after spending ${money(s('membership.pro_min_spend_usd'))}: <b>${Number(s('membership.pro_discount_percent')) || 0}% off</b>.</p>
             <p><b>Max:</b> after spending ${money(s('membership.max_min_spend_usd'))}: <b>${Number(s('membership.max_discount_percent')) || 0}% off</b>.</p>
             <p style="margin-top:10px">Membership goes back to Plus after <b>${Number(s('membership.lapse_days')) || 0} days</b> without an order.</p>
+            <p style="margin-top:10px"><b>Chats:</b> deleted automatically <b>${Number(s('chat.auto_delete_days')) || 0} days</b> after the last message; deleted messages are removed for good after <b>${Number(s('chat.purge_days')) || 0} days</b>.</p>
           </div>`;
         }
       });

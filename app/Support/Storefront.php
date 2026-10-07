@@ -40,7 +40,7 @@ class Storefront
     ];
 
     /** Relations a product card needs. */
-    public const PRODUCT_RELATIONS = ['category.parent', 'images', 'specifications', 'freeDeliveryGroups'];
+    public const PRODUCT_RELATIONS = ['category.parent', 'detail', 'images', 'specifications', 'freeDeliveryGroups'];
 
     /** Delivery in Phnom Penh: the fee and the free-delivery amount are site settings (Website > Shop rules). */
     public static function deliveryFee(float $subtotal, bool $hasFreeDeliveryItem): float
@@ -126,9 +126,9 @@ class Storefront
             'expiresAt' => $tier->name !== $lowest->name ? optional($membership['expiresAt'])->toIso8601String() : null,
             'lapseDays' => LoyaltyTier::lapseDays(),
             'totalSpentUSD' => $usd($customer->total_spent_usd),
-            'tiers' => array_map(fn (LoyaltyTier $t) => [
+            'tiers' => LoyaltyTier::ordered()->map(fn (LoyaltyTier $t) => [
                 'name' => $t->name, 'minSpendUSD' => $t->min_spend_usd, 'discountPercent' => $t->discount_percent,
-            ], LoyaltyTier::all()),
+            ])->values()->all(),
         ];
     }
 

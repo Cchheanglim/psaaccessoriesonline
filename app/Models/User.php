@@ -9,8 +9,8 @@ use Illuminate\Notifications\Notifiable;
 
 /**
  * Everyone who signs in (buyers, staff, admins). What they may do comes from their role.
- * A shopper's addresses, orders and reviews point straight at their user row; their membership
- * tier and total spent are calculated from their orders (nothing extra is stored).
+ * A shopper also has a customers row (1:1); their addresses, orders and reviews point at it. Their
+ * membership tier and total spent are calculated from their orders (nothing extra is stored).
  */
 class User extends Authenticatable
 {
@@ -45,6 +45,12 @@ class User extends Authenticatable
         static::creating(function (User $user) {
             $user->role_id ??= Role::idFor('buyer');
         });
+        // A shopper account is a customer (staff get a customer row only if they ever shop).
+        static::created(function (User $user) {
+            if ($user->role === 'buyer') {
+                Customer::firstOrCreate(['user_id' => $user->id]);
+            }
+        });
     }
 
     /** The role's name in lower case ('buyer', 'staff', 'admin', ...); setting it stores the matching role_id. */
@@ -61,26 +67,41 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id');
     }
 
-    /* ---------- As a shopper ---------- */
+    /* ---------- As a shopper (through their customers row) ---------- */
+
+    public function customer()
+    {
+        return $this->hasOne(Customer::class);
+    }
+
+    /** The customer row, made the first time it is needed. */
+    public function asCustomer(): Customer
+    {
+        $customer = $this->customer ?? Customer::firstOrCreate(['user_id' => $this->id]);
+        $this->setRelation('customer', $customer);
+
+        return $customer;
+    }
 
     public function addresses()
     {
-        return $this->hasMany(CustomerAddress::class);
+        return $this->hasManyThrough(CustomerAddress::class, Customer::class);
     }
 
     public function defaultAddress()
     {
-        return $this->hasOne(CustomerAddress::class)->where('is_default', true)->whereNull('archived_at');
+        return $this->hasOneThrough(CustomerAddress::class, Customer::class)
+            ->where('customer_addresses.is_default', true)->whereNull('customer_addresses.archived_at');
     }
 
     public function orders()
     {
-        return $this->hasMany(Order::class);
+        return $this->hasManyThrough(Order::class, Customer::class);
     }
 
     public function reviews()
     {
-        return $this->hasMany(ProductReview::class);
+        return $this->hasManyThrough(ProductReview::class, Customer::class);
     }
 
     /**
@@ -94,7 +115,7 @@ class User extends Authenticatable
     protected function membership(): Attribute
     {
         return Attribute::get(function () {
-            $orders = $this->orders()->with(['items', 'currentStatus'])->orderBy('created_at')->orderBy('id')->get()
+            $orders = $this->orders()->with(['items', 'currentStatus'])->orderBy('orders.created_at')->orderBy('orders.id')->get()
                 ->reject(fn (Order $o) => $o->currentStatus?->status === 'cancelled')->values();
 
             $spend = 0.0;

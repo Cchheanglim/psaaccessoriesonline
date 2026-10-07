@@ -108,7 +108,7 @@ class ChatAssistantController extends Controller
 
         $user = $request->user();
         $orders = $user
-            ? Order::with(Order::PAGE_RELATIONS)->where('user_id', $user->id)->latest()->limit(5)->get()
+            ? Order::with(Order::PAGE_RELATIONS)->ofUser($user->id)->latest()->limit(5)->get()
                 ->map(fn ($o) => sprintf('- %s placed %s: %s, total $%s, paid by %s', $o->order_number,
                     optional($o->created_at)->format('d M Y'), Storefront::statusLabel($o), number_format((float) $o->total_usd, 2), Storefront::paymentName($o->payment_method)))
                 ->implode("\n")

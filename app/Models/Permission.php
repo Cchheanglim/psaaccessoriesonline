@@ -2,12 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
+
 /**
- * What a role may do. Not a table: the list is fixed by the website's features, so it lives here.
- * Admins tick these per role (role_permissions stores role_id + permission name).
+ * Something a role may do, like manage_stock. One row per permission in the permissions table;
+ * admins tick them per role (role_permissions: role_id + permission_id, many-to-many).
+ * LIST is the website's own list (the features that check them), used to fill the table and label the screen.
  */
-class Permission
+class Permission extends Model
 {
+    protected $fillable = ['name', 'description', 'is_active'];
+
+    protected $casts = ['is_active' => 'boolean'];
+
     /** name => [label, group, what it allows] in the order the Roles & permissions screen shows them. */
     public const LIST = [
         'verify_payments' => ['Approve payments', 'Orders', 'Approve or reject payment slips'],
@@ -24,6 +31,14 @@ class Permission
         'manage_users' => ['Accounts', 'Business', 'Create accounts, change roles, suspend accounts'],
     ];
 
+    /** @var array<string, int>|null name => id, kept for the request */
+    private static ?array $ids = null;
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_permissions');
+    }
+
     /** @return list<string> */
     public static function names(): array
     {
@@ -33,5 +48,16 @@ class Permission
     public static function label(string $name): string
     {
         return self::LIST[$name][0] ?? $name;
+    }
+
+    /** @return array<string, int> name => id */
+    public static function ids(): array
+    {
+        return self::$ids ??= static::query()->pluck('id', 'name')->all();
+    }
+
+    public static function flushCache(): void
+    {
+        self::$ids = null;
     }
 }
