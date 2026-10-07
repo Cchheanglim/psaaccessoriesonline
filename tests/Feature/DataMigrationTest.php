@@ -21,6 +21,20 @@ class DataMigrationTest extends TestCase
         touch($this->file);
         config(['database.connections.legacy' => ['driver' => 'sqlite', 'database' => $this->file, 'prefix' => '', 'foreign_key_constraints' => true]]);
 
+        // Rehearsal on PostgreSQL (like Supabase): MIGRATION_TEST_PGSQL=host:port/database:user:password
+        // on a THROWAWAY database. Its public schema is wiped first, so never point it at a real one.
+        if ($pg = env('MIGRATION_TEST_PGSQL')) {
+            [$hostPort, $rest] = explode('/', $pg, 2);
+            [$host, $port] = explode(':', $hostPort);
+            [$database, $username, $password] = explode(':', $rest);
+            config(['database.connections.legacy' => [
+                'driver' => 'pgsql', 'host' => $host, 'port' => $port, 'database' => $database,
+                'username' => $username, 'password' => $password, 'charset' => 'utf8', 'prefix' => '', 'schema' => 'public', 'sslmode' => 'disable',
+            ]]);
+            DB::connection('legacy')->statement('DROP SCHEMA public CASCADE');
+            DB::connection('legacy')->statement('CREATE SCHEMA public');
+        }
+
         $old = array_values(array_filter(glob(database_path('migrations/*.php')), fn ($f) => strcmp(basename($f), '2026_10_06') < 0)); // everything before the redesign
         Artisan::call('migrate', ['--database' => 'legacy', '--path' => $old, '--realpath' => true, '--force' => true]);
     }
