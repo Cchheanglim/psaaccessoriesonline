@@ -9,16 +9,14 @@ This guide explains who built it and how to work on it.
 Each member owned a module of the system (and its page in the database diagram,
 `docs/Final Draft.drawio`):
 
-| Member        | GitHub              | Area owned |
-|---------------|---------------------|------------|
-| Chheanglim    | @Cchheanglim        | Stock & suppliers; project lead, deployment (Render), database |
-| Anou          | @anourattanak-jpg   | Order messages & chat; the full ERD |
-| Long Meng     | @MaaTari2           | Products & categories |
-| Tha Nuth      | _(add handle)_      | Users, roles & permissions; the module overview |
-| Meng Huy      | _(add handle)_      | Customers, membership & site settings |
-| Nak           | _(add handle)_      | Orders & payment |
-
-> Teammates: replace the `_(add handle)_` placeholders with your GitHub usernames.
+| Member                  | GitHub              | Area owned |
+|---------------          |---------------------|------------|
+| Chhum Chheanglim        | @Cchheanglim        | Stock & suppliers; project lead, deployment (Render), database (Postgresql) |
+| Rattanak anou           | @anourattanak-jpg   | Order messages & chat; the full ERD |
+| Heng Longmeng           | @MaaTari2           | Products & categories |
+| MeyTha Nuth             | @thanuth952-source  | Users, roles & permissions; the module overview |
+| Lim Meng Huy            | @MengHuy-777        | Customers, membership & site settings |
+| Kang soksambathratanak  | @BakiTheGoat        | Orders & payment |
 
 ## How it is built
 
@@ -69,4 +67,4 @@ Open a GitHub issue describing what happened, what you expected, and the steps t
 
 ---
 
-Thanks for building PsaOnline together. 🐰
+Thanks for building PsaOnline together. KON SERS UTE COOKED🐰
