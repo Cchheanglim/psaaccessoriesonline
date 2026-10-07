@@ -120,8 +120,8 @@ class ChatAssistantController extends Controller
         $money = fn ($v) => '$'.rtrim(rtrim(number_format((float) $v, 2, '.', ''), '0'), '.');
         $delivery = '$'.number_format(SiteSetting::number('shop.delivery_fee_usd'), 2);
         $freeFrom = $money(SiteSetting::number('shop.free_delivery_from_usd'));
-        $telegram = SiteSetting::get('social.telegram') ?: '@psaonline_support';
-        $telegramUrl = 'https://t.me/'.ltrim($telegram, '@');
+        $telegramUrl = SiteSetting::get('social.telegram') ?: 'https://t.me/psaonline_support';
+        $telegram = SiteSetting::socialName('telegram', $telegramUrl);
 
         return <<<PROMPT
 You are the friendly shopping assistant for PsaOnline, an online shop in Phnom Penh, Cambodia, for cute gifts and everyday finds (bag and phone charms, gift sets, hair clips, socks, tees, shirts, bags and watches).

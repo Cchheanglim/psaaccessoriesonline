@@ -27,7 +27,7 @@ class SiteSetting extends Model
 
     /**
      * key => [group, label, original value, max length | [min, max] for numbers, type, hint]
-     * Types: text, long (several lines), image, handle (social account), money, percent, days.
+     * Types: text, long (several lines), image, url (a social account's link), money, percent, days.
      * Groups: header, home, footer, social (staff with "Edit products & shop"), rules (admins only).
      */
     public const FIELDS = [
@@ -71,12 +71,12 @@ class SiteSetting extends Model
         'footer.copyright' => ['footer', 'Copyright line', '© 2026 PsaOnline', 80, 'text', ''],
 
         // Social accounts (empty = not shown)
-        'social.facebook' => ['social', 'Facebook', 'PsaOnline', 60, 'handle', 'The page name after facebook.com/'],
-        'social.instagram' => ['social', 'Instagram', '@psaonline_kh', 60, 'handle', ''],
-        'social.tiktok' => ['social', 'TikTok', '@psaonline', 60, 'handle', ''],
-        'social.x' => ['social', 'X', '@psaonline', 60, 'handle', ''],
-        'social.youtube' => ['social', 'YouTube', '', 60, 'handle', ''],
-        'social.telegram' => ['social', 'Telegram', '@psaonline_support', 60, 'handle', 'Also used by every "Message us on Telegram" link.'],
+        'social.facebook' => ['social', 'Facebook', 'https://www.facebook.com/PsaOnline', 255, 'url', 'Paste the link from your Facebook page.'],
+        'social.instagram' => ['social', 'Instagram', 'https://www.instagram.com/psaonline_kh', 255, 'url', ''],
+        'social.tiktok' => ['social', 'TikTok', 'https://www.tiktok.com/@psaonline', 255, 'url', ''],
+        'social.x' => ['social', 'X', 'https://x.com/psaonline', 255, 'url', ''],
+        'social.youtube' => ['social', 'YouTube', '', 255, 'url', ''],
+        'social.telegram' => ['social', 'Telegram', 'https://t.me/psaonline_support', 255, 'url', 'Also used by every "Message us on Telegram" link.'],
 
         // Shop rules (admins only)
         'shop.delivery_fee_usd' => ['rules', 'Delivery fee', '1.50', [0, 100], 'money', 'Charged when the items are under the free delivery amount.'],
@@ -87,6 +87,47 @@ class SiteSetting extends Model
         'membership.max_discount_percent' => ['rules', 'Max: discount', '17', [0, 90], 'percent', ''],
         'membership.lapse_days' => ['rules', 'Membership ends after', '18', [1, 365], 'days', 'Days without an order before a customer goes back to Plus.'],
     ];
+
+    /** The web addresses each platform's links may use (so a pasted link really is that platform). */
+    public const SOCIAL_HOSTS = [
+        'facebook' => ['facebook.com', 'fb.com', 'm.facebook.com'],
+        'instagram' => ['instagram.com'],
+        'tiktok' => ['tiktok.com'],
+        'x' => ['x.com', 'twitter.com'],
+        'youtube' => ['youtube.com', 'youtu.be', 'm.youtube.com'],
+        'telegram' => ['t.me', 'telegram.me'],
+    ];
+
+    /** Is this an https link to one of the platform's sites, with an account in it? */
+    public static function isSocialUrl(string $platform, string $url): bool
+    {
+        $parts = parse_url($url);
+        if (! $parts || ($parts['scheme'] ?? '') !== 'https' || empty($parts['host']) || trim($parts['path'] ?? '', '/') === '') {
+            return false;
+        }
+        $host = preg_replace('/^www\./', '', strtolower($parts['host']));
+
+        return in_array($host, self::SOCIAL_HOSTS[$platform] ?? [], true);
+    }
+
+    /** The account name shown for a link: https://www.instagram.com/psaonline_kh -> @psaonline_kh */
+    public static function socialName(string $platform, string $url): string
+    {
+        $segments = array_values(array_filter(explode('/', (string) parse_url($url, PHP_URL_PATH))));
+        $name = $segments[0] ?? '';
+        if ($name === 'channel') {
+            return 'YouTube channel'; // a channel id is not a name
+        }
+        if (in_array($name, ['c', 'user', 'pages', 'people'], true)) {
+            $name = $segments[1] ?? $name;
+        }
+        $name = rawurldecode($name);
+        if ($name === '' || $name === 'profile.php') {
+            return ucfirst($platform);
+        }
+
+        return $platform === 'facebook' || str_starts_with($name, '@') ? $name : '@'.$name;
+    }
 
     /** Every setting's value (the original text when a row is missing). Cached until a setting is saved. */
     public static function map(): array

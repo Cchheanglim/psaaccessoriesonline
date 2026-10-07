@@ -3617,18 +3617,33 @@ const PSA_SOCIAL_NAMES = { facebook: 'Facebook', instagram: 'Instagram', tiktok:
 const PSA_SOCIAL_ORDER = ['facebook', 'instagram', 'tiktok', 'x', 'youtube', 'telegram'];
 const PSA_TELEGRAM_DEFAULT = 'https://t.me/psaonline_support';
 
-// The account's link, built from its name: "@psaonline_kh" -> https://instagram.com/psaonline_kh
-function psaSocialUrl(platform, handle) {
-  const name = String(handle || '').trim().replace(/^@/, '');
-  const base = { facebook: 'https://facebook.com/', instagram: 'https://instagram.com/', tiktok: 'https://www.tiktok.com/@', x: 'https://x.com/', youtube: 'https://www.youtube.com/@', telegram: 'https://t.me/' }[platform];
-  return base ? base + encodeURIComponent(name) : '';
+// Staff paste each account's link (a link points at one account; many accounts share a name).
+// The username shown is worked out from it: https://www.instagram.com/psaonline_kh -> @psaonline_kh
+function psaSocialName(platform, url) {
+  let segments = [];
+  try { segments = new URL(url).pathname.split('/').filter(Boolean); } catch (e) { return PSA_SOCIAL_NAMES[platform] || platform; }
+  let name = segments[0] || '';
+  if (name === 'channel') return 'YouTube channel';
+  if (['c', 'user', 'pages', 'people'].includes(name)) name = segments[1] || name;
+  try { name = decodeURIComponent(name); } catch (e) { /* keep as it is */ }
+  if (!name || name === 'profile.php') return PSA_SOCIAL_NAMES[platform] || platform;
+  return platform === 'facebook' || name.startsWith('@') ? name : '@' + name;
 }
 
-// The accounts staff filled in (an empty one is not shown), in display order.
+// An older saved name (not a link) still works: "@psaonline_kh" -> https://www.instagram.com/psaonline_kh
+function psaSocialUrl(platform, value) {
+  const v = String(value || '').trim();
+  if (/^https:\/\//i.test(v)) return v;
+  const base = { facebook: 'https://www.facebook.com/', instagram: 'https://www.instagram.com/', tiktok: 'https://www.tiktok.com/@', x: 'https://x.com/', youtube: 'https://www.youtube.com/@', telegram: 'https://t.me/' }[platform];
+  return base && v ? base + encodeURIComponent(v.replace(/^@/, '')) : '';
+}
+
+// The accounts staff filled in (an empty one is not shown), in display order: the link as saved,
+// and the username shown for it.
 function psaSocialLinks() {
-  return PSA_SOCIAL_ORDER.map(platform => ({ platform, handle: (psaSetting(`social.${platform}`) || '').trim() }))
-    .filter(s => s.handle)
-    .map(s => ({ ...s, url: psaSocialUrl(s.platform, s.handle) }));
+  return PSA_SOCIAL_ORDER.map(platform => ({ platform, url: psaSocialUrl(platform, psaSetting(`social.${platform}`)) }))
+    .filter(s => s.url)
+    .map(s => ({ ...s, handle: psaSocialName(s.platform, s.url) }));
 }
 
 function psaSocialIcon(platform, cls = 'w-5 h-5') {
@@ -3909,12 +3924,12 @@ const PSA_SITE_DEFAULTS = {
   'footer.address': 'Phnom Penh, Cambodia',
   'footer.hours': '',
   'footer.copyright': '© 2026 PsaOnline',
-  'social.facebook': 'PsaOnline',
-  'social.instagram': '@psaonline_kh',
-  'social.tiktok': '@psaonline',
-  'social.x': '@psaonline',
+  'social.facebook': 'https://www.facebook.com/PsaOnline',
+  'social.instagram': 'https://www.instagram.com/psaonline_kh',
+  'social.tiktok': 'https://www.tiktok.com/@psaonline',
+  'social.x': 'https://x.com/psaonline',
   'social.youtube': '',
-  'social.telegram': '@psaonline_support',
+  'social.telegram': 'https://t.me/psaonline_support',
   'shop.delivery_fee_usd': '1.50',
   'shop.free_delivery_from_usd': '15'
 };
@@ -3976,9 +3991,9 @@ function psaApplySettings(root = document) {
 function psaRenderFooter(footer) {
   const s = psaSetting;
   const link = 'inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet';
-  const telegram = (s('social.telegram') || '').trim();
+  const telegram = psaSocialLinks().find(x => x.platform === 'telegram');
   const contact = [
-    telegram ? `<li><a href="${psaEsc(psaSocialUrl('telegram', telegram))}" target="_blank" rel="noopener noreferrer" class="${link} font-bold text-sorbet-ink dark:text-sorbet">Telegram: ${psaEsc(telegram)}</a></li>` : '',
+    telegram ? `<li><a href="${psaEsc(telegram.url)}" target="_blank" rel="noopener noreferrer" class="${link} font-bold text-sorbet-ink dark:text-sorbet">Telegram: ${psaEsc(telegram.handle)}</a></li>` : '',
     s('footer.phone') ? `<li><a href="tel:${psaEsc(s('footer.phone').replace(/[^\d+]/g, ''))}" class="${link}">${psaEsc(s('footer.phone'))}</a></li>` : '',
     s('footer.email') ? `<li><a href="mailto:${psaEsc(s('footer.email'))}" class="${link} break-all">${psaEsc(s('footer.email'))}</a></li>` : '',
     s('footer.address') ? `<li class="py-1">${psaEsc(s('footer.address'))}</li>` : '',

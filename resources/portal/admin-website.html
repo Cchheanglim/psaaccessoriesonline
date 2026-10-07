@@ -86,7 +86,7 @@
       { id: 'header', label: 'Header', title: 'Header', sub: 'The top of every page: logo, shop name, tagline, the message bar on the home page and the search box.', hint: 'The message bar shows on the home page; the logo and name show on every page.' },
       { id: 'home', label: 'Home page', title: 'Home page', sub: 'The headline, buttons and every section title and text on the home page.', hint: 'Words between *stars* get the orange highlight.' },
       { id: 'footer', label: 'Footer', title: 'Footer', sub: 'The same footer is at the bottom of every shop page.', hint: 'Empty contact lines are not shown.' },
-      { id: 'social', label: 'Social media', title: 'Social media', sub: 'Just the account name, like @psaonline. The link is made for you. Leave one empty to hide it.', hint: 'Shown in the footer and used by every "Chat on Telegram" link.' },
+      { id: 'social', label: 'Social media', title: 'Social media', sub: 'Paste the link to each account (open your profile and copy the address). Customers see the username and go straight to that exact account. Leave one empty to hide it.', hint: 'Shown in the footer and used by every "Chat on Telegram" link.' },
       { id: 'rules', label: 'Shop rules', title: 'Shop rules', sub: 'Delivery and membership. Checkout uses these numbers straight away.', hint: 'Only Admins can change these.' }
     ];
     let fields = [];
@@ -136,7 +136,13 @@
       if (f.type === 'long') {
         return `<textarea id="${id}" class="pt-textarea" rows="3" maxlength="${f.max}" data-key="${f.key}">${psaEsc(value)}</textarea>`;
       }
-      return `<input id="${id}" class="pt-input" type="text" maxlength="${f.max}" value="${psaEsc(value)}" data-key="${f.key}" ${f.type === 'handle' ? 'placeholder="Not shown" autocomplete="off"' : ''}>`;
+      if (f.type === 'url') {
+        const example = { facebook: 'https://www.facebook.com/yourpage', instagram: 'https://www.instagram.com/yourname', tiktok: 'https://www.tiktok.com/@yourname', x: 'https://x.com/yourname', youtube: 'https://www.youtube.com/@yourchannel', telegram: 'https://t.me/yourname' }[f.key.slice(7)];
+        const shown = value ? psaSocialName(f.key.slice(7), value) : '';
+        return `<input id="${id}" class="pt-input" type="url" inputmode="url" maxlength="${f.max}" value="${psaEsc(value)}" data-key="${f.key}" placeholder="${example} (empty: not shown)" autocomplete="off">
+          <span class="pt-hint" data-shown="${f.key}">${shown ? `Shown as <b>${psaEsc(shown)}</b>` : ''}</span>`;
+      }
+      return `<input id="${id}" class="pt-input" type="text" maxlength="${f.max}" value="${psaEsc(value)}" data-key="${f.key}">`;
     }
 
     function renderGroup() {
@@ -154,7 +160,7 @@
           ${inputFor(f)}
           <div class="field-foot">
             <span class="pt-hint">${psaEsc(f.hint || '')}</span>
-            ${f.original !== '' && f.type !== 'image' ? `<button type="button" class="reset-link" data-reset="${f.key}" title="${psaEsc(f.original)}">Use original</button>` : ''}
+            ${f.original !== '' ? `<button type="button" class="reset-link" data-reset="${f.key}" title="${f.type === 'image' ? 'The PsaOnline logo' : psaEsc(f.original)}">${f.type === 'image' ? 'Use original logo' : 'Use original'}</button>` : ''}
           </div>
           <span class="pt-error" data-error="${f.key}" hidden></span>
         </div>`;
@@ -176,6 +182,11 @@
         }
         const reset = box.querySelector('[data-reset]');
         if (reset) reset.hidden = (draft[f.key] ?? '') === f.original;
+        const shown = box.querySelector('[data-shown]');
+        if (shown) {
+          const v = (draft[f.key] || '').trim();
+          shown.innerHTML = /^https:\/\/\S+/.test(v) ? `Shown as <b>${psaEsc(psaSocialName(f.key.slice(7), v))}</b>` : (v ? 'Paste the full link, starting with https://' : '');
+        }
       });
       const dirty = changedKeys().length > 0;
       $('dirtyNote').hidden = !dirty;
@@ -317,6 +328,8 @@
         draft[f.key] = f.original;
         const input = document.querySelector(`[data-key="${CSS.escape(f.key)}"]`);
         if (input) input.value = f.original;
+        const logoBox = document.getElementById(`f-${f.key.replace(/\W/g, '-')}-box`);
+        if (logoBox) logoBox.innerHTML = `<img src="${psaEsc(f.original)}" alt="Original logo">`;
         refresh();
       });
       $('undoBtn').addEventListener('click', () => {

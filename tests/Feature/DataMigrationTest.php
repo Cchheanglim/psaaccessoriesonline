@@ -106,6 +106,7 @@ class DataMigrationTest extends TestCase
             'membership.pro_min_spend_usd', 'membership.pro_discount_percent', 'membership.max_min_spend_usd', 'membership.max_discount_percent', 'membership.lapse_days',
         ])->orderByRaw("case setting_key when 'membership.pro_min_spend_usd' then 1 when 'membership.pro_discount_percent' then 2 when 'membership.max_min_spend_usd' then 3 when 'membership.max_discount_percent' then 4 else 5 end")->pluck('setting_value')->all());
         $this->assertSame(['setting_key', 'setting_value', 'updated_at'], $db->getSchemaBuilder()->getColumnListing('site_settings'));
+        $this->assertSame('https://www.instagram.com/psaonline_kh', $db->table('site_settings')->where('setting_key', 'social.instagram')->value('setting_value')); // accounts are links
         $this->assertSame('St 240, Phnom Penh', $db->table('customer_addresses')->where('user_id', 2)->whereNull('archived_at')->value('address_line'));
 
         // Points are gone (membership comes from spending), and so are tables nothing needs

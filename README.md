@@ -59,7 +59,7 @@ It is a full-stack Laravel 12 application: a phone-first storefront for shoppers
   - **Home showcase:** choose and order the products in the home page's floating showcase.
   - **Sort By:** edit the shop's Sort By menu; add hand-picked groups such as "New Drop" or "Free Delivery".
   - **Suppliers** and **Buying stock:** purchase orders go draft → ordered → received; receiving adds the items to stock and keeps what each one cost.
-- **Website:** every text customers read is editable here, grouped as *Header* (shop name, tagline, logo, top-bar messages, search hint), *Home page* (headline, buttons, section titles and texts), *Footer* (about text, payments, phone, email, address, hours, copyright), *Social media* (one account per platform) and *Shop rules* (delivery fee, free delivery from, Pro/Max spend and discount, days before a membership ends; Admins only). Every shop page shares one footer, and a preview shows each change before saving.
+- **Website:** every text customers read is editable here, grouped as *Header* (shop name, tagline, logo, top-bar messages, search hint), *Home page* (headline, buttons, section titles and texts), *Footer* (about text, payments, phone, email, address, hours, copyright), *Social media* (paste the link to each account; customers see the username and the link opens that exact account) and *Shop rules* (delivery fee, free delivery from, Pro/Max spend and discount, days before a membership ends; Admins only). Every shop page shares one footer, and a preview shows each change before saving.
 - **Payment methods:** add, edit, turn off and delete payment methods with their own QR image.
 - **Staff & roles:** create accounts, change a person's role, suspend accounts, and under **Roles & permissions** create new roles (for example "Delivery rider") and tick exactly what each role may do.
 - Staff and admin accounts can't shop (bag, wishlist and checkout are turned off for them), so sales and stock only come from customers.
@@ -180,7 +180,7 @@ php artisan test
 - membership (Pro at $100 with 6% off, Max at $500 with 17% off, lapsing after 18 days), promo codes (limits, dates, minimum spend, per customer, stacking after the member discount) and product sales;
 - ordering with database prices, stock checks, delivery rules (including free-delivery groups) and payment methods;
 - payment slips, the staff workflow (verify → dispatch → deliver), rejections and cancellations restoring stock;
-- categories, the home showcase, the Sort By menu, the headline and social accounts;
+- categories, the home showcase, the Sort By menu, and the social account links (only real links to that platform are accepted);
 - suppliers and purchase orders (draft → ordered → received adds stock);
 - order messages, notifications and the staff inbox;
 - reviews and rating calculation;
@@ -273,7 +273,7 @@ All endpoints are under `/api`, use the session cookie, and require the CSRF tok
 | `PATCH /admin/orders/{number}` | Approve payments / Dispatch & deliver / Cancel orders | verify, reject, dispatch, deliver, cancel |
 | `POST`/`PATCH`/`DELETE /admin/products...`, `POST /admin/products/move` | Edit products & shop (delete: Delete from catalog; stock counts: Stock & buying) | catalog |
 | `POST`/`PATCH`/`DELETE /admin/categories...` | Edit products & shop (delete: Delete from catalog) | categories |
-| `PUT /admin/showcase`, `PUT /admin/site-content`, `PUT /admin/socials` | Edit products & shop | home showcase, headline, social accounts |
+| `PUT /admin/showcase` | Edit products & shop | home showcase |
 | `POST`/`PATCH`/`DELETE /admin/sort-options...`, `PUT /admin/sort-options/order` | Edit products & shop (delete: Delete from catalog) | Sort By menu |
 | `GET`/`POST`/`PATCH`/`DELETE /admin/suppliers...` | Suppliers (delete: Delete from catalog) | suppliers |
 | `GET`/`POST`/`PATCH`/`DELETE /admin/purchase-orders...` | Stock & buying | buying stock (draft, order, receive, cancel) |

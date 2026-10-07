@@ -50,7 +50,7 @@ class SiteSettingApiController extends Controller
             if ($value === null || $value === '') {
                 // Optional pieces (empty original: phone, email...) and things staff may hide (messages, chips,
                 // social accounts) can be empty; the rest go back to their original text.
-                $values[$key] = ($original === '' || $type === 'handle' || preg_match('/announcement|chip/', $key)) ? '' : null;
+                $values[$key] = ($original === '' || $type === 'url' || preg_match('/announcement|chip/', $key)) ? '' : null;
                 continue;
             }
 
@@ -72,8 +72,8 @@ class SiteSettingApiController extends Controller
             } elseif (mb_strlen($value) > $limit) {
                 $errors["settings.{$key}"] = "Keep {$label} to {$limit} characters.";
                 continue;
-            } elseif ($type === 'handle' && ! preg_match('/^@?[\w.\-]{1,59}$/u', $value)) {
-                $errors["settings.{$key}"] = "{$label}: just the account name, like @psaonline (no link, no spaces).";
+            } elseif ($type === 'url' && ! SiteSetting::isSocialUrl(substr($key, strlen('social.')), $value)) {
+                $errors["settings.{$key}"] = "{$label}: paste the full link to your account, starting with https:// (for example ".($original ?: 'https://www.youtube.com/@psaonline').').';
                 continue;
             }
             if ($key === 'footer.email' && ! filter_var($value, FILTER_VALIDATE_EMAIL)) {
