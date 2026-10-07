@@ -8,8 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 /**
- * Everyone who signs in (buyers, staff, admins). What they may do comes from their role;
- * shoppers also have a customer profile (1:1) with their loyalty points and addresses.
+ * Everyone who signs in (buyers, staff, admins). What they may do comes from their role.
+ * A shopper's addresses, orders and reviews point straight at their user row; their membership
+ * tier and total spent are calculated from their orders (nothing extra is stored).
  */
 class User extends Authenticatable
 {
@@ -60,21 +61,78 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function customer()
+    /* ---------- As a shopper ---------- */
+
+    public function addresses()
     {
-        return $this->hasOne(Customer::class);
+        return $this->hasMany(CustomerAddress::class);
     }
 
-
-    /** The shopper profile, created the first time it is needed (e.g. a staff member placing an order). */
-    public function customerProfile(): Customer
+    public function defaultAddress()
     {
-        if (! $this->customer) {
-            $this->setRelation('customer', $this->customer()->create([]));
-        }
-
-        return $this->customer;
+        return $this->hasOne(CustomerAddress::class)->where('is_default', true)->whereNull('archived_at');
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    /**
+     * Where the membership stands, worked out from the user's orders:
+     *  - spend: delivered orders since the membership last lapsed. A gap of more than
+     *    LoyaltyTier::lapseDays() between orders (or since the last one) starts the count again.
+     *  - lastOrderAt / expiresAt: the newest order (cancelled ones don't count) and that many days after it.
+     *
+     * @return array{spend: float, lastOrderAt: mixed, expiresAt: mixed}
+     */
+    protected function membership(): Attribute
+    {
+        return Attribute::get(function () {
+            $orders = $this->orders()->with(['items', 'currentStatus'])->orderBy('created_at')->orderBy('id')->get()
+                ->reject(fn (Order $o) => $o->currentStatus?->status === 'cancelled')->values();
+
+            $spend = 0.0;
+            $previous = null;
+            $lapse = LoyaltyTier::lapseDays();
+            foreach ($orders as $order) {
+                if ($previous && $previous->created_at->diffInDays($order->created_at, true) > $lapse) {
+                    $spend = 0.0; // the membership had lapsed before this order
+                }
+                if ($order->currentStatus?->status === 'delivered') {
+                    $spend += (float) $order->total_usd;
+                }
+                $previous = $order;
+            }
+            $expiresAt = $previous?->created_at->copy()->addDays($lapse);
+            if ($expiresAt && $expiresAt->isPast()) {
+                $spend = 0.0;
+            }
+
+            return ['spend' => round($spend, 2), 'lastOrderAt' => $previous?->created_at, 'expiresAt' => $expiresAt];
+        })->shouldCache();
+    }
+
+    /** The tier the current spending reaches (Plus, Pro or Max). */
+    protected function tier(): Attribute
+    {
+        return Attribute::get(fn () => LoyaltyTier::forSpend($this->membership['spend']))->shouldCache();
+    }
+
+    /** What the user has spent on delivered orders. */
+    protected function totalSpentUsd(): Attribute
+    {
+        return Attribute::get(fn () => round(
+            $this->orders()->inStatus('delivered')->with('items')->get()->sum(fn (Order $o) => $o->total_usd), 2
+        ))->shouldCache();
+    }
+
+    /* ---------- As staff ---------- */
 
     /** Admins can do everything; everyone else gets what their role's ticked permissions allow. */
     public function hasPermission(string $permission): bool
@@ -86,7 +144,7 @@ class User extends Authenticatable
     public function permissionNames(): array
     {
         if ($this->isAdmin()) {
-            return Permission::where('is_active', true)->orderBy('id')->pluck('name')->all();
+            return Permission::names();
         }
 
         return $this->isStaff() ? Role::permissionsFor($this->role_id) : [];

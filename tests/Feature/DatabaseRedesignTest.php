@@ -49,13 +49,13 @@ class DatabaseRedesignTest extends TestCase
         $buyer = $this->user();
         $order = $this->order($buyer);
 
-        $this->assertSame($buyer->id, $order->customer->user_id);
+        $this->assertSame($buyer->id, $order->user_id);
         $this->assertSame('pending_payment', $order->order_status);
         $this->assertSame('bakong_khqr', $order->payment_method);
         $this->assertCount(1, $order->payments);
         $this->assertSame('pending', $order->payment_status);
         $this->assertEquals(18.00, (float) $order->payments->first()->amount_usd);
-        $this->assertSame(['pending_payment'], $order->statusHistory->map(fn ($h) => $h->status->code)->all());
+        $this->assertSame(['pending_payment'], $order->statusHistory->map(fn ($h) => $h->status)->all());
 
         $item = $order->items->first();
         $this->assertEquals(9.00, (float) $item->unit_price_usd);
@@ -80,7 +80,7 @@ class DatabaseRedesignTest extends TestCase
         $this->actingAs($staff)->patchJson($url, ['action' => 'deliver'])->assertOk()->assertJsonPath('order.status', 'Delivered');
         $this->actingAs($admin)->patchJson($url, ['action' => 'cancel'])->assertStatus(422); // already delivered
 
-        $codes = $order->fresh()->statusHistory->map(fn ($h) => $h->status->code)->all();
+        $codes = $order->fresh()->statusHistory->map(fn ($h) => $h->status)->all();
         $this->assertSame(['pending_payment', 'processing', 'out_for_delivery', 'delivered'], $codes);
         $this->assertSame($staff->id, $order->fresh()->latestPayment->verified_by);
     }
@@ -92,10 +92,10 @@ class DatabaseRedesignTest extends TestCase
         $order = $this->order($buyer, [['id' => 'genz-01', 'quantity' => 3]]); // 3 x $9 = $27, free delivery
 
         $this->actingAs($staff)->patchJson("/api/admin/orders/{$order->order_number}", ['action' => 'verify'])->assertOk();
-        $this->assertEquals(0.0, (float) $buyer->fresh()->customer->total_spent_usd); // nothing until delivered
+        $this->assertEquals(0.0, (float) $buyer->fresh()->total_spent_usd); // nothing until delivered
 
         $this->actingAs($staff)->patchJson("/api/admin/orders/{$order->order_number}", ['action' => 'deliver'])->assertOk();
-        $customer = $buyer->fresh()->customer;
+        $customer = $buyer->fresh();
         $this->assertEquals(27.00, (float) $customer->total_spent_usd);
         $this->assertSame('Plus', $customer->tier->name);
 
@@ -119,7 +119,7 @@ class DatabaseRedesignTest extends TestCase
         $this->assertSame(['failed', 'slip_uploaded'], $order->fresh()->payments->pluck('status')->all());
     }
 
-    public function test_buyers_get_a_customer_profile_and_staff_do_not(): void
+    public function test_a_customer_is_a_user_and_staff_get_no_membership(): void
     {
         $this->postJson('/api/auth/register', [
             'name' => 'Sophea Chhum', 'email' => 'sophea@example.com', 'phone' => '012345678', 'password' => 'secret123',
@@ -129,10 +129,10 @@ class DatabaseRedesignTest extends TestCase
             ->assertJsonPath('user.loyalty.spendToNextUSD', '100.00')
             ->assertJsonPath('user.loyalty.discountPercent', 0);
 
-        $user = User::where('email', 'sophea@example.com')->firstOrFail();
-        $this->assertNotNull($user->customer);
+        // A customer is a user: no separate profile row; staff get no membership
+        $this->assertFalse(\Illuminate\Support\Facades\Schema::hasTable('customers'));
         $this->user('staff', 'Sokha Lim');
-        $this->assertNull(User::where('name', 'Sokha Lim')->first()->customer);
+        $this->assertNull(\App\Support\Storefront::user(User::where('name', 'Sokha Lim')->first())['loyalty']);
 
         // Same phone number cannot be used twice (login works by phone)
         $this->postJson('/api/auth/logout');
@@ -149,7 +149,7 @@ class DatabaseRedesignTest extends TestCase
             ->assertJsonPath('user.address', 'St 271, Toul Tompoung');
         $this->actingAs($buyer)->patchJson('/api/me', ['address' => 'St 63, BKK1'])->assertOk();
 
-        $addresses = $buyer->fresh()->customer->addresses;
+        $addresses = $buyer->fresh()->addresses;
         $this->assertCount(1, $addresses);
         $this->assertTrue($addresses->first()->is_default);
         $this->assertSame('St 63, BKK1', $addresses->first()->address_line);
@@ -265,7 +265,7 @@ class DatabaseRedesignTest extends TestCase
         // the same delivery details reuse one address; different ones get a new address
         $again = $this->order($buyer, [['id' => 'genz-02', 'quantity' => 1]]);
         $this->assertSame($order->address_id, $again->address_id);
-        $this->assertSame(1, $buyer->customer->addresses()->count());
+        $this->assertSame(1, $buyer->addresses()->count());
     }
 
     public function test_an_address_an_order_used_is_never_edited(): void
@@ -281,7 +281,7 @@ class DatabaseRedesignTest extends TestCase
         $this->assertSame($oldAddressId, $order->address_id);
         $this->assertSame('St 240, Phnom Penh', $order->delivery_address); // the order still shows where it went
         $this->assertNotNull(\App\Models\CustomerAddress::find($oldAddressId)->archived_at);
-        $this->assertSame('BKK 1, St 51, Phnom Penh', $buyer->customer->fresh()->defaultAddress->address_line);
+        $this->assertSame('BKK 1, St 51, Phnom Penh', $buyer->fresh()->defaultAddress->address_line);
     }
 
     public function test_specifications_are_one_row_per_fact(): void

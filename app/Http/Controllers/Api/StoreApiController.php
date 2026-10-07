@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\Order;
 use App\Models\OrderMessage;
@@ -54,7 +53,7 @@ class StoreApiController extends Controller
                 $q->where(function ($q) use ($user, $guestOrders) {
                     $q->whereIn('order_number', $guestOrders);
                     if ($user) {
-                        $q->orWhereHas('customer', fn ($c) => $c->where('user_id', $user->id));
+                        $q->orWhere('user_id', $user->id);
                     }
                 });
             })
@@ -68,11 +67,11 @@ class StoreApiController extends Controller
             'categories' => $catalog['categories'],
             'showcase' => $catalog['showcase'],
             'sortOptions' => $catalog['sortOptions'],
-            'siteContent' => $catalog['siteContent'],
+            'settings' => $catalog['settings'],
             'paymentMethods' => $catalog['paymentMethods'],
             'orders' => $orders->map(fn ($o) => Storefront::order($o))->values(),
             'users' => $user?->isStaff() && $user->hasPermission('manage_users')
-                ? User::with(['customer.defaultAddress'])->orderBy('id')->get()->map(fn ($u) => Storefront::user($u))->values()
+                ? User::with(['defaultAddress', 'roleRecord'])->orderBy('id')->get()->map(fn ($u) => Storefront::user($u))->values()
                 : [],
             'coupons' => Storefront::coupons(),
             'roles' => $user?->isStaff() && $user->hasPermission('manage_users')
@@ -139,7 +138,6 @@ class StoreApiController extends Controller
             'password' => $data['password'],
             'role' => 'buyer',
         ]);
-        $user->customerProfile();
 
         Auth::login($user, true);
         $request->session()->regenerate();
@@ -193,7 +191,7 @@ class StoreApiController extends Controller
         }
 
         $user->update($data);
-        $user->unsetRelation('customer');
+        $user->unsetRelation('defaultAddress');
 
         return response()->json(['user' => Storefront::user($user)]);
     }
@@ -229,7 +227,7 @@ class StoreApiController extends Controller
     {
         $user = $this->requireUser($request);
         // Staff and admin accounts run the shop; buying is for customer accounts, so sales,
-        // stock and loyalty points only ever come from real customers.
+        // stock and memberships only ever come from real customers.
         abort_if($user->isStaff(), 403, 'Staff and admin accounts can\'t place orders. Sign in with a customer account to shop.');
 
         $data = $request->validate([
@@ -268,7 +266,7 @@ class StoreApiController extends Controller
         }
 
         $method ??= PaymentMethod::create(['code' => $code, 'name' => Storefront::PAYMENT_LABELS[$code], 'type' => 'other', 'is_active' => true]);
-        $customer = $user->customerProfile();
+        $customer = $user;
 
         $order = DB::transaction(function () use ($data, $method, $user, $customer) {
             // Merge repeated lines for the same product, then check every product before writing anything.
@@ -313,7 +311,7 @@ class StoreApiController extends Controller
 
             $order = Order::create([
                 'order_number' => $this->newOrderNumber(),
-                'customer_id' => $customer->id,
+                'user_id' => $user->id,
                 'address_id' => $address->id,
                 'delivery_notes' => $data['notes'] ?? null,
                 'promo_code_id' => $promo?->id,
@@ -367,7 +365,7 @@ class StoreApiController extends Controller
 
             return $product && $product->status === 'active' ? round($product->sellingPrice() * $line['quantity'], 2) : 0;
         });
-        $customer = $request->user()?->customer;
+        $customer = $request->user();
         if ($problem = $promo->problemFor($customer, (float) $subtotal)) {
             throw ValidationException::withMessages(['code' => $problem]);
         }
@@ -486,7 +484,7 @@ class StoreApiController extends Controller
         $order = $this->ownOrder($request, $orderNumber);
         $this->markThreadRead($request, $order);
 
-        return response()->json(['messages' => $this->messageList($order)]);
+        return response()->json($this->thread($order, $request->user()));
     }
 
     public function sendOrderMessage(Request $request, string $orderNumber): JsonResponse
@@ -512,7 +510,55 @@ class StoreApiController extends Controller
         $this->markThreadRead($request, $order);
 
 
-        return response()->json(['messages' => $this->messageList($order)], 201);
+        return response()->json($this->thread($order, $user), 201);
+    }
+
+    /**
+     * Delete one message. Customers can delete their own messages; staff with "Customer messages"
+     * can delete any. The row is removed, so it is gone for both sides.
+     */
+    public function destroyOrderMessage(Request $request, string $orderNumber, int $message): JsonResponse
+    {
+        $user = $this->requireUser($request);
+        $order = $this->ownOrder($request, $orderNumber);
+        $row = $order->messages()->whereKey($message)->firstOrFail();
+
+        abort_unless($this->canDeleteMessage($user, $order, $row), 403, 'You can only delete your own messages.');
+        $row->delete();
+
+        return response()->json($this->thread($order, $user));
+    }
+
+    /** Delete the whole chat of an order (staff with "Customer messages" only). */
+    public function destroyOrderMessages(Request $request, string $orderNumber): JsonResponse
+    {
+        $user = $this->requireUser($request);
+        $order = $this->ownOrder($request, $orderNumber);
+        abort_unless($user->isStaff() && $user->hasPermission('manage_messages'), 403, 'Only staff can delete a whole chat.');
+        $order->messages()->delete();
+
+        return response()->json($this->thread($order, $user));
+    }
+
+    private function canDeleteMessage(?User $user, Order $order, OrderMessage $message): bool
+    {
+        if (! $user) {
+            return false;
+        }
+        if ($user->isStaff() && $user->hasPermission('manage_messages')) {
+            return true;
+        }
+
+        return $message->sender_id === $user->id && ! $message->isFromStaff($order);
+    }
+
+    /** The chat and what the viewer may delete in it. */
+    private function thread(Order $order, ?User $viewer): array
+    {
+        return [
+            'messages' => $this->messageList($order, $viewer),
+            'canDeleteChat' => (bool) ($viewer?->isStaff() && $viewer->hasPermission('manage_messages')),
+        ];
     }
 
     /** Opening a thread marks the other side's messages as read. */
@@ -530,10 +576,10 @@ class StoreApiController extends Controller
             ->update(['read_at' => now()]);
     }
 
-    private function messageList(Order $order): array
+    private function messageList(Order $order, ?User $viewer = null): array
     {
         return $order->messages()->with('sender:id,name')->orderBy('created_at')->orderBy('id')->get()
-            ->map(function (OrderMessage $m) use ($order) {
+            ->map(function (OrderMessage $m) use ($order, $viewer) {
                 $fromStaff = $m->isFromStaff($order);
 
                 return [
@@ -543,6 +589,7 @@ class StoreApiController extends Controller
                     'author' => $fromStaff ? 'PsaOnline' : ($m->sender?->name ?? $order->customer_name),
                     'staffName' => $fromStaff ? $m->sender?->name : null,
                     'createdAt' => $m->created_at?->toIso8601String(),
+                    'canDelete' => $this->canDeleteMessage($viewer, $order, $m),
                 ];
             })->all();
     }
@@ -587,7 +634,7 @@ class StoreApiController extends Controller
             foreach ($data['reviews'] as $review) {
                 ProductReview::updateOrCreate(
                     ['order_id' => $order->id, 'product_id' => $productIds[$review['id']]],
-                    ['customer_id' => $order->customer_id, 'rating' => $review['rating'], 'comment' => trim($review['comment'] ?? '') ?: null],
+                    ['user_id' => $order->user_id, 'rating' => $review['rating'], 'comment' => trim($review['comment'] ?? '') ?: null],
                 );
             }
         });
@@ -607,11 +654,11 @@ class StoreApiController extends Controller
         return response()->json([
             'average' => $count ? round((float) (clone $query)->avg('rating'), 1) : null,
             'count' => $count,
-            'reviews' => (clone $query)->with('customer.user:id,name')->latest()->limit(30)->get()
+            'reviews' => (clone $query)->with('user:id,name')->latest()->limit(30)->get()
                 ->map(fn (ProductReview $r) => [
                     'rating' => $r->rating,
                     'comment' => $r->comment,
-                    'author' => $this->shortName($r->customer?->user?->name),
+                    'author' => $this->shortName($r->user?->name),
                     'date' => $r->created_at?->timezone(config('app.timezone'))->format('d M Y'),
                 ])->all(),
         ]);
@@ -620,8 +667,7 @@ class StoreApiController extends Controller
     /** The profile's delivery address is the customer's default saved address. */
     private function saveDefaultAddress(User $user, ?string $line): void
     {
-        $customer = $user->customerProfile();
-        $address = $customer->defaultAddress;
+        $address = $user->defaultAddress;
 
         if (trim((string) $line) === '') {
             if ($address) {
@@ -639,7 +685,7 @@ class StoreApiController extends Controller
         if ($address) {
             $this->retireAddress($address);
         }
-        $customer->addresses()->create([
+        $user->addresses()->create([
             'label' => $address?->label ?? 'Home', 'recipient_name' => $address?->recipient_name ?? $user->name,
             'phone' => $address?->phone ?? $user->phone, 'address_line' => $line, 'is_default' => true,
         ]);
@@ -659,7 +705,7 @@ class StoreApiController extends Controller
      * The address an order ships to: the customer's own address with exactly these details if there is
      * one, otherwise a new one (it becomes the default when the customer has none yet).
      */
-    private function addressForOrder(Customer $customer, array $data): CustomerAddress
+    private function addressForOrder(User $customer, array $data): CustomerAddress
     {
         $details = [
             'recipient_name' => trim($data['customerName']),

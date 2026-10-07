@@ -49,7 +49,7 @@
           alt="Psa Accessories Online Logo" 
           class="h-9 sm:h-11 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
         />
-        <span class="text-lg sm:text-xl font-black text-[#2B1D1D] dark:text-white">Psa<span class="text-[#FFA552]">Online</span></span>
+        <span class="text-lg sm:text-xl font-black text-[#2B1D1D] dark:text-white" data-psa-brand>Psa<span class="text-[#FFA552]">Online</span></span>
       </a>
       <div class="flex items-center gap-2 sm:gap-3">
         <a data-hide-mobile href="cart.html" class="px-3 py-1.5 rounded-full border border-[#EFE4D6] dark:border-[#32323D] bg-white dark:bg-[#1E1E26] hover:bg-[#F9F3EA] dark:hover:bg-[#252530] text-[#2B1D1D] dark:text-white text-xs font-bold flex items-center gap-1.5 transition">
@@ -355,19 +355,7 @@
 
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto py-6 text-xs text-stone-500 dark:text-stone-400">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
+  <footer data-psa-footer class="mt-auto"></footer>
 
   <script src="assets/js/store.js"></script>
   <script>

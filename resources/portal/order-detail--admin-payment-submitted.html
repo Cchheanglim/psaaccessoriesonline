@@ -157,7 +157,10 @@
         </div>
 
         <section id="messages" class="${card} scroll-mt-24" aria-labelledby="messagesTitle">
-          <h2 id="messagesTitle" class="text-lg font-black">Messages with ${psaEsc(order.customerName || 'the customer')}</h2>
+          <div class="flex items-start justify-between gap-3">
+            <h2 id="messagesTitle" class="text-lg font-black">Messages with ${psaEsc(order.customerName || 'the customer')}</h2>
+            <button type="button" id="deleteChatBtn" class="pt-btn pt-btn--danger pt-btn--sm" hidden>Delete chat</button>
+          </div>
           <p class="text-sm text-stone-600">The customer sees these on their order page. Replies show as "PsaOnline".</p>
           <div id="messageList" class="mt-4 space-y-3 max-h-[28rem] overflow-y-auto" aria-live="polite"><p class="text-sm text-stone-600">Loading messages…</p></div>
           <form id="messageForm" class="mt-4 flex flex-col sm:flex-row gap-2">
@@ -211,16 +214,22 @@
             <div class="max-w-[85%] rounded-2xl px-4 py-2.5 ${ours ? 'bg-espresso text-cotton rounded-br-md' : 'bg-stone-100 dark:bg-[#252530] text-[#2B1D1D] rounded-bl-md'}">
               <div class="text-xs font-bold ${ours ? 'text-cotton/80' : 'text-stone-600'}">${psaEsc(who)} &middot; ${psaEsc(when)}</div>
               <p class="mt-0.5 text-base whitespace-pre-line break-words">${psaEsc(m.body)}</p>
+              ${psaMessageDeleteButton(m, ours)}
             </div>
           </div>`;
       }).join('');
       box.scrollTop = box.scrollHeight;
     }
 
+    function renderThread(res) {
+      renderMessages(res.messages);
+      const del = document.getElementById('deleteChatBtn');
+      if (del) del.hidden = !(res.canDeleteChat && res.messages.length);
+    }
+
     async function loadMessages(quiet) {
       try {
-        const { messages } = await psaApi('GET', `/api/orders/${encodeURIComponent(order.id)}/messages`);
-        renderMessages(messages);
+        renderThread(await psaApi('GET', `/api/orders/${encodeURIComponent(order.id)}/messages`));
       } catch (err) {
         if (!quiet) document.getElementById('messageList').innerHTML = `<p class="text-sm font-bold text-rose-700">${psaEsc(err.message)}</p>`;
       }
@@ -236,9 +245,9 @@
       const btn = document.getElementById('messageSendBtn');
       psaSetButtonLoading(btn, true, 'Sending…');
       try {
-        const { messages } = await psaApi('POST', `/api/orders/${encodeURIComponent(order.id)}/messages`, { body });
+        const res = await psaApi('POST', `/api/orders/${encodeURIComponent(order.id)}/messages`, { body });
         input.value = '';
-        renderMessages(messages);
+        renderThread(res);
       } catch (err) {
         errorEl.textContent = err.message;
         errorEl.classList.remove('hidden');
@@ -253,6 +262,17 @@
       if (order) document.title = `Order ${order.id} | PsaOnline Staff`;
       render();
       if (order) messagesTimer = setInterval(() => { if (!document.hidden) loadMessages(true); }, 20000);
+      document.addEventListener('click', async e => {
+        const one = e.target.closest('#messageList [data-delete-message]');
+        const all = e.target.closest('#deleteChatBtn');
+        if (!order || (!one && !all)) return;
+        try {
+          const res = one ? await psaDeleteMessage(order.id, one.dataset.deleteMessage) : await psaDeleteChat(order.id);
+          if (res) { renderThread(res); showRBACToast(one ? 'Message deleted.' : 'Chat deleted.', 'success'); }
+        } catch (err) {
+          showRBACToast(psaEsc(err.message), 'danger');
+        }
+      });
       // A new notification (e.g. the customer replied) refreshes the chat straight away.
       document.addEventListener('psa:notifications', () => { if (order) loadMessages(true); });
     });

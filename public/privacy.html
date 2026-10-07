@@ -38,10 +38,10 @@
           class="h-10 sm:h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xs"
         />
         <div class="flex flex-col">
-          <div class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none">
+          <div class="text-xl sm:text-2xl font-black text-[#2B1D1D] dark:text-white tracking-tight leading-none" data-psa-brand>
             Psa<span class="text-[#FFA552]">Online</span>
           </div>
-          <span data-hide-mobile class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5">Accessories &bull; Studio</span>
+          <span data-hide-mobile class="text-[9px] uppercase tracking-widest text-[#FFA552] font-black mt-0.5" data-setting="site.tagline">Accessories &bull; Studio</span>
         </div>
       </a>
 
@@ -276,66 +276,7 @@
 
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        <!-- Col 1: Brand -->
-        <div class="space-y-3">
-          <div class="flex items-center gap-2">
-            <img src="assets/images/psa-accessories-online-logo.svg" alt="Logo" class="h-8 w-auto">
-            <span class="text-xl font-black text-[#2B1D1D] dark:text-white">Psa<span class="text-[#FFA552]">Online</span></span>
-          </div>
-          <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-medium">
-            Gen-Z streetwear accessories, cyber Y2K jewelry, and everyday aesthetic essentials based in Phnom Penh.
-          </p>
-        </div>
-
-        <!-- Col 2: Categories -->
-        <div class="space-y-2">
-          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Categories</div>
-          <ul class="text-xs space-y-1.5 text-stone-600 dark:text-stone-300 font-medium">
-            <li><a href="products.html?category=apparel" class="hover:text-[#FFA552]">Tees &amp; Shirts</a></li>
-            <li><a href="products.html?category=watches" class="hover:text-[#FFA552]">Watches</a></li>
-            <li><a href="products.html?category=bags" class="hover:text-[#FFA552]">Bags</a></li>
-            <li><a href="products.html?category=hair" class="hover:text-[#FFA552]">Hair &amp; Clips</a></li>
-          </ul>
-        </div>
-
-        <!-- Col 3: Visit Us (Socials) -->
-        <div class="space-y-2">
-          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Visit Us (Socials)</div>
-          <ul class="text-xs space-y-2 font-medium" data-psa-socials="compact"></ul>
-        </div>
-
-        <!-- Col 4: Payments Accepted -->
-        <div class="space-y-2">
-          <div class="text-xs font-bold uppercase tracking-wider text-[#2B1D1D] dark:text-white">Accepted Payments</div>
-          <div class="p-3 bg-white dark:bg-[#1E1E26] border border-[#EFE4D6] dark:border-[#30303E] rounded-xl space-y-1.5 text-xs">
-            <div class="font-bold text-[#2B1D1D] dark:text-white flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-red-600"></span>
-              Bakong Universal KHQR
-            </div>
-            <p class="text-[11px] text-stone-500 dark:text-stone-400">Scan via ABA, ACLEDA, Canadia, Wing mobile banking.</p>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="mt-8 pt-6 border-t border-[#EFE4D6] dark:border-[#272732] flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 dark:text-stone-400 gap-2">
-        <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
-        <div class="flex items-center gap-4 text-[11px]">
-          <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-          <span>&bull;</span>
-          <a href="privacy.html" class="hover:text-[#FFA552] transition-colors font-bold text-[#FFA552]">Privacy Policy</a>
-          <span>&bull;</span>
-          <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
-          <span>&bull;</span>
-          <span>Made for Gen-Z in Cambodia 🇰🇭</span>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <footer data-psa-footer class="mt-auto"></footer>
 
   <!-- Mobile Bottom Navigation Bar -->
   <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#16161C]/95 backdrop-blur-lg border-t border-[#EFE4D6] dark:border-[#272732] px-4 py-2 flex items-center justify-around text-center select-none shadow-[0_-4px_20px_rgba(43,29,29,0.06)]">

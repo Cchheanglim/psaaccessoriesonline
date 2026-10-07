@@ -2,33 +2,36 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-/** Something a role may do, like manage_stock or view_reports. */
-class Permission extends Model
+/**
+ * What a role may do. Not a table: the list is fixed by the website's features, so it lives here.
+ * Admins tick these per role (role_permissions stores role_id + permission name).
+ */
+class Permission
 {
-    protected $fillable = ['name', 'description', 'is_active'];
-
-    protected $casts = ['is_active' => 'boolean'];
-
-    /** How each permission is named and grouped on the Roles & permissions screen. */
-    public const LABELS = [
-        'verify_payments' => ['Approve payments', 'Orders'],
-        'manage_orders' => ['Dispatch & deliver', 'Orders'],
-        'cancel_orders' => ['Cancel orders', 'Orders'],
-        'manage_messages' => ['Customer messages', 'Orders'],
-        'manage_products' => ['Edit products & shop', 'Catalog'],
-        'delete_products' => ['Delete from catalog', 'Catalog'],
-        'manage_stock' => ['Stock & buying', 'Stock'],
-        'manage_suppliers' => ['Suppliers', 'Stock'],
-        'manage_promotions' => ['Promo codes', 'Catalog'],
-        'view_reports' => ['Reports', 'Business'],
-        'manage_payment_methods' => ['Payment methods', 'Business'],
-        'manage_users' => ['Accounts', 'Business'],
+    /** name => [label, group, what it allows] in the order the Roles & permissions screen shows them. */
+    public const LIST = [
+        'verify_payments' => ['Approve payments', 'Orders', 'Approve or reject payment slips'],
+        'manage_orders' => ['Dispatch & deliver', 'Orders', 'Dispatch and deliver orders'],
+        'cancel_orders' => ['Cancel orders', 'Orders', 'Cancel orders (their stock goes back)'],
+        'manage_messages' => ['Customer messages', 'Orders', 'Read the messages inbox and reply to customers'],
+        'manage_products' => ['Edit products & website', 'Catalog', 'Add and edit products and categories, the home showcase, the Sort By menu and the Website page'],
+        'delete_products' => ['Delete from catalog', 'Catalog', 'Delete products, categories, Sort By options and suppliers'],
+        'manage_promotions' => ['Promo codes', 'Catalog', 'Create, edit and turn off promo codes'],
+        'manage_stock' => ['Stock & buying', 'Stock', 'Change stock counts, and create and receive purchase orders'],
+        'manage_suppliers' => ['Suppliers', 'Stock', 'Add and edit suppliers'],
+        'view_reports' => ['Reports', 'Business', 'Open the sales and stock reports'],
+        'manage_payment_methods' => ['Payment methods', 'Business', 'Add, edit, turn off and delete payment methods'],
+        'manage_users' => ['Accounts', 'Business', 'Create accounts, change roles, suspend accounts'],
     ];
 
-    public function roles()
+    /** @return list<string> */
+    public static function names(): array
     {
-        return $this->belongsToMany(Role::class, 'role_permissions');
+        return array_keys(self::LIST);
+    }
+
+    public static function label(string $name): string
+    {
+        return self::LIST[$name][0] ?? $name;
     }
 }

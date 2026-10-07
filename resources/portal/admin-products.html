@@ -35,7 +35,6 @@
       <button type="button" role="tab" id="tab-categories" data-tab="categories" aria-controls="panel-categories" class="catalog-tab">Categories</button>
       <button type="button" role="tab" id="tab-showcase" data-tab="showcase" aria-controls="panel-showcase" class="catalog-tab">Home showcase</button>
       <button type="button" role="tab" id="tab-sorting" data-tab="sorting" aria-controls="panel-sorting" class="catalog-tab">Sort By</button>
-      <button type="button" role="tab" id="tab-socials" data-tab="socials" aria-controls="panel-socials" class="catalog-tab">Social media</button>
       <button type="button" role="tab" id="tab-suppliers" data-tab="suppliers" aria-controls="panel-suppliers" class="catalog-tab">Suppliers</button>
       <button type="button" role="tab" id="tab-buying" data-tab="buying" aria-controls="panel-buying" class="catalog-tab">Buying stock</button>
     </div>
@@ -208,60 +207,12 @@
       </div>
     </section>
 
-    <!-- Social media accounts -->
-    <section id="panel-socials" role="tabpanel" aria-labelledby="tab-socials" class="hidden">
-      <form id="socialsForm" class="grid gap-6 lg:grid-cols-[1fr_22rem]" novalidate>
-        <div class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm space-y-4">
-          <div>
-            <h2 class="text-base font-black text-stone-900">Social media accounts</h2>
-            <p class="text-xs text-stone-500">Shown in the footer of every page. Leave both boxes empty to hide a platform. The Telegram account is also used for every "message us on Telegram" link.</p>
-          </div>
-          <div id="socialRows" class="divide-y divide-stone-100"></div>
-          <p id="socialsError" class="hidden text-xs font-bold text-red-600" role="alert"></p>
-          <div class="flex flex-wrap items-center gap-2">
-            <button type="submit" id="socialsSaveBtn" class="h-10 px-4 rounded-lg bg-espresso hover:bg-[#432E2E] text-white dark:bg-sorbet dark:text-espresso dark:hover:bg-[#FFB873] text-sm font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Save accounts</button>
-            <button type="button" id="socialsResetBtn" class="h-10 px-3 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 text-xs font-bold text-stone-700 cursor-pointer">Use the original accounts</button>
-            <span id="socialsDirty" class="hidden text-xs font-bold text-amber-700">Unsaved changes</span>
-          </div>
-        </div>
-        <div>
-          <div class="lg:sticky lg:top-6 rounded-2xl bg-[#F9F3EA] border border-[#EFE4D6] p-5">
-            <div class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-3">Footer preview</div>
-            <ul id="socialsPreview" class="space-y-2" data-psa-socials-preview></ul>
-          </div>
-        </div>
-      </form>
-    </section>
-
     <!-- Home showcase -->
     <section id="panel-showcase" role="tabpanel" aria-labelledby="tab-showcase" class="hidden space-y-6">
-      <form id="homeTextForm" class="bg-white p-4 rounded-xl border border-stone-200 shadow-sm grid gap-5 lg:grid-cols-[1fr_26rem]" novalidate>
-        <div class="space-y-3">
-          <div>
-            <h2 class="text-base font-black text-stone-900">Home headline</h2>
-            <p class="text-xs text-stone-500">Change it for an event or holiday. Put the words you want highlighted in orange between stars, like <code class="px-1 rounded bg-stone-100">Happy *Water Festival!*</code> Fonts, sizes and colors stay the same.</p>
-          </div>
-          <div class="space-y-1">
-            <div class="flex justify-between"><label for="homeHeadline" class="text-xs font-bold text-stone-700">Headline</label><span id="homeHeadlineCount" class="text-xs text-stone-500"></span></div>
-            <input id="homeHeadline" type="text" maxlength="90" class="w-full h-11 px-3 text-sm rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FFA552]" />
-          </div>
-          <div class="space-y-1">
-            <div class="flex justify-between"><label for="homeSubtitle" class="text-xs font-bold text-stone-700">Line under it</label><span id="homeSubtitleCount" class="text-xs text-stone-500"></span></div>
-            <textarea id="homeSubtitle" rows="3" maxlength="220" class="w-full px-3 py-2 text-sm rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-[#FFA552]"></textarea>
-          </div>
-          <p id="homeTextError" class="hidden text-xs font-bold text-red-600" role="alert"></p>
-          <div class="flex flex-wrap items-center gap-2">
-            <button type="submit" id="homeTextSaveBtn" class="h-10 px-4 rounded-lg bg-espresso hover:bg-[#432E2E] text-white dark:bg-sorbet dark:text-espresso dark:hover:bg-[#FFB873] text-sm font-bold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">Save headline</button>
-            <button type="button" id="homeTextResetBtn" class="h-10 px-3 rounded-lg border border-stone-300 bg-white hover:bg-stone-50 text-xs font-bold text-stone-700 cursor-pointer">Use the original text</button>
-            <span id="homeTextDirty" class="hidden text-xs font-bold text-amber-700">Unsaved changes</span>
-          </div>
-        </div>
-        <div class="rounded-2xl bg-[#F9F3EA] border border-[#EFE4D6] p-5">
-          <div class="text-xs font-bold uppercase tracking-wider text-stone-500 mb-3">Preview</div>
-          <div id="homeTextPreview" class="text-3xl sm:text-4xl leading-[1.05] font-black text-[#2B1D1D] tracking-tight text-balance"></div>
-          <p id="homeSubtitlePreview" class="mt-3 text-sm text-[#4A3333] leading-relaxed font-medium"></p>
-        </div>
-      </form>
+      <p class="pt-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>The home headline and all the other text on the website (header, footer, social media) are edited on the <a href="admin-website.html" style="color:var(--pt-accent-ink);font-weight:700">Website</a> page.</span>
+      </p>
 
       <div class="grid gap-6 lg:grid-cols-[1fr_26rem]">
         <div class="space-y-4">

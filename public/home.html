@@ -31,8 +31,8 @@
 <body class="bg-[#FDFBF7] text-[#2B1D1D] font-sans min-h-screen flex flex-col antialiased pb-mobile-nav">
 
   <!-- Delivery & payment facts (static, always fully visible) -->
-  <div class="bg-espresso text-cotton text-xs font-bold relative z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-center gap-x-3 gap-y-1 flex-wrap text-center">
+  <div class="bg-espresso text-cotton text-xs font-bold relative z-50" data-psa-announce>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-center gap-x-3 gap-y-1 flex-wrap text-center" data-psa-announce-items>
       <span><span class="text-sorbet">Free delivery</span> in Phnom Penh on orders $15+</span>
       <span class="hidden sm:inline text-sorbet" aria-hidden="true">&bull;</span>
       <span>Pay by KHQR or cash on delivery</span>
@@ -48,8 +48,8 @@
       <a href="home.html" class="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0" aria-label="PsaOnline home">
         <img src="assets/images/psa-accessories-online-logo.svg" alt="" class="h-9 sm:h-12 w-auto object-contain" />
         <div class="flex flex-col min-w-0">
-          <span class="text-lg sm:text-2xl font-black text-[#2B1D1D] tracking-tight leading-none">Psa<span class="text-sorbet-ink dark:text-sorbet">Online</span></span>
-          <span class="hidden sm:block text-xs uppercase tracking-widest text-sorbet-ink dark:text-sorbet font-black mt-1">Gifts &amp; cute finds</span>
+          <span class="text-lg sm:text-2xl font-black text-[#2B1D1D] tracking-tight leading-none" data-psa-brand>Psa<span class="text-sorbet-ink dark:text-sorbet">Online</span></span>
+          <span class="hidden sm:block text-xs uppercase tracking-widest text-sorbet-ink dark:text-sorbet font-black mt-1" data-setting="site.tagline">Gifts &amp; cute finds</span>
         </div>
       </a>
 
@@ -57,7 +57,7 @@
       <form action="products.html" method="GET" class="flex-1 max-w-sm hidden lg:block relative" role="search">
         <label for="headerSearch" class="sr-only">Search the shop</label>
         <input id="headerSearch" type="search" name="q" placeholder="Search charms, clips, socks, tees…"
-          class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#1A1A22] text-sm border border-[#EFE4D6] dark:border-[#32323D] focus:border-sorbet rounded-full focus:outline-none focus:ring-2 focus:ring-sorbet/30 text-[#2B1D1D] dark:text-white placeholder-stone-500" />
+          class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-[#1A1A22] text-sm border border-[#EFE4D6] dark:border-[#32323D] focus:border-sorbet rounded-full focus:outline-none focus:ring-2 focus:ring-sorbet/30 text-[#2B1D1D] dark:text-white placeholder-stone-500" data-setting-placeholder="header.search_placeholder" />
         <svg class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
       </form>
 
@@ -106,28 +106,28 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12 sm:pt-14 sm:pb-20 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
 
         <div class="lg:col-span-7 text-center lg:text-left">
-          <h1 id="heroTitle" class="text-[2.5rem] leading-[1.02] sm:text-6xl lg:text-7xl font-black text-[#2B1D1D] tracking-tight text-balance">
+          <h1 id="heroTitle" data-setting="home.headline" data-setting-html class="text-[2.5rem] leading-[1.02] sm:text-6xl lg:text-7xl font-black text-[#2B1D1D] tracking-tight text-balance">
             Cute gifts &amp;
             <span class="hero-marker">little treats,</span>
             delivered in Phnom&nbsp;Penh.
           </h1>
-          <p id="heroSubtitle" class="mt-5 text-base sm:text-lg text-[#4A3333] max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+          <p id="heroSubtitle" data-setting="home.subtitle" class="mt-5 text-base sm:text-lg text-[#4A3333] max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
             Plush bag charms, flower claw clips, comfy socks, graphic tees and watches. Real prices in US dollars, paid your way.
           </p>
 
           <div class="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3">
             <a href="products.html" class="h-14 px-7 rounded-2xl bg-espresso text-cotton hover:bg-black dark:bg-sorbet dark:text-espresso dark:hover:bg-[#FFB877] font-black text-base flex items-center justify-center gap-2 transition-colors">
-              Shop all <span id="heroCount">32</span> finds
+              <span data-setting="home.button_primary" data-setting-count="heroCount">Shop all <span id="heroCount">32</span> finds</span>
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </a>
             <a href="products.html?max=10" class="h-14 px-7 rounded-2xl bg-sorbet text-espresso hover:bg-[#FFB877] dark:bg-transparent dark:text-sorbet dark:border-2 dark:border-sorbet dark:hover:bg-sorbet/10 font-black text-base flex items-center justify-center transition-colors">
-              Gifts under $10
+              <span data-setting="home.button_secondary">Gifts under $10</span>
             </a>
           </div>
 
           <ul class="mt-8 flex flex-wrap justify-center lg:justify-start gap-2 text-sm font-bold text-[#2B1D1D]">
-            <li class="px-3.5 py-2 rounded-full bg-white border border-[#EFE4D6]">$1.50 delivery, free from $15</li>
-            <li class="px-3.5 py-2 rounded-full bg-white border border-[#EFE4D6]">KHQR or cash on delivery</li>
+            <li class="px-3.5 py-2 rounded-full bg-white border border-[#EFE4D6]" data-setting="home.chip_1" data-setting-hide-empty>$1.50 delivery, free from $15</li>
+            <li class="px-3.5 py-2 rounded-full bg-white border border-[#EFE4D6]" data-setting="home.chip_2" data-setting-hide-empty>KHQR or cash on delivery</li>
           </ul>
         </div>
 
@@ -140,15 +140,15 @@
 
     <!-- Shop by gift & budget -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 w-full" aria-labelledby="entryTitle">
-      <h2 id="entryTitle" class="text-3xl sm:text-5xl font-black text-[#2B1D1D] tracking-tight">Find the right little gift</h2>
-      <p class="mt-2 text-base text-[#4A3333] font-medium">Start with who it's for, or how much you want to spend.</p>
+      <h2 id="entryTitle" data-setting="home.gifts_title" class="text-3xl sm:text-5xl font-black text-[#2B1D1D] tracking-tight">Find the right little gift</h2>
+      <p class="mt-2 text-base text-[#4A3333] font-medium" data-setting="home.gifts_text">Start with who it's for, or how much you want to spend.</p>
       <div id="entryTiles" class="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"></div>
     </section>
 
     <!-- Fresh picks -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 w-full" aria-labelledby="picksTitle">
       <div class="flex items-end justify-between gap-4">
-        <h2 id="picksTitle" class="text-3xl sm:text-5xl font-black text-[#2B1D1D] tracking-tight">Fresh picks</h2>
+        <h2 id="picksTitle" data-setting="home.picks_title" class="text-3xl sm:text-5xl font-black text-[#2B1D1D] tracking-tight">Fresh picks</h2>
         <a href="products.html" class="shrink-0 h-11 inline-flex items-center gap-1 text-base font-black text-sorbet-ink dark:text-sorbet hover:underline underline-offset-4">
           See all <span id="picksCount">32</span>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
@@ -160,27 +160,27 @@
     <!-- How ordering works -->
     <section class="mt-16 sm:mt-24 bg-espresso text-cotton" aria-labelledby="howTitle">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
-        <h2 id="howTitle" class="text-4xl sm:text-6xl font-black tracking-tight text-white">Pick it. Pay it. <span class="text-sorbet">Get it.</span></h2>
+        <h2 id="howTitle" data-setting="home.steps_title" data-setting-html="text-sorbet" class="text-4xl sm:text-6xl font-black tracking-tight text-white">Pick it. Pay it. <span class="text-sorbet">Get it.</span></h2>
         <ol class="mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
           <li class="flex gap-4">
             <span class="text-5xl sm:text-6xl font-black text-sorbet leading-none" aria-hidden="true">1</span>
             <div>
-              <h3 class="text-xl font-black text-white">Pick something cute</h3>
-              <p class="mt-2 text-base text-cotton/85 leading-relaxed">Browse freely and add to your bag. You sign in when you check out.</p>
+              <h3 class="text-xl font-black text-white" data-setting="home.step_1_title">Pick something cute</h3>
+              <p class="mt-2 text-base text-cotton/85 leading-relaxed" data-setting="home.step_1_text">Browse freely and add to your bag. You sign in when you check out.</p>
             </div>
           </li>
           <li class="flex gap-4">
             <span class="text-5xl sm:text-6xl font-black text-sorbet leading-none" aria-hidden="true">2</span>
             <div>
-              <h3 class="text-xl font-black text-white">Pay your way</h3>
-              <p class="mt-2 text-base text-cotton/85 leading-relaxed">Scan our KHQR with ABA, ACLEDA, Wing or any Cambodian banking app, or pay cash when it arrives.</p>
+              <h3 class="text-xl font-black text-white" data-setting="home.step_2_title">Pay your way</h3>
+              <p class="mt-2 text-base text-cotton/85 leading-relaxed" data-setting="home.step_2_text">Scan our KHQR with ABA, ACLEDA, Wing or any Cambodian banking app, or pay cash when it arrives.</p>
             </div>
           </li>
           <li class="flex gap-4">
             <span class="text-5xl sm:text-6xl font-black text-sorbet leading-none" aria-hidden="true">3</span>
             <div>
-              <h3 class="text-xl font-black text-white">Delivered in Phnom Penh</h3>
-              <p class="mt-2 text-base text-cotton/85 leading-relaxed">$1.50 delivery, free on orders of $15 or more. Track it from your account.</p>
+              <h3 class="text-xl font-black text-white" data-setting="home.step_3_title">Delivered in Phnom Penh</h3>
+              <p class="mt-2 text-base text-cotton/85 leading-relaxed" data-setting="home.step_3_text">$1.50 delivery, free on orders of $15 or more. Track it from your account.</p>
             </div>
           </li>
         </ol>
@@ -191,70 +191,18 @@
     <section class="bg-sorbet text-espresso" aria-labelledby="helpTitle">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
-          <h2 id="helpTitle" class="text-3xl sm:text-5xl font-black tracking-tight">Not sure what to pick?</h2>
-          <p class="mt-2 text-lg font-semibold max-w-xl">Message us on Telegram with who it's for and your budget. We'll help you choose.</p>
+          <h2 id="helpTitle" data-setting="home.help_title" class="text-3xl sm:text-5xl font-black tracking-tight">Not sure what to pick?</h2>
+          <p class="mt-2 text-lg font-semibold max-w-xl" data-setting="home.help_text">Message us on Telegram with who it's for and your budget. We'll help you choose.</p>
         </div>
         <a href="https://t.me/psaonline_support" target="_blank" rel="noopener noreferrer" class="shrink-0 h-14 px-7 rounded-2xl bg-espresso text-cotton hover:bg-black font-black text-base inline-flex items-center justify-center gap-2 transition-colors">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
-          Chat on Telegram
+          <span data-setting="home.help_button">Chat on Telegram</span>
         </a>
       </div>
     </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="bg-[#F9F3EA] dark:bg-[#141418] border-t border-[#EFE4D6] dark:border-[#272732]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-        <div class="col-span-2 md:col-span-1 space-y-3">
-          <div class="flex items-center gap-2">
-            <img src="assets/images/psa-accessories-online-logo.svg" alt="" class="h-9 w-auto object-contain" />
-            <span class="text-lg font-black text-[#2B1D1D]">Psa<span class="text-sorbet-ink dark:text-sorbet">Online</span></span>
-          </div>
-          <p class="text-sm text-stone-600 leading-relaxed">Cute gifts and everyday finds, delivered in Phnom Penh. Prices in US dollars, paid by KHQR or cash on delivery.</p>
-          <a href="https://t.me/psaonline_support" target="_blank" rel="noopener noreferrer" class="inline-flex h-11 items-center text-sm font-black text-sorbet-ink dark:text-sorbet underline underline-offset-4">Telegram: @psaonline_support</a>
-        </div>
-
-        <div>
-          <h2 class="text-sm font-black text-[#2B1D1D]">Shop</h2>
-          <ul class="mt-3 space-y-1 text-sm text-stone-600">
-            <li><a href="products.html?q=gift" class="inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet">Gift ideas</a></li>
-            <li><a href="products.html?max=10" class="inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet">Under $10</a></li>
-            <li><a href="products.html?category=charms" class="inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet">Charms</a></li>
-            <li><a href="products.html?category=hair" class="inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet">Hair &amp; clips</a></li>
-            <li><a href="products.html?category=bags" class="inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet">Bags</a></li>
-            <li><a href="products.html?category=watches" class="inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet">Watches</a></li>
-            <li><a href="products.html?category=apparel" class="inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet">Tees &amp; shirts</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <h2 class="text-sm font-black text-[#2B1D1D]">Your orders</h2>
-          <ul class="mt-3 space-y-1 text-sm text-stone-600">
-            <li><a href="cart.html" class="inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet">Shopping bag</a></li>
-            <li><a href="dashboard-buyer.html" class="inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet">Track my order</a></li>
-            <li><a href="dashboard-buyer.html" class="inline-block py-1 hover:text-sorbet-ink dark:hover:text-sorbet">My account</a></li>
-          </ul>
-          <h2 class="mt-6 text-sm font-black text-[#2B1D1D]">We accept</h2>
-          <p class="mt-2 text-sm text-stone-600 leading-relaxed">Bakong KHQR (ABA, ACLEDA, Canadia, Wing and other Cambodian banking apps) and cash on delivery.</p>
-        </div>
-
-        <div>
-          <h2 class="text-sm font-black text-[#2B1D1D]">Find us</h2>
-          <ul id="socialLinks" class="mt-3 space-y-2" data-psa-socials="list"></ul>
-        </div>
-      </div>
-
-      <div class="mt-10 pt-6 border-t border-[#EFE4D6] dark:border-[#272732] flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-stone-600">
-        <div>&copy; 2026 PsaOnline</div>
-        <div class="flex items-center gap-5">
-          <a href="about.html" class="py-2 hover:text-sorbet-ink dark:hover:text-sorbet">About us</a>
-          <a href="privacy.html" class="py-2 hover:text-sorbet-ink dark:hover:text-sorbet">Privacy</a>
-          <a href="terms.html" class="py-2 hover:text-sorbet-ink dark:hover:text-sorbet">Terms</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <footer data-psa-footer class="mt-auto"></footer>
 
   <!-- Mobile bottom navigation -->
   <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-lg border-t border-[#EFE4D6] px-2 pt-1.5 pb-2 flex items-stretch justify-around text-center select-none" aria-label="Main">
@@ -291,12 +239,7 @@
 
   <script src="assets/js/store.js"></script>
   <script>
-    // Headline and the line under it, if staff changed them (Drops & Stock > Home showcase). Same styles as before.
-    (function applyHomeText() {
-      const c = PSA.siteContent || {};
-      if (c.homeHeadline) document.getElementById('heroTitle').innerHTML = psaHeadlineHtml(c.homeHeadline);
-      if (c.homeSubtitle) document.getElementById('heroSubtitle').textContent = c.homeSubtitle;
-    })();
+    // All the text on this page comes from the staff portal > Website (store.js psaApplySettings, data-setting).
 
     let activeFilter = 'all';
 

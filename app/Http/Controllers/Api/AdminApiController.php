@@ -10,7 +10,6 @@ use App\Models\PaymentMethod;
 use App\Models\Permission;
 use App\Models\Product;
 use App\Models\Role;
-use App\Models\SiteSetting;
 use App\Models\SortOption;
 use App\Models\User;
 use App\Support\Inventory;
@@ -23,7 +22,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Staff portal API. Every action checks one permission (see Permission::LABELS); which roles
+ * Staff portal API. Every action checks one permission (see Permission::LIST); which roles
  * have it is ticked by an admin under Staff & roles. Admins have all of them.
  */
 class AdminApiController extends Controller
@@ -286,64 +285,6 @@ class AdminApiController extends Controller
         return $out;
     }
 
-    /* ---------- Home page text ---------- */
-
-    /**
-     * The home headline and the line under it. Words between *stars* in the headline get the
-     * orange highlight. Empty puts the original text back. Lengths keep the layout intact.
-     */
-    public function updateSiteContent(Request $request): JsonResponse
-    {
-        $user = $this->requirePermission($request, 'manage_products');
-        $data = $request->validate([
-            'homeHeadline' => ['present', 'nullable', 'string', 'max:90'],
-            'homeSubtitle' => ['present', 'nullable', 'string', 'max:220'],
-        ], [
-            'homeHeadline.max' => 'Keep the headline to 90 characters so it fits on phones.',
-            'homeSubtitle.max' => 'Keep the line under the headline to 220 characters.',
-        ]);
-        if (filled($data['homeHeadline']) && mb_strlen(trim(str_replace('*', '', $data['homeHeadline']))) < 3) {
-            throw ValidationException::withMessages(['homeHeadline' => 'The headline needs at least 3 characters.']);
-        }
-
-        SiteSetting::put(SiteSetting::HOME_HEADLINE, $data['homeHeadline'] === null ? null : preg_replace('/\s+/', ' ', $data['homeHeadline']), $user);
-        SiteSetting::put(SiteSetting::HOME_SUBTITLE, $data['homeSubtitle'] === null ? null : preg_replace('/\s+/', ' ', $data['homeSubtitle']), $user);
-        Storefront::forgetCatalog();
-
-        return response()->json(['siteContent' => Storefront::siteContent()]);
-    }
-
-    /**
-     * The shop's social accounts, shown in every footer (and the Telegram one in "message us" links).
-     * A platform left out is hidden. null puts the built-in accounts back.
-     */
-    public function updateSocials(Request $request): JsonResponse
-    {
-        $user = $this->requirePermission($request, 'manage_products');
-        $data = $request->validate([
-            'links' => ['present', 'nullable', 'array', 'max:'.count(SiteSetting::SOCIAL_PLATFORMS)],
-            'links.*.platform' => ['required', 'distinct', Rule::in(SiteSetting::SOCIAL_PLATFORMS)],
-            'links.*.handle' => ['required', 'string', 'max:60'],
-            'links.*.url' => ['required', 'string', 'max:255', 'url:https'],
-        ], [
-            'links.*.handle.required' => 'Add the username (for example @psaonline).',
-            'links.*.url.required' => 'Add the link to the account.',
-            'links.*.url.url' => 'Links must be full addresses starting with https://',
-            'links.*.platform.distinct' => 'Each platform can only be listed once.',
-        ]);
-
-        $links = $data['links'] === null ? null : collect($data['links'])->map(fn ($l) => [
-            'platform' => $l['platform'],
-            'handle' => trim($l['handle']),
-            'url' => trim($l['url']),
-        ])->values()->all();
-
-        SiteSetting::put(SiteSetting::SOCIAL_LINKS, $links === null ? null : json_encode($links, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), $user);
-        Storefront::forgetCatalog();
-
-        return response()->json(['siteContent' => Storefront::siteContent()]);
-    }
-
     /* ---------- Home showcase ---------- */
 
     /** Replaces the showcase picks; the first product is the big front card. */
@@ -454,9 +395,6 @@ class AdminApiController extends Controller
         $this->checkRoleChange($by, null, $data['role']);
 
         $user = User::create($data);
-        if ($user->role === 'buyer') {
-            $user->customerProfile();
-        }
 
         return response()->json(['user' => Storefront::user($user)], 201);
     }
@@ -475,9 +413,6 @@ class AdminApiController extends Controller
         }
 
         $user->update($data);
-        if ($user->role === 'buyer') {
-            $user->customerProfile();
-        }
 
         return response()->json(['user' => Storefront::user($user->fresh())]);
     }
@@ -546,7 +481,7 @@ class AdminApiController extends Controller
         abort_unless($user, 401, 'Please log in first.');
         abort_unless($user->isStaff() && $user->status !== 'Suspended', 403, 'Your role does not allow this.');
         if ($permission !== null && ! $user->hasPermission($permission)) {
-            $label = Permission::LABELS[$permission][0] ?? $permission;
+            $label = Permission::label($permission);
             abort(403, "Your role doesn't have the \"{$label}\" permission. Ask an Admin to tick it under Staff & roles.");
         }
 
@@ -593,7 +528,7 @@ class AdminApiController extends Controller
             'stock.min' => 'Stock quantity cannot be negative.',
         ]);
 
-        $out = ['product' => [], 'detail' => []];
+        $out = ['product' => []];
         foreach (['title' => 'title', 'titleKhmer' => 'title_khmer', 'badge' => 'badge', 'status' => 'status'] as $in => $column) {
             if (array_key_exists($in, $data)) {
                 $out['product'][$column] = $data[$in];
@@ -623,7 +558,7 @@ class AdminApiController extends Controller
         }
         foreach (['description' => 'description'] as $in => $column) {
             if (array_key_exists($in, $data)) {
-                $out['detail'][$column] = $data[$in];
+                $out['product'][$column] = $data[$in];
             }
         }
         if (array_key_exists('gallery', $data)) {
@@ -636,14 +571,9 @@ class AdminApiController extends Controller
         return $out;
     }
 
-    /** Details (1:1), pictures (1:N, first = primary) and stock (through a stock movement). */
+    /** Pictures (1:N, first = primary), facts (1:N) and stock (through a stock movement). */
     private function saveProductParts(Product $product, array $data, User $by): void
     {
-        if ($data['detail']) {
-            $product->detail()->updateOrCreate(['product_id' => $product->id], $data['detail']);
-        } elseif (! $product->detail()->exists()) {
-            $product->detail()->create([]);
-        }
         if (array_key_exists('gallery', $data)) {
             $product->images()->delete();
             foreach ($data['gallery'] as $i => $path) {

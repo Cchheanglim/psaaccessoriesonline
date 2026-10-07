@@ -51,7 +51,6 @@ class MembershipTest extends TestCase
     public function test_spending_unlocks_pro_then_max_and_their_discounts(): void
     {
         $buyer = User::create(['name' => 'Dara', 'email' => 'dara@example.com', 'password' => 'secret123', 'role' => 'buyer']);
-        $buyer->customerProfile();
         $this->assertSame('Plus', $this->loyalty($buyer)['tier']);
 
         // $108 delivered -> Pro

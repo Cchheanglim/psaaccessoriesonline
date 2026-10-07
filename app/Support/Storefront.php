@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use App\Models\Category;
-use App\Models\Customer;
 use App\Models\LoyaltyTier;
 use App\Models\Order;
 use App\Models\OrderMessage;
@@ -41,16 +40,14 @@ class Storefront
     ];
 
     /** Relations a product card needs. */
-    public const PRODUCT_RELATIONS = ['category.parent', 'detail', 'images', 'specifications', 'freeDeliveryGroups'];
+    public const PRODUCT_RELATIONS = ['category.parent', 'images', 'specifications', 'freeDeliveryGroups'];
 
-    /** Delivery in Phnom Penh: $1.50, free from $15 or when the bag has a free-delivery item. */
-    public const DELIVERY_FEE = 1.50;
-
-    public const FREE_DELIVERY_FROM = 15;
-
+    /** Delivery in Phnom Penh: the fee and the free-delivery amount are site settings (Website > Shop rules). */
     public static function deliveryFee(float $subtotal, bool $hasFreeDeliveryItem): float
     {
-        return ($hasFreeDeliveryItem || $subtotal >= self::FREE_DELIVERY_FROM) ? 0.0 : self::DELIVERY_FEE;
+        $freeFrom = SiteSetting::number('shop.free_delivery_from_usd');
+
+        return ($hasFreeDeliveryItem || $subtotal >= $freeFrom) ? 0.0 : round(SiteSetting::number('shop.delivery_fee_usd'), 2);
     }
 
     /**
@@ -86,7 +83,7 @@ class Storefront
                 'categories' => self::categories($includeHidden),
                 'showcase' => $showcase,
                 'sortOptions' => $sortOptions,
-                'siteContent' => self::siteContent(),
+                'settings' => SiteSetting::map(),
                 'paymentMethods' => PaymentMethod::orderBy('id')->get()->map(fn ($m) => self::paymentMethod($m))->all(),
             ];
         });
@@ -107,13 +104,13 @@ class Storefront
             ->values()->all();
     }
 
-    /** A customer's points, tier (Plus / Pro / Max), how far to the next tier, and recent history. */
-    public static function loyalty(Customer $customer): array
+    /** A customer's tier (Plus / Pro / Max), how far to the next tier and when the membership ends. */
+    public static function loyalty(User $customer): array
     {
         $membership = $customer->membership; // from the customer's orders
         $tier = $customer->tier;
         $lowest = LoyaltyTier::lowest();
-        $next = LoyaltyTier::where('min_spend_usd', '>', $tier->min_spend_usd)->orderBy('min_spend_usd')->first();
+        $next = $tier->next();
         $usd = fn ($v) => number_format((float) $v, 2, '.', '');
 
         return [
@@ -126,26 +123,12 @@ class Storefront
             'spendToNextUSD' => $next ? $usd(max(0, (float) $next->min_spend_usd - $membership['spend'])) : null,
             'lastOrderAt' => optional($membership['lastOrderAt'])->toIso8601String(),
             // Pro and Max end on this day unless the customer orders again
-            'expiresAt' => $tier->isNot($lowest) ? optional($membership['expiresAt'])->toIso8601String() : null,
-            'lapseDays' => LoyaltyTier::LAPSE_DAYS,
+            'expiresAt' => $tier->name !== $lowest->name ? optional($membership['expiresAt'])->toIso8601String() : null,
+            'lapseDays' => LoyaltyTier::lapseDays(),
             'totalSpentUSD' => $usd($customer->total_spent_usd),
-            'tiers' => LoyaltyTier::orderBy('min_spend_usd')->get()->map(fn ($t) => [
-                'name' => $t->name, 'minSpendUSD' => (float) $t->min_spend_usd,
-                'discountPercent' => (float) $t->discount_percent,
-            ])->all(),
-        ];
-    }
-
-    /** Home page text staff changed (null = the page keeps its own text). */
-    public static function siteContent(): array
-    {
-        $values = SiteSetting::values([SiteSetting::HOME_HEADLINE, SiteSetting::HOME_SUBTITLE, SiteSetting::SOCIAL_LINKS]);
-        $socials = isset($values[SiteSetting::SOCIAL_LINKS]) ? json_decode($values[SiteSetting::SOCIAL_LINKS], true) : null;
-
-        return [
-            'homeHeadline' => $values[SiteSetting::HOME_HEADLINE] ?? null,
-            'homeSubtitle' => $values[SiteSetting::HOME_SUBTITLE] ?? null,
-            'socials' => is_array($socials) ? $socials : null, // null = the pages' built-in accounts
+            'tiers' => array_map(fn (LoyaltyTier $t) => [
+                'name' => $t->name, 'minSpendUSD' => $t->min_spend_usd, 'discountPercent' => $t->discount_percent,
+            ], LoyaltyTier::all()),
         ];
     }
 
@@ -217,7 +200,7 @@ class Storefront
             'badge' => $p->badge,
             'image' => $p->primaryImagePath(),
             'gallery' => $gallery,
-            'description' => $p->detail?->description,
+            'description' => $p->description,
             'specifications' => (object) $p->specifications->pluck('value', 'name')->all(),
             'status' => $p->status,
             'freeDelivery' => $p->freeDeliveryGroups->isNotEmpty(),
@@ -227,8 +210,8 @@ class Storefront
     public static function user(User $u): array
     {
         $role = Role::label($u->role);
-        $u->loadMissing('customer.defaultAddress', 'roleRecord');
-        $customer = $u->customer;
+        $u->loadMissing('defaultAddress', 'roleRecord');
+        $shopper = ! $u->isStaff();
 
         return [
             'id' => (string) $u->id,
@@ -239,13 +222,13 @@ class Storefront
             'avatar' => self::initials($u->name),
             'avatarUrl' => $u->avatar_url,
             'bannerUrl' => $u->banner_url,
-            'address' => $customer?->defaultAddress?->address_line,
+            'address' => $u->defaultAddress?->address_line,
             'status' => $u->status ?: 'Active',
             'created' => optional($u->created_at)->format('d M Y'),
             'department' => $u->isStaff() ? $role.' team' : 'Customer',
             'description' => $u->roleRecord?->description ?: 'Registered PsaOnline shopper.',
             'permissions' => $u->permissionNames(),
-            'loyalty' => $customer ? self::loyalty($customer) : null,
+            'loyalty' => $shopper ? self::loyalty($u) : null,
         ];
     }
 

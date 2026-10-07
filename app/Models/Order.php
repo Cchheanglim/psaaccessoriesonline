@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * One checkout (3NF). The order stores only its own facts: who ordered, where it ships (address_id),
+ * One checkout (3NF). The order stores only its own facts: who ordered (user_id), where it ships (address_id),
  * notes, and the delivery fee, member discount and promo code decided at checkout. Everything else is looked up or calculated:
  *
  *   customer_name, customer_phone, delivery_address, latitude, longitude  <- the address it ships to
  *   subtotal_usd, total_usd                                               <- its items
- *   order_status / order_status_id                                        <- newest order_status_history row
+ *   order_status                                                          <- newest order_status_history row
  *   handled_by / handler                                                  <- who made the first change after "placed"
  *   payment_method / payment_status / payment_slip_url / paid_at          <- newest payments row
  */
@@ -22,7 +22,7 @@ class Order extends Model
 
     protected $fillable = [
         'order_number',
-        'customer_id',
+        'user_id',
         'address_id',
         'promo_code_id',
         'delivery_notes',
@@ -35,9 +35,10 @@ class Order extends Model
         'delivery_fee_usd' => 'decimal:2',
     ];
 
+    /** The shopper who placed it (a user). */
     public function customer()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function address()
@@ -81,7 +82,7 @@ class Order extends Model
     public function approval()
     {
         return $this->hasOne(OrderStatusHistory::class)->ofMany(['id' => 'min'], function ($q) {
-            $q->where('order_status_id', '!=', OrderStatus::idFor('pending_payment'))->whereNotNull('changed_by');
+            $q->where('status', '!=', 'pending_payment')->whereNotNull('changed_by');
         });
     }
 
@@ -96,14 +97,12 @@ class Order extends Model
     }
 
     /** Relations the pages need, to load in one go. */
-    public const PAGE_RELATIONS = ['items.product:id,sku,title', 'items.product.images', 'address', 'currentStatus.status', 'approval.changedBy:id,name', 'latestPayment.method', 'customer', 'promoCode'];
+    public const PAGE_RELATIONS = ['items.product:id,sku,title', 'items.product.images', 'address', 'currentStatus', 'approval.changedBy:id,name', 'latestPayment.method', 'customer', 'promoCode'];
 
     /** Only orders whose current (newest) status is one of these codes. */
     public function scopeInStatus($query, string ...$codes)
     {
-        $ids = array_map(fn ($c) => OrderStatus::idFor($c), $codes);
-
-        return $query->whereHas('currentStatus', fn ($q) => $q->whereIn('order_status_id', $ids));
+        return $query->whereHas('currentStatus', fn ($q) => $q->whereIn('status', $codes));
     }
 
     /* ---------- From the address it ships to ---------- */
@@ -155,14 +154,9 @@ class Order extends Model
 
     /* ---------- From the status history ---------- */
 
-    protected function orderStatusId(): Attribute
-    {
-        return Attribute::get(fn () => $this->currentStatus?->order_status_id);
-    }
-
     protected function orderStatus(): Attribute
     {
-        return Attribute::get(fn () => $this->currentStatus?->status?->code ?? OrderStatus::codeFor($this->order_status_id));
+        return Attribute::get(fn () => $this->currentStatus?->status);
     }
 
     protected function handledBy(): Attribute
@@ -204,15 +198,13 @@ class Order extends Model
 
     /* ---------- Other ---------- */
 
-    protected function userId(): Attribute
-    {
-        return Attribute::get(fn () => $this->customer?->user_id);
-    }
-
     /** Move the order to a new status and record who did it. */
     public function moveTo(string $statusCode, ?User $by = null, ?string $note = null): void
     {
-        $this->statusHistory()->create(['order_status_id' => OrderStatus::idFor($statusCode), 'changed_by' => $by?->id, 'note' => $note]);
+        if (! OrderStatus::exists($statusCode)) {
+            throw new \InvalidArgumentException("Unknown order status {$statusCode}");
+        }
+        $this->statusHistory()->create(['status' => $statusCode, 'changed_by' => $by?->id, 'note' => $note]);
         $this->unsetRelation('currentStatus');
         $this->unsetRelation('approval');
     }

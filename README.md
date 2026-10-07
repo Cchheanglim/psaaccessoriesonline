@@ -37,7 +37,7 @@ It is a full-stack Laravel 12 application: a phone-first storefront for shoppers
 - **Order tracking:** a live tracker (placed → payment → preparing → out for delivery → delivered), receipt and printable view.
 - **Chat with the shop:** each order has a message thread with the staff member who approved it.
 - **Live notifications:** new notifications pop up on their own (no reload), with a bell count and the count in the browser tab. Nothing is stored for them: the server builds them from orders, status changes, payment slips and messages, and the browser remembers when the bell was last opened. Staff only get the ones their role's permissions cover.
-- **Membership (Plus → Pro → Max):** everyone starts as **Plus**. After spending **$100** on delivered orders a customer becomes **Pro (6% off every order)**, and from **$500** **Max (17% off)**. The discount comes off the items at checkout. If a customer doesn't order for **18 days**, the membership drops back to Plus and the spending count starts again. The account page shows what they've spent, how much more they need, and the day their tier ends if they don't order.
+- **Membership (Plus → Pro → Max):** everyone starts as **Plus**. After spending **$100** on delivered orders a customer becomes **Pro (6% off every order)**, and from **$500** **Max (17% off)** (Admins can change these amounts on the Website page). The discount comes off the items at checkout. If a customer doesn't order for **18 days**, the membership drops back to Plus and the spending count starts again. The account page shows what they've spent, how much more they need, and the day their tier ends if they don't order.
 - **Promo codes:** customers type a code at checkout (or tap **Use** under *My coupons* on their account page). A code takes a percent or dollar amount off the items, after the member discount; delivery is never discounted. The server checks every rule again when the order is placed.
 - **Sales:** products on sale show the normal price crossed out, the percent off and when the sale ends.
 - **Prices in USD:** everything is stored and charged in US dollars; checkout and the order page also show the amount in riel ($1 = 4,000៛).
@@ -51,15 +51,15 @@ It is a full-stack Laravel 12 application: a phone-first storefront for shoppers
 - **One portal layout:** a sidebar that only lists the pages the signed-in role may use, the same buttons, tables and forms on every page, light and dark mode, and a phone layout with a slide-out menu.
 - **Dashboard:** sales, average order, items sold and discounts for today, 7 days, 30 days or this year; a "Needs attention" list (payments to check, orders to send out, low stock, unread messages); best sellers, sales by category and payment method, and a CSV export. Every number comes from real orders.
 - **Orders:** tabs for *Needs action*, *Awaiting payment*, *Preparing*, *Out for delivery*, *Delivered*, *Cancelled*, search, and one next-step button per order. Each order's page has the slip, address, pinned location, items to pack, discounts, messages and the actions the role allows (cancelling restores stock).
-- **Messages inbox:** all customer chats with unread counts, filtered by *Mine / Not assigned / All*.
+- **Messages inbox:** all customer chats with unread counts, filtered by *Mine / Not assigned / All*. Staff can delete any message or a whole chat; customers can delete their own messages.
 - **Promo codes:** create codes (percent or dollars off, minimum spend, total and per-customer limits, start and end dates), turn them off, choose which ones customers see under *My coupons*, and see how often each was used and how much it took off. A used code keeps its discount and is turned off instead of deleted.
 - **Products & stock** (one page, several tabs):
   - **Products:** create, edit and delete products (photos, Khmer names, specifications, stock, visibility, and a **sale**: percent off with an optional end day); tick products and move them to another category.
   - **Categories:** add categories and sub-categories, rename, hide from the shop, delete when empty.
-  - **Home showcase:** choose and order the products in the home page's floating showcase; edit the home headline.
+  - **Home showcase:** choose and order the products in the home page's floating showcase.
   - **Sort By:** edit the shop's Sort By menu; add hand-picked groups such as "New Drop" or "Free Delivery".
-  - **Social media:** the shop's social accounts shown in every footer.
   - **Suppliers** and **Buying stock:** purchase orders go draft → ordered → received; receiving adds the items to stock and keeps what each one cost.
+- **Website:** every text customers read is editable here, grouped as *Header* (shop name, tagline, logo, top-bar messages, search hint), *Home page* (headline, buttons, section titles and texts), *Footer* (about text, payments, phone, email, address, hours, copyright), *Social media* (one account per platform) and *Shop rules* (delivery fee, free delivery from, Pro/Max spend and discount, days before a membership ends; Admins only). Every shop page shares one footer, and a preview shows each change before saving.
 - **Payment methods:** add, edit, turn off and delete payment methods with their own QR image.
 - **Staff & roles:** create accounts, change a person's role, suspend accounts, and under **Roles & permissions** create new roles (for example "Delivery rider") and tick exactly what each role may do.
 - Staff and admin accounts can't shop (bag, wishlist and checkout are turned off for them), so sales and stock only come from customers.
@@ -160,7 +160,7 @@ Without a key, Psa Bunny still answers the basics (delivery, payment, Telegram).
 
 - Anyone can register as a Buyer on `/register`.
 - An Admin gives people roles and edits what each role may do on `/admin-users` → *Roles & permissions*.
-- There are 12 permissions (approve payments, dispatch & deliver, cancel orders, customer messages, edit products & shop, delete from catalog, promo codes, stock & buying, suppliers, reports, payment methods, accounts). They are stored in `roles`, `permissions` and `role_permissions`, and the server checks the right one on every staff action.
+- There are 12 permissions (approve payments, dispatch & deliver, cancel orders, customer messages, edit products & website, delete from catalog, promo codes, stock & buying, suppliers, reports, payment methods, accounts). The list is fixed in the code (`App\Models\Permission`); `role_permissions` stores which role has which, and the server checks the right one on every staff action.
 - Someone who manages accounts without being an Admin can't touch Admin accounts and can only hand out roles that can't do more than their own.
 - **Local demo accounts** (Option A) are created by `database/seeders/UserSeeder.php`. Accounts for the live site are shared privately.
 
@@ -172,10 +172,11 @@ Without a key, Psa Bunny still answers the basics (delivery, payment, Telegram).
 php artisan test
 ```
 
-**69 feature tests (651 assertions)** run against an in-memory SQLite database. They cover:
+**72 feature tests (687 assertions)** run against an in-memory SQLite database. They cover:
 
 - registration, login, suspended accounts, and staff accounts not being able to order;
 - roles & permissions: creating, editing and deleting roles, each permission being enforced, Admin always keeping everything, and nobody handing out more than they have;
+- the Website page (every setting is a row; staff edit text, Admins edit shop rules, checkout follows them), deleting messages (customers their own, staff any or the whole chat);
 - membership (Pro at $100 with 6% off, Max at $500 with 17% off, lapsing after 18 days), promo codes (limits, dates, minimum spend, per customer, stacking after the member discount) and product sales;
 - ordering with database prices, stock checks, delivery rules (including free-delivery groups) and payment methods;
 - payment slips, the staff workflow (verify → dispatch → deliver), rejections and cancellations restoring stock;
@@ -262,6 +263,8 @@ All endpoints are under `/api`, use the session cookie, and require the CSRF tok
 | `POST /promo-codes/check` | anyone | preview a promo code for the items in the bag |
 | `POST /orders/{number}/slip` | owner | upload the payment slip |
 | `GET`/`POST /orders/{number}/messages` | owner, staff | order chat |
+| `DELETE /orders/{number}/messages/{id}`, `DELETE /orders/{number}/messages` | own message / Customer messages | delete a message, or the whole chat (staff) |
+| `GET`/`PUT /admin/site-settings` | Edit products & website (shop rules: Admin) | the Website page |
 | `POST /orders/{number}/reviews` | owner, after delivery | review items |
 | `GET /products/{sku}/reviews` | anyone | product reviews |
 | `GET /notifications`, `POST /notifications/read` | signed in | notification bell |
@@ -283,17 +286,17 @@ All endpoints are under `/api`, use the session cookie, and require the CSRF tok
 
 ## Database
 
-**28 tables in third normal form (3NF):** every fact is stored once, and values that can be calculated are not stored. For example, an order's total is worked out from its items, stock on hand is the sum of the stock movements, a customer's membership tier is worked out from their delivered orders, and the notification bell is built from orders and messages. The diagram is `docs/PsaOnline-database-3NF.drawio` (open it at app.diagrams.net).
+**23 tables in third normal form (3NF):** every fact is stored once, and values that can be calculated are not stored. For example, an order's total is worked out from its items, stock on hand is the sum of the stock movements, a customer's membership tier is worked out from their delivered orders, and the notification bell is built from orders and messages. Small tables that only held one column or a fixed list were merged into the tables that use them (customers into users, product_details into products, order statuses and permissions into a column, loyalty tiers into site_settings). The diagram is `docs/PsaOnline-database-3NF.drawio` (open it at app.diagrams.net).
 
 | Module | Tables |
 |---|---|
-| Users & roles | `users`, `roles`, `permissions`, `role_permissions` |
-| Customers & loyalty | `customers`, `customer_addresses`, `loyalty_tiers` (Plus, Pro, Max: spend needed and discount), `promo_codes` |
-| Products | `categories` (with sub-categories), `products`, `product_details`, `product_specifications`, `product_images`, `product_reviews` |
+| Users & roles | `users` (customers are users with the buyer role), `roles`, `role_permissions` |
+| Customers | `customer_addresses`, `promo_codes` |
+| Products | `categories` (with sub-categories), `products`, `product_specifications`, `product_images`, `product_reviews` |
 | Stock & suppliers | `suppliers`, `purchase_orders`, `purchase_order_items`, `stock_movements` |
-| Orders & payment | `orders`, `order_items`, `order_statuses`, `order_status_history`, `payments`, `payment_methods` |
+| Orders & payment | `orders`, `order_items`, `order_status_history`, `payments`, `payment_methods` |
 | Messages | `order_messages` |
-| Shop content | `sort_options`, `sort_option_products`, `site_settings` (the home showcase is `products.showcase_position`) |
+| Shop content | `site_settings` (one row per piece of website text and per shop rule: `setting_key`, `setting_value`, `updated_at`), `sort_options`, `sort_option_products` (the home showcase is `products.showcase_position`) |
 
 Some values are stored on purpose because they are facts of that moment and can't be recalculated later: the price and cost of each item sold (`order_items.unit_price_usd`, `unit_cost_usd`), the delivery fee and member discount of each order (and which promo code it used; what the code took off is calculated, because a used code's discount can't change), the cost of each item bought, and the amount of each payment. Theme, language and notification choices stay in the visitor's browser and are not stored in the database. Money is stored in US dollars only; riel is worked out when it is shown ($1 = 4,000៛). A customer's tier is not stored either: it is worked out from their delivered orders since their last 18-day gap.
 

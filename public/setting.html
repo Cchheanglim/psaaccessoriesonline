@@ -53,19 +53,7 @@
 
   <main id="view" class="max-w-2xl mx-auto px-4 py-5 flex-1 w-full space-y-4"></main>
 
-  <!-- Footer -->
-  <footer class="bg-[#F9F3EA] dark:bg-[#15151C] border-t border-[#EFE4D6] dark:border-[#272732] mt-auto py-6 text-xs text-stone-500 dark:text-stone-400">
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
-      <div>&copy; 2026 PsaOnline &bull; All rights reserved.</div>
-      <div class="flex items-center justify-center gap-4 text-[11px]">
-        <a href="about.html" class="hover:text-[#FFA552] transition-colors">About Us</a>
-        <span>&bull;</span>
-        <a href="privacy.html" class="hover:text-[#FFA552] transition-colors">Privacy Policy</a>
-        <span>&bull;</span>
-        <a href="terms.html" class="hover:text-[#FFA552] transition-colors">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
+  <footer data-psa-footer class="mt-auto"></footer>
 
   <div id="toast" class="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-[#2B1D1D] text-white text-xs font-bold shadow-lg opacity-0 pointer-events-none transition-opacity duration-200 z-50"></div>
 
@@ -318,7 +306,7 @@
       },
       about() {
         return `<div class="${card} p-5 text-sm space-y-3">
-          <div class="font-black text-base">Psa<span class="text-[#FFA552]">Online</span></div>
+          <div class="font-black text-base" data-psa-brand>Psa<span class="text-[#FFA552]">Online</span></div>
           <p class="text-xs text-stone-500">Gen-Z streetwear and aesthetic accessories, delivered in Phnom Penh. Pay with Bakong KHQR, ABA Mobile or cash on delivery.</p>
           <div class="text-xs text-stone-400">Version 1.0 &bull; Prices in US dollars</div>
           <div class="pt-2 flex flex-wrap items-center gap-3 text-xs border-t border-[#EFE4D6] dark:border-[#2b2e37]">

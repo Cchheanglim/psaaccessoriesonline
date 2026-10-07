@@ -57,8 +57,8 @@ class NotificationController extends Controller
     private function customerFeed(User $user): Collection
     {
         $from = now()->subDays(self::DAYS);
-        $orders = Order::with(['statusHistory.status', 'payments', 'messages', 'customer', 'approval.changedBy:id,name', 'latestPayment.method'])
-            ->whereHas('customer', fn ($q) => $q->where('user_id', $user->id))
+        $orders = Order::with(['statusHistory', 'payments', 'messages', 'customer', 'approval.changedBy:id,name', 'latestPayment.method'])
+            ->where('user_id', $user->id)
             ->latest()->limit(50)->get();
 
         $feed = collect();
@@ -67,7 +67,7 @@ class NotificationController extends Controller
             $link = 'order-detail.html?order='.rawurlencode($number);
             $contact = $order->handler ? explode(' ', trim($order->handler->name))[0] : 'our team';
             foreach ($order->statusHistory as $h) {
-                $code = $h->status?->code;
+                $code = $h->status;
                 if ($code === 'pending_payment' || $h->created_at < $from) {
                     continue; // the customer placed it themselves
                 }
@@ -112,7 +112,7 @@ class NotificationController extends Controller
 
         if ($user->hasPermission('verify_payments') || $user->hasPermission('manage_orders')) {
             $orders = Order::with(['items', 'customer', 'address', 'latestPayment.method', 'promoCode'])
-                ->where('created_at', '>=', $from)->whereHas('customer', fn ($q) => $q->where('user_id', '!=', $user->id))
+                ->where('created_at', '>=', $from)->where('user_id', '!=', $user->id)
                 ->latest()->limit(30)->get();
             foreach ($orders as $o) {
                 $feed->push($this->item('o'.$o->id, 'order_placed', "New order {$o->order_number}",
@@ -196,12 +196,12 @@ class NotificationController extends Controller
         if ($user->isStaff()) {
             return OrderMessage::fromCustomer()->whereNull('read_at')
                 ->whereHas('order', fn ($q) => $q->where(fn ($q) => $q->whereDoesntHave('approval')->orWhereHas('approval', fn ($a) => $a->where('changed_by', $user->id)))
-                    ->whereHas('customer', fn ($c) => $c->where('user_id', '!=', $user->id)))
+                    ->where('user_id', '!=', $user->id))
                 ->count();
         }
 
         return OrderMessage::fromStaff()->whereNull('read_at')
-            ->whereHas('order.customer', fn ($q) => $q->where('user_id', $user->id))
+            ->whereHas('order', fn ($q) => $q->where('user_id', $user->id))
             ->count();
     }
 }

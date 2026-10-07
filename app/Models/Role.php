@@ -31,9 +31,21 @@ class Role extends Model
         return $this->hasMany(User::class);
     }
 
-    public function permissions()
+    /** @return list<string> the permission names ticked for this role */
+    public function permissionNames(): array
     {
-        return $this->belongsToMany(Permission::class, 'role_permissions');
+        return self::permissionsFor($this->id);
+    }
+
+    /** Replaces the ticked permissions (names from Permission::LIST). */
+    public function syncPermissions(array $names): void
+    {
+        \Illuminate\Support\Facades\DB::table('role_permissions')->where('role_id', $this->id)->delete();
+        $rows = array_map(fn ($n) => ['role_id' => $this->id, 'permission' => $n], array_values(array_intersect(Permission::names(), $names)));
+        if ($rows) {
+            \Illuminate\Support\Facades\DB::table('role_permissions')->insert($rows);
+        }
+        self::flushCache();
     }
 
     /** "warehouse team" -> "Warehouse team", how the name is shown and sent to the pages. */
@@ -71,10 +83,8 @@ class Role extends Model
             return [];
         }
 
-        return self::$permissions[$id] ??= Permission::query()
-            ->join('role_permissions', 'role_permissions.permission_id', '=', 'permissions.id')
-            ->where('role_permissions.role_id', $id)->where('permissions.is_active', true)
-            ->pluck('permissions.name')->all();
+        return self::$permissions[$id] ??= array_values(array_intersect(Permission::names(),
+            \Illuminate\Support\Facades\DB::table('role_permissions')->where('role_id', $id)->pluck('permission')->all()));
     }
 
     public static function flushCache(): void
