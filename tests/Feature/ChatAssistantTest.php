@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\Product;
+use App\Models\PromoCode;
+use App\Support\Storefront;
 use Database\Seeders\CatalogSeeder;
 use Database\Seeders\PaymentMethodSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -51,6 +54,28 @@ class ChatAssistantTest extends TestCase
                 && str_contains($instructions, 'product-detail.html?id=genz-24')
                 && str_contains($instructions, 'free on orders of $15')
                 && $request['contents'][0]['role'] === 'user';
+        });
+    }
+
+    public function test_instructions_cover_sales_membership_and_only_public_coupons(): void
+    {
+        config(['services.gemini.key' => 'test-key', 'services.gemini.model' => 'gemini-test']);
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response(['candidates' => [['content' => ['parts' => [['text' => 'Hi!']]]]]])]);
+        Product::where('sku', 'genz-24')->update(['discount_percent' => 20, 'discount_ends_at' => now()->addDays(3)]);
+        Storefront::forgetCatalog();
+        PromoCode::create(['code' => 'HELLO10', 'discount_type' => 'percent', 'discount_value' => 10, 'is_active' => true, 'show_to_customers' => true]);
+        PromoCode::create(['code' => 'STAFFONLY', 'discount_type' => 'fixed', 'discount_value' => 5, 'is_active' => true, 'show_to_customers' => false]);
+
+        $this->ask('What deals do you have?')->assertOk();
+
+        Http::assertSent(function (HttpRequest $request) {
+            $instructions = $request['system_instruction']['parts'][0]['text'];
+
+            return str_contains($instructions, 'HELLO10: 10% off')
+                && ! str_contains($instructions, 'STAFFONLY')
+                && str_contains($instructions, 'on sale, 20% off')
+                && str_contains($instructions, '  - Pro: after spending $100 on delivered orders, 6% off items')
+                && str_contains($instructions, 'Details: ');
         });
     }
 
