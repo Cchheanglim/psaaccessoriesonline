@@ -5,6 +5,8 @@
 /public/hot
 /public/storage
 /database/*.sqlite
+# ...except the ready-to-run demo database shipped with the project (clone and go).
+!/database/database.sqlite
 /storage/*.key
 .env
 .env.backup

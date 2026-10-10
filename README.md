@@ -104,31 +104,26 @@ Supabase PostgreSQL
 
 Requirements: **PHP 8.2+** with the `pdo_sqlite` (or `pdo_pgsql`) extension. Composer is optional: the `vendor/` folder is already in the repository.
 
-### Option A: your own local database (recommended for development)
+### Option A: just run it (recommended — the full shop is included)
+
+Everything is already in the repository: the `vendor/` folder **and** a ready-made SQLite database
+with all 71 products, categories, payment methods and demo accounts. No database setup, no Composer.
 
 ```bash
-git clone https://github.com/Cchheanglim/psaaccessoriesonline.git
+git clone -b RunLocally_Ready https://github.com/Cchheanglim/psaaccessoriesonline.git
 cd psaaccessoriesonline
-cp .env.example .env
-php artisan key:generate
-```
-
-In `.env`, use SQLite (keep the quotes if the path has spaces):
-
-```
-DB_CONNECTION=sqlite
-DB_DATABASE="/full/path/to/psaaccessoriesonline/database/local.sqlite"
-```
-
-Then create the database, fill it with the catalog, payment methods and demo accounts, and start the server:
-
-```bash
-touch database/local.sqlite          # Windows: type nul > database\local.sqlite
-php artisan migrate --seed
+cp .env.example .env          # Windows: copy .env.example .env
 php artisan serve
 ```
 
-Open **http://127.0.0.1:8000**. The database file is ignored by Git.
+Open **http://127.0.0.1:8000** — the shop is fully stocked and working.
+
+Demo logins:
+- **Admin / staff:** `admin@psaonline.store` · `admin123456`
+- **Customer:** `buyer@gmail.com` · `password123`
+
+> Want a fresh, empty database instead? Delete `database/database.sqlite`, then run
+> `php artisan migrate --seed` to rebuild it from scratch.
 
 ### Option B: the team's shared Supabase database
 
