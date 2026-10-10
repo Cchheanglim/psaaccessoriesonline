@@ -250,7 +250,7 @@
       });
       loadMessages();
       clearInterval(messagesTimer);
-      messagesTimer = setInterval(() => { if (!document.hidden) loadMessages(true); }, 20000);
+      messagesTimer = setInterval(() => { if (!document.hidden) loadMessages(true); }, 45000);
       if (!renderMessagesShell.live) {
         // A new notification (e.g. the shop replied) refreshes the chat straight away.
         document.addEventListener('psa:notifications', () => loadMessages(true));

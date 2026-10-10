@@ -261,7 +261,7 @@
       order = (PSA.orders || []).find(o => o.id === orderId) || null;
       if (order) document.title = `Order ${order.id} | PsaOnline Staff`;
       render();
-      if (order) messagesTimer = setInterval(() => { if (!document.hidden) loadMessages(true); }, 20000);
+      if (order) messagesTimer = setInterval(() => { if (!document.hidden) loadMessages(true); }, 45000);
       document.addEventListener('click', async e => {
         const one = e.target.closest('#messageList [data-delete-message]');
         const all = e.target.closest('#deleteChatBtn');

@@ -13,6 +13,11 @@ php artisan route:cache
 # Apply any new database changes (only migrations that haven't run yet). If one fails, the
 # deploy stops here and Render keeps the previous version online.
 php artisan migrate --force
+
+# Fill a brand-new database with the catalog and default accounts. The seeders are additive
+# (they only create what's missing), so this is safe on every deploy and never overwrites live data.
+php artisan db:seed --force
+
 chown -R www-data:www-data storage bootstrap/cache
 
 exec apache2-foreground

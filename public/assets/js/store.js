@@ -24,7 +24,22 @@ function psaPageName() {
 // every page script reads the catalog / user / orders as soon as it runs.
 // When the API is unreachable (e.g. `npm run dev` without `php artisan serve`),
 // PSA.online is false and the pages fall back to the built-in demo data below.
+// How long one loaded bootstrap is reused before the next page fetches it again.
+const PSA_BOOT_TTL = 60000; // 60s
+
 const PSA = (function loadPsaBootstrap() {
+  // Moving between pages normally re-pulls the whole catalog and orders from the database every time.
+  // Reusing the last bootstrap for a short while turns a browsing burst (many pages in a minute) into
+  // one database read instead of many, which is the main thing that runs up Supabase egress. The cache
+  // lives only in this tab, and any change the viewer makes, or signing in/out, clears it (see psaApi),
+  // so nothing stays stale for more than PSA_BOOT_TTL.
+  try {
+    const cached = JSON.parse(sessionStorage.getItem('psa_boot') || 'null');
+    if (cached && cached.data && (Date.now() - cached.ts) < PSA_BOOT_TTL) {
+      cached.data.online = true;
+      return cached.data;
+    }
+  } catch (e) { /* ignore a bad/again-unavailable cache */ }
   try {
     const xhr = new XMLHttpRequest();
     xhr.open('GET', '/api/bootstrap', false);
@@ -33,6 +48,7 @@ const PSA = (function loadPsaBootstrap() {
     if (xhr.status === 200) {
       const data = JSON.parse(xhr.responseText);
       data.online = true;
+      try { sessionStorage.setItem('psa_boot', JSON.stringify({ ts: Date.now(), data })); } catch (e) { /* quota full: just skip caching */ }
       return data;
     }
   } catch (e) {
@@ -40,6 +56,11 @@ const PSA = (function loadPsaBootstrap() {
   }
   return { online: false, csrf: '', user: null, products: [], paymentMethods: [], orders: [], users: [] };
 })();
+
+// Drop the reused bootstrap so the next page load fetches fresh data from the server.
+function psaClearBootstrapCache() {
+  try { sessionStorage.removeItem('psa_boot'); } catch (e) { /* ignore */ }
+}
 
 // JSON call to the Laravel API. Resolves with the response body or throws an Error with a readable message.
 async function psaApi(method, url, body) {
@@ -76,6 +97,9 @@ async function psaApi(method, url, body) {
   if (data && typeof data.csrf === 'string') PSA.csrf = data.csrf;
   if (/\/api\/auth\/(login|register)$/.test(url) && data && data.user) psaAccountSwitched(data.user);
   if (/\/api\/auth\/logout$/.test(url)) psaAccountSwitched(null);
+  // Any change (order, message, profile, admin edit...) makes the reused bootstrap out of date, so the
+  // next page loads fresh data. Reads (GET) keep using the cache.
+  if (method && method.toUpperCase() !== 'GET') psaClearBootstrapCache();
   return data;
 }
 
@@ -85,6 +109,7 @@ async function psaApi(method, url, body) {
 // also refuses changes sent as the old account (EnsureSameAccount).
 function psaAccountSwitched(user) {
   PSA.user = user;
+  psaClearBootstrapCache(); // the cached bootstrap belongs to the old account
   try { localStorage.setItem('psa_auth_user', JSON.stringify({ id: user ? String(user.id) : '', at: Date.now() })); } catch (e) { /* storage unavailable */ }
 }
 
@@ -3453,7 +3478,7 @@ function psaRenderBell() {
 // This browser remembers, per account and shared by every open tab:
 //  - "opened": when the bell was last opened (older notifications count as read), sent as ?since=
 //  - "shown":  the newest notification already popped up, so nothing pops up twice.
-const PSA_BELL_POLL_MS = 10000;
+const PSA_BELL_POLL_MS = 60000; // check for new notifications once a minute (also refreshes on focus); keeps Supabase egress low
 const psaBellKey = kind => `psa_bell_${kind}_${PSA.user ? PSA.user.id : ''}`;
 const psaBellSeenKey = () => psaBellKey('opened');
 function psaBellGet(kind) {

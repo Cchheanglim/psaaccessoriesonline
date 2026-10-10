@@ -36,37 +36,35 @@ class CatalogSeeder extends Seeder
 
         DB::transaction(function () use ($catalog) {
             foreach ($catalog as $item) {
-                $product = Product::firstOrNew(['sku' => $item['id']]);
-                $isNew = ! $product->exists;
-                $product->fill([
+                // Additive: only create products that aren't in the catalog yet. An existing product is
+                // left untouched so running this on every deploy never overwrites staff edits (title,
+                // price, specs, images, stock). This fills a brand-new database; it doesn't reset a live one.
+                if (Product::where('sku', $item['id'])->exists()) {
+                    continue;
+                }
+                $product = Product::create([
+                    'sku' => $item['id'],
                     'category_id' => $this->category($item['category'], $item['categoryLabel'] ?? null)->id,
                     'title' => $item['title'],
                     'title_khmer' => $item['titleKhmer'] ?? null,
                     'price_usd' => $item['priceUSD'],
                     'badge' => $item['badge'] ?? null,
                     'description' => $item['description'] ?? null,
+                    'status' => $item['status'] ?? 'active',
                 ]);
-                if ($isNew) {
-                    $product->status = $item['status'] ?? 'active';
-                }
-                $product->save();
 
                 // One row per fact (1NF)
-                $product->specifications()->delete();
                 $i = 0;
                 foreach ($item['specifications'] ?? [] as $name => $value) {
                     $product->specifications()->create(['name' => mb_substr($name, 0, 100), 'value' => (string) $value, 'sort_order' => $i++]);
                 }
 
                 $gallery = array_values(array_filter($item['gallery'] ?? [])) ?: array_values(array_filter([$item['image'] ?? null]));
-                $product->images()->delete();
                 foreach ($gallery as $i => $path) {
                     $product->images()->create(['image_path' => $path, 'is_primary' => $i === 0, 'sort_order' => $i]);
                 }
 
-                if ($isNew) {
-                    Inventory::setQuantity($product, ($item['inStock'] ?? true) ? 50 : 0, null, 'Opening stock (catalog seed)');
-                }
+                Inventory::setQuantity($product, ($item['inStock'] ?? true) ? 50 : 0, null, 'Opening stock (catalog seed)');
             }
 
             // The home page showcase starts with these, unless staff already picked their own.
